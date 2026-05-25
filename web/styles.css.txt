@@ -1,0 +1,46 @@
+/* 🎨 Golden Paw Global Styles */
+
+/* Clean Captcha Token Container */
+.captcha-token-hidden {
+  display: none;
+}
+
+/* --- BOT VERIFICATION LAYER (BEHIND FLUTTER) --- */
+.bot-vault-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -100; /* Puts it behind the Flutter Canvas */
+  display: flex;
+  flex-direction: column;
+}
+
+.bot-banner {
+  width: 728px;
+  height: 90px;
+  border: none;
+}
+
+.bot-square {
+  width: 300px;
+  height: 250px;
+  border: none;
+}
+
+/* Hidden div for the Captcha token */
+.captcha-token-hidden {
+    display: none;
+}
+
+/* Captcha Widget Container (Standardized) */
+.captcha-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    transform: scale(0.85);
+    transform-origin: center center;
+}

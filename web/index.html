@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="/">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Golden Paw - Earn DOGE and Stake Crypto.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Golden Paw</title>
+
+  <link rel="icon" type="image/png" href="/favicon.png?v=2">
+ 
+  <style>
+    #gp-captcha-token { display: none; }
+  </style>
+ 
+  <script src="https://js.hcaptcha.com/1/api.js?render=explicit" async defer></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+ 
+  <script>
+    function findFlutterElement(id) {
+      let el = document.getElementById(id);
+      if (el) return el;
+      const fv = document.querySelector('flutter-view') || document.querySelector('flt-glass-pane');
+      if (fv && fv.shadowRoot) {
+        const pvs = fv.shadowRoot.querySelectorAll('flt-platform-view');
+        for (let i = 0; i < pvs.length; i++) {
+          if (pvs[i].shadowRoot) {
+            el = pvs[i].shadowRoot.getElementById(id);
+            if (el) return el;
+          }
+        }
+      }
+      return null;
+    }
+ 
+    function waitForElement(id, callback) {
+      let attempts = 0;
+      const interval = setInterval(() => {
+        const el = findFlutterElement(id);
+        if (el) { clearInterval(interval); callback(el); }
+        if (++attempts > 60) clearInterval(interval);
+      }, 100);
+    }
+ 
+    function renderHCaptcha() {
+      waitForElement('hcaptcha-target', (el) => {
+        el.innerHTML = '';
+        hcaptcha.render(el, {
+          'sitekey': 'e47877ca-d0f0-44d0-aa70-7e06f3a2848e',
+          'callback': function(t) {
+            document.getElementById('gp-captcha-token').innerText = t;
+            window.postMessage(JSON.stringify({ type: 'captcha', token: t }), '*');
+          }
+        });
+      });
+    }
+ 
+    function renderTurnstile() {
+      waitForElement('turnstile-target', (el) => {
+        el.innerHTML = '';
+        if (typeof turnstile !== 'undefined') {
+          turnstile.render(el, {
+            'sitekey': '0x4AAAAAADN3brAhvXC8xH0X',
+            'callback': function(t) {
+              document.getElementById('gp-captcha-token').innerText = t;
+              window.postMessage(JSON.stringify({ type: 'captcha', token: t }), '*');
+            }
+          });
+        } else {
+          setTimeout(renderTurnstile, 1000);
+        }
+      });
+    }
+  </script>
+</head>
+<body>
+  <div id="gp-captcha-token"></div>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
