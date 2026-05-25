@@ -223,6 +223,60 @@ app.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
   }
 });
 
+app.post('/withdraw', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required for withdrawal' });
+    }
+
+    const { user_address, amount } = req.body;
+    if (!user_address) {
+      return res.status(400).json({ success: false, error: 'Missing destination address' });
+    }
+
+    const sendAmount = Number(amount);
+    if (!Number.isFinite(sendAmount) || sendAmount <= 0) {
+      return res.status(400).json({ success: false, error: 'Invalid withdrawal amount' });
+    }
+
+    const formattedAmount = formatAmount(sendAmount);
+    const faucetPayResponse = await faucetPaySend(user_address, formattedAmount);
+
+    const resultPayload = {
+      success: true,
+      address: user_address,
+      amount: formattedAmount,
+      faucetPayResponse,
+      authUser: req.user,
+    };
+
+    console.log('Withdraw request:', JSON.stringify(resultPayload));
+    res.json(resultPayload);
+  } catch (error) {
+    console.error('withdraw error:', error.response?.data || error.message || error);
+    res.status(500).json({
+      success: false,
+      error: error.response?.data || error.message || 'Failed to process withdrawal',
+    });
+  }
+});
+
+app.post('/ipn', async (req, res) => {
+  console.log('IPN received:', JSON.stringify(req.body || {}));
+  res.json({ success: true, message: 'IPN received' });
+});
+
+const notImplementedRoute = (name) => async (req, res) => {
+  console.warn(`${name} endpoint called but not implemented`);
+  res.status(501).json({ success: false, error: `${name} is not implemented yet` });
+};
+
+app.post('/swap-doge', verifyFirebaseToken, notImplementedRoute('swap-doge'));
+app.post('/buy-banner', verifyFirebaseToken, notImplementedRoute('buy-banner'));
+app.post('/buy-ptc', verifyFirebaseToken, notImplementedRoute('buy-ptc'));
+app.post('/claim-ptc', verifyFirebaseToken, notImplementedRoute('claim-ptc'));
+app.post('/claim-bonus-sponsor', verifyFirebaseToken, notImplementedRoute('claim-bonus-sponsor'));
+
 const port = Number(process.env.PORT || 3000);
 app.listen(port, () => {
   console.log(`GoldenPaw faucet backend listening on port ${port}`);
