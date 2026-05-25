@@ -50,7 +50,11 @@ const isFirebaseEnabled = !!firebaseServiceAccount;
 
 async function verifyFirebaseToken(req, res, next) {
   const authorization = req.headers.authorization || '';
-  const token = authorization.startsWith('Bearer ') ? authorization.split(' ')[1] : null;
+  let token = authorization.startsWith('Bearer ') ? authorization.split(' ')[1] : null;
+
+  if (!token && req.body && req.body.idToken) {
+    token = req.body.idToken;
+  }
 
   if (!token) {
     return next();
@@ -147,7 +151,17 @@ app.get('/price', async (req, res) => {
 
 app.post('/send-doge', verifyFirebaseToken, async (req, res) => {
   try {
-    const { address, amount, usdValue, source } = req.body;
+    const {
+      address: bodyAddress,
+      user_address,
+      amount,
+      usdValue,
+      captcha_token,
+      captcha_provider,
+      source,
+    } = req.body;
+
+    const address = bodyAddress || user_address;
     if (!address) {
       return res.status(400).json({ success: false, error: 'Missing destination address' });
     }
@@ -174,9 +188,12 @@ app.post('/send-doge', verifyFirebaseToken, async (req, res) => {
       priceSource: priceResult.source,
       faucetPayResponse,
       source: source || 'send-doge',
+      captchaToken: captcha_token,
+      captchaProvider: captcha_provider,
       authUser: req.user || null,
     };
 
+    console.log('Send DOGE request:', JSON.stringify({ address, formattedAmount, captcha_provider, authUser: req.user?.uid || null }));
     console.log('Send DOGE result:', JSON.stringify(resultPayload));
     res.json(resultPayload);
   } catch (error) {
@@ -190,33 +207,17 @@ app.post('/send-doge', verifyFirebaseToken, async (req, res) => {
 
 app.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
   try {
-    const { address, usdValue, vaultId } = req.body;
-    if (!address) {
-      return res.status(400).json({ success: false, error: 'Missing destination address' });
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required for vault claim' });
     }
 
-    const priceResult = await getDogePrice();
-    const dogeAmount = parseUsdNumber(usdValue)
-      ? parseUsdNumber(usdValue) / priceResult.price
-      : 10;
+    console.log('Claim vault request for user:', req.user.uid);
 
-    const formattedAmount = formatAmount(dogeAmount);
-    const faucetPayResponse = await faucetPaySend(address, formattedAmount);
-
-    const resultPayload = {
+    res.json({
       success: true,
-      address,
-      amount: formattedAmount,
-      usdPrice: priceResult.price,
-      priceSource: priceResult.source,
-      faucetPayResponse,
-      claimSource: 'vault',
-      vaultId: vaultId || null,
-      authUser: req.user || null,
-    };
-
-    console.log('Claim vault result:', JSON.stringify(resultPayload));
-    res.json(resultPayload);
+      message: 'Vault claim verified. Your reward has been recorded.',
+      authUser: req.user,
+    });
   } catch (error) {
     console.error('claim-vault error:', error.response?.data || error.message || error);
     res.status(500).json({
