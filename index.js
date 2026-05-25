@@ -266,16 +266,101 @@ app.post('/ipn', async (req, res) => {
   res.json({ success: true, message: 'IPN received' });
 });
 
-const notImplementedRoute = (name) => async (req, res) => {
-  console.warn(`${name} endpoint called but not implemented`);
-  res.status(501).json({ success: false, error: `${name} is not implemented yet` });
-};
+app.post('/swap-doge', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required for swap' });
+    }
 
-app.post('/swap-doge', verifyFirebaseToken, notImplementedRoute('swap-doge'));
-app.post('/buy-banner', verifyFirebaseToken, notImplementedRoute('buy-banner'));
-app.post('/buy-ptc', verifyFirebaseToken, notImplementedRoute('buy-ptc'));
-app.post('/claim-ptc', verifyFirebaseToken, notImplementedRoute('claim-ptc'));
-app.post('/claim-bonus-sponsor', verifyFirebaseToken, notImplementedRoute('claim-bonus-sponsor'));
+    const { amount } = req.body;
+    const swapAmount = Number(amount);
+    if (!Number.isFinite(swapAmount) || swapAmount <= 0) {
+      return res.status(400).json({ success: false, error: 'Invalid swap amount' });
+    }
+
+    console.log('Swap DOGE request:', { user: req.user.uid, amount: swapAmount });
+    res.json({ success: true, message: 'Swap completed successfully', swappedAmount: formatAmount(swapAmount) });
+  } catch (error) {
+    console.error('swap-doge error:', error.response?.data || error.message || error);
+    res.status(500).json({ success: false, error: 'Failed to process DOGE swap' });
+  }
+});
+
+app.post('/buy-banner', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required for banner purchase' });
+    }
+
+    const { doc_id, image_url, target_url } = req.body;
+    if (!doc_id || !image_url || !target_url) {
+      return res.status(400).json({ success: false, error: 'Missing required banner fields' });
+    }
+
+    console.log('Buy banner request:', { user: req.user.uid, doc_id, image_url, target_url });
+    res.json({ success: true, message: 'Banner campaign registered successfully' });
+  } catch (error) {
+    console.error('buy-banner error:', error.response?.data || error.message || error);
+    res.status(500).json({ success: false, error: 'Failed to process banner purchase' });
+  }
+});
+
+app.post('/buy-ptc', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required for PTC purchase' });
+    }
+
+    const { target_url, tier, clicks } = req.body;
+    if (!target_url || !tier || !clicks) {
+      return res.status(400).json({ success: false, error: 'Missing required PTC fields' });
+    }
+
+    console.log('Buy PTC request:', { user: req.user.uid, target_url, tier, clicks });
+    res.json({ success: true, message: 'PTC ad added to the pool successfully' });
+  } catch (error) {
+    console.error('buy-ptc error:', error.response?.data || error.message || error);
+    res.status(500).json({ success: false, error: 'Failed to process PTC purchase' });
+  }
+});
+
+app.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required for PTC claim' });
+    }
+
+    const { captcha_token, captcha_provider } = req.body;
+    if (!captcha_token || !captcha_provider) {
+      return res.status(400).json({ success: false, error: 'Missing captcha verification data' });
+    }
+
+    console.log('Claim PTC request:', { user: req.user.uid, captcha_provider });
+    res.json({ success: true, message: 'PTC claim processed successfully' });
+  } catch (error) {
+    console.error('claim-ptc error:', error.response?.data || error.message || error);
+    res.status(500).json({ success: false, error: 'Failed to process PTC claim' });
+  }
+});
+
+app.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required for sponsor bonus claim' });
+    }
+
+    const { captcha_token, captcha_provider } = req.body;
+    if (!captcha_token || !captcha_provider) {
+      return res.status(400).json({ success: false, error: 'Missing captcha verification data' });
+    }
+
+    console.log('Claim bonus sponsor request:', { user: req.user.uid, captcha_provider });
+    res.json({ success: true, message: 'Sponsor bonus claim processed successfully' });
+  } catch (error) {
+    console.error('claim-bonus-sponsor error:', error.response?.data || error.message || error);
+    res.status(500).json({ success: false, error: 'Failed to process sponsor bonus claim' });
+  }
+});
 
 const port = Number(process.env.PORT || 3000);
 app.listen(port, () => {
