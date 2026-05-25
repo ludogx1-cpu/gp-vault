@@ -10,12 +10,20 @@ import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-
 import 'src/theme_provider.dart';
 import 'create_ad_page.dart';
 import 'src/firebase_service.dart';
 part 'src/app_widgets.dart';
+
+Future<Map<String, String>> _authHeaders() async {
+  final headers = {'Content-Type': 'application/json'};
+  final user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    final token = await user.getIdToken(true);
+    headers['Authorization'] = 'Bearer $token';
+  }
+  return headers;
+}
 
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
@@ -264,7 +272,7 @@ class _FaucetPageState extends State<FaucetPage> {
           }
         }
       }
-    } catch(e) {}
+    } catch (e) {}
     if (mounted) setState(() => _isCheckingCooldown = false);
   }
 
@@ -368,11 +376,10 @@ class _FaucetPageState extends State<FaucetPage> {
 
     try {
       if (_saveToVault && user != null) {
-        String? token = await user.getIdToken(true);
         final response = await http.post(
           Uri.parse('https://golden-paw-vault.onrender.com/claim-vault'),
-          headers: {"Content-Type": "application/json"},
-          body: jsonEncode({"idToken": token}),
+          headers: await _authHeaders(),
+          body: jsonEncode({}),
         ).timeout(const Duration(seconds: 60));
         
         if (!mounted) return;
@@ -446,7 +453,7 @@ class _FaucetPageState extends State<FaucetPage> {
       appBar: const GlobalAppBar(),
       body: PageWithFooter(
         child: MediaQuery(
-          data: MediaQuery.of(context).copyWith(textScaleFactor: MediaQuery.of(context).textScaleFactor * 1.2),
+          data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(MediaQuery.of(context).textScaleFactor * 1.2)),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             child: Column(
@@ -1327,12 +1334,10 @@ class _AccountPageState extends State<AccountPage> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        String? idToken = await user.getIdToken(); 
-        
         final response = await http.post(
           Uri.parse('https://golden-paw-vault.onrender.com/withdraw'),
-          headers: {"Content-Type": "application/json"},
-          body: jsonEncode({"idToken": idToken, "user_address": _withdrawAddressController.text.trim(), "amount": amountToWithdraw}),
+          headers: await _authHeaders(),
+          body: jsonEncode({"user_address": _withdrawAddressController.text.trim(), "amount": amountToWithdraw}),
         );
 
         if (!mounted) return;
@@ -1601,19 +1606,16 @@ class _AdHubPageState extends State<AdHubPage> {
   }
 
   Future<void> _swapDogeToUsdt() async {
-    final user = FirebaseAuth.instance.currentUser;
     double? amount = double.tryParse(_swapAmountController.text);
     if (amount == null || amount <= 0) return;
 
     setState(() => _isSwapping = true);
 
     try {
-      String? idToken = await user?.getIdToken();
-
       final response = await http.post(
         Uri.parse('https://golden-paw-vault.onrender.com/swap-doge'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'idToken': idToken, 'amount': amount}),
+        headers: await _authHeaders(),
+        body: jsonEncode({'amount': amount}),
       );
 
       if (!mounted) return;
@@ -1724,15 +1726,12 @@ class _AdHubPageState extends State<AdHubPage> {
                 if (targetCtrl.text.isEmpty || imgCtrl.text.isEmpty) return;
 
                 setDialogState(() => loading = true);
-                final user = FirebaseAuth.instance.currentUser!;
                 
                 try {
-                  String? idToken = await user.getIdToken();
-                  
                   final response = await http.post(
                     Uri.parse('https://golden-paw-vault.onrender.com/buy-banner'), 
-                    headers: {'Content-Type': 'application/json'}, 
-                    body: jsonEncode({'idToken': idToken, 'doc_id': docId, 'image_url': imgCtrl.text.trim(), 'target_url': targetCtrl.text.trim()})
+                    headers: await _authHeaders(), 
+                    body: jsonEncode({'doc_id': docId, 'image_url': imgCtrl.text.trim(), 'target_url': targetCtrl.text.trim()})
                   );
 
                   if (!mounted) return;
@@ -1817,14 +1816,12 @@ class _AdHubPageState extends State<AdHubPage> {
                   if (targetCtrl.text.isEmpty) return;
 
                   setDialogState(() => loading = true);
-                  final user = FirebaseAuth.instance.currentUser!;
                   
                   try {
-                    final idToken = await user.getIdToken();
                     final response = await http.post(
                       Uri.parse('https://golden-paw-vault.onrender.com/buy-ptc'), 
-                      headers: {'Content-Type': 'application/json'}, 
-                      body: jsonEncode({'idToken': idToken, 'target_url': targetCtrl.text.trim(), 'tier': selectedTier, 'clicks': selectedClicks})
+                      headers: await _authHeaders(), 
+                      body: jsonEncode({'target_url': targetCtrl.text.trim(), 'tier': selectedTier, 'clicks': selectedClicks})
                     );
 
                     if (!mounted) return;
@@ -3218,13 +3215,10 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
     if (user == null) return;
 
     try {
-      String? idToken = await user.getIdToken();
       final response = await http.post(
         Uri.parse('https://golden-paw-vault.onrender.com/claim-ptc'),
-        headers: {'Content-Type': 'application/json'},
+        headers: await _authHeaders(),
         body: jsonEncode({
-          'idToken': idToken, 
-          'ad_id': widget.adId,
           'captcha_token': _captchaToken,
           'captcha_provider': _selectedCaptcha
         }),
@@ -3430,12 +3424,10 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
     if (user == null) return;
 
     try {
-      String? idToken = await user.getIdToken();
       final response = await http.post(
         Uri.parse('https://golden-paw-vault.onrender.com/claim-bonus-sponsor'),
-        headers: {'Content-Type': 'application/json'},
+        headers: await _authHeaders(),
         body: jsonEncode({
-          'idToken': idToken,
           'captcha_token': _captchaToken,
           'captcha_provider': _selectedCaptcha
         }),
