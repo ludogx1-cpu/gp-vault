@@ -50,11 +50,7 @@ const isFirebaseEnabled = !!firebaseServiceAccount;
 
 async function verifyFirebaseToken(req, res, next) {
   const authorization = req.headers.authorization || '';
-  let token = authorization.startsWith('Bearer ') ? authorization.split(' ')[1] : null;
-
-  if (!token && req.body && req.body.idToken) {
-    token = req.body.idToken;
-  }
+  const token = authorization.startsWith('Bearer ') ? authorization.split(' ')[1] : null;
 
   if (!token) {
     return next();
