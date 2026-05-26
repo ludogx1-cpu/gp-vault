@@ -354,11 +354,47 @@ app.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
       return res.status(400).json({ success: false, error: 'Missing captcha verification data' });
     }
 
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    const rewardAmount = 0.003;
+    const xpReward = 30;
+    const cooldownMs = 3 * 60 * 60 * 1000;
+    const now = admin.firestore.Timestamp.now();
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      if (!snapshot.exists) {
+        throw new Error('User profile not found');
+      }
+
+      const data = snapshot.data() || {};
+      const lastClaim = data.last_bonus_sponsor_claim;
+      if (lastClaim && Date.now() - lastClaim.toDate().getTime() < cooldownMs) {
+        const minutesLeft = Math.ceil((cooldownMs - (Date.now() - lastClaim.toDate().getTime())) / 60000);
+        const cooldownError = new Error(`Sponsor bonus cooldown active. Try again in ${minutesLeft} minutes.`);
+        cooldownError.statusCode = 429;
+        throw cooldownError;
+      }
+
+      transaction.update(userRef, {
+        doge_balance: Number(data.doge_balance || 0) + rewardAmount,
+        xp: Number(data.xp || 0) + xpReward,
+        last_bonus_sponsor_claim: now,
+      });
+    });
+
     console.log('Claim bonus sponsor request:', { user: req.user.uid, captcha_provider });
-    res.json({ success: true, message: 'Sponsor bonus claim processed successfully' });
+    res.json({
+      success: true,
+      message: 'Sponsor bonus claim processed successfully',
+      rewardAmount,
+      xpReward,
+    });
   } catch (error) {
     console.error('claim-bonus-sponsor error:', error.response?.data || error.message || error);
-    res.status(500).json({ success: false, error: 'Failed to process sponsor bonus claim' });
+    res.status(error.statusCode || 500).json({
+      success: false,
+      error: error.message || 'Failed to process sponsor bonus claim',
+    });
   }
 });
 
