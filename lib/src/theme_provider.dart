@@ -17,7 +17,7 @@ class ThemeProvider extends ChangeNotifier {
       end: Alignment.bottomRight,
       colors: [
         Colors.black87,
-        Colors.black87.withOpacity(0.98),
+        Colors.black87.withValues(alpha: 0.98),
         Color.lerp(Colors.black87, Colors.amber, 0.15)!,
         Color.lerp(Colors.black87, Colors.amber, 0.20)!,
       ],
@@ -27,7 +27,7 @@ class ThemeProvider extends ChangeNotifier {
 
   // Dark grey color for boxes (not too dark)
   Color get darkGreyBoxColor => const Color(0xFF2A2A2A);
-  
+
   // Dark grey border color
   Color get darkGreyBorder => const Color(0xFF3A3A3A);
 
@@ -45,6 +45,23 @@ class ThemeProvider extends ChangeNotifier {
       useMaterial3: true,
       scaffoldBackgroundColor: Colors.black87,
       primaryColor: Colors.black87,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.amber,
+        brightness: Brightness.dark,
+      ),
+      textTheme: ThemeData.dark().textTheme.apply(
+        bodyColor: Colors.white70,
+        displayColor: Colors.white,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: darkGreyBoxColor,
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+        contentTextStyle: const TextStyle(color: Colors.white70),
+      ),
     );
   }
 }
