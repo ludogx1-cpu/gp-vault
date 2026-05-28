@@ -201,6 +201,9 @@ app.post('/send-doge', verifyFirebaseToken, async (req, res) => {
   }
 });
 
+// ==========================================
+// UPDATED: THE VAULT CLAIM ENDPOINT
+// ==========================================
 app.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
   try {
     if (!req.user) {
@@ -209,196 +212,18 @@ app.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
 
     console.log('Claim vault request for user:', req.user.uid);
 
-    res.json({
-      success: true,
-      message: 'Vault claim verified. Your reward has been recorded.',
-      authUser: req.user,
-    });
-  } catch (error) {
-    console.error('claim-vault error:', error.response?.data || error.message || error);
-    res.status(500).json({
-      success: false,
-      error: error.response?.data || error.message || 'Failed to claim vault',
-    });
-  }
-});
-
-app.post('/withdraw', verifyFirebaseToken, async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ success: false, error: 'Authentication required for withdrawal' });
-    }
-
-    const { user_address, amount } = req.body;
-    if (!user_address) {
-      return res.status(400).json({ success: false, error: 'Missing destination address' });
-    }
-
-    const sendAmount = Number(amount);
-    if (!Number.isFinite(sendAmount) || sendAmount <= 0) {
-      return res.status(400).json({ success: false, error: 'Invalid withdrawal amount' });
-    }
-
-    const formattedAmount = formatAmount(sendAmount);
-    const faucetPayResponse = await faucetPaySend(user_address, formattedAmount);
-
-    const resultPayload = {
-      success: true,
-      address: user_address,
-      amount: formattedAmount,
-      faucetPayResponse,
-      authUser: req.user,
-    };
-
-    console.log('Withdraw request:', JSON.stringify(resultPayload));
-    res.json(resultPayload);
-  } catch (error) {
-    console.error('withdraw error:', error.response?.data || error.message || error);
-    res.status(500).json({
-      success: false,
-      error: error.response?.data || error.message || 'Failed to process withdrawal',
-    });
-  }
-});
-
-app.post('/ipn', async (req, res) => {
-  console.log('IPN received:', JSON.stringify(req.body || {}));
-  res.json({ success: true, message: 'IPN received' });
-});
-
-app.post('/swap-doge', verifyFirebaseToken, async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ success: false, error: 'Authentication required for swap' });
-    }
-
-    const { amount } = req.body;
-    const swapAmount = Number(amount);
-    if (!Number.isFinite(swapAmount) || swapAmount <= 0) {
-      return res.status(400).json({ success: false, error: 'Invalid swap amount' });
-    }
-
-    console.log('Swap DOGE request:', { user: req.user.uid, amount: swapAmount });
-    res.json({ success: true, message: 'Swap completed successfully', swappedAmount: formatAmount(swapAmount) });
-  } catch (error) {
-    console.error('swap-doge error:', error.response?.data || error.message || error);
-    res.status(500).json({ success: false, error: 'Failed to process DOGE swap' });
-  }
-});
-
-app.post('/buy-banner', verifyFirebaseToken, async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ success: false, error: 'Authentication required for banner purchase' });
-    }
-
-    const { doc_id, image_url, target_url } = req.body;
-    if (!doc_id || !image_url || !target_url) {
-      return res.status(400).json({ success: false, error: 'Missing required banner fields' });
-    }
-
-    console.log('Buy banner request:', { user: req.user.uid, doc_id, image_url, target_url });
-    res.json({ success: true, message: 'Banner campaign registered successfully' });
-  } catch (error) {
-    console.error('buy-banner error:', error.response?.data || error.message || error);
-    res.status(500).json({ success: false, error: 'Failed to process banner purchase' });
-  }
-});
-
-app.post('/buy-ptc', verifyFirebaseToken, async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ success: false, error: 'Authentication required for PTC purchase' });
-    }
-
-    const { target_url, tier, clicks } = req.body;
-    if (!target_url || !tier || !clicks) {
-      return res.status(400).json({ success: false, error: 'Missing required PTC fields' });
-    }
-
-    console.log('Buy PTC request:', { user: req.user.uid, target_url, tier, clicks });
-    res.json({ success: true, message: 'PTC ad added to the pool successfully' });
-  } catch (error) {
-    console.error('buy-ptc error:', error.response?.data || error.message || error);
-    res.status(500).json({ success: false, error: 'Failed to process PTC purchase' });
-  }
-});
-
-app.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ success: false, error: 'Authentication required for PTC claim' });
-    }
-
-    const { captcha_token, captcha_provider } = req.body;
-    if (!captcha_token || !captcha_provider) {
-      return res.status(400).json({ success: false, error: 'Missing captcha verification data' });
-    }
-
-    console.log('Claim PTC request:', { user: req.user.uid, captcha_provider });
-    res.json({ success: true, message: 'PTC claim processed successfully' });
-  } catch (error) {
-    console.error('claim-ptc error:', error.response?.data || error.message || error);
-    res.status(500).json({ success: false, error: 'Failed to process PTC claim' });
-  }
-});
-
-app.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ success: false, error: 'Authentication required for sponsor bonus claim' });
-    }
-
-    const { captcha_token, captcha_provider } = req.body;
-    if (!captcha_token || !captcha_provider) {
-      return res.status(400).json({ success: false, error: 'Missing captcha verification data' });
-    }
-
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    const rewardAmount = 0.003;
-    const xpReward = 30;
-    const cooldownMs = 3 * 60 * 60 * 1000;
     const now = admin.firestore.Timestamp.now();
+    const cooldownMs = 5 * 60 * 1000; // 5 minutes
 
-    await admin.firestore().runTransaction(async (transaction) => {
-      const snapshot = await transaction.get(userRef);
-      if (!snapshot.exists) {
-        throw new Error('User profile not found');
-      }
-
-      const data = snapshot.data() || {};
-      const lastClaim = data.last_bonus_sponsor_claim;
-      if (lastClaim && Date.now() - lastClaim.toDate().getTime() < cooldownMs) {
-        const minutesLeft = Math.ceil((cooldownMs - (Date.now() - lastClaim.toDate().getTime())) / 60000);
-        const cooldownError = new Error(`Sponsor bonus cooldown active. Try again in ${minutesLeft} minutes.`);
-        cooldownError.statusCode = 429;
-        throw cooldownError;
-      }
-
-      transaction.update(userRef, {
-        doge_balance: Number(data.doge_balance || 0) + rewardAmount,
-        xp: Number(data.xp || 0) + xpReward,
-        last_bonus_sponsor_claim: now,
-      });
-    });
-
-    console.log('Claim bonus sponsor request:', { user: req.user.uid, captcha_provider });
-    res.json({
-      success: true,
-      message: 'Sponsor bonus claim processed successfully',
-      rewardAmount,
-      xpReward,
-    });
-  } catch (error) {
-    console.error('claim-bonus-sponsor error:', error.response?.data || error.message || error);
-    res.status(error.statusCode || 500).json({
-      success: false,
-      error: error.message || 'Failed to process sponsor bonus claim',
-    });
-  }
-});
-
-const port = Number(process.env.PORT || 3000);
-app.listen(port, () => {
-  console.log(`GoldenPaw faucet backend listening on port ${port}`);
-});
+    // 1. Get live DOGE price to calculate base reward
+    const priceResult = await getDogePrice();
+    const price = priceResult.price;
+    let baseReward = 0;
+    
+    if (price <= 0.05) {
+      baseReward = 0.0008;
+    } else if (price >= 0.50) {
+      baseReward = 0.0002;
+    } else {
+      baseReward = 0.000
