@@ -491,6 +491,29 @@ app.post('/admin/add-update', verifyFirebaseToken, async (req, res) => {
   }
 });
 
+// --- THE NEW NOTICE BOARD ROUTE ---
+app.get('/get-updates', async (req, res) => {
+  try {
+    // Pulls the 3 newest updates from the 'updates' collection
+    const snapshot = await admin.firestore()
+      .collection('updates')
+      .orderBy('timestamp', 'desc')
+      .limit(3)
+      .get();
+    
+    const newsList = [];
+    snapshot.forEach(doc => {
+      newsList.push(doc.data());
+    });
+    
+    res.status(200).json(newsList);
+  } catch (error) {
+    console.error("Error fetching news:", error);
+    res.status(500).json([]);
+  }
+});
+// ----------------------------------
+
 const port = Number(process.env.PORT || 3000);
 app.listen(port, () => {
   console.log(`GoldenPaw faucet backend listening on port ${port}`);
