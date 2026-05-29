@@ -106,18 +106,13 @@ function formatAmount(amount) {
   return Number(Number(amount).toFixed(8)).toString();
 }
 
-// ==========================================
-// UPDATED: FAUCETPAY SEND FUNCTION
-// ==========================================
 async function faucetPaySend(address, amountInDecimal) {
   if (!process.env.FAUCETPAY_API_KEY) {
     throw new Error('Missing FAUCETPAY_API_KEY environment variable');
   }
 
-  // Convert decimal DOGE to Satoshis
   const amountInSatoshis = Math.floor(Number(amountInDecimal) * 100000000);
 
-  // FaucetPay requires 'to' for the address and standard POST
   const params = new URLSearchParams({
     api_key: process.env.FAUCETPAY_API_KEY,
     currency: 'DOGE',
@@ -137,7 +132,6 @@ async function faucetPaySend(address, amountInDecimal) {
 
   return response.data;
 }
-// ==========================================
 
 app.get('/', (req, res) => {
   res.json({ success: true, message: 'GoldenPaw faucet backend is running' });
@@ -153,9 +147,6 @@ app.get('/price', async (req, res) => {
   }
 });
 
-// ==========================================
-// UPDATED: SEND DOGE ENDPOINT
-// ==========================================
 app.post('/send-doge', verifyFirebaseToken, async (req, res) => {
   try {
     const {
@@ -208,11 +199,7 @@ app.post('/send-doge', verifyFirebaseToken, async (req, res) => {
     });
   }
 });
-// ==========================================
 
-// ==========================================
-// UPDATED: THE VAULT CLAIM ENDPOINT
-// ==========================================
 app.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
   try {
     if (!req.user) {
@@ -284,8 +271,10 @@ app.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
     });
   }
 });
-// ==========================================
 
+// ==========================================
+// SECURED WITHDRAWAL (WITH BALANCE CHECKS & COOLDOWN)
+// ==========================================
 app.post('/withdraw', verifyFirebaseToken, async (req, res) => {
   try {
     if (!req.user) {
@@ -302,8 +291,35 @@ app.post('/withdraw', verifyFirebaseToken, async (req, res) => {
       return res.status(400).json({ success: false, error: 'Invalid withdrawal amount' });
     }
 
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    const cooldownMs = 60 * 1000; // 1-minute spam block
+
+    // Firestore Transaction: Lock database validation rules tightly
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      if (!snapshot.exists) {
+        throw new Error('User profile not found');
+      }
+
+      const data = snapshot.data();
+      const currentBalance = Number(data.doge_balance || 0);
+      const lastWithdrawal = data.last_withdrawal;
+
+      if (lastWithdrawal && Date.now() - lastWithdrawal.toDate().getTime() < cooldownMs) {
+        throw new Error('Please wait a minute between withdrawals.');
+      }
+
+      if (currentBalance < sendAmount) {
+        throw new Error('Insufficient balance for this withdrawal.');
+      }
+
+      transaction.update(userRef, {
+        doge_balance: currentBalance - sendAmount,
+        last_withdrawal: admin.firestore.Timestamp.now()
+      });
+    });
+
     const formattedAmount = formatAmount(sendAmount);
-    // Use the updated faucetPaySend here too!
     const faucetPayResponse = await faucetPaySend(user_address, formattedAmount);
 
     const resultPayload = {
@@ -320,7 +336,7 @@ app.post('/withdraw', verifyFirebaseToken, async (req, res) => {
     console.error('withdraw error:', error.response?.data || error.message || error);
     res.status(500).json({
       success: false,
-      error: error.response?.data || error.message || 'Failed to process withdrawal',
+      error: error.message || error.response?.data || 'Failed to process withdrawal',
     });
   }
 });
@@ -464,7 +480,6 @@ app.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
 
 app.post('/admin/add-update', verifyFirebaseToken, async (req, res) => {
   try {
-    // Locked specifically to your admin account
     const ADMIN_UID = 'P8iffVqbUgetAVA4MdHVZ1CfvUv1'; 
     
     if (req.user.uid !== ADMIN_UID) {
@@ -476,7 +491,6 @@ app.post('/admin/add-update', verifyFirebaseToken, async (req, res) => {
       return res.status(400).json({ success: false, error: 'Missing title or message' });
     }
 
-    // Save the update to a new Firestore collection
     await admin.firestore().collection('updates').add({
       title,
       message,
@@ -491,7 +505,6 @@ app.post('/admin/add-update', verifyFirebaseToken, async (req, res) => {
   }
 });
 
-// --- UPDATED NOTICE BOARD ROUTE (Now includes ID) ---
 app.get('/get-updates', async (req, res) => {
   try {
     const snapshot = await admin.firestore()
@@ -502,7 +515,6 @@ app.get('/get-updates', async (req, res) => {
     
     const newsList = [];
     snapshot.forEach(doc => {
-      // We are now attaching the document ID so Flutter can delete it
       newsList.push({ id: doc.id, ...doc.data() }); 
     });
     
@@ -513,7 +525,6 @@ app.get('/get-updates', async (req, res) => {
   }
 });
 
-// --- NEW DELETE ROUTE ---
 app.delete('/admin/delete-update/:id', verifyFirebaseToken, async (req, res) => {
   try {
     const ADMIN_UID = 'P8iffVqbUgetAVA4MdHVZ1CfvUv1'; 
@@ -531,7 +542,6 @@ app.delete('/admin/delete-update/:id', verifyFirebaseToken, async (req, res) => 
   }
 });
 
-// --- PORT CONFIGURATION ---
 const port = process.env.PORT || 3000;
 app.listen(port, '0.0.0.0', () => {
   console.log(`GoldenPaw faucet backend listening on port ${port}`);
