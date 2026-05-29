@@ -18,7 +18,7 @@ app.use(
       }
       callback(new Error(`CORS origin denied: ${origin}`));
     },
-  }),
+  })
 );
 
 let cachedDogePrice = 0.11; 
@@ -147,20 +147,46 @@ app.get('/price', async (req, res) => {
   }
 });
 
+// ==========================================
+// SECURED: SEND DOGE ENDPOINT (Direct Faucet)
+// ==========================================
 app.post('/send-doge', verifyFirebaseToken, async (req, res) => {
   try {
-    const {
-      address: bodyAddress,
-      user_address,
-      captcha_token,
-      captcha_provider,
-      source,
-    } = req.body;
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required for faucet claim' });
+    }
 
+    if (!req.user.email_verified) {
+      return res.status(403).json({ success: false, error: 'Email verification required.' });
+    }
+
+    const { address: bodyAddress, user_address, captcha_token, captcha_provider, source } = req.body;
     const address = bodyAddress || user_address;
     if (!address) {
       return res.status(400).json({ success: false, error: 'Missing destination address' });
     }
+
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    const cooldownMs = 5 * 60 * 1000; // 5-minute cooldown for direct claims
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      if (!snapshot.exists) {
+        throw new Error('User profile not found');
+      }
+
+      const data = snapshot.data() || {};
+      const lastDirectClaim = data.last_direct_faucet_claim;
+
+      if (lastDirectClaim && Date.now() - lastDirectClaim.toDate().getTime() < cooldownMs) {
+        const minutesLeft = Math.ceil((cooldownMs - (Date.now() - lastDirectClaim.toDate().getTime())) / 60000);
+        throw new Error(`Please wait ${minutesLeft} minutes before claiming again.`);
+      }
+
+      transaction.update(userRef, {
+        last_direct_faucet_claim: admin.firestore.Timestamp.now()
+      });
+    });
 
     const priceResult = await getDogePrice();
     const price = priceResult.price;
@@ -195,7 +221,7 @@ app.post('/send-doge', verifyFirebaseToken, async (req, res) => {
     console.error('send-doge error:', error.response?.data || error.message || error);
     res.status(500).json({
       success: false,
-      error: error.response?.data?.message || error.message || 'Failed to send DOGE',
+      error: error.message || error.response?.data?.message || 'Failed to send DOGE',
     });
   }
 });
@@ -273,12 +299,16 @@ app.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
 });
 
 // ==========================================
-// SECURED WITHDRAWAL (WITH BALANCE CHECKS & COOLDOWN)
+// SECURED: WITHDRAWAL ENDPOINT 
 // ==========================================
 app.post('/withdraw', verifyFirebaseToken, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({ success: false, error: 'Authentication required for withdrawal' });
+    }
+
+    if (!req.user.email_verified) {
+      return res.status(403).json({ success: false, error: 'Email verification required to withdraw.' });
     }
 
     const { user_address, amount } = req.body;
@@ -287,14 +317,16 @@ app.post('/withdraw', verifyFirebaseToken, async (req, res) => {
     }
 
     const sendAmount = Number(amount);
-    if (!Number.isFinite(sendAmount) || sendAmount <= 0) {
-      return res.status(400).json({ success: false, error: 'Invalid withdrawal amount' });
+    
+    // Change this number to whatever minimum DOGE you want to require
+    const MIN_WITHDRAWAL = 1; 
+    if (!Number.isFinite(sendAmount) || sendAmount < MIN_WITHDRAWAL) {
+      return res.status(400).json({ success: false, error: `Minimum withdrawal is ${MIN_WITHDRAWAL} DOGE` });
     }
 
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     const cooldownMs = 60 * 1000; // 1-minute spam block
 
-    // Firestore Transaction: Lock database validation rules tightly
     await admin.firestore().runTransaction(async (transaction) => {
       const snapshot = await transaction.get(userRef);
       if (!snapshot.exists) {
