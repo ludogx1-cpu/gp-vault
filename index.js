@@ -21,6 +21,29 @@ app.use(
   }),
 );
 
+let cachedDogePrice = 0.11; 
+let lastFetchTime = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+async function getLiveDogePrice() {
+  const now = Date.now();
+  
+  if (now - lastFetchTime < CACHE_DURATION) {
+    return cachedDogePrice;
+  }
+
+  try {
+    const response = await axios.get('https://api.coinbase.com/v2/prices/DOGE-USD/spot');
+    cachedDogePrice = parseFloat(response.data.data.amount);
+    lastFetchTime = now;
+    console.log(`Live DOGE price updated: $${cachedDogePrice}`);
+    return cachedDogePrice;
+  } catch (error) {
+    console.error("Price fetch failed, using fallback:", error.message);
+    return cachedDogePrice; 
+  }
+}
+
 const firebaseServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_JSON
   ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON)
   : process.env.FIREBASE_PRIVATE_KEY
