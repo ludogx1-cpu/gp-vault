@@ -491,10 +491,9 @@ app.post('/admin/add-update', verifyFirebaseToken, async (req, res) => {
   }
 });
 
-// --- THE NEW NOTICE BOARD ROUTE ---
+// --- UPDATED NOTICE BOARD ROUTE (Now includes ID) ---
 app.get('/get-updates', async (req, res) => {
   try {
-    // Pulls the 3 newest updates from the 'updates' collection
     const snapshot = await admin.firestore()
       .collection('updates')
       .orderBy('timestamp', 'desc')
@@ -503,7 +502,8 @@ app.get('/get-updates', async (req, res) => {
     
     const newsList = [];
     snapshot.forEach(doc => {
-      newsList.push(doc.data());
+      // We are now attaching the document ID so Flutter can delete it
+      newsList.push({ id: doc.id, ...doc.data() }); 
     });
     
     res.status(200).json(newsList);
@@ -512,9 +512,21 @@ app.get('/get-updates', async (req, res) => {
     res.status(500).json([]);
   }
 });
-// ----------------------------------
 
-const port = Number(process.env.PORT || 3000);
-app.listen(port, () => {
-  console.log(`GoldenPaw faucet backend listening on port ${port}`);
+// --- NEW DELETE ROUTE ---
+app.delete('/admin/delete-update/:id', verifyFirebaseToken, async (req, res) => {
+  try {
+    const ADMIN_UID = 'P8iffVqbUgetAVA4MdHVZ1CfvUv1'; 
+    if (req.user.uid !== ADMIN_UID) {
+      return res.status(403).json({ success: false, error: 'Admins only.' });
+    }
+
+    const docId = req.params.id;
+    await admin.firestore().collection('updates').doc(docId).delete();
+    
+    res.json({ success: true, message: 'Deleted successfully' });
+  } catch (error) {
+    console.error('delete-update error:', error);
+    res.status(500).json({ success: false, error: 'Failed to delete update' });
+  }
 });
