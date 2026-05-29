@@ -530,3 +530,9 @@ app.delete('/admin/delete-update/:id', verifyFirebaseToken, async (req, res) => 
     res.status(500).json({ success: false, error: 'Failed to delete update' });
   }
 });
+
+// --- PORT CONFIGURATION ---
+const port = process.env.PORT || 3000;
+app.listen(port, '0.0.0.0', () => {
+  console.log(`GoldenPaw faucet backend listening on port ${port}`);
+});
