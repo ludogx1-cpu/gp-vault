@@ -265,7 +265,7 @@ app.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
       finalReward = baseReward * (1 + (totalBonusPercent / 100));
 
       transaction.update(userRef, {
-        stakable: Number(data.stakable || 0) + finalReward,
+        doge_balance: Number(data.doge_balance || 0) + finalReward,
         xp: xp + 10,
         last_claim_time: now,
       });
