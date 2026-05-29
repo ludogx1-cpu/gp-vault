@@ -92,38 +92,14 @@ function parseUsdNumber(value) {
 }
 
 async function getDogePrice() {
-  const fallbackPrice = 0.11;
-
   try {
-    const binanceResponse = await axios.get('https://api.binance.com/api/v3/ticker/price', {
-      params: { symbol: 'DOGEUSDT' },
-      timeout: 8000,
-    });
-    const price = parseFloat(binanceResponse.data.price);
-    if (price > 0) {
-      return { price, source: 'binance' };
-    }
-    throw new Error('Binance returned invalid price');
-  } catch (binanceError) {
-    console.warn('Binance price fetch failed:', binanceError.message || binanceError);
+    const price = await getLiveDogePrice();
+    return { price, source: 'coinbase_cached' };
+  } catch (error) {
+    const fallbackPrice = 0.11;
+    console.warn('Falling back to default DOGE price:', fallbackPrice);
+    return { price: fallbackPrice, source: 'fallback' };
   }
-
-  try {
-    const coinGeckoResponse = await axios.get('https://api.coingecko.com/api/v3/simple/price', {
-      params: { ids: 'dogecoin', vs_currencies: 'usd' },
-      timeout: 8000,
-    });
-    const price = Number(coinGeckoResponse.data.dogecoin?.usd);
-    if (price > 0) {
-      return { price, source: 'coingecko' };
-    }
-    throw new Error('CoinGecko returned invalid price');
-  } catch (coingeckoError) {
-    console.warn('CoinGecko fallback failed:', coingeckoError.message || coingeckoError);
-  }
-
-  console.warn('Falling back to default DOGE price:', fallbackPrice);
-  return { price: fallbackPrice, source: 'fallback' };
 }
 
 function formatAmount(amount) {
