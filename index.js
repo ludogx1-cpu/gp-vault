@@ -46,8 +46,6 @@ if (firebaseServiceAccount) {
   admin.initializeApp();
 }
 
-const isFirebaseEnabled = !!firebaseServiceAccount;
-
 async function verifyFirebaseToken(req, res, next) {
   const authorization = req.headers.authorization || '';
   const token = authorization.startsWith('Bearer ') ? authorization.split(' ')[1] : null;
@@ -109,20 +107,30 @@ function formatAmount(amount) {
   return Number(Number(amount).toFixed(8)).toString();
 }
 
-async function faucetPaySend(address, amount) {
+// ==========================================
+// UPDATED: FAUCETPAY SEND FUNCTION
+// ==========================================
+async function faucetPaySend(address, amountInDecimal) {
   if (!process.env.FAUCETPAY_API_KEY) {
     throw new Error('Missing FAUCETPAY_API_KEY environment variable');
   }
 
+  // Convert decimal DOGE to Satoshis
+  const amountInSatoshis = Math.floor(Number(amountInDecimal) * 100000000);
+
+  // FaucetPay requires 'to' for the address and standard POST
   const params = new URLSearchParams({
     api_key: process.env.FAUCETPAY_API_KEY,
     currency: 'DOGE',
-    amount: amount.toString(),
-    address,
+    amount: amountInSatoshis.toString(),
+    to: address, 
   });
 
   const url = 'https://faucetpay.io/api/v1/send';
-  const response = await axios.get(url, { params, timeout: 15000 });
+  const response = await axios.post(url, params.toString(), { 
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    timeout: 15000 
+  });
 
   if (!response.data) {
     throw new Error('FaucetPay returned no response body');
@@ -130,6 +138,7 @@ async function faucetPaySend(address, amount) {
 
   return response.data;
 }
+// ==========================================
 
 app.get('/', (req, res) => {
   res.json({ success: true, message: 'GoldenPaw faucet backend is running' });
@@ -145,13 +154,14 @@ app.get('/price', async (req, res) => {
   }
 });
 
+// ==========================================
+// UPDATED: SEND DOGE ENDPOINT
+// ==========================================
 app.post('/send-doge', verifyFirebaseToken, async (req, res) => {
   try {
     const {
       address: bodyAddress,
       user_address,
-      amount,
-      usdValue,
       captcha_token,
       captcha_provider,
       source,
@@ -163,24 +173,24 @@ app.post('/send-doge', verifyFirebaseToken, async (req, res) => {
     }
 
     const priceResult = await getDogePrice();
-    const dogeAmount = amount
-      ? parseFloat(amount)
-      : parseUsdNumber(usdValue)
-      ? parseUsdNumber(usdValue) / priceResult.price
-      : 10;
-
-    if (!Number.isFinite(dogeAmount) || dogeAmount <= 0) {
-      return res.status(400).json({ success: false, error: 'Invalid DOGE amount' });
+    const price = priceResult.price;
+    let dogeAmount = 0;
+    
+    if (price <= 0.05) {
+      dogeAmount = 0.0008;
+    } else if (price >= 0.50) {
+      dogeAmount = 0.0002;
+    } else {
+      dogeAmount = 0.0008 - ((price - 0.05) / 0.45) * 0.0006;
     }
 
-    const formattedAmount = formatAmount(dogeAmount);
-    const faucetPayResponse = await faucetPaySend(address, formattedAmount);
+    const faucetPayResponse = await faucetPaySend(address, dogeAmount);
 
     const resultPayload = {
       success: true,
       address,
-      amount: formattedAmount,
-      usdPrice: priceResult.price,
+      amount: dogeAmount,
+      usdPrice: price,
       priceSource: priceResult.source,
       faucetPayResponse,
       source: source || 'send-doge',
@@ -189,17 +199,17 @@ app.post('/send-doge', verifyFirebaseToken, async (req, res) => {
       authUser: req.user || null,
     };
 
-    console.log('Send DOGE request:', JSON.stringify({ address, formattedAmount, captcha_provider, authUser: req.user?.uid || null }));
-    console.log('Send DOGE result:', JSON.stringify(resultPayload));
+    console.log('Send DOGE success:', JSON.stringify({ address, amount: dogeAmount }));
     res.json(resultPayload);
   } catch (error) {
     console.error('send-doge error:', error.response?.data || error.message || error);
     res.status(500).json({
       success: false,
-      error: error.response?.data || error.message || 'Failed to send DOGE',
+      error: error.response?.data?.message || error.message || 'Failed to send DOGE',
     });
   }
 });
+// ==========================================
 
 // ==========================================
 // UPDATED: THE VAULT CLAIM ENDPOINT
@@ -216,7 +226,6 @@ app.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
     const now = admin.firestore.Timestamp.now();
     const cooldownMs = 5 * 60 * 1000; // 5 minutes
 
-    // 1. Get live DOGE price to calculate base reward
     const priceResult = await getDogePrice();
     const price = priceResult.price;
     let baseReward = 0;
@@ -226,4 +235,235 @@ app.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
     } else if (price >= 0.50) {
       baseReward = 0.0002;
     } else {
-      baseReward = 0.000
+      baseReward = 0.0008 - ((price - 0.05) / 0.45) * 0.0006;
+    }
+
+    let finalReward = 0;
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      if (!snapshot.exists) {
+        throw new Error('User profile not found');
+      }
+
+      const data = snapshot.data() || {};
+      
+      const lastClaim = data.last_claim_time;
+      if (lastClaim && Date.now() - lastClaim.toDate().getTime() < cooldownMs) {
+        const secondsLeft = Math.ceil((cooldownMs - (Date.now() - lastClaim.toDate().getTime())) / 1000);
+        const cooldownError = new Error(`Cooldown active. Try again in ${secondsLeft} seconds.`);
+        cooldownError.statusCode = 429;
+        throw cooldownError;
+      }
+
+      const xp = Number(data.xp || 0);
+      const streak = Number(data.streak_count || 0);
+      let level = Math.floor(Math.sqrt(xp / 100));
+      if (level > 100) level = 100;
+      
+      const totalBonusPercent = level + streak;
+      finalReward = baseReward * (1 + (totalBonusPercent / 100));
+
+      transaction.update(userRef, {
+        stakable: Number(data.stakable || 0) + finalReward,
+        xp: xp + 10,
+        last_claim_time: now,
+      });
+    });
+
+    res.json({
+      success: true,
+      message: 'Vault claim verified. Your reward has been recorded.',
+      earned: finalReward,
+      authUser: req.user.uid,
+    });
+  } catch (error) {
+    console.error('claim-vault error:', error.response?.data || error.message || error);
+    res.status(error.statusCode || 500).json({
+      success: false,
+      error: error.message || 'Failed to claim vault',
+    });
+  }
+});
+// ==========================================
+
+app.post('/withdraw', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required for withdrawal' });
+    }
+
+    const { user_address, amount } = req.body;
+    if (!user_address) {
+      return res.status(400).json({ success: false, error: 'Missing destination address' });
+    }
+
+    const sendAmount = Number(amount);
+    if (!Number.isFinite(sendAmount) || sendAmount <= 0) {
+      return res.status(400).json({ success: false, error: 'Invalid withdrawal amount' });
+    }
+
+    const formattedAmount = formatAmount(sendAmount);
+    // Use the updated faucetPaySend here too!
+    const faucetPayResponse = await faucetPaySend(user_address, formattedAmount);
+
+    const resultPayload = {
+      success: true,
+      address: user_address,
+      amount: formattedAmount,
+      faucetPayResponse,
+      authUser: req.user,
+    };
+
+    console.log('Withdraw request:', JSON.stringify(resultPayload));
+    res.json(resultPayload);
+  } catch (error) {
+    console.error('withdraw error:', error.response?.data || error.message || error);
+    res.status(500).json({
+      success: false,
+      error: error.response?.data || error.message || 'Failed to process withdrawal',
+    });
+  }
+});
+
+app.post('/ipn', async (req, res) => {
+  console.log('IPN received:', JSON.stringify(req.body || {}));
+  res.json({ success: true, message: 'IPN received' });
+});
+
+app.post('/swap-doge', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required for swap' });
+    }
+
+    const { amount } = req.body;
+    const swapAmount = Number(amount);
+    if (!Number.isFinite(swapAmount) || swapAmount <= 0) {
+      return res.status(400).json({ success: false, error: 'Invalid swap amount' });
+    }
+
+    console.log('Swap DOGE request:', { user: req.user.uid, amount: swapAmount });
+    res.json({ success: true, message: 'Swap completed successfully', swappedAmount: formatAmount(swapAmount) });
+  } catch (error) {
+    console.error('swap-doge error:', error.response?.data || error.message || error);
+    res.status(500).json({ success: false, error: 'Failed to process DOGE swap' });
+  }
+});
+
+app.post('/buy-banner', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required for banner purchase' });
+    }
+
+    const { doc_id, image_url, target_url } = req.body;
+    if (!doc_id || !image_url || !target_url) {
+      return res.status(400).json({ success: false, error: 'Missing required banner fields' });
+    }
+
+    console.log('Buy banner request:', { user: req.user.uid, doc_id, image_url, target_url });
+    res.json({ success: true, message: 'Banner campaign registered successfully' });
+  } catch (error) {
+    console.error('buy-banner error:', error.response?.data || error.message || error);
+    res.status(500).json({ success: false, error: 'Failed to process banner purchase' });
+  }
+});
+
+app.post('/buy-ptc', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required for PTC purchase' });
+    }
+
+    const { target_url, tier, clicks } = req.body;
+    if (!target_url || !tier || !clicks) {
+      return res.status(400).json({ success: false, error: 'Missing required PTC fields' });
+    }
+
+    console.log('Buy PTC request:', { user: req.user.uid, target_url, tier, clicks });
+    res.json({ success: true, message: 'PTC ad added to the pool successfully' });
+  } catch (error) {
+    console.error('buy-ptc error:', error.response?.data || error.message || error);
+    res.status(500).json({ success: false, error: 'Failed to process PTC purchase' });
+  }
+});
+
+app.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required for PTC claim' });
+    }
+
+    const { captcha_token, captcha_provider } = req.body;
+    if (!captcha_token || !captcha_provider) {
+      return res.status(400).json({ success: false, error: 'Missing captcha verification data' });
+    }
+
+    console.log('Claim PTC request:', { user: req.user.uid, captcha_provider });
+    res.json({ success: true, message: 'PTC claim processed successfully' });
+  } catch (error) {
+    console.error('claim-ptc error:', error.response?.data || error.message || error);
+    res.status(500).json({ success: false, error: 'Failed to process PTC claim' });
+  }
+});
+
+app.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required for sponsor bonus claim' });
+    }
+
+    const { captcha_token, captcha_provider } = req.body;
+    if (!captcha_token || !captcha_provider) {
+      return res.status(400).json({ success: false, error: 'Missing captcha verification data' });
+    }
+
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    const rewardAmount = 0.003;
+    const xpReward = 30;
+    const cooldownMs = 3 * 60 * 60 * 1000;
+    const now = admin.firestore.Timestamp.now();
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      if (!snapshot.exists) {
+        throw new Error('User profile not found');
+      }
+
+      const data = snapshot.data() || {};
+      const lastClaim = data.last_bonus_sponsor_claim;
+      if (lastClaim && Date.now() - lastClaim.toDate().getTime() < cooldownMs) {
+        const minutesLeft = Math.ceil((cooldownMs - (Date.now() - lastClaim.toDate().getTime())) / 60000);
+        const cooldownError = new Error(`Sponsor bonus cooldown active. Try again in ${minutesLeft} minutes.`);
+        cooldownError.statusCode = 429;
+        throw cooldownError;
+      }
+
+      transaction.update(userRef, {
+        doge_balance: Number(data.doge_balance || 0) + rewardAmount,
+        xp: Number(data.xp || 0) + xpReward,
+        last_bonus_sponsor_claim: now,
+      });
+    });
+
+    console.log('Claim bonus sponsor request:', { user: req.user.uid, captcha_provider });
+    res.json({
+      success: true,
+      message: 'Sponsor bonus claim processed successfully',
+      rewardAmount,
+      xpReward,
+    });
+  } catch (error) {
+    console.error('claim-bonus-sponsor error:', error.response?.data || error.message || error);
+    res.status(error.statusCode || 500).json({
+      success: false,
+      error: error.message || 'Failed to process sponsor bonus claim',
+    });
+  }
+});
+
+const port = Number(process.env.PORT || 3000);
+app.listen(port, () => {
+  console.log(`GoldenPaw faucet backend listening on port ${port}`);
+});
