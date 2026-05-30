@@ -442,16 +442,58 @@ app.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
       return res.status(401).json({ success: false, error: 'Authentication required for PTC claim' });
     }
 
-    const { captcha_token, captcha_provider } = req.body;
-    if (!captcha_token || !captcha_provider) {
-      return res.status(400).json({ success: false, error: 'Missing captcha verification data' });
+    const { captcha_token, captcha_provider, ad_id } = req.body;
+    if (!captcha_token || !captcha_provider || !ad_id) {
+      return res.status(400).json({ success: false, error: 'Missing required validation data' });
     }
 
-    console.log('Claim PTC request:', { user: req.user.uid, captcha_provider });
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    const adRef = admin.firestore().collection('ptc_ads').doc(ad_id);
+    const cooldownMs = 24 * 60 * 60 * 1000; // 24-hour cooldown
+    const now = admin.firestore.Timestamp.now();
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const userSnapshot = await transaction.get(userRef);
+      const adSnapshot = await transaction.get(adRef);
+
+      if (!userSnapshot.exists || !adSnapshot.exists) {
+        throw new Error('User or Ad not found');
+      }
+
+      const userData = userSnapshot.data() || {};
+      const adData = adSnapshot.data() || {};
+
+      // Check if ad has remaining clicks
+      const remainingClicks = Number(adData.clicks || 0);
+      if (remainingClicks <= 0) {
+        throw new Error('This ad has run out of clicks.');
+      }
+
+      // Check 24-hour cooldown for this specific ad
+      const ptcHistory = userData.ptc_history || {};
+      const lastClicked = ptcHistory[ad_id];
+      if (lastClicked && Date.now() - lastClicked.toDate().getTime() < cooldownMs) {
+        throw new Error('Cooldown active. You can view this ad again tomorrow.');
+      }
+
+      // Calculate reward based on ad tier
+      const rewardAmount = adData.tier === 'high' ? 0.005 : 0.001; 
+
+      // Update user data and decrement ad clicks
+      transaction.update(userRef, {
+        doge_balance: Number(userData.doge_balance || 0) + rewardAmount,
+        [`ptc_history.${ad_id}`]: now
+      });
+
+      transaction.update(adRef, {
+        clicks: remainingClicks - 1
+      });
+    });
+
     res.json({ success: true, message: 'PTC claim processed successfully' });
   } catch (error) {
-    console.error('claim-ptc error:', error.response?.data || error.message || error);
-    res.status(500).json({ success: false, error: 'Failed to process PTC claim' });
+    console.error('claim-ptc error:', error.message || error);
+    res.status(500).json({ success: false, error: error.message || 'Failed to process PTC claim' });
   }
 });
 
