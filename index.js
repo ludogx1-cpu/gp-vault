@@ -463,23 +463,19 @@ app.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
       const userData = userSnapshot.data() || {};
       const adData = adSnapshot.data() || {};
 
-      // Check if ad has remaining clicks
       const remainingClicks = Number(adData.clicks || 0);
       if (remainingClicks <= 0) {
         throw new Error('This ad has run out of clicks.');
       }
 
-      // Check 24-hour cooldown for this specific ad
       const ptcHistory = userData.ptc_history || {};
       const lastClicked = ptcHistory[ad_id];
       if (lastClicked && Date.now() - lastClicked.toDate().getTime() < cooldownMs) {
         throw new Error('Cooldown active. You can view this ad again tomorrow.');
       }
 
-      // Calculate reward based on ad tier
       const rewardAmount = adData.tier === 'high' ? 0.005 : 0.001; 
 
-      // Update user data and decrement ad clicks
       transaction.update(userRef, {
         doge_balance: Number(userData.doge_balance || 0) + rewardAmount,
         [`ptc_history.${ad_id}`]: now
