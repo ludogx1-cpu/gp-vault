@@ -6,6 +6,73 @@ const admin = require('firebase-admin');
 const app = express();
 app.use(express.json({ limit: '1mb' }));
 
+function normalizeHttpUrl(input) {
+  if (typeof input !== 'string' || !input.trim()) return null;
+  try {
+    const parsed = new URL(input.trim());
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return null;
+    }
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+}
+
+function getBannerCost(slot, pool) {
+  const normalizedSlot = String(slot || '').trim().toLowerCase();
+  const normalizedPool = String(pool || '').trim().toLowerCase();
+
+  const adSlotCosts = {
+    global_banner: 7.0,
+  };
+
+  const sponsorSlotCosts = {
+    'top banner 1': 4.0,
+  };
+
+  if (normalizedPool === 'ads') {
+    return adSlotCosts[normalizedSlot] ?? null;
+  }
+
+  if (normalizedPool === 'sponsor_placeholder') {
+    return sponsorSlotCosts[normalizedSlot] ?? null;
+  }
+
+  return null;
+}
+
+function getPtcConfig(tier, clicks) {
+  const tierConfigs = {
+    1: { reward: 0.0002, duration: 10, pricePerClick: 0.005 },
+    2: { reward: 0.0004, duration: 20, pricePerClick: 0.01 },
+    3: { reward: 0.0006, duration: 30, pricePerClick: 0.015 },
+  };
+
+  const parsedTier = Number(tier);
+  const parsedClicks = Number(clicks);
+  if (!Number.isInteger(parsedTier) || !Number.isInteger(parsedClicks)) return null;
+  if (parsedClicks < 100 || parsedClicks > 10000 || parsedClicks % 100 !== 0) return null;
+
+  const cfg = tierConfigs[parsedTier];
+  if (!cfg) return null;
+
+  const totalCost = Number((cfg.pricePerClick * parsedClicks).toFixed(8));
+  return { ...cfg, totalCost };
+}
+
+function verifyIpnSignature(payload = {}) {
+  const secret = process.env.FAUCETPAY_IPN_SECRET;
+  if (!secret) {
+    return { ok: true, mode: 'disabled' };
+  }
+  const provided = payload.security_code;
+  if (provided === secret) {
+    return { ok: true, mode: 'security_code' };
+  }
+  return { ok: false, mode: 'security_code' };
+}
+
 const allowedOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(',').map((origin) => origin.trim()).filter(Boolean)
   : [];
@@ -166,6 +233,15 @@ app.post('/send-doge', verifyFirebaseToken, async (req, res) => {
       return res.status(400).json({ success: false, error: 'Missing destination address' });
     }
 
+    const ADMIN_UID = 'P8iffVqbUgetAVA4MdHVZ1CfvUv1';
+    
+    // Admin bypass for local testing
+    if (req.user.uid !== ADMIN_UID) {
+      if (!captcha_token || !captcha_provider) {
+        return res.status(400).json({ success: false, error: 'Missing captcha verification data' });
+      }
+    }
+
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     const cooldownMs = 5 * 60 * 1000; // 5-minute cooldown for direct claims
 
@@ -210,8 +286,8 @@ app.post('/send-doge', verifyFirebaseToken, async (req, res) => {
       priceSource: priceResult.source,
       faucetPayResponse,
       source: source || 'send-doge',
-      captchaToken: captcha_token,
-      captchaProvider: captcha_provider,
+      captchaToken: captcha_token || 'Admin Bypass',
+      captchaProvider: captcha_provider || 'Admin Bypass',
       authUser: req.user || null,
     };
 
@@ -318,7 +394,6 @@ app.post('/withdraw', verifyFirebaseToken, async (req, res) => {
 
     const sendAmount = Number(amount);
     
-    // Change this number to whatever minimum DOGE you want to require
     const MIN_WITHDRAWAL = 1; 
     if (!Number.isFinite(sendAmount) || sendAmount < MIN_WITHDRAWAL) {
       return res.status(400).json({ success: false, error: `Minimum withdrawal is ${MIN_WITHDRAWAL} DOGE` });
@@ -443,13 +518,20 @@ app.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
     }
 
     const { captcha_token, captcha_provider, ad_id } = req.body;
-    if (!captcha_token || !captcha_provider || !ad_id) {
-      return res.status(400).json({ success: false, error: 'Missing required validation data' });
+    const ADMIN_UID = 'P8iffVqbUgetAVA4MdHVZ1CfvUv1'; 
+
+    // If it is NOT the admin, enforce the strict captcha rules
+    if (req.user.uid !== ADMIN_UID) {
+      if (!captcha_token || !captcha_provider || !ad_id) {
+        return res.status(400).json({ success: false, error: 'Missing required validation data' });
+      }
+    } else if (!ad_id) {
+      return res.status(400).json({ success: false, error: 'Missing ad_id' });
     }
 
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     const adRef = admin.firestore().collection('ptc_ads').doc(ad_id);
-    const cooldownMs = 24 * 60 * 60 * 1000; // 24-hour cooldown
+    const cooldownMs = 24 * 60 * 60 * 1000; 
     const now = admin.firestore.Timestamp.now();
 
     await admin.firestore().runTransaction(async (transaction) => {
@@ -486,6 +568,7 @@ app.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
       });
     });
 
+    console.log('Claim PTC request successful for admin/user:', req.user.uid);
     res.json({ success: true, message: 'PTC claim processed successfully' });
   } catch (error) {
     console.error('claim-ptc error:', error.message || error);
@@ -500,8 +583,13 @@ app.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
     }
 
     const { captcha_token, captcha_provider } = req.body;
-    if (!captcha_token || !captcha_provider) {
-      return res.status(400).json({ success: false, error: 'Missing captcha verification data' });
+    const ADMIN_UID = 'P8iffVqbUgetAVA4MdHVZ1CfvUv1';
+
+    // Admin bypass for local testing
+    if (req.user.uid !== ADMIN_UID) {
+      if (!captcha_token || !captcha_provider) {
+        return res.status(400).json({ success: false, error: 'Missing captcha verification data' });
+      }
     }
 
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
@@ -532,7 +620,7 @@ app.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
       });
     });
 
-    console.log('Claim bonus sponsor request:', { user: req.user.uid, captcha_provider });
+    console.log('Claim bonus sponsor request:', { user: req.user.uid, captcha_provider: captcha_provider || 'Admin Bypass' });
     res.json({
       success: true,
       message: 'Sponsor bonus claim processed successfully',
@@ -612,7 +700,17 @@ app.delete('/admin/delete-update/:id', verifyFirebaseToken, async (req, res) => 
   }
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, '0.0.0.0', () => {
-  console.log(`GoldenPaw faucet backend listening on port ${port}`);
-});
+if (require.main === module) {
+  const port = process.env.PORT || 3000;
+  app.listen(port, '0.0.0.0', () => {
+    console.log(`GoldenPaw faucet backend listening on port ${port}`);
+  });
+}
+
+module.exports = {
+  app,
+  normalizeHttpUrl,
+  getBannerCost,
+  getPtcConfig,
+  verifyIpnSignature,
+};
