@@ -581,13 +581,6 @@ app.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
     res.status(500).json({ success: false, error: error.message || 'Failed to process PTC claim' });
   }
 });
-    console.log('Claim PTC request successful for admin/user:', req.user.uid);
-    res.json({ success: true, message: 'PTC claim processed successfully' });
-  } catch (error) {
-    console.error('claim-ptc error:', error.message || error);
-    res.status(500).json({ success: false, error: error.message || 'Failed to process PTC claim' });
-  }
-});
 
 app.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
   try {
