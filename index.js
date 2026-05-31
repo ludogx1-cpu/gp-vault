@@ -520,7 +520,6 @@ app.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
     const { captcha_token, captcha_provider, ad_id } = req.body;
     const ADMIN_UID = 'P8iffVqbUgetAVA4MdHVZ1CfvUv1'; 
 
-    // If it is NOT the admin, enforce the strict captcha rules
     if (req.user.uid !== ADMIN_UID) {
       if (!captcha_token || !captcha_provider || !ad_id) {
         return res.status(400).json({ success: false, error: 'Missing required validation data' });
@@ -545,9 +544,13 @@ app.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
       const userData = userSnapshot.data() || {};
       const adData = adSnapshot.data() || {};
 
-      const remainingClicks = Number(adData.clicks || 0);
-      if (remainingClicks <= 0) {
-        throw new Error('This ad has run out of clicks.');
+      // FIXED: Looking for clicks_remaining
+      const remainingClicks = Number(adData.clicks_remaining || 0);
+
+      if (req.user.uid !== ADMIN_UID) {
+        if (remainingClicks <= 0) {
+          throw new Error('This ad has run out of clicks.');
+        }
       }
 
       const ptcHistory = userData.ptc_history || {};
@@ -563,11 +566,21 @@ app.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
         [`ptc_history.${ad_id}`]: now
       });
 
-      transaction.update(adRef, {
-        clicks: remainingClicks - 1
-      });
+      // FIXED: Updating clicks_remaining
+      if (req.user.uid !== ADMIN_UID) {
+        transaction.update(adRef, {
+          clicks_remaining: remainingClicks - 1
+        });
+      }
     });
 
+    console.log('Claim PTC request successful for admin/user:', req.user.uid);
+    res.json({ success: true, message: 'PTC claim processed successfully' });
+  } catch (error) {
+    console.error('claim-ptc error:', error.message || error);
+    res.status(500).json({ success: false, error: error.message || 'Failed to process PTC claim' });
+  }
+});
     console.log('Claim PTC request successful for admin/user:', req.user.uid);
     res.json({ success: true, message: 'PTC claim processed successfully' });
   } catch (error) {
