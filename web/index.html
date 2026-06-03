@@ -6,9 +6,15 @@
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="Golden Paw - Earn DOGE and Stake Crypto.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Trustpilot Verification Tag -->
+  <meta name="trustpilot-one-time-domain-verification-id" content="90475056-e382-45b7-8736-b9cfdb4829ab"/>
+
   <title>Golden Paw</title>
 
   <link rel="icon" type="image/png" href="/favicon.png?v=2">
+  <!-- Use Inter webfont for crisper text rendering on web builds -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet">
  
   <style>
     #gp-captcha-token { display: none; }
@@ -16,14 +22,16 @@
  
   <script src="https://js.hcaptcha.com/1/api.js?render=explicit" async defer></script>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
- 
+  <script src="https://widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" async></script>
+  
   <script>
   // If the user is trying to go to the thank you page, bypass Flutter routing completely
   if (window.location.pathname === '/thankyou.html') {
     // Do nothing and let the browser load the static file directly
   }
+  
+</script>
 
-  </script>
   <script>
     function findFlutterElement(id) {
       let el = document.getElementById(id);
@@ -40,15 +48,16 @@
       }
       return null;
     }
- 
-    function waitForElement(id, callback) {
-      let attempts = 0;
-      const interval = setInterval(() => {
-        const el = findFlutterElement(id);
-        if (el) { clearInterval(interval); callback(el); }
-        if (++attempts > 60) clearInterval(interval);
-      }, 100);
-    }
+  </script>
+    <script>
+      function waitForElement(id, callback) {
+        let attempts = 0;
+        const interval = setInterval(() => {
+          const el = findFlutterElement(id);
+          if (el) { clearInterval(interval); callback(el); }
+          if (++attempts > 60) clearInterval(interval);
+        }, 100);
+      }
  
     function renderHCaptcha() {
       waitForElement('hcaptcha-target', (el) => {
@@ -56,9 +65,13 @@
         hcaptcha.render(el, {
           'sitekey': 'e47877ca-d0f0-44d0-aa70-7e06f3a2848e',
           'callback': function(t) {
-            document.getElementById('gp-captcha-token').innerText = t;
-            window.postMessage(JSON.stringify({ type: 'captcha', token: t }), '*');
-          }
+              console.log('hCaptcha callback token received');
+              
+              // 400ms delay to stop Flutter DevTools crash
+              setTimeout(function() {
+                window.postMessage(JSON.stringify({ type: 'captcha', token: t }), '*');
+              }, 400);
+            }
         });
       });
     }
@@ -70,9 +83,13 @@
           turnstile.render(el, {
             'sitekey': '0x4AAAAAADN3brAhvXC8xH0X',
             'callback': function(t) {
-              document.getElementById('gp-captcha-token').innerText = t;
-              window.postMessage(JSON.stringify({ type: 'captcha', token: t }), '*');
-            }
+                console.log('Turnstile callback token received');
+                
+                // 400ms delay applied here as well
+                setTimeout(function() {
+                  window.postMessage(JSON.stringify({ type: 'captcha', token: t }), '*');
+                }, 400);
+              }
           });
         } else {
           setTimeout(renderTurnstile, 1000);
