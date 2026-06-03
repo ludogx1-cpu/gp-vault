@@ -18,6 +18,13 @@
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
  
   <script>
+  // If the user is trying to go to the thank you page, bypass Flutter routing completely
+  if (window.location.pathname === '/thankyou.html') {
+    // Do nothing and let the browser load the static file directly
+  }
+
+  </script>
+  <script>
     function findFlutterElement(id) {
       let el = document.getElementById(id);
       if (el) return el;
