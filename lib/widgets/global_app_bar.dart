@@ -50,21 +50,6 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
                       height: isMobile ? 36 : 42,
                       fit: BoxFit.contain,
                     ),
-                    Transform.translate(
-                      offset: const Offset(-4, 0),
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 0.5),
-                        child: Text(
-                          'Doge Hub',
-                          style: TextStyle(
-                            fontSize: isMobile ? 13 : 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.amber,
-                            letterSpacing: 0.7,
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),

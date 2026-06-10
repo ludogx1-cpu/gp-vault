@@ -142,14 +142,18 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
   // Tab 4: Raw HTML Placeholder fields
   final TextEditingController _phTitleCtrl = TextEditingController();
   final TextEditingController _phCodeCtrl = TextEditingController();
-  String _phPosition = 'Top'; // 🚀 NEW: Lets you choose where the ad goes!
+  String _phPosition = 'Top'; // Ys? NEW: Lets you choose where the ad goes!
+
+  // Tab 5: Notices fields
+  final TextEditingController _noticeTitleCtrl = TextEditingController();
+  final TextEditingController _noticeMessageCtrl = TextEditingController();
 
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _adminTabController = TabController(length: 4, vsync: this);
+    _adminTabController = TabController(length: 5, vsync: this);
   }
 
   @override
@@ -278,6 +282,25 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
     if (mounted) setState(() => _isLoading = false);
   }
 
+  Future<void> _injectNotice() async {
+    if (_noticeTitleCtrl.text.trim().isEmpty || _noticeMessageCtrl.text.trim().isEmpty) return;
+    setState(() => _isLoading = true);
+    try {
+      await FirebaseFirestore.instance.collection('updates').add({
+        'title': _noticeTitleCtrl.text.trim(),
+        'message': _noticeMessageCtrl.text.trim(),
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+      _noticeTitleCtrl.clear();
+      _noticeMessageCtrl.clear();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Notice Posted!"), backgroundColor: Colors.green),
+      );
+    } catch (_) {}
+    if (mounted) setState(() => _isLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -328,6 +351,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
             Tab(icon: Icon(Icons.handshake), text: "Partner Links"),
             Tab(icon: Icon(Icons.card_giftcard), text: "Sponsor Banners"),
             Tab(icon: Icon(Icons.code), text: "Ad Placeholders"),
+            Tab(icon: Icon(Icons.campaign), text: "Notices"),
           ],
         ),
       ),
@@ -832,6 +856,65 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
                                   .collection('sponsor_placeholders')
                                   .doc(doc.id)
                                   .delete(),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          // --- TAB 5: NOTICES ---
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Column(
+                      children: [
+                        const Text("Post a Notice / Update", style: TextStyle(fontWeight: FontWeight.bold)),
+                        const Divider(),
+                        TextField(controller: _noticeTitleCtrl, decoration: const InputDecoration(labelText: "Notice Title")),
+                        TextField(controller: _noticeMessageCtrl, decoration: const InputDecoration(labelText: "Notice Message"), maxLines: 3),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: double.infinity, height: 45,
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _injectNotice,
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                            child: const Text("POST NOTICE", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 25),
+                const Text("Active Notices", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance.collection('updates').orderBy('timestamp', descending: true).snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return const LinearProgressIndicator();
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) {
+                        var doc = snapshot.data!.docs[index];
+                        var data = doc.data() as Map<String, dynamic>;
+                        return Card(
+                          child: ListTile(
+                            leading: const Icon(Icons.campaign, color: Colors.orange),
+                            title: Text(data['title'] ?? ''),
+                            subtitle: Text(data['message'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => FirebaseFirestore.instance.collection('updates').doc(doc.id).delete(),
                             ),
                           ),
                         );
