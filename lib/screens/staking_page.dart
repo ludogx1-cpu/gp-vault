@@ -459,33 +459,35 @@ class _StakingPageState extends State<StakingPage> {
                       ),
 
                       // 👑 THEMED BALANCE BOX
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 18,
-                          horizontal: 20,
-                        ),
-                        decoration: BoxDecoration(
+                      AnimatedHoverCard(
+                        backgroundColor: isDark
+                            ? themeProvider.darkGreyBoxColor
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(
                           color: isDark
-                              ? themeProvider.darkGreyBoxColor
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(
-                            color: isDark
-                                ? themeProvider.darkGreyBorder
-                                : Colors.amber.shade300,
-                            width: 2,
-                          ),
+                              ? themeProvider.darkGreyBorder
+                              : Colors.amber.shade300,
+                          width: 2,
                         ),
-                        child: Center(
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              "${dogeBalance.toStringAsFixed(8)} DOGE",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                color: isDark ? Colors.amber : Colors.brown,
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 18,
+                              horizontal: 20,
+                            ),
+                            child: Center(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  "${dogeBalance.toStringAsFixed(8)} DOGE",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                    color: isDark ? Colors.amber : Colors.brown,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -509,41 +511,22 @@ class _StakingPageState extends State<StakingPage> {
                       const SizedBox(height: 15),
 
                       // 👑 THEMED HARVEST BOX
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(25),
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? themeProvider.darkGreyBoxColor
-                              : null,
-                          gradient: isDark
-                              ? null
-                              : LinearGradient(
-                                  colors: [
-                                    Colors.amber.shade300,
-                                    Colors.amber.shade100,
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                          borderRadius: BorderRadius.circular(20),
-                          border: isDark
-                              ? Border.all(
-                                  color: themeProvider.darkGreyBorder,
-                                  width: 2,
-                                )
-                              : null,
-                          boxShadow: isDark
-                              ? null
-                              : const [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 10,
-                                    offset: Offset(0, 5),
-                                  ),
-                                ],
-                        ),
-                        child: Column(
+                      AnimatedHoverCard(
+                        backgroundColor: isDark
+                            ? themeProvider.darkGreyBoxColor
+                            : Colors.amber.shade100,
+                        borderRadius: BorderRadius.circular(20),
+                        border: isDark
+                            ? Border.all(
+                                color: themeProvider.darkGreyBorder,
+                                width: 2,
+                              )
+                            : null,
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: Padding(
+                            padding: const EdgeInsets.all(25),
+                            child: Column(
                           children: [
                             Text(
                               "Total Staked (Principal)",
@@ -601,6 +584,8 @@ class _StakingPageState extends State<StakingPage> {
                             ),
                           ],
                         ),
+                      ),
+                      ),
                       ),
 
                       const SizedBox(height: 30),

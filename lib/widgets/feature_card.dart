@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../src/theme_provider.dart';
+import 'animated_hover_card.dart';
 
 class FeatureCard extends StatelessWidget {
   final IconData icon;
@@ -19,27 +20,19 @@ class FeatureCard extends StatelessWidget {
       listenable: themeProvider,
       builder: (context, _) {
         final isDark = themeProvider.isDarkMode;
-        return Container(
-          width: 300,
+        return AnimatedHoverCard(
           padding: const EdgeInsets.all(30),
-          decoration: BoxDecoration(
-            color: isDark ? Colors.black54 : Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isDark
-                  ? Colors.amber.withValues(alpha: 0.3)
-                  : Colors.grey.shade100,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
+          backgroundColor: isDark ? Colors.black54 : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isDark
+                ? Colors.amber.withValues(alpha: 0.3)
+                : Colors.grey.shade100,
           ),
-          child: Column(
-            children: [
+          child: SizedBox(
+            width: 240,
+            child: Column(
+              children: [
               CircleAvatar(
                 radius: 30,
                 backgroundColor: color.withValues(alpha: 0.1),
@@ -64,6 +57,7 @@ class FeatureCard extends StatelessWidget {
                 ),
               ),
             ],
+          ),
           ),
         );
       },
