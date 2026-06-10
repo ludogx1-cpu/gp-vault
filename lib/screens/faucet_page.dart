@@ -1295,6 +1295,7 @@ class _FaucetPageState extends State<FaucetPage> {
                       },
                     );
                   },
+                ),
                 const SizedBox(height: 30),
                 StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
