@@ -1081,7 +1081,7 @@ class _FaucetPageState extends State<FaucetPage> {
                             ),
                             child: const Text(
                               "Tap to Load Captcha",
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(color: Colors.black),
                             ),
                           ),
                         if (!_isCheckingCooldown && _secondsRemaining > 0)
