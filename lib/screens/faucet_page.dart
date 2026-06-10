@@ -11,9 +11,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../src/theme_provider.dart';
-import '../create_ad_page.dart';
 import '../src/firebase_service.dart';
 import '../src/app_widgets.dart';
+import '../widgets/bonus_timer_dialog.dart';
 
 Future<Map<String, String>> _authHeaders() async {
   final headers = {'Content-Type': 'application/json'};
