@@ -2,6 +2,9 @@ import 'auth_dialog.dart';
 import '../screens/landing_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
+import 'auth_dialog.dart';
+import '../screens/landing_page.dart';
 import '../main.dart';
 
 class RootGatekeeper extends StatelessWidget {
@@ -18,7 +21,14 @@ class RootGatekeeper extends StatelessWidget {
           );
         }
         if (snapshot.hasData) {
-          return const MainScaffold();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (GoRouterState.of(context).uri.path == '/') {
+              context.go('/faucet');
+            }
+          });
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator(color: Colors.amber)),
+          );
         }
         return LandingPage(
           onAuthTrigger: (context, isLogin) {

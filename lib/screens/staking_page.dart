@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'dart:ui_web' as ui;
-import 'package:web/web.dart' as web;
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +9,7 @@ import '../src/user_provider.dart';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
 import '../widgets/widgets.dart';
+import '../api_constants.dart';
 
 
 
@@ -20,88 +21,7 @@ import '../widgets/widgets.dart';
 
 
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
 
-  // 🚀 REGISTER VIEWS (CAPTCHAS & TENOR GIF)
-  try {
-    // 1. hCaptcha
-    // ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory('hcaptcha-widget', (
-      int viewId,
-    ) {
-      final div = web.HTMLDivElement();
-      div.id = 'hcaptcha-target';
-      div.setAttribute(
-        'style',
-        'display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; transform: scale(0.85); transform-origin: center center;',
-      );
-      return div;
-    });
-
-    // 2. Turnstile
-    // ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory('turnstile-widget', (
-      int viewId,
-    ) {
-      final div = web.HTMLDivElement();
-      div.id = 'turnstile-target';
-      div.setAttribute(
-        'style',
-        'display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; transform: scale(0.85); transform-origin: center center;',
-      );
-      return div;
-    });
-
-    // 3. Tenor Dogecoin Animated GIF View (Original Embed + Hover Blocked!)
-    // ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory('tenor-gif-view', (int viewId) {
-      final iframe = web.HTMLIFrameElement();
-      // pointer-events: none completely blocks the Tenor hover menu
-      iframe.setAttribute(
-        'style',
-        'border: none; width: 100%; height: 100%; pointer-events: none;',
-      );
-
-      iframe.setAttribute('srcdoc', '''
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <style>
-                body { margin: 0; display: flex; justify-content: center; align-items: center; overflow: hidden; background: transparent; }
-                .tenor-gif-embed { width: 100% !important; max-width: 120px; pointer-events: none; }
-              </style>
-            </head>
-            <body>
-              <div class="tenor-gif-embed" data-postid="4351659229197618111" data-share-method="host" data-aspect-ratio="1" data-width="100%">
-                <a href="https://tenor.com/view/dogecoin-logo-animation-dogecoin-logo-animation-crypto-gif-4351659229197618111">Dogecoin Logo GIF</a>
-              </div>
-              <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
-            </body>
-          </html>
-        ''');
-      return iframe;
-    });
-  } catch (e) {
-    // ignore: empty_catches
-  }
-
-  await FirebaseService.initialize();
-
-  runApp(
-    ListenableBuilder(
-      listenable: themeProvider,
-      builder: (context, child) => MaterialApp(
-        title: 'Golden Paw',
-        home: const RootGatekeeper(),
-        debugShowCheckedModeBanner: false,
-        theme: themeProvider.lightTheme,
-        darkTheme: themeProvider.darkTheme,
-        themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      ),
-    ),
-  );
-}
 
 // ==========================================
 // 1. THE SHELL
@@ -117,59 +37,31 @@ class _StakingPageState extends State<StakingPage> {
   final TextEditingController _amountController = TextEditingController();
 
   Future<void> _harvestInterest() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      return;
-    }
-    final docRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
-
     try {
-      await FirebaseFirestore.instance.runTransaction((transaction) async {
-        final snapshot = await transaction.get(docRef);
-        if (!snapshot.exists) throw Exception("User not found!");
-
-        final data = snapshot.data();
-        double currentBalance = (data?['doge_balance'] ?? 0.0).toDouble();
-        double currentStaked = (data?['staked_balance'] ?? 0.0).toDouble();
-        Timestamp? stakeTime = data?['stake_timestamp'] as Timestamp?;
-
-        double pendingInterest = 0.0;
-        if (currentStaked > 0 && stakeTime != null) {
-          int secondsPassed = DateTime.now()
-              .difference(stakeTime.toDate())
-              .inSeconds;
-          if (secondsPassed > 0) {
-            pendingInterest =
-                currentStaked * (0.085 / 31536000) * secondsPassed;
-          }
-        }
-
-        if (pendingInterest <= 0) {
-          throw Exception("No interest to harvest yet!");
-        }
-
-        transaction.update(docRef, {
-          'doge_balance': currentBalance + pendingInterest,
-          'stake_timestamp': FieldValue.serverTimestamp(),
-        });
-      });
-
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "Successfully Harvested Interest! 🌾",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: Colors.green,
-        ),
+      final response = await http.post(
+        Uri.parse(ApiConstants.baseUrl + '/harvest'),
+        headers: await getAuthHeaders(),
       );
-    } catch (e) {
-      if (!mounted) {
-        return;
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              data['message'] ?? "Successfully Harvested Interest! 🌾",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Server error');
       }
+    } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.toString().replaceAll("Exception: ", "")),
@@ -180,68 +72,36 @@ class _StakingPageState extends State<StakingPage> {
   }
 
   Future<void> _stakeDoge(double amountToStake) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      return;
-    }
-    final docRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
-
     try {
-      await FirebaseFirestore.instance.runTransaction((transaction) async {
-        final snapshot = await transaction.get(docRef);
-        if (!snapshot.exists) throw Exception("User not found!");
-
-        final data = snapshot.data();
-        double currentBalance = (data?['doge_balance'] ?? 0.0).toDouble();
-        double currentStaked = (data?['staked_balance'] ?? 0.0).toDouble();
-        Timestamp? stakeTime = data?['stake_timestamp'] as Timestamp?;
-
-        double pendingInterest = 0.0;
-        if (currentStaked > 0 && stakeTime != null) {
-          int secondsPassed = DateTime.now()
-              .difference(stakeTime.toDate())
-              .inSeconds;
-          if (secondsPassed > 0) {
-            pendingInterest =
-                currentStaked * (0.085 / 31536000) * secondsPassed;
-          }
-        }
-
-        currentBalance += pendingInterest;
-
-        if (currentBalance >= amountToStake && amountToStake > 0) {
-          transaction.update(docRef, {
-            'doge_balance': currentBalance - amountToStake,
-            'staked_balance': currentStaked + amountToStake,
-            'stake_timestamp': FieldValue.serverTimestamp(),
-          });
-        } else {
-          throw Exception("Not enough Doge in your Stakable Balance!");
-        }
-      });
-
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Successfully staked $amountToStake DOGE! 🐾",
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: Colors.green,
-        ),
+      final response = await http.post(
+        Uri.parse(ApiConstants.baseUrl + '/stake'),
+        headers: await getAuthHeaders(),
+        body: jsonEncode({'amount': amountToStake}),
       );
-      _amountController.clear();
-    } catch (e) {
-      if (!context.mounted) {
-        return;
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              data['message'] ?? "Successfully staked $amountToStake DOGE! 🐾",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+        _amountController.clear();
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Server error');
       }
+    } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            "Vault Error: ${e.toString().replaceAll("Exception: ", "")}",
-          ),
+          content: Text("Vault Error: ${e.toString().replaceAll("Exception: ", "")}"),
           backgroundColor: Colors.red,
         ),
       );
@@ -249,68 +109,36 @@ class _StakingPageState extends State<StakingPage> {
   }
 
   Future<void> _unstakeDoge(double amountToUnstake) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      return;
-    }
-    final docRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
-
     try {
-      await FirebaseFirestore.instance.runTransaction((transaction) async {
-        final snapshot = await transaction.get(docRef);
-        if (!snapshot.exists) throw Exception("User not found!");
-
-        final data = snapshot.data();
-        double currentBalance = (data?['doge_balance'] ?? 0.0).toDouble();
-        double currentStaked = (data?['staked_balance'] ?? 0.0).toDouble();
-        Timestamp? stakeTime = data?['stake_timestamp'] as Timestamp?;
-
-        double pendingInterest = 0.0;
-        if (currentStaked > 0 && stakeTime != null) {
-          int secondsPassed = DateTime.now()
-              .difference(stakeTime.toDate())
-              .inSeconds;
-          if (secondsPassed > 0) {
-            pendingInterest =
-                currentStaked * (0.085 / 31536000) * secondsPassed;
-          }
-        }
-
-        currentBalance += pendingInterest;
-
-        if (currentStaked >= amountToUnstake && amountToUnstake > 0) {
-          transaction.update(docRef, {
-            'doge_balance': currentBalance + amountToUnstake,
-            'staked_balance': currentStaked - amountToUnstake,
-            'stake_timestamp': FieldValue.serverTimestamp(),
-          });
-        } else {
-          throw Exception("Not enough Staked Doge to unstake!");
-        }
-      });
-
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Successfully unstaked $amountToUnstake DOGE! 🔓",
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: Colors.blue,
-        ),
+      final response = await http.post(
+        Uri.parse(ApiConstants.baseUrl + '/unstake'),
+        headers: await getAuthHeaders(),
+        body: jsonEncode({'amount': amountToUnstake}),
       );
-      _amountController.clear();
-    } catch (e) {
-      if (!context.mounted) {
-        return;
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              data['message'] ?? "Successfully unstaked $amountToUnstake DOGE! 🔓",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            backgroundColor: Colors.blue,
+          ),
+        );
+        _amountController.clear();
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Server error');
       }
+    } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            "Vault Error: ${e.toString().replaceAll("Exception: ", "")}",
-          ),
+          content: Text("Vault Error: ${e.toString().replaceAll("Exception: ", "")}"),
           backgroundColor: Colors.red,
         ),
       );

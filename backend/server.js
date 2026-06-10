@@ -6,6 +6,7 @@ const faucetRoutes = require('./src/routes/faucetRoutes');
 const ptcRoutes = require('./src/routes/ptcRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const bannerRoutes = require('./src/routes/bannerRoutes');
+const stakingRoutes = require('./src/routes/stakingRoutes');
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
@@ -68,6 +69,7 @@ app.get('/get-updates', async (req, res) => {
 app.use('/', faucetRoutes);
 app.use('/', ptcRoutes);
 app.use('/', bannerRoutes);
+app.use('/', stakingRoutes);
 app.use('/admin', adminRoutes);
 
 if (require.main === module) {

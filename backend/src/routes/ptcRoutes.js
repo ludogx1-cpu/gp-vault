@@ -1,5 +1,6 @@
 const express = require('express');
 const { admin, verifyFirebaseToken } = require('../services/firebaseService');
+const { verifyCaptchaToken } = require('../utils/helpers');
 
 const router = express.Router();
 const getAdminUid = () => process.env.ADMIN_UID || 'P8iffVqbUgetAVA4MdHVZ1CfvUv1';
@@ -15,11 +16,47 @@ router.post('/buy-ptc', verifyFirebaseToken, async (req, res) => {
       return res.status(400).json({ success: false, error: 'Missing required PTC fields' });
     }
 
-    console.log('Buy PTC request:', { user: req.user.uid, target_url, tier, clicks });
+    const { getPtcConfig } = require('../utils/helpers');
+    const ptcConfig = getPtcConfig(tier, clicks);
+    if (!ptcConfig) {
+      return res.status(400).json({ success: false, error: 'Invalid PTC tier or clicks configuration' });
+    }
+
+    const cost = ptcConfig.totalCost;
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    const newAdRef = admin.firestore().collection('ptc_ads').doc();
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const userSnapshot = await transaction.get(userRef);
+      if (!userSnapshot.exists) throw new Error('User not found');
+
+      const userData = userSnapshot.data() || {};
+      const currentBalance = Number(userData.doge_balance || 0);
+
+      if (currentBalance < cost) {
+        throw new Error(`Insufficient balance. This ad costs ${cost} DOGE`);
+      }
+
+      transaction.update(userRef, {
+        doge_balance: currentBalance - cost
+      });
+
+      transaction.set(newAdRef, {
+        target_url: target_url,
+        tier: tier,
+        clicks_total: clicks,
+        clicks_remaining: clicks,
+        creator_uid: req.user.uid,
+        status: 'active',
+        created_at: admin.firestore.FieldValue.serverTimestamp()
+      });
+    });
+
+    console.log('Buy PTC request successful:', { user: req.user.uid, target_url, tier, clicks, cost });
     res.json({ success: true, message: 'PTC ad added to the pool successfully' });
   } catch (error) {
     console.error('buy-ptc error:', error.message || error);
-    res.status(500).json({ success: false, error: 'Failed to process PTC purchase' });
+    res.status(400).json({ success: false, error: error.message || 'Failed to process PTC purchase' });
   }
 });
 
@@ -34,6 +71,10 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
     if (req.user.uid !== getAdminUid()) {
       if (!captcha_token || !captcha_provider || !ad_id) {
         return res.status(400).json({ success: false, error: 'Missing required validation data' });
+      }
+      const isCaptchaValid = await verifyCaptchaToken(captcha_token, captcha_provider);
+      if (!isCaptchaValid) {
+        return res.status(400).json({ success: false, error: 'Invalid captcha token' });
       }
     } else if (!ad_id) {
       return res.status(400).json({ success: false, error: 'Missing ad_id' });
