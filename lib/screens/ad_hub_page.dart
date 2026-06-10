@@ -5,8 +5,9 @@ import 'dart:async';
 import 'dart:ui_web' as ui;
 import 'package:web/web.dart' as web;
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 import '../src/theme_provider.dart';
+import '../src/user_provider.dart';
 import 'create_ad_page.dart';
 import '../src/firebase_service.dart';
 import '../widgets/widgets.dart';
@@ -591,10 +592,9 @@ class _AdHubPageState extends State<AdHubPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const GlobalAppBar(showBackArrow: true),
-      body: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, authSnapshot) {
-          final User? user = authSnapshot.data;
+      body: Consumer<UserProvider>(
+        builder: (context, userProvider, _) {
+          final user = FirebaseAuth.instance.currentUser;
 
           if (user == null) {
             return Center(
@@ -630,564 +630,555 @@ class _AdHubPageState extends State<AdHubPage> {
             );
           }
 
-          return StreamBuilder<DocumentSnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('users')
-                .doc(user.uid)
-                .snapshots(),
-            builder: (context, dbSnapshot) {
-              if (dbSnapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(color: Colors.amber),
-                );
-              }
-              var userData = dbSnapshot.data?.data() as Map<String, dynamic>?;
-              double adsBalance = (userData?['ads_balance'] ?? 0.0).toDouble();
-              double dogeBalance = (userData?['doge_balance'] ?? 0.0)
-                  .toDouble();
+          final userData = userProvider.userData;
+          if (userData == null) {
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.amber),
+            );
+          }
+          double adsBalance = (userData['ads_balance'] ?? 0.0).toDouble();
+          double dogeBalance = (userData['doge_balance'] ?? 0.0).toDouble();
 
-              // 👑 WRAPPING THE PAGE IN THE THEME BUILDER
-              return ListenableBuilder(
-                listenable: themeProvider,
-                builder: (context, _) {
-                  final isDark = themeProvider.isDarkMode;
+          // 👑 WRAPPING THE PAGE IN THE THEME BUILDER
+          return ListenableBuilder(
+            listenable: themeProvider,
+            builder: (context, _) {
+              final isDark = themeProvider.isDarkMode;
 
-                  return SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        children: [
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? themeProvider.darkGreyBoxColor
-                                  : Colors.orange.shade50,
-                              borderRadius: BorderRadius.circular(15),
-                              border: Border.all(
-                                color: isDark
-                                    ? themeProvider.darkGreyBorder
-                                    : Colors.orange.shade300,
-                                width: 2,
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                const Text(
-                                  "Ready to Promote?",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.orange,
-                                  ),
-                                ),
-                                const SizedBox(height: 15),
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton.icon(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const CreateAdPage(),
-                                        ),
-                                      );
-                                    },
-                                    icon: const Icon(
-                                      Icons.rocket_launch,
-                                      color: Colors.white,
-                                    ),
-                                    label: const Text(
-                                      "LAUNCH NEW CAMPAIGN",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.orange,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? themeProvider.darkGreyBoxColor
+                              : Colors.orange.shade50,
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(
+                            color: isDark
+                                ? themeProvider.darkGreyBorder
+                                : Colors.orange.shade300,
+                            width: 2,
                           ),
-                          const SizedBox(height: 20),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? themeProvider.darkGreyBoxColor
-                                  : Colors.amber.shade50,
-                              borderRadius: BorderRadius.circular(15),
-                              border: Border.all(
-                                color: isDark
-                                    ? themeProvider.darkGreyBorder
-                                    : Colors.amber.shade300,
-                                width: 2,
+                        ),
+                        child: Column(
+                          children: [
+                            const Text(
+                              "Ready to Promote?",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange,
                               ),
                             ),
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.swap_horizontal_circle,
-                                      color: isDark
-                                          ? Colors.amber
-                                          : Colors.brown,
+                            const SizedBox(height: 15),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const CreateAdPage(),
                                     ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      "Instant Vault Swap",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: isDark
-                                            ? Colors.white
-                                            : Colors.brown,
-                                      ),
-                                    ),
-                                  ],
+                                  );
+                                },
+                                icon: const Icon(
+                                  Icons.rocket_launch,
+                                  color: Colors.white,
                                 ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  "Balance: ${dogeBalance.toStringAsFixed(4)} DOGE",
+                                label: const Text(
+                                  "LAUNCH NEW CAMPAIGN",
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orange,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? themeProvider.darkGreyBoxColor
+                              : Colors.amber.shade50,
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(
+                            color: isDark
+                                ? themeProvider.darkGreyBorder
+                                : Colors.amber.shade300,
+                            width: 2,
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.swap_horizontal_circle,
+                                  color: isDark
+                                      ? Colors.amber
+                                      : Colors.brown,
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  "Instant Vault Swap",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
                                     color: isDark
-                                        ? Colors.amber.shade200
+                                        ? Colors.white
                                         : Colors.brown,
                                   ),
                                 ),
-                                const SizedBox(height: 15),
-                                TextField(
-                                  controller: _swapAmountController,
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                        decimal: true,
-                                      ),
-                                  style: TextStyle(
-                                    color: isDark ? Colors.white : Colors.black,
-                                  ),
-                                  decoration: InputDecoration(
-                                    labelText: "DOGE to Convert",
-                                    labelStyle: TextStyle(
-                                      color: isDark ? Colors.white70 : null,
-                                    ),
-                                    border: const OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(10),
-                                      ),
-                                    ),
-                                    enabledBorder: isDark
-                                        ? const OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                              color: Colors.white24,
-                                            ),
-                                          )
-                                        : null,
-                                    hintText: "1.0",
-                                    hintStyle: TextStyle(
-                                      color: isDark ? Colors.white30 : null,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  "⚠️ Includes a tiny 1% exchange fee",
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: isDark
-                                        ? Colors.white54
-                                        : Colors.grey,
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton.icon(
-                                    onPressed: _isSwapping
-                                        ? null
-                                        : _swapDogeToUsdt,
-                                    icon: const Icon(Icons.bolt),
-                                    label: Text(
-                                      _isSwapping
-                                          ? "Converting..."
-                                          : "SWAP FOR AD CREDIT",
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: isDark
-                                          ? Colors.amber
-                                          : Colors.brown,
-                                      foregroundColor: isDark
-                                          ? Colors.brown.shade900
-                                          : Colors.white,
-                                    ),
-                                  ),
-                                ),
                               ],
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(15),
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? themeProvider.darkGreyBoxColor
-                                  : Colors.red.shade50,
-                              border: Border.all(
+                            const SizedBox(height: 5),
+                            Text(
+                              "Balance: ${dogeBalance.toStringAsFixed(4)} DOGE",
+                              style: TextStyle(
+                                fontSize: 12,
                                 color: isDark
-                                    ? Colors.red.shade900
-                                    : Colors.red.shade200,
-                                width: 2,
+                                    ? Colors.amber.shade200
+                                    : Colors.brown,
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            TextField(
+                              controller: _swapAmountController,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                              style: TextStyle(
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                              decoration: InputDecoration(
+                                labelText: "DOGE to Convert",
+                                labelStyle: TextStyle(
+                                  color: isDark ? Colors.white70 : null,
+                                ),
+                                border: const OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
+                                ),
+                                enabledBorder: isDark
+                                    ? const OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Colors.white24,
+                                        ),
+                                      )
+                                    : null,
+                                hintText: "1.0",
+                                hintStyle: TextStyle(
+                                  color: isDark ? Colors.white30 : null,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              "⚠️ Includes a tiny 1% exchange fee",
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isDark
+                                    ? Colors.white54
+                                    : Colors.grey,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: _isSwapping
+                                    ? null
+                                    : _swapDogeToUsdt,
+                                icon: const Icon(Icons.bolt),
+                                label: Text(
+                                  _isSwapping
+                                      ? "Converting..."
+                                      : "SWAP FOR AD CREDIT",
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: isDark
+                                      ? Colors.amber
+                                      : Colors.brown,
+                                  foregroundColor: isDark
+                                      ? Colors.brown.shade900
+                                      : Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? themeProvider.darkGreyBoxColor
+                              : Colors.red.shade50,
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.red.shade900
+                                : Colors.red.shade200,
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(
+                              Icons.warning_amber_rounded,
+                              color: Colors.red,
+                              size: 30,
+                            ),
+                            SizedBox(width: 15),
+                            Expanded(
+                              child: Text(
+                                "IMPORTANT: Funds deposited here are strictly for purchasing advertising. They CANNOT be staked, transferred, or withdrawn back to FaucetPay.",
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? themeProvider.darkGreyBoxColor
+                              : Colors.green.shade50,
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(
+                            color: isDark
+                                ? themeProvider.darkGreyBorder
+                                : Colors.green.shade200,
+                            width: 2,
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            const Text(
+                              "Advertising Balance",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              "\$${adsBalance.toStringAsFixed(2)} USDT",
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: isDark
+                                    ? Colors.green.shade300
+                                    : Colors.green.shade900,
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: _showDepositDialog,
+                                icon: const Icon(
+                                  Icons.add_circle,
+                                  color: Colors.white,
+                                ),
+                                label: const Text(
+                                  "DEPOSIT USDT",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Ad Store",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.brown,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+
+                      Card(
+                        color: isDark
+                            ? themeProvider.darkGreyBoxColor
+                            : Colors.white,
+                        elevation: isDark ? 0 : 2,
+                        shape: isDark
+                            ? RoundedRectangleBorder(
+                              side: BorderSide(
+                                color: themeProvider.darkGreyBorder,
                               ),
                               borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Row(
-                              children: [
-                                Icon(
-                                  Icons.warning_amber_rounded,
-                                  color: Colors.red,
-                                  size: 30,
-                                ),
-                                SizedBox(width: 15),
-                                Expanded(
-                                  child: Text(
-                                    "IMPORTANT: Funds deposited here are strictly for purchasing advertising. They CANNOT be staked, transferred, or withdrawn back to FaucetPay.",
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                            )
+                            : null,
+                        child: ListTile(
+                          leading: const Icon(
+                            Icons.image,
+                            color: Colors.purple,
+                            size: 30,
+                          ),
+                          title: Text(
+                            "Global Top Banner",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : null,
                             ),
                           ),
-                          const SizedBox(height: 20),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? themeProvider.darkGreyBoxColor
-                                  : Colors.green.shade50,
-                              borderRadius: BorderRadius.circular(15),
-                              border: Border.all(
-                                color: isDark
-                                    ? themeProvider.darkGreyBorder
-                                    : Colors.green.shade200,
-                                width: 2,
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                const Text(
-                                  "Advertising Balance",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  "\$${adsBalance.toStringAsFixed(2)} USDT",
-                                  style: TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark
-                                        ? Colors.green.shade300
-                                        : Colors.green.shade900,
-                                  ),
-                                ),
-                                const SizedBox(height: 15),
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton.icon(
-                                    onPressed: _showDepositDialog,
-                                    icon: const Icon(
-                                      Icons.add_circle,
-                                      color: Colors.white,
-                                    ),
-                                    label: const Text(
-                                      "DEPOSIT USDT",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.green,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                          subtitle: Text(
+                            "Top of Faucet page (7 Days).",
+                            style: TextStyle(
+                              color: isDark ? Colors.white70 : null,
                             ),
                           ),
-                          const SizedBox(height: 30),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              "Ad Store",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : Colors.brown,
-                              ),
+                          trailing: const Text(
+                            "\$7.00",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
                             ),
                           ),
-                          const SizedBox(height: 15),
-
-                          Card(
-                            color: isDark
-                                ? themeProvider.darkGreyBoxColor
-                                : Colors.white,
-                            elevation: isDark ? 0 : 2,
-                            shape: isDark
-                                ? RoundedRectangleBorder(
-                                    side: BorderSide(
-                                      color: themeProvider.darkGreyBorder,
-                                    ),
-                                    borderRadius: BorderRadius.circular(10),
-                                  )
-                                : null,
-                            child: ListTile(
-                              leading: const Icon(
-                                Icons.image,
-                                color: Colors.purple,
-                                size: 30,
-                              ),
-                              title: Text(
-                                "Global Top Banner",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : null,
-                                ),
-                              ),
-                              subtitle: Text(
-                                "Top of Faucet page (7 Days).",
-                                style: TextStyle(
-                                  color: isDark ? Colors.white70 : null,
-                                ),
-                              ),
-                              trailing: const Text(
-                                "\$7.00",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
-                              ),
-                              onTap: () => _buyAd(
-                                adsBalance,
-                                'global_banner',
-                                'Global Banner',
-                                7.0,
-                              ),
-                            ),
+                          onTap: () => _buyAd(
+                            adsBalance,
+                            'global_banner',
+                            'Global Banner',
+                            7.0,
                           ),
-                          Card(
-                            color: isDark
-                                ? themeProvider.darkGreyBoxColor
-                                : Colors.white,
-                            elevation: isDark ? 0 : 2,
-                            shape: isDark
-                                ? RoundedRectangleBorder(
-                                    side: BorderSide(
-                                      color: themeProvider.darkGreyBorder,
-                                    ),
-                                    borderRadius: BorderRadius.circular(10),
-                                  )
-                                : null,
-                            child: ListTile(
-                              leading: const Icon(
-                                Icons.check_box_outline_blank,
-                                color: Colors.blue,
-                                size: 30,
-                              ),
-                              title: Text(
-                                "Square Ad (Left)",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : null,
-                                ),
-                              ),
-                              subtitle: Text(
-                                "Next to Claim Button (7 Days).",
-                                style: TextStyle(
-                                  color: isDark ? Colors.white70 : null,
-                                ),
-                              ),
-                              trailing: const Text(
-                                "\$3.50",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
-                              ),
-                              onTap: () => _buyAd(
-                                adsBalance,
-                                'square_left',
-                                'Left Square Ad',
-                                3.5,
-                              ),
-                            ),
-                          ),
-                          Card(
-                            color: isDark
-                                ? themeProvider.darkGreyBoxColor
-                                : Colors.white,
-                            elevation: isDark ? 0 : 2,
-                            shape: isDark
-                                ? RoundedRectangleBorder(
-                                    side: BorderSide(
-                                      color: themeProvider.darkGreyBorder,
-                                    ),
-                                    borderRadius: BorderRadius.circular(10),
-                                  )
-                                : null,
-                            child: ListTile(
-                              leading: const Icon(
-                                Icons.check_box_outline_blank,
-                                color: Colors.blue,
-                                size: 30,
-                              ),
-                              title: Text(
-                                "Square Ad (Right)",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : null,
-                                ),
-                              ),
-                              subtitle: Text(
-                                "Next to Claim Button (7 Days).",
-                                style: TextStyle(
-                                  color: isDark ? Colors.white70 : null,
-                                ),
-                              ),
-                              trailing: const Text(
-                                "\$3.50",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
-                              ),
-                              onTap: () => _buyAd(
-                                adsBalance,
-                                'square_right',
-                                'Right Square Ad',
-                                3.5,
-                              ),
-                            ),
-                          ),
-                          Card(
-                            color: isDark
-                                ? themeProvider.darkGreyBoxColor
-                                : Colors.white,
-                            elevation: isDark ? 0 : 2,
-                            shape: isDark
-                                ? RoundedRectangleBorder(
-                                    side: BorderSide(
-                                      color: themeProvider.darkGreyBorder,
-                                    ),
-                                    borderRadius: BorderRadius.circular(10),
-                                  )
-                                : null,
-                            child: ListTile(
-                              leading: const Icon(
-                                Icons.ad_units,
-                                color: Colors.red,
-                                size: 30,
-                              ),
-                              title: Text(
-                                "Interstitial Pop-up",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : null,
-                                ),
-                              ),
-                              subtitle: Text(
-                                "Shows during claim loading (7 Days).",
-                                style: TextStyle(
-                                  color: isDark ? Colors.white70 : null,
-                                ),
-                              ),
-                              trailing: const Text(
-                                "\$14.00",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
-                              ),
-                              onTap: () => _buyAd(
-                                adsBalance,
-                                'interstitial',
-                                'Interstitial Pop-up',
-                                14.0,
-                              ),
-                            ),
-                          ),
-                          Card(
-                            color: isDark
-                                ? themeProvider.darkGreyBoxColor
-                                : Colors.white,
-                            elevation: isDark ? 0 : 2,
-                            shape: isDark
-                                ? RoundedRectangleBorder(
-                                    side: BorderSide(
-                                      color: themeProvider.darkGreyBorder,
-                                    ),
-                                    borderRadius: BorderRadius.circular(10),
-                                  )
-                                : null,
-                            child: ListTile(
-                              leading: const Icon(
-                                Icons.ads_click,
-                                color: Colors.orange,
-                                size: 30,
-                              ),
-                              title: Text(
-                                "Buy PTC Clicks",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : null,
-                                ),
-                              ),
-                              subtitle: Text(
-                                "Select your duration & volume.",
-                                style: TextStyle(
-                                  color: isDark ? Colors.white70 : null,
-                                ),
-                              ),
-                              trailing: const Text(
-                                "Custom",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
-                              ),
-                              onTap: () => _buyPtcAd(adsBalance),
-                            ),
-                          ),
-                          const SizedBox(height: 40),
-                        ],
+                        ),
                       ),
-                    ),
-                  );
-                },
+                      Card(
+                        color: isDark
+                            ? themeProvider.darkGreyBoxColor
+                            : Colors.white,
+                        elevation: isDark ? 0 : 2,
+                        shape: isDark
+                            ? RoundedRectangleBorder(
+                              side: BorderSide(
+                                color: themeProvider.darkGreyBorder,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            )
+                            : null,
+                        child: ListTile(
+                          leading: const Icon(
+                            Icons.check_box_outline_blank,
+                            color: Colors.blue,
+                            size: 30,
+                          ),
+                          title: Text(
+                            "Square Ad (Left)",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : null,
+                            ),
+                          ),
+                          subtitle: Text(
+                            "Next to Claim Button (7 Days).",
+                            style: TextStyle(
+                              color: isDark ? Colors.white70 : null,
+                            ),
+                          ),
+                          trailing: const Text(
+                            "\$3.50",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                          onTap: () => _buyAd(
+                            adsBalance,
+                            'square_left',
+                            'Left Square Ad',
+                            3.5,
+                          ),
+                        ),
+                      ),
+                      Card(
+                        color: isDark
+                            ? themeProvider.darkGreyBoxColor
+                            : Colors.white,
+                        elevation: isDark ? 0 : 2,
+                        shape: isDark
+                            ? RoundedRectangleBorder(
+                              side: BorderSide(
+                                color: themeProvider.darkGreyBorder,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            )
+                            : null,
+                        child: ListTile(
+                          leading: const Icon(
+                            Icons.check_box_outline_blank,
+                            color: Colors.blue,
+                            size: 30,
+                          ),
+                          title: Text(
+                            "Square Ad (Right)",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : null,
+                            ),
+                          ),
+                          subtitle: Text(
+                            "Next to Claim Button (7 Days).",
+                            style: TextStyle(
+                              color: isDark ? Colors.white70 : null,
+                            ),
+                          ),
+                          trailing: const Text(
+                            "\$3.50",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                          onTap: () => _buyAd(
+                            adsBalance,
+                            'square_right',
+                            'Right Square Ad',
+                            3.5,
+                          ),
+                        ),
+                      ),
+                      Card(
+                        color: isDark
+                            ? themeProvider.darkGreyBoxColor
+                            : Colors.white,
+                        elevation: isDark ? 0 : 2,
+                        shape: isDark
+                            ? RoundedRectangleBorder(
+                              side: BorderSide(
+                                color: themeProvider.darkGreyBorder,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            )
+                            : null,
+                        child: ListTile(
+                          leading: const Icon(
+                            Icons.ad_units,
+                            color: Colors.red,
+                            size: 30,
+                          ),
+                          title: Text(
+                            "Interstitial Pop-up",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : null,
+                            ),
+                          ),
+                          subtitle: Text(
+                            "Shows during claim loading (7 Days).",
+                            style: TextStyle(
+                              color: isDark ? Colors.white70 : null,
+                            ),
+                          ),
+                          trailing: const Text(
+                            "\$14.00",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                          onTap: () => _buyAd(
+                            adsBalance,
+                            'interstitial',
+                            'Interstitial Pop-up',
+                            14.0,
+                          ),
+                        ),
+                      ),
+                      Card(
+                        color: isDark
+                            ? themeProvider.darkGreyBoxColor
+                            : Colors.white,
+                        elevation: isDark ? 0 : 2,
+                        shape: isDark
+                            ? RoundedRectangleBorder(
+                              side: BorderSide(
+                                color: themeProvider.darkGreyBorder,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            )
+                            : null,
+                        child: ListTile(
+                          leading: const Icon(
+                            Icons.ads_click,
+                            color: Colors.orange,
+                            size: 30,
+                          ),
+                          title: Text(
+                            "Buy PTC Clicks",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : null,
+                            ),
+                          ),
+                          subtitle: Text(
+                            "Select your duration & volume.",
+                            style: TextStyle(
+                              color: isDark ? Colors.white70 : null,
+                            ),
+                          ),
+                          trailing: const Text(
+                            "Custom",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                          onTap: () => _buyPtcAd(adsBalance),
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                    ],
+                  ),
+                ),
               );
             },
           );
