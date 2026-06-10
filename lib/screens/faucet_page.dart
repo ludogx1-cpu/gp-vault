@@ -1081,7 +1081,7 @@ class _FaucetPageState extends State<FaucetPage> {
                             ),
                             child: const Text(
                               "Tap to Load Captcha",
-                              style: TextStyle(color: Colors.brown),
+                              style: TextStyle(color: Colors.white),
                             ),
                           ),
                         if (!_isCheckingCooldown && _secondsRemaining > 0)
@@ -1138,13 +1138,8 @@ class _FaucetPageState extends State<FaucetPage> {
                             : Text(
                                 _getClaimButtonText(),
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: _saveToVault && _captchaToken != null
-                                      ? Colors.white
-                                      : (Theme.of(context).brightness ==
-                                                Brightness.dark
-                                            ? Colors.white70
-                                            : Colors.grey.shade600),
+                                style: const TextStyle(
+                                  color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -1254,9 +1249,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                         backgroundColor: canClaimBonus
                                             ? Colors.amber
                                             : Colors.grey,
-                                        foregroundColor: canClaimBonus
-                                            ? (isDark ? Colors.white : Colors.brown.shade900)
-                                            : Colors.white,
+                                        foregroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
                                             10,
