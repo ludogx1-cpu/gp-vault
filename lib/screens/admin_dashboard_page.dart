@@ -166,7 +166,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
         'title': _titleCtrl.text.trim(),
         'target_url': _urlCtrl.text.trim(),
         'duration': int.tryParse(_durationCtrl.text) ?? 10,
-        'reward': double.tryParse(_rewardCtrl.text) ?? 0.001,
+        'reward': double.tryParse(_rewardCtrl.text) ?? 0.002,
         'clicks_remaining': int.tryParse(_clicksCtrl.text) ?? 1000,
         'created_at': FieldValue.serverTimestamp(),
       });

@@ -1,6 +1,7 @@
 import 'wallet_dropdown_button.dart';
 import 'live_referral_tracker.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../src/theme_provider.dart';
 
 class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -38,31 +39,34 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
               centerTitle: isMobile ? false : centerTitle,
               iconTheme: const IconThemeData(color: kAppBarIconColor),
               titleSpacing: showBackArrow ? 0 : 16,
-              title: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Image.asset(
-                    'assets/logo2.png',
-                    height: isMobile ? 36 : 42,
-                    fit: BoxFit.contain,
-                  ),
-                  Transform.translate(
-                    offset: const Offset(-4, 0),
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 0.5),
-                      child: Text(
-                        'Doge Hub',
-                        style: TextStyle(
-                          fontSize: isMobile ? 13 : 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.amber,
-                          letterSpacing: 0.7,
+              title: InkWell(
+                onTap: () => context.go('/'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Image.asset(
+                      'assets/logo2.png',
+                      height: isMobile ? 36 : 42,
+                      fit: BoxFit.contain,
+                    ),
+                    Transform.translate(
+                      offset: const Offset(-4, 0),
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 0.5),
+                        child: Text(
+                          'Doge Hub',
+                          style: TextStyle(
+                            fontSize: isMobile ? 13 : 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.amber,
+                            letterSpacing: 0.7,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               leading: showBackArrow
                   ? IconButton(

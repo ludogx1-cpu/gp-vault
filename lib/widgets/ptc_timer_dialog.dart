@@ -366,7 +366,7 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
                 child: Text(
                   "CLOSE",
                   style: TextStyle(
-                    color: isDark ? Colors.grey.shade900 : Colors.brown,
+                    color: isDark ? Colors.grey.shade300 : Colors.brown,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

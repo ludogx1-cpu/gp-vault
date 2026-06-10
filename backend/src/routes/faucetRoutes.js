@@ -233,8 +233,8 @@ router.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
     }
 
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    const rewardAmount = 0.003;
-    const xpReward = 30;
+    const rewardAmount = 0.006;
+    const xpReward = 60;
     const cooldownMs = 3 * 60 * 60 * 1000;
     const now = admin.firestore.Timestamp.now();
 
