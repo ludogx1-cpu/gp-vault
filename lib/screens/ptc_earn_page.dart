@@ -370,7 +370,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                                 ),
                                 const SizedBox(height: 5),
                                 const Text(
-                                  "Stay on the page for 30 seconds to earn\n0.003 DOGE & 30 XP!",
+                                  "Stay on the page for 30 seconds to earn\n0.006 DOGE & 60 XP!",
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: Colors.green,
@@ -388,7 +388,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                                           ? Colors.amber
                                           : Colors.grey,
                                       foregroundColor: canClaimBonus
-                                          ? Colors.brown.shade900
+                                          ? (isDark ? Colors.white : Colors.brown.shade900)
                                           : Colors.white,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(10),
