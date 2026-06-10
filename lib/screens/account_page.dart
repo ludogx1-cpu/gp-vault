@@ -6,7 +6,8 @@ import 'dart:ui_web' as ui;
 import 'package:web/web.dart' as web;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import '../src/user_provider.dart';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
 import '../widgets/widgets.dart';
@@ -219,10 +220,9 @@ class _AccountPageState extends State<AccountPage> {
     return Scaffold(
       drawer: const AppDrawer(),
       appBar: const GlobalAppBar(),
-      body: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, authSnapshot) {
-          final User? user = authSnapshot.data;
+      body: Consumer<UserProvider>(
+        builder: (context, userProvider, _) {
+          final user = FirebaseAuth.instance.currentUser;
           return PageWithFooter(
             child: Padding(
               padding: const EdgeInsets.all(20.0),
@@ -385,18 +385,12 @@ class _AccountPageState extends State<AccountPage> {
                       ),
                     ),
                   ] else ...[
-                    StreamBuilder<DocumentSnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(user.uid)
-                          .snapshots(),
-                      builder: (context, dbSnapshot) {
+                    Builder(
+                      builder: (context) {
                         double currentBalance = 0.0;
-                        if (dbSnapshot.hasData && dbSnapshot.data!.exists) {
-                          var userData =
-                              dbSnapshot.data!.data() as Map<String, dynamic>?;
-                          currentBalance = (userData?['doge_balance'] ?? 0.0)
-                              .toDouble();
+                        final userData = userProvider.userData;
+                        if (userData != null) {
+                          currentBalance = (userData['doge_balance'] ?? 0.0).toDouble();
                         }
 
                         return Column(

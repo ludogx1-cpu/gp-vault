@@ -29,7 +29,7 @@ class UserProvider extends ChangeNotifier {
         .snapshots()
         .listen((snapshot) {
       if (snapshot.exists) {
-        _userData = snapshot.data() as Map<String, dynamic>?;
+        _userData = snapshot.data();
         notifyListeners();
       }
     });

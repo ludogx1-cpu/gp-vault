@@ -9,7 +9,6 @@ import '../screens/ptc_earn_page.dart';
 import 'platform_indicator_level_text.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
 
