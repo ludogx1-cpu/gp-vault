@@ -1,50 +1,11 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import '../src/theme_provider.dart';
+import '../src/user_provider.dart';
 
-class WalletDropdownButton extends StatefulWidget {
+class WalletDropdownButton extends StatelessWidget {
   const WalletDropdownButton({super.key});
-  @override
-  State<WalletDropdownButton> createState() => _WalletDropdownButtonState();
-}
-
-class _WalletDropdownButtonState extends State<WalletDropdownButton> {
-  double _mainBal = 0.0;
-  double _offerwallBal = 0.0;
-  StreamSubscription<DocumentSnapshot>? _sub;
-
-  @override
-  void initState() {
-    super.initState();
-    _listenToBalances();
-  }
-
-  void _listenToBalances() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-    _sub = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .snapshots()
-        .listen((snapshot) {
-          if (!mounted) return;
-          if (snapshot.exists) {
-            final data = snapshot.data();
-            setState(() {
-              _mainBal = (data?['doge_balance'] ?? 0.0).toDouble();
-              _offerwallBal = (data?['offerwall_balance'] ?? 0.0).toDouble();
-            });
-          }
-        });
-  }
-
-  @override
-  void dispose() {
-    _sub?.cancel();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,115 +16,124 @@ class _WalletDropdownButtonState extends State<WalletDropdownButton> {
         child: Icon(Icons.account_balance_wallet, color: Colors.grey),
       );
     }
-    return Padding(
-      padding: const EdgeInsets.only(right: 12.0),
-      child: PopupMenuButton<String>(
-        icon: const Icon(
-          Icons.account_balance_wallet,
-          color: kAppBarIconColor,
-          size: 28,
-        ),
-        tooltip: "View Balances",
-        color: Colors.white,
-        surfaceTintColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        offset: const Offset(0, 50),
-        itemBuilder: (BuildContext context) => [
-          PopupMenuItem<String>(
-            enabled: false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Main Wallet",
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Text(
-                  "Faucet & Staking rewards — stakable",
-                  style: TextStyle(fontSize: 10, color: Colors.grey),
-                ),
-                const SizedBox(height: 8),
-                Row(
+
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, _) {
+        final data = userProvider.userData;
+        final double mainBal = (data?['doge_balance'] ?? 0.0).toDouble();
+        final double offerwallBal = (data?['offerwall_balance'] ?? 0.0).toDouble();
+
+        return Padding(
+          padding: const EdgeInsets.only(right: 12.0),
+          child: PopupMenuButton<String>(
+            icon: const Icon(
+              Icons.account_balance_wallet,
+              color: kAppBarIconColor,
+              size: 28,
+            ),
+            tooltip: "View Balances",
+            color: Colors.white,
+            surfaceTintColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            offset: const Offset(0, 50),
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem<String>(
+                enabled: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.amber.shade100,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Icons.monetization_on,
-                        color: Colors.amber.shade800,
-                        size: 20,
+                    const Text(
+                      "Main Wallet",
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      "${_mainBal.toStringAsFixed(6)} DOGE",
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
+                    const Text(
+                      "Faucet & Staking rewards — stakable",
+                      style: TextStyle(fontSize: 10, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.monetization_on,
+                            color: Colors.amber.shade800,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          "${mainBal.toStringAsFixed(6)} DOGE",
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          const PopupMenuDivider(),
-          PopupMenuItem<String>(
-            enabled: false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Offerwall Wallet",
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Text(
-                  "Task rewards — withdrawable only",
-                  style: TextStyle(fontSize: 10, color: Colors.grey),
-                ),
-                const SizedBox(height: 8),
-                Row(
+              ),
+              const PopupMenuDivider(),
+              PopupMenuItem<String>(
+                enabled: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.purple.shade100,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Icons.assignment_turned_in,
-                        color: Colors.purple.shade800,
-                        size: 20,
+                    const Text(
+                      "Offerwall Wallet",
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      "${_offerwallBal.toStringAsFixed(6)} DOGE",
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
+                    const Text(
+                      "Task rewards — withdrawable only",
+                      style: TextStyle(fontSize: 10, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.purple.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.assignment_turned_in,
+                            color: Colors.purple.shade800,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          "${offerwallBal.toStringAsFixed(6)} DOGE",
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

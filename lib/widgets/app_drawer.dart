@@ -1,3 +1,5 @@
+import 'package:provider/provider.dart';
+import '../src/user_provider.dart';
 import '../screens/admin_dashboard_page.dart';
 import '../screens/offerwall_hub_page.dart';
 import '../screens/affiliate_links_page.dart';
@@ -45,21 +47,11 @@ class AppDrawer extends StatelessWidget {
                   stream: FirebaseAuth.instance.authStateChanges(),
                   builder: (context, authSnapshot) {
                     if (authSnapshot.hasData && authSnapshot.data != null) {
-                      return StreamBuilder<DocumentSnapshot>(
-                        stream: FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(authSnapshot.data!.uid)
-                            .snapshots(),
-                        builder: (context, dbSnapshot) {
-                          int xp = 0;
-                          int streak = 0;
-                          if (dbSnapshot.hasData && dbSnapshot.data!.exists) {
-                            var data =
-                                dbSnapshot.data!.data()
-                                    as Map<String, dynamic>?;
-                            xp = (data?['xp'] ?? 0).toInt();
-                            streak = (data?['streak_count'] ?? 0).toInt();
-                          }
+                      return Consumer<UserProvider>(
+                        builder: (context, userProvider, _) {
+                          final data = userProvider.userData;
+                          int xp = (data?['xp'] ?? 0).toInt();
+                          int streak = (data?['streak_count'] ?? 0).toInt();
 
                           int level = sqrt(xp / 100).floor();
                           if (level > 100) level = 100;

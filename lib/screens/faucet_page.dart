@@ -1,3 +1,5 @@
+import 'package:provider/provider.dart';
+import '../src/user_provider.dart';
 import '../src/js_bindings.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -685,21 +687,11 @@ class _FaucetPageState extends State<FaucetPage> {
                   builder: (context, snapshot) {
                     final user = snapshot.data;
                     if (user != null) {
-                      return StreamBuilder<
-                        DocumentSnapshot<Map<String, dynamic>>
-                      >(
-                        stream: FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(user.uid)
-                            .snapshots(),
-                        builder: (context, dbSnapshot) {
-                          int xp = 0;
-                          int streak = 0;
-                          if (dbSnapshot.hasData && dbSnapshot.data!.exists) {
-                            final data = dbSnapshot.data!.data();
-                            xp = (data?['xp'] ?? 0).toInt();
-                            streak = (data?['streak_count'] ?? 0).toInt();
-                          }
+                      return Consumer<UserProvider>(
+                        builder: (context, userProvider, _) {
+                          final data = userProvider.userData;
+                          int xp = (data?['xp'] ?? 0).toInt();
+                          int streak = (data?['streak_count'] ?? 0).toInt();
                           int level = sqrt(xp / 100).floor();
                           if (level > 100) level = 100;
                           int levelBonus = level;
@@ -1189,21 +1181,14 @@ class _FaucetPageState extends State<FaucetPage> {
                       return const SizedBox.shrink();
                     }
 
-                    return StreamBuilder<
-                      DocumentSnapshot<Map<String, dynamic>>
-                    >(
-                      stream: FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(user.uid)
-                          .snapshots(),
-                      builder: (context, dbSnapshot) {
+                    return Consumer<UserProvider>(
+                      builder: (context, userProvider, _) {
                         bool canClaimBonus = true;
                         int minutesLeft = 0;
-
-                        if (dbSnapshot.hasData && dbSnapshot.data!.exists) {
-                          final userData = dbSnapshot.data!.data();
+                        final userData = userProvider.userData;
+                        if (userData != null) {
                           final Timestamp? lastClaim =
-                              userData?['last_bonus_sponsor_claim'];
+                              userData['last_bonus_sponsor_claim'];
 
                           if (lastClaim != null) {
                             final now = DateTime.now();
