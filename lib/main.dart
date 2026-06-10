@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
 import 'dart:ui_web' as ui;
 import 'package:web/web.dart' as web;
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import 'src/theme_provider.dart';
 import 'src/firebase_service.dart';
+import 'src/user_provider.dart';
 import 'widgets/widgets.dart';
 import 'screens/faucet_page.dart';
 import 'screens/staking_page.dart';
 import 'screens/account_page.dart';
 
-
-
-
-// --- CAPTCHA JS BINDINGS ---
-
-
-
+// Router configuration
+final _router = GoRouter(
+  initialLocation: '/',
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const RootGatekeeper(),
+    ),
+  ],
+);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -85,15 +91,20 @@ void main() async {
   await FirebaseService.initialize();
 
   runApp(
-    ListenableBuilder(
-      listenable: themeProvider,
-      builder: (context, child) => MaterialApp(
-        title: 'Golden Paw',
-        home: const RootGatekeeper(),
-        debugShowCheckedModeBanner: false,
-        theme: themeProvider.lightTheme,
-        darkTheme: themeProvider.darkTheme,
-        themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => themeProvider),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+      ],
+      child: Consumer<ThemeProvider>(
+        builder: (context, theme, child) => MaterialApp.router(
+          title: 'Golden Paw',
+          routerConfig: _router,
+          debugShowCheckedModeBanner: false,
+          theme: theme.lightTheme,
+          darkTheme: theme.darkTheme,
+          themeMode: theme.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+        ),
       ),
     ),
   );
