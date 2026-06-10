@@ -1,3 +1,4 @@
+import '../main.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -10,9 +11,20 @@ import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'src/theme_provider.dart';
-import 'create_ad_page.dart';
-import 'src/firebase_service.dart';
+import 'theme_provider.dart';
+import 'firebase_service.dart';
+import '../screens/ad_hub_page.dart';
+import '../screens/ptc_earn_page.dart';
+import '../screens/admin_dashboard_page.dart';
+import '../screens/affiliate_links_page.dart';
+import '../screens/referral_page.dart';
+import '../screens/faq_page.dart';
+import '../screens/cookie_policy_page.dart';
+import '../screens/terms_of_service_page.dart';
+import '../screens/privacy_policy_page.dart';
+import '../screens/contact_page.dart';
+import '../screens/offerwall_hub_page.dart';
+
 
 
 Future<Map<String, String>> _authHeaders() async {
@@ -128,23 +140,6 @@ void main() async {
 // ==========================================
 // 1. THE SHELL
 // ==========================================
-import 'screens/faucet_page.dart';
-import 'screens/staking_page.dart';
-import 'widgets/live_interest_display.dart';
-import 'screens/account_page.dart';
-import 'screens/ad_hub_page.dart';
-import 'screens/ptc_earn_page.dart';
-import 'screens/admin_dashboard_page.dart';
-import 'screens/affiliate_links_page.dart';
-import 'screens/referral_page.dart';
-import 'screens/faq_page.dart';
-import 'screens/cookie_policy_page.dart';
-import 'screens/terms_of_service_page.dart';
-import 'screens/privacy_policy_page.dart';
-import 'screens/contact_page.dart';
-import 'widgets/ptc_timer_dialog.dart';
-import 'widgets/bonus_timer_dialog.dart';
-import 'screens/offerwall_hub_page.dart';
 
 
 // ==========================================
