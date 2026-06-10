@@ -346,10 +346,10 @@ class _AccountPageState extends State<AccountPage> {
                             borderRadius: BorderRadius.circular(25),
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           "LOG IN",
                           style: TextStyle(
-                            color: Colors.brown,
+                            color: isDark ? Colors.white : Colors.brown,
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
@@ -665,10 +665,10 @@ class _AccountPageState extends State<AccountPage> {
                                                           strokeWidth: 2,
                                                         ),
                                                   )
-                                                : const Text(
+                                                : Text(
                                                     "WITHDRAW NOW",
                                                     style: TextStyle(
-                                                      color: Colors.brown,
+                                                      color: isDark ? Colors.white : Colors.brown,
                                                       fontWeight:
                                                           FontWeight.bold,
                                                     ),

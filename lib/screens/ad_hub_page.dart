@@ -822,7 +822,7 @@ class _AdHubPageState extends State<AdHubPage> {
                                       ? Colors.amber
                                       : Colors.brown,
                                   foregroundColor: isDark
-                                      ? Colors.brown.shade900
+                                      ? Colors.white
                                       : Colors.white,
                                 ),
                               ),

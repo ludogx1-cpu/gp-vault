@@ -705,7 +705,7 @@ class _StakingPageState extends State<StakingPage> {
                                 icon: Icon(
                                   Icons.lock_open,
                                   color: isDark
-                                      ? Colors.brown.shade900
+                                      ? Colors.white
                                       : Colors.brown,
                                   size: 18,
                                 ),
@@ -713,7 +713,7 @@ class _StakingPageState extends State<StakingPage> {
                                   "UNSTAKE",
                                   style: TextStyle(
                                     color: isDark
-                                        ? Colors.brown.shade900
+                                        ? Colors.white
                                         : Colors.brown,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
