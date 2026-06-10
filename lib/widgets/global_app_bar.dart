@@ -46,7 +46,7 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Image.asset(
-                      'assets/logo2.png',
+                      'assets/logo_landing.png',
                       height: isMobile ? 36 : 42,
                       fit: BoxFit.contain,
                     ),
