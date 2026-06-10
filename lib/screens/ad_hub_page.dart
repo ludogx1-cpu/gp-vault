@@ -4,40 +4,22 @@ import 'dart:convert';
 import 'dart:async';
 import 'dart:ui_web' as ui;
 import 'package:web/web.dart' as web;
-import 'dart:js_interop';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../src/theme_provider.dart';
-import '../create_ad_page.dart';
+import 'create_ad_page.dart';
 import '../src/firebase_service.dart';
-import '../src/app_widgets.dart';
+import '../widgets/widgets.dart';
 
-Future<Map<String, String>> _authHeaders() async {
-  final headers = {'Content-Type': 'application/json'};
-  final user = FirebaseAuth.instance.currentUser;
-  if (user != null) {
-    final token = await user.getIdToken(true);
-    headers['Authorization'] = 'Bearer $token';
-  }
-  return headers;
-}
+
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
-const kAppBarColor = Colors.black87;
-const kAppBarIconColor = Colors.amber;
-const kAppBarLogoColor = Colors.white;
-const kTextColorOnBlack = Colors.white;
 
-Color gpBrownText(BuildContext context, {Color darkColor = Colors.white70}) {
-  return themeProvider.isDarkMode ? darkColor : Colors.brown;
-}
 
 // --- CAPTCHA JS BINDINGS ---
-@JS('renderHCaptcha')
-external void renderHCaptcha();
 
-@JS('renderTurnstile')
-external void renderTurnstile();
+
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -158,7 +140,7 @@ class _AdHubPageState extends State<AdHubPage> {
     try {
       final response = await http.post(
         Uri.parse('https://golden-paw-vault.onrender.com/swap-doge'),
-        headers: await _authHeaders(),
+        headers: await getAuthHeaders(),
         body: jsonEncode({'amount': amount}),
       );
 
@@ -371,7 +353,7 @@ class _AdHubPageState extends State<AdHubPage> {
                           Uri.parse(
                             'https://golden-paw-vault.onrender.com/buy-banner',
                           ),
-                          headers: await _authHeaders(),
+                          headers: await getAuthHeaders(),
                           body: jsonEncode({
                             'doc_id': docId,
                             'image_url': imgCtrl.text.trim(),
@@ -553,7 +535,7 @@ class _AdHubPageState extends State<AdHubPage> {
                             Uri.parse(
                               'https://golden-paw-vault.onrender.com/buy-ptc',
                             ),
-                            headers: await _authHeaders(),
+                            headers: await getAuthHeaders(),
                             body: jsonEncode({
                               'target_url': targetCtrl.text.trim(),
                               'tier': selectedTier,

@@ -68,3 +68,17 @@ class ThemeProvider extends ChangeNotifier {
 
 // Global theme provider instance
 final themeProvider = ThemeProvider();
+
+
+// --- GLOBAL THEME CONSTANTS 🚀 ---
+
+
+
+const kAppBarColor = Colors.black87;
+const kAppBarIconColor = Colors.amber;
+const kAppBarLogoColor = Colors.white;
+const kTextColorOnBlack = Colors.white;
+
+Color gpBrownText(BuildContext context, {Color darkColor = Colors.white70}) {
+  return themeProvider.isDarkMode ? darkColor : Colors.brown;
+}

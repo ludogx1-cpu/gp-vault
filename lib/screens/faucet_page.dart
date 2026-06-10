@@ -1,3 +1,4 @@
+import '../src/js_bindings.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -12,35 +13,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
-import '../src/app_widgets.dart';
-import '../widgets/bonus_timer_dialog.dart';
+import '../widgets/widgets.dart';
 
-Future<Map<String, String>> _authHeaders() async {
-  final headers = {'Content-Type': 'application/json'};
-  final user = FirebaseAuth.instance.currentUser;
-  if (user != null) {
-    final token = await user.getIdToken(true);
-    headers['Authorization'] = 'Bearer $token';
-  }
-  return headers;
-}
+
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
-const kAppBarColor = Colors.black87;
-const kAppBarIconColor = Colors.amber;
-const kAppBarLogoColor = Colors.white;
-const kTextColorOnBlack = Colors.white;
 
-Color gpBrownText(BuildContext context, {Color darkColor = Colors.white70}) {
-  return themeProvider.isDarkMode ? darkColor : Colors.brown;
-}
 
 // --- CAPTCHA JS BINDINGS ---
-@JS('renderHCaptcha')
-external void renderHCaptcha();
 
-@JS('renderTurnstile')
-external void renderTurnstile();
+
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -417,7 +400,7 @@ class _FaucetPageState extends State<FaucetPage> {
         final response = await http
             .post(
               Uri.parse('https://golden-paw-vault.onrender.com/claim-vault'),
-              headers: await _authHeaders(),
+              headers: await getAuthHeaders(),
               body: jsonEncode({}),
             )
             .timeout(const Duration(seconds: 60));
