@@ -347,11 +347,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
           indicatorColor: Colors.amber,
           isScrollable: true,
           tabs: const [
-            Tab(icon: Icon(Icons.ads_click), text: "PTC Config"),
-            Tab(icon: Icon(Icons.handshake), text: "Partner Links"),
-            Tab(icon: Icon(Icons.card_giftcard), text: "Sponsor Banners"),
-            Tab(icon: Icon(Icons.code), text: "Ad Placeholders"),
-            Tab(icon: Icon(Icons.campaign), text: "Notices"),
+            Tab(icon: Icon(Icons.ads_click), text: "Manage PTC Ads"),
+            Tab(icon: Icon(Icons.handshake), text: "Affiliate Links"),
+            Tab(icon: Icon(Icons.card_giftcard), text: "Bonus Sponsors"),
+            Tab(icon: Icon(Icons.code), text: "HTML Snippets"),
+            Tab(icon: Icon(Icons.campaign), text: "Update Board"),
           ],
         ),
       ),
@@ -877,17 +877,17 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
                     padding: const EdgeInsets.all(15.0),
                     child: Column(
                       children: [
-                        const Text("Post a Notice / Update", style: TextStyle(fontWeight: FontWeight.bold)),
+                        const Text("Post to Update Board", style: TextStyle(fontWeight: FontWeight.bold)),
                         const Divider(),
-                        TextField(controller: _noticeTitleCtrl, decoration: const InputDecoration(labelText: "Notice Title")),
-                        TextField(controller: _noticeMessageCtrl, decoration: const InputDecoration(labelText: "Notice Message"), maxLines: 3),
+                        TextField(controller: _noticeTitleCtrl, decoration: const InputDecoration(labelText: "Update Title")),
+                        TextField(controller: _noticeMessageCtrl, decoration: const InputDecoration(labelText: "Update Message"), maxLines: 3),
                         const SizedBox(height: 20),
                         SizedBox(
                           width: double.infinity, height: 45,
                           child: ElevatedButton(
                             onPressed: _isLoading ? null : _injectNotice,
                             style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-                            child: const Text("POST NOTICE", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                            child: const Text("POST UPDATE", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                           ),
                         ),
                       ],
@@ -895,7 +895,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
                   ),
                 ),
                 const SizedBox(height: 25),
-                const Text("Active Notices", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text("Active Updates", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance.collection('updates').orderBy('timestamp', descending: true).snapshots(),
                   builder: (context, snapshot) {

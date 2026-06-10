@@ -924,6 +924,7 @@ class _FaucetPageState extends State<FaucetPage> {
                     );
                   },
                 ),
+                const SizedBox(height: 35),
                 StreamBuilder<User?>(
                   stream: FirebaseAuth.instance.authStateChanges(),
                   builder: (context, snapshot) {
