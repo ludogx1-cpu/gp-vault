@@ -12,12 +12,36 @@ import 'screens/staking_page.dart';
 import 'screens/account_page.dart';
 
 // Router configuration
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
+
 final _router = GoRouter(
+  navigatorKey: _rootNavigatorKey,
   initialLocation: '/',
   routes: [
     GoRoute(
       path: '/',
       builder: (context, state) => const RootGatekeeper(),
+    ),
+    ShellRoute(
+      navigatorKey: _shellNavigatorKey,
+      builder: (context, state, child) {
+        return MainScaffold(child: child);
+      },
+      routes: [
+        GoRoute(
+          path: '/faucet',
+          pageBuilder: (context, state) => const NoTransitionPage(child: FaucetPage()),
+        ),
+        GoRoute(
+          path: '/staking',
+          pageBuilder: (context, state) => const NoTransitionPage(child: StakingPage()),
+        ),
+        GoRoute(
+          path: '/account',
+          pageBuilder: (context, state) => const NoTransitionPage(child: AccountPage()),
+        ),
+      ],
     ),
   ],
 );
@@ -113,33 +137,39 @@ void main() async {
 // ==========================================
 // 1. THE SHELL
 // ==========================================
-class MainScaffold extends StatefulWidget {
-  const MainScaffold({super.key});
-  @override
-  State<MainScaffold> createState() => _MainScaffoldState();
-}
+class MainScaffold extends StatelessWidget {
+  final Widget child;
+  const MainScaffold({super.key, required this.child});
 
-class _MainScaffoldState extends State<MainScaffold> {
-  int _selectedIndex = 0;
-  static final List<Widget> _pages = [
-    const FaucetPage(),
-    const StakingPage(),
-    const AccountPage(),
-  ];
+  int _calculateSelectedIndex(BuildContext context) {
+    final String location = GoRouterState.of(context).uri.path;
+    if (location.startsWith('/faucet')) return 0;
+    if (location.startsWith('/staking')) return 1;
+    if (location.startsWith('/account')) return 2;
+    return 0;
+  }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  void _onItemTapped(int index, BuildContext context) {
+    switch (index) {
+      case 0:
+        context.go('/faucet');
+        break;
+      case 1:
+        context.go('/staking');
+        break;
+      case 2:
+        context.go('/account');
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: child,
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+        currentIndex: _calculateSelectedIndex(context),
+        onTap: (int idx) => _onItemTapped(idx, context),
         backgroundColor: kAppBarColor,
         selectedItemColor: Colors.amber,
         unselectedItemColor: Colors.grey,

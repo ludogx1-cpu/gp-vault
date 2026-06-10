@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if a user is authenticated
+    function isAuth() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    match /users/{userId} {
+      // Users can read their own data
+      allow read: if request.auth != null && request.auth.uid == userId;
+      
+      // Users can write their own data, but CANNOT modify sensitive fields like balances, xp, or roles
+      allow write: if request.auth != null && request.auth.uid == userId
+                   && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['doge_balance', 'staked_balance', 'xp', 'role', 'last_claim_time']);
+    }
+    
+    // Updates/News collection: Anyone can read, only admin can write (assuming admin backend uses firebase-admin which bypasses rules)
+    match /updates/{updateId} {
+      allow read: if true;
+      allow write: if false; // Only backend or Firebase Console can write
+    }
+
+    // Default rule: block all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

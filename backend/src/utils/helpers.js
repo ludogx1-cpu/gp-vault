@@ -23,6 +23,10 @@ function getBannerCost(slot, pool) {
     'top banner 1': 4.0,
   };
 
+  if (!pool) {
+    return adSlotCosts[normalizedSlot] ?? sponsorSlotCosts[normalizedSlot] ?? null;
+  }
+
   if (normalizedPool === 'ads') {
     return adSlotCosts[normalizedSlot] ?? null;
   }
@@ -74,6 +78,44 @@ function formatAmount(amount) {
   return Number(Number(amount).toFixed(8)).toString();
 }
 
+async function verifyCaptchaToken(token, provider) {
+  if (process.env.NODE_ENV === 'development' || !process.env.CAPTCHA_SECRET) {
+    console.warn('CAPTCHA verification bypassed (Missing CAPTCHA_SECRET or in development mode)');
+    return true; 
+  }
+
+  try {
+    const secret = process.env.CAPTCHA_SECRET;
+    let url = '';
+
+    if (provider === 'hcaptcha') {
+      url = 'https://hcaptcha.com/siteverify';
+    } else if (provider === 'turnstile') {
+      url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+    } else {
+      console.error(`Unknown captcha provider: ${provider}`);
+      return false;
+    }
+
+    const params = new URLSearchParams({
+      secret: secret,
+      response: token,
+    });
+
+    const response = await fetch(url, {
+      method: 'POST',
+      body: params,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+
+    const data = await response.json();
+    return data.success === true;
+  } catch (error) {
+    console.error('Captcha verification error:', error);
+    return false;
+  }
+}
+
 module.exports = {
   normalizeHttpUrl,
   getBannerCost,
@@ -81,4 +123,5 @@ module.exports = {
   verifyIpnSignature,
   parseUsdNumber,
   formatAmount,
+  verifyCaptchaToken,
 };

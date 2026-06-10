@@ -3,7 +3,7 @@ const { admin, verifyFirebaseToken } = require('../services/firebaseService');
 const { faucetPaySend } = require('../services/faucetPayService');
 const { getDogePrice } = require('../services/priceService');
 const { calculateDogeReward } = require('../utils/rewardCalculator');
-const { formatAmount } = require('../utils/helpers');
+const { formatAmount, verifyCaptchaToken } = require('../utils/helpers');
 
 const router = express.Router();
 
@@ -28,6 +28,10 @@ router.post('/send-doge', verifyFirebaseToken, async (req, res) => {
     if (req.user.uid !== getAdminUid()) {
       if (!captcha_token || !captcha_provider) {
         return res.status(400).json({ success: false, error: 'Missing captcha verification data' });
+      }
+      const isCaptchaValid = await verifyCaptchaToken(captcha_token, captcha_provider);
+      if (!isCaptchaValid) {
+        return res.status(400).json({ success: false, error: 'Invalid captcha token' });
       }
     }
 
@@ -229,6 +233,10 @@ router.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
     if (req.user.uid !== getAdminUid()) {
       if (!captcha_token || !captcha_provider) {
         return res.status(400).json({ success: false, error: 'Missing captcha verification data' });
+      }
+      const isCaptchaValid = await verifyCaptchaToken(captcha_token, captcha_provider);
+      if (!isCaptchaValid) {
+        return res.status(400).json({ success: false, error: 'Invalid captcha token' });
       }
     }
 
