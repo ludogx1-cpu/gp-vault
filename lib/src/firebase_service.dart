@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 class FirebaseService {
@@ -13,4 +14,15 @@ class FirebaseService {
       ),
     );
   }
+}
+
+
+Future<Map<String, String>> getAuthHeaders() async {
+  final headers = {'Content-Type': 'application/json'};
+  final user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    final token = await user.getIdToken(true);
+    headers['Authorization'] = 'Bearer $token';
+  }
+  return headers;
 }

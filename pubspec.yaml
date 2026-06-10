@@ -19,6 +19,7 @@ dependencies:
   pointer_interceptor: ^0.10.1+2
   web: ^1.1.1
 
+  url_launcher: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
