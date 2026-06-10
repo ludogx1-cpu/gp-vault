@@ -570,15 +570,9 @@ class _FaucetPageState extends State<FaucetPage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                  size: 22,
-                                ),
-                                const SizedBox(width: 8),
                                 Flexible(
                                   child: Text(
-                                    "Welcome to the Golden Paw Faucet! 🌟",
+                                    "🌟 Welcome to the Golden Paw Faucet! 🌟",
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 18,
@@ -848,6 +842,88 @@ class _FaucetPageState extends State<FaucetPage> {
 
                 const SizedBox(height: 25),
 
+                const SizedBox(height: 30),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('updates')
+                      .orderBy('timestamp', descending: true)
+                      .limit(3)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return ListenableBuilder(
+                      listenable: themeProvider,
+                      builder: (context, _) {
+                        final isDark = themeProvider.isDarkMode;
+                        return Container(
+                          width: double.infinity,
+                          constraints: const BoxConstraints(maxWidth: 600),
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: isDark ? themeProvider.darkGreyBoxColor : Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(
+                              color: isDark ? themeProvider.darkGreyBorder : Colors.blue.shade200,
+                              width: 2,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.campaign, color: isDark ? Colors.blueAccent : Colors.blue.shade800),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    "LATEST UPDATES",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      color: isDark ? Colors.blueAccent : Colors.blue.shade900,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 15),
+                              ...snapshot.data!.docs.map((doc) {
+                                var data = doc.data() as Map<String, dynamic>;
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        data['title'] ?? 'Update',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                          color: isDark ? Colors.white : Colors.black87,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        data['message'] ?? '',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: isDark ? Colors.white70 : Colors.black54,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
                 StreamBuilder<User?>(
                   stream: FirebaseAuth.instance.authStateChanges(),
                   builder: (context, snapshot) {
@@ -1291,85 +1367,6 @@ class _FaucetPageState extends State<FaucetPage> {
                               ),
                             );
                           },
-                        );
-                      },
-                    );
-                  },
-                ),
-                const SizedBox(height: 30),
-                StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('updates')
-                      .orderBy('timestamp', descending: true)
-                      .limit(3)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-                    return ListenableBuilder(
-                      listenable: themeProvider,
-                      builder: (context, _) {
-                        final isDark = themeProvider.isDarkMode;
-                        return Container(
-                          width: double.infinity,
-                          constraints: const BoxConstraints(maxWidth: 600),
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: isDark ? themeProvider.darkGreyBoxColor : Colors.blue.shade50,
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(
-                              color: isDark ? themeProvider.darkGreyBorder : Colors.blue.shade200,
-                              width: 2,
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.campaign, color: isDark ? Colors.blueAccent : Colors.blue.shade800),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    "LATEST UPDATES",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                      color: isDark ? Colors.blueAccent : Colors.blue.shade900,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 15),
-                              ...snapshot.data!.docs.map((doc) {
-                                var data = doc.data() as Map<String, dynamic>;
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 10),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        data['title'] ?? 'Update',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                          color: isDark ? Colors.white : Colors.black87,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        data['message'] ?? '',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: isDark ? Colors.white70 : Colors.black54,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }),
-                            ],
-                          ),
                         );
                       },
                     );
