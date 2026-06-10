@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'dart:async';
-import 'dart:math';
 import 'dart:ui_web' as ui;
 import 'package:web/web.dart' as web;
 import 'dart:js_interop';
-import 'package:pointer_interceptor/pointer_interceptor.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'src/theme_provider.dart';
-import 'create_ad_page.dart';
-import 'src/firebase_service.dart';
-part 'src/app_widgets.dart';
+import '../src/theme_provider.dart';
+import '../src/firebase_service.dart';
+import '../src/app_widgets.dart';
 
 Future<Map<String, String>> _authHeaders() async {
   final headers = {'Content-Type': 'application/json'};
@@ -128,66 +122,128 @@ void main() async {
 // ==========================================
 // 1. THE SHELL
 // ==========================================
-import 'screens/faucet_page.dart';
-import 'screens/staking_page.dart';
-import 'widgets/live_interest_display.dart';
-import 'screens/account_page.dart';
-import 'screens/ad_hub_page.dart';
-import 'screens/ptc_earn_page.dart';
-import 'screens/admin_dashboard_page.dart';
-import 'screens/affiliate_links_page.dart';
-import 'screens/referral_page.dart';
-import 'screens/faq_page.dart';
-import 'screens/cookie_policy_page.dart';
-import 'screens/terms_of_service_page.dart';
-import 'screens/privacy_policy_page.dart';
-import 'screens/contact_page.dart';
-import 'widgets/ptc_timer_dialog.dart';
-import 'widgets/bonus_timer_dialog.dart';
-import 'screens/offerwall_hub_page.dart';
-class MainScaffold extends StatefulWidget {
-  const MainScaffold({super.key});
+
+class LiveInterestDisplay extends StatefulWidget {
+  final double stakedBalance;
+  final Timestamp? stakeTimestamp;
+  const LiveInterestDisplay({
+    super.key,
+    required this.stakedBalance,
+    this.stakeTimestamp,
+  });
   @override
-  State<MainScaffold> createState() => _MainScaffoldState();
+  State<LiveInterestDisplay> createState() => _LiveInterestDisplayState();
 }
 
-class _MainScaffoldState extends State<MainScaffold> {
-  int _selectedIndex = 0;
-  static final List<Widget> _pages = [
-    const FaucetPage(),
-    const StakingPage(),
-    const AccountPage(),
-  ];
+class _LiveInterestDisplayState extends State<LiveInterestDisplay> {
+  Timer? _timer;
+  double _liveInterest = 0.0;
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  @override
+  void didUpdateWidget(LiveInterestDisplay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.stakedBalance != widget.stakedBalance ||
+        oldWidget.stakeTimestamp != widget.stakeTimestamp) {
+      _calculateInterest();
+    }
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _calculateInterest();
     });
+  }
+
+  void _calculateInterest() {
+    if (widget.stakedBalance <= 0 || widget.stakeTimestamp == null) {
+      if (mounted && _liveInterest != 0.0) setState(() => _liveInterest = 0.0);
+      return;
+    }
+    const double interestPerSecond = 0.085 / 31536000;
+    final now = DateTime.now();
+    final stakeTime = widget.stakeTimestamp!.toDate();
+    final secondsPassed = now.difference(stakeTime).inSeconds;
+
+    if (secondsPassed > 0 && mounted) {
+      setState(() {
+        _liveInterest =
+            widget.stakedBalance * interestPerSecond * secondsPassed;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        backgroundColor: kAppBarColor,
-        selectedItemColor: Colors.amber,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.water_drop),
-            label: 'Faucet',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: 'Staking'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
-        ],
-      ),
+    // 👑 Wrapped in ListenableBuilder for dark mode text matching
+    return ListenableBuilder(
+      listenable: themeProvider,
+      builder: (context, _) {
+        final isDark = themeProvider.isDarkMode;
+
+        return Column(
+          children: [
+            Container(
+              constraints: const BoxConstraints(maxWidth: 280),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  widget.stakedBalance.toStringAsFixed(8),
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.brown,
+                  ),
+                ),
+              ),
+            ),
+            Text(
+              "DOGE",
+              style: TextStyle(
+                fontSize: 16,
+                color: isDark ? Colors.amber : Colors.brown,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.black26 : Colors.white.withAlpha(102),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  "+ ${_liveInterest.toStringAsFixed(10)} Pending Yield",
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark ? Colors.greenAccent : Colors.brown,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
 
 // ==========================================
-// 2. THE FAUCET PAGE
+// 4. THE ACCOUNT PAGE
 // ==========================================
+

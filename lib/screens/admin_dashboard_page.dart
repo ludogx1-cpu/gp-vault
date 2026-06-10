@@ -1,0 +1,872 @@
+import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:ui_web' as ui;
+import 'package:web/web.dart' as web;
+import 'dart:js_interop';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../src/theme_provider.dart';
+import '../src/firebase_service.dart';
+import '../src/app_widgets.dart';
+
+Future<Map<String, String>> _authHeaders() async {
+  final headers = {'Content-Type': 'application/json'};
+  final user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    final token = await user.getIdToken(true);
+    headers['Authorization'] = 'Bearer $token';
+  }
+  return headers;
+}
+
+// --- GLOBAL THEME CONSTANTS 🚀 ---
+const kAppBarColor = Colors.black87;
+const kAppBarIconColor = Colors.amber;
+const kAppBarLogoColor = Colors.white;
+const kTextColorOnBlack = Colors.white;
+
+Color gpBrownText(BuildContext context, {Color darkColor = Colors.white70}) {
+  return themeProvider.isDarkMode ? darkColor : Colors.brown;
+}
+
+// --- CAPTCHA JS BINDINGS ---
+@JS('renderHCaptcha')
+external void renderHCaptcha();
+
+@JS('renderTurnstile')
+external void renderTurnstile();
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 🚀 REGISTER VIEWS (CAPTCHAS & TENOR GIF)
+  try {
+    // 1. hCaptcha
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('hcaptcha-widget', (
+      int viewId,
+    ) {
+      final div = web.HTMLDivElement();
+      div.id = 'hcaptcha-target';
+      div.setAttribute(
+        'style',
+        'display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; transform: scale(0.85); transform-origin: center center;',
+      );
+      return div;
+    });
+
+    // 2. Turnstile
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('turnstile-widget', (
+      int viewId,
+    ) {
+      final div = web.HTMLDivElement();
+      div.id = 'turnstile-target';
+      div.setAttribute(
+        'style',
+        'display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; transform: scale(0.85); transform-origin: center center;',
+      );
+      return div;
+    });
+
+    // 3. Tenor Dogecoin Animated GIF View (Original Embed + Hover Blocked!)
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('tenor-gif-view', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      // pointer-events: none completely blocks the Tenor hover menu
+      iframe.setAttribute(
+        'style',
+        'border: none; width: 100%; height: 100%; pointer-events: none;',
+      );
+
+      iframe.setAttribute('srcdoc', '''
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <style>
+                body { margin: 0; display: flex; justify-content: center; align-items: center; overflow: hidden; background: transparent; }
+                .tenor-gif-embed { width: 100% !important; max-width: 120px; pointer-events: none; }
+              </style>
+            </head>
+            <body>
+              <div class="tenor-gif-embed" data-postid="4351659229197618111" data-share-method="host" data-aspect-ratio="1" data-width="100%">
+                <a href="https://tenor.com/view/dogecoin-logo-animation-dogecoin-logo-animation-crypto-gif-4351659229197618111">Dogecoin Logo GIF</a>
+              </div>
+              <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+            </body>
+          </html>
+        ''');
+      return iframe;
+    });
+  } catch (e) {
+    // ignore: empty_catches
+  }
+
+  await FirebaseService.initialize();
+
+  runApp(
+    ListenableBuilder(
+      listenable: themeProvider,
+      builder: (context, child) => MaterialApp(
+        title: 'Golden Paw',
+        home: const RootGatekeeper(),
+        debugShowCheckedModeBanner: false,
+        theme: themeProvider.lightTheme,
+        darkTheme: themeProvider.darkTheme,
+        themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      ),
+    ),
+  );
+}
+
+// ==========================================
+// 1. THE SHELL
+// ==========================================
+
+class AdminDashboardPage extends StatefulWidget {
+  const AdminDashboardPage({super.key});
+
+  @override
+  State<AdminDashboardPage> createState() => _AdminDashboardPageState();
+}
+
+class _AdminDashboardPageState extends State<AdminDashboardPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _adminTabController;
+
+  // Tab 1: PTC fields
+  final TextEditingController _titleCtrl = TextEditingController();
+  final TextEditingController _urlCtrl = TextEditingController();
+  final TextEditingController _durationCtrl = TextEditingController(text: "10");
+  final TextEditingController _rewardCtrl = TextEditingController(
+    text: "0.001",
+  );
+  final TextEditingController _clicksCtrl = TextEditingController(text: "1000");
+
+  // Tab 2: Partner Links fields
+  final TextEditingController _pTitleCtrl = TextEditingController();
+  final TextEditingController _pSubCtrl = TextEditingController();
+  final TextEditingController _pRewardCtrl = TextEditingController();
+  final TextEditingController _pUrlCtrl = TextEditingController();
+  String _selectedCategory = 'Wallets';
+  String _selectedIcon = 'wallet';
+  String _selectedColorHex = '0xFF2196F3';
+
+  // Tab 3: Bonus Sponsor fields
+  final TextEditingController _bTitleCtrl = TextEditingController();
+  final TextEditingController _bImgCtrl = TextEditingController();
+  final TextEditingController _bUrlCtrl = TextEditingController();
+
+  // Tab 4: Raw HTML Placeholder fields
+  final TextEditingController _phTitleCtrl = TextEditingController();
+  final TextEditingController _phCodeCtrl = TextEditingController();
+  String _phPosition = 'Top'; // 🚀 NEW: Lets you choose where the ad goes!
+
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _adminTabController = TabController(length: 4, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _adminTabController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _injectAd() async {
+    if (_titleCtrl.text.trim().isEmpty || _urlCtrl.text.trim().isEmpty) return;
+    setState(() => _isLoading = true);
+    try {
+      await FirebaseFirestore.instance.collection('ptc_ads').add({
+        'title': _titleCtrl.text.trim(),
+        'target_url': _urlCtrl.text.trim(),
+        'duration': int.tryParse(_durationCtrl.text) ?? 10,
+        'reward': double.tryParse(_rewardCtrl.text) ?? 0.001,
+        'clicks_remaining': int.tryParse(_clicksCtrl.text) ?? 1000,
+        'created_at': FieldValue.serverTimestamp(),
+      });
+      _titleCtrl.clear();
+      _urlCtrl.clear();
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("PTC Ad Injected!"),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (_) {
+      // ignore: empty_catches
+    }
+    if (mounted) setState(() => _isLoading = false);
+  }
+
+  Future<void> _injectPartner() async {
+    if (_pTitleCtrl.text.trim().isEmpty || _pUrlCtrl.text.trim().isEmpty) {
+      return;
+    }
+    setState(() => _isLoading = true);
+    try {
+      await FirebaseFirestore.instance.collection('partners').add({
+        'title': _pTitleCtrl.text.trim(),
+        'sub': _pSubCtrl.text.trim(),
+        'reward': _pRewardCtrl.text.trim(),
+        'url': _pUrlCtrl.text.trim(),
+        'category': _selectedCategory,
+        'iconName': _selectedIcon,
+        'colorHex': _selectedColorHex,
+      });
+      _pTitleCtrl.clear();
+      _pSubCtrl.clear();
+      _pRewardCtrl.clear();
+      _pUrlCtrl.clear();
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Partner Link Saved!"),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (_) {
+      // ignore: empty_catches
+    }
+    if (mounted) setState(() => _isLoading = false);
+  }
+
+  Future<void> _injectBonusSponsor() async {
+    if (_bTitleCtrl.text.trim().isEmpty || _bUrlCtrl.text.trim().isEmpty) {
+      return;
+    }
+    setState(() => _isLoading = true);
+    try {
+      await FirebaseFirestore.instance.collection('bonus_sponsors').add({
+        'title': _bTitleCtrl.text.trim(),
+        'image_url': _bImgCtrl.text.trim(),
+        'target_url': _bUrlCtrl.text.trim(),
+        'created_at': FieldValue.serverTimestamp(),
+      });
+      _bTitleCtrl.clear();
+      _bImgCtrl.clear();
+      _bUrlCtrl.clear();
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Sponsor Card Added!"),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (_) {
+      // ignore: empty_catches
+    }
+    if (mounted) setState(() => _isLoading = false);
+  }
+
+  Future<void> _injectPlaceholder() async {
+    if (_phCodeCtrl.text.trim().isEmpty) return;
+    setState(() => _isLoading = true);
+    try {
+      await FirebaseFirestore.instance.collection('sponsor_placeholders').add({
+        'title': _phTitleCtrl.text.trim(),
+        'iframe_code': _phCodeCtrl.text.trim(),
+        'position': _phPosition, // 🚀 SAVES THE POSITION
+        'created_at': FieldValue.serverTimestamp(),
+      });
+      _phTitleCtrl.clear();
+      _phCodeCtrl.clear();
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("HTML Placeholder Injected!"),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (_) {
+      // ignore: empty_catches
+    }
+    if (mounted) setState(() => _isLoading = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null || user.email != 'ludogx1@gmail.com') {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Access Denied'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'BOSS DASHBOARD',
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            color: Colors.white,
+            fontSize: 18,
+          ),
+        ),
+        backgroundColor: Colors.red.shade900,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          // 🚀 INSTANT PREVIEW BUTTON (Bypasses 3 hour lock)
+          TextButton.icon(
+            icon: const Icon(Icons.visibility, color: Colors.white),
+            label: const Text(
+              "Preview Sponsors",
+              style: TextStyle(color: Colors.white),
+            ),
+            onPressed: () => web.window.open('/sponsors.html', '_blank'),
+          ),
+        ],
+        bottom: TabBar(
+          controller: _adminTabController,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white70,
+          indicatorColor: Colors.amber,
+          isScrollable: true,
+          tabs: const [
+            Tab(icon: Icon(Icons.ads_click), text: "PTC Config"),
+            Tab(icon: Icon(Icons.handshake), text: "Partner Links"),
+            Tab(icon: Icon(Icons.card_giftcard), text: "Sponsor Banners"),
+            Tab(icon: Icon(Icons.code), text: "Ad Placeholders"),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: _adminTabController,
+        children: [
+          // --- TAB 1: PTC CONTROLS ---
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Column(
+                      children: [
+                        TextField(
+                          controller: _titleCtrl,
+                          decoration: const InputDecoration(
+                            labelText: "Ad Title",
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: _urlCtrl,
+                          decoration: const InputDecoration(
+                            labelText: "Target URL",
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _durationCtrl,
+                                decoration: const InputDecoration(
+                                  labelText: "Timer (Seconds)",
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: TextField(
+                                controller: _rewardCtrl,
+                                decoration: const InputDecoration(
+                                  labelText: "DOGE Reward",
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: _clicksCtrl,
+                          decoration: const InputDecoration(
+                            labelText: "Total Clicks Available",
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 45,
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _injectAd,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                            ),
+                            child: const Text(
+                              "PUSH AD LIVE",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+                const Text(
+                  "Live Ad Management",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('ptc_ads')
+                      .orderBy('created_at', descending: true)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const CircularProgressIndicator();
+                    }
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) {
+                        var doc = snapshot.data!.docs[index];
+                        var data = doc.data() as Map<String, dynamic>;
+                        return Card(
+                          child: ListTile(
+                            leading: const Icon(
+                              Icons.campaign,
+                              color: Colors.orange,
+                            ),
+                            title: Text(data['title'] ?? 'No Title'),
+                            subtitle: Text(
+                              "${data['reward']} DOGE | ${data['duration']}s",
+                            ),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => FirebaseFirestore.instance
+                                  .collection('ptc_ads')
+                                  .doc(doc.id)
+                                  .delete(),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          // --- TAB 2: PARTNER LINKS ---
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Column(
+                      children: [
+                        TextField(
+                          controller: _pTitleCtrl,
+                          decoration: const InputDecoration(
+                            labelText: "Platform Title",
+                          ),
+                        ),
+                        TextField(
+                          controller: _pSubCtrl,
+                          decoration: const InputDecoration(
+                            labelText: "Description Subtitle",
+                          ),
+                        ),
+                        TextField(
+                          controller: _pRewardCtrl,
+                          decoration: const InputDecoration(
+                            labelText: "Marketing / Reward Text",
+                          ),
+                        ),
+                        TextField(
+                          controller: _pUrlCtrl,
+                          decoration: const InputDecoration(
+                            labelText: "Affiliate Tracking Link",
+                          ),
+                        ),
+                        DropdownButtonFormField<String>(
+                          initialValue: _selectedCategory,
+                          decoration: const InputDecoration(
+                            labelText: "Category",
+                          ),
+                          items:
+                              ['Wallets', 'PTC', 'Faucets', 'Mining', 'Other']
+                                  .map(
+                                    (c) => DropdownMenuItem(
+                                      value: c,
+                                      child: Text(c),
+                                    ),
+                                  )
+                                  .toList(),
+                          onChanged: (val) =>
+                              setState(() => _selectedCategory = val!),
+                        ),
+                        DropdownButtonFormField<String>(
+                          initialValue: _selectedIcon,
+                          decoration: const InputDecoration(
+                            labelText: "Icon Setup",
+                          ),
+                          items: const [
+                            DropdownMenuItem(
+                              value: 'wallet',
+                              child: Text("Wallet Icon"),
+                            ),
+                            DropdownMenuItem(
+                              value: 'ptc',
+                              child: Text("PTC Cursor"),
+                            ),
+                            DropdownMenuItem(
+                              value: 'faucet',
+                              child: Text("Water Faucet"),
+                            ),
+                            DropdownMenuItem(
+                              value: 'mining',
+                              child: Text("Cloud Sync Engine"),
+                            ),
+                          ],
+                          onChanged: (val) =>
+                              setState(() => _selectedIcon = val!),
+                        ),
+                        DropdownButtonFormField<String>(
+                          initialValue: _selectedColorHex,
+                          decoration: const InputDecoration(
+                            labelText: "Color Tint",
+                          ),
+                          items: const [
+                            DropdownMenuItem(
+                              value: '0xFF2196F3',
+                              child: Text("Blue"),
+                            ),
+                            DropdownMenuItem(
+                              value: '0xFFFF9800',
+                              child: Text("Orange"),
+                            ),
+                            DropdownMenuItem(
+                              value: '0xFFE91E63',
+                              child: Text("Pink"),
+                            ),
+                            DropdownMenuItem(
+                              value: '0xFF009688',
+                              child: Text("Teal"),
+                            ),
+                          ],
+                          onChanged: (val) =>
+                              setState(() => _selectedColorHex = val!),
+                        ),
+                        const SizedBox(height: 15),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 45,
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _injectPartner,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                            ),
+                            child: const Text(
+                              "INJECT PARTNER LINK",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 25),
+                const Text(
+                  "Active Partner Links",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('partners')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const LinearProgressIndicator();
+                    }
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) {
+                        var doc = snapshot.data!.docs[index];
+                        var data = doc.data() as Map<String, dynamic>;
+                        return Card(
+                          child: ListTile(
+                            title: Text(data['title'] ?? ''),
+                            subtitle: Text("Category: ${data['category']}"),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => FirebaseFirestore.instance
+                                  .collection('partners')
+                                  .doc(doc.id)
+                                  .delete(),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          // --- TAB 3: BONUS SPONSORS (CARDS) ---
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Column(
+                      children: [
+                        const Text(
+                          "Add Visual Sponsor Banner",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const Divider(),
+                        TextField(
+                          controller: _bTitleCtrl,
+                          decoration: const InputDecoration(
+                            labelText: "Sponsor Title",
+                          ),
+                        ),
+                        TextField(
+                          controller: _bImgCtrl,
+                          decoration: const InputDecoration(
+                            labelText: "Banner Image URL",
+                          ),
+                        ),
+                        TextField(
+                          controller: _bUrlCtrl,
+                          decoration: const InputDecoration(
+                            labelText: "Target Affiliate URL",
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 45,
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _injectBonusSponsor,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.purple,
+                            ),
+                            child: const Text(
+                              "INJECT SPONSOR CARD",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 25),
+                const Text(
+                  "Active Sponsor Cards",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('bonus_sponsors')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const LinearProgressIndicator();
+                    }
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) {
+                        var doc = snapshot.data!.docs[index];
+                        var data = doc.data() as Map<String, dynamic>;
+                        return Card(
+                          child: ListTile(
+                            leading: const Icon(
+                              Icons.card_giftcard,
+                              color: Colors.purple,
+                            ),
+                            title: Text(data['title'] ?? ''),
+                            subtitle: Text(
+                              data['target_url'] ?? '',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => FirebaseFirestore.instance
+                                  .collection('bonus_sponsors')
+                                  .doc(doc.id)
+                                  .delete(),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          // --- TAB 4: AD PLACEHOLDERS (RAW HTML) ---
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Column(
+                      children: [
+                        const Text(
+                          "Inject Raw HTML (A-Ads / iFrames)",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const Divider(),
+                        TextField(
+                          controller: _phTitleCtrl,
+                          decoration: const InputDecoration(
+                            labelText: "Reference Title (e.g., Top Banner)",
+                          ),
+                        ),
+                        TextField(
+                          controller: _phCodeCtrl,
+                          decoration: const InputDecoration(
+                            labelText: "Raw iframe Code",
+                          ),
+                          maxLines: 3,
+                        ),
+
+                        // 🚀 NEW DROPDOWN: Choose Top, Middle, or Bottom
+                        DropdownButtonFormField<String>(
+                          initialValue: _phPosition,
+                          decoration: const InputDecoration(
+                            labelText: "Page Position",
+                          ),
+                          items: ['Top', 'Middle', 'Bottom']
+                              .map(
+                                (p) =>
+                                    DropdownMenuItem(value: p, child: Text(p)),
+                              )
+                              .toList(),
+                          onChanged: (val) =>
+                              setState(() => _phPosition = val!),
+                        ),
+
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 45,
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _injectPlaceholder,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.indigo,
+                            ),
+                            child: const Text(
+                              "INJECT HTML PLACEHOLDER",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 25),
+                const Text(
+                  "Active HTML Placeholders",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('sponsor_placeholders')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const LinearProgressIndicator();
+                    }
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) {
+                        var doc = snapshot.data!.docs[index];
+                        var data = doc.data() as Map<String, dynamic>;
+                        return Card(
+                          child: ListTile(
+                            leading: const Icon(
+                              Icons.code,
+                              color: Colors.indigo,
+                            ),
+                            title: Text(data['title'] ?? 'Unnamed Snippet'),
+                            subtitle: Text(
+                              "Position: ${data['position'] ?? 'Top'}",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => FirebaseFirestore.instance
+                                  .collection('sponsor_placeholders')
+                                  .doc(doc.id)
+                                  .delete(),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ==========================================
+// 🌟 AFFILIATE LINKS PAGE (HYBRID TABBED)
+// ==========================================
+

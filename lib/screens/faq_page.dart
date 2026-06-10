@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'dart:async';
-import 'dart:math';
 import 'dart:ui_web' as ui;
 import 'package:web/web.dart' as web;
 import 'dart:js_interop';
-import 'package:pointer_interceptor/pointer_interceptor.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'src/theme_provider.dart';
-import 'create_ad_page.dart';
-import 'src/firebase_service.dart';
-part 'src/app_widgets.dart';
+import '../src/theme_provider.dart';
+import '../src/firebase_service.dart';
+import '../src/app_widgets.dart';
 
 Future<Map<String, String>> _authHeaders() async {
   final headers = {'Content-Type': 'application/json'};
@@ -128,66 +121,82 @@ void main() async {
 // ==========================================
 // 1. THE SHELL
 // ==========================================
-import 'screens/faucet_page.dart';
-import 'screens/staking_page.dart';
-import 'widgets/live_interest_display.dart';
-import 'screens/account_page.dart';
-import 'screens/ad_hub_page.dart';
-import 'screens/ptc_earn_page.dart';
-import 'screens/admin_dashboard_page.dart';
-import 'screens/affiliate_links_page.dart';
-import 'screens/referral_page.dart';
-import 'screens/faq_page.dart';
-import 'screens/cookie_policy_page.dart';
-import 'screens/terms_of_service_page.dart';
-import 'screens/privacy_policy_page.dart';
-import 'screens/contact_page.dart';
-import 'widgets/ptc_timer_dialog.dart';
-import 'widgets/bonus_timer_dialog.dart';
-import 'screens/offerwall_hub_page.dart';
-class MainScaffold extends StatefulWidget {
-  const MainScaffold({super.key});
-  @override
-  State<MainScaffold> createState() => _MainScaffoldState();
-}
 
-class _MainScaffoldState extends State<MainScaffold> {
-  int _selectedIndex = 0;
-  static final List<Widget> _pages = [
-    const FaucetPage(),
-    const StakingPage(),
-    const AccountPage(),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
+class FAQPage extends StatelessWidget {
+  const FAQPage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        backgroundColor: kAppBarColor,
-        selectedItemColor: Colors.amber,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.water_drop),
-            label: 'Faucet',
+      appBar: const GlobalAppBar(showBackArrow: true),
+      body: PageWithFooter(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                const ExpansionTile(
+                  title: Text(
+                    "What is Golden Paw?",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(15),
+                      child: Text(
+                        "Golden Paw is a premier Dogecoin reward platform and advertising network. Users can earn free DOGE by claiming from our faucet or viewing sponsored PTC (Paid-To-Click) ads. Advertisers can purchase high-quality crypto traffic.",
+                      ),
+                    ),
+                  ],
+                ),
+                const ExpansionTile(
+                  title: Text(
+                    "How do I withdraw my earnings?",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(15),
+                      child: Text(
+                        "Once you reach the minimum withdrawal threshold of 0.001 DOGE in your Vault, you can navigate to your Profile, enter your FaucetPay Dogecoin address, and initiate an instant withdrawal.",
+                      ),
+                    ),
+                  ],
+                ),
+                const ExpansionTile(
+                  title: Text(
+                    "Can I use a VPN or Proxy?",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(15),
+                      child: Text(
+                        "Absolutely not. The use of VPNs, Proxies, Tor nodes, or automated claiming bots is strictly prohibited. Our security systems will automatically flag and permanently ban any accounts caught using these methods.",
+                      ),
+                    ),
+                  ],
+                ),
+                const ExpansionTile(
+                  title: Text(
+                    "How does Staking work?",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(15),
+                      child: Text(
+                        "You can lock your available DOGE into the Vault to earn an 8.5% Annual Percentage Yield (APY). Interest is calculated and distributed every single second.",
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: 'Staking'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
-        ],
+        ),
       ),
     );
   }
 }
 
-// ==========================================
-// 2. THE FAUCET PAGE
-// ==========================================
+

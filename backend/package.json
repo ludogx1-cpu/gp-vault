@@ -2,9 +2,9 @@
   "name": "gp_faucet_backend",
   "version": "1.0.0",
   "description": "Render Node backend for GoldenPaw faucet",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node server.js"
   },
   "engines": {
     "node": "22.x"

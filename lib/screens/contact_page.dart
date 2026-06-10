@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'dart:async';
-import 'dart:math';
 import 'dart:ui_web' as ui;
 import 'package:web/web.dart' as web;
 import 'dart:js_interop';
-import 'package:pointer_interceptor/pointer_interceptor.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'src/theme_provider.dart';
-import 'create_ad_page.dart';
-import 'src/firebase_service.dart';
-part 'src/app_widgets.dart';
+import '../src/theme_provider.dart';
+import '../src/firebase_service.dart';
+import '../src/app_widgets.dart';
 
 Future<Map<String, String>> _authHeaders() async {
   final headers = {'Content-Type': 'application/json'};
@@ -128,66 +121,91 @@ void main() async {
 // ==========================================
 // 1. THE SHELL
 // ==========================================
-import 'screens/faucet_page.dart';
-import 'screens/staking_page.dart';
-import 'widgets/live_interest_display.dart';
-import 'screens/account_page.dart';
-import 'screens/ad_hub_page.dart';
-import 'screens/ptc_earn_page.dart';
-import 'screens/admin_dashboard_page.dart';
-import 'screens/affiliate_links_page.dart';
-import 'screens/referral_page.dart';
-import 'screens/faq_page.dart';
-import 'screens/cookie_policy_page.dart';
-import 'screens/terms_of_service_page.dart';
-import 'screens/privacy_policy_page.dart';
-import 'screens/contact_page.dart';
-import 'widgets/ptc_timer_dialog.dart';
-import 'widgets/bonus_timer_dialog.dart';
-import 'screens/offerwall_hub_page.dart';
-class MainScaffold extends StatefulWidget {
-  const MainScaffold({super.key});
-  @override
-  State<MainScaffold> createState() => _MainScaffoldState();
-}
 
-class _MainScaffoldState extends State<MainScaffold> {
-  int _selectedIndex = 0;
-  static final List<Widget> _pages = [
-    const FaucetPage(),
-    const StakingPage(),
-    const AccountPage(),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
+class ContactPage extends StatelessWidget {
+  const ContactPage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        backgroundColor: kAppBarColor,
-        selectedItemColor: Colors.amber,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.water_drop),
-            label: 'Faucet',
+      appBar: const GlobalAppBar(showBackArrow: true),
+      body: PageWithFooter(
+        child: Padding(
+          padding: const EdgeInsets.all(25.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.support_agent, size: 80, color: Colors.blue),
+              const SizedBox(height: 20),
+              const Text(
+                "Need Help?",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.brown,
+                ),
+              ),
+              const SizedBox(height: 15),
+              const Text(
+                "If you have questions about a withdrawal, an ad campaign, or need to report a bug, please reach out!",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 15, color: Colors.grey),
+              ),
+              const SizedBox(height: 30),
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(color: Colors.blue.shade200, width: 2),
+                ),
+                child: const Column(
+                  children: [
+                    Text(
+                      "Email Support",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                        fontSize: 18,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "support@goldenpaw.com",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "We aim to respond to all inquiries within 24-48 hours.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, color: Colors.black54),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  "Back",
+                  style: TextStyle(
+                    color: Colors.brown,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: 'Staking'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
-        ],
+        ),
       ),
     );
   }
 }
 
 // ==========================================
-// 2. THE FAUCET PAGE
+// ⏱️ PTC AD TIMER DIALOG
 // ==========================================
+

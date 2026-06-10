@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'dart:async';
-import 'dart:math';
 import 'dart:ui_web' as ui;
 import 'package:web/web.dart' as web;
 import 'dart:js_interop';
-import 'package:pointer_interceptor/pointer_interceptor.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'src/theme_provider.dart';
-import 'create_ad_page.dart';
-import 'src/firebase_service.dart';
-part 'src/app_widgets.dart';
+import '../src/theme_provider.dart';
+import '../src/firebase_service.dart';
+import '../src/app_widgets.dart';
 
 Future<Map<String, String>> _authHeaders() async {
   final headers = {'Content-Type': 'application/json'};
@@ -128,66 +121,45 @@ void main() async {
 // ==========================================
 // 1. THE SHELL
 // ==========================================
-import 'screens/faucet_page.dart';
-import 'screens/staking_page.dart';
-import 'widgets/live_interest_display.dart';
-import 'screens/account_page.dart';
-import 'screens/ad_hub_page.dart';
-import 'screens/ptc_earn_page.dart';
-import 'screens/admin_dashboard_page.dart';
-import 'screens/affiliate_links_page.dart';
-import 'screens/referral_page.dart';
-import 'screens/faq_page.dart';
-import 'screens/cookie_policy_page.dart';
-import 'screens/terms_of_service_page.dart';
-import 'screens/privacy_policy_page.dart';
-import 'screens/contact_page.dart';
-import 'widgets/ptc_timer_dialog.dart';
-import 'widgets/bonus_timer_dialog.dart';
-import 'screens/offerwall_hub_page.dart';
-class MainScaffold extends StatefulWidget {
-  const MainScaffold({super.key});
-  @override
-  State<MainScaffold> createState() => _MainScaffoldState();
-}
 
-class _MainScaffoldState extends State<MainScaffold> {
-  int _selectedIndex = 0;
-  static final List<Widget> _pages = [
-    const FaucetPage(),
-    const StakingPage(),
-    const AccountPage(),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
+class PrivacyPolicyPage extends StatelessWidget {
+  const PrivacyPolicyPage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        backgroundColor: kAppBarColor,
-        selectedItemColor: Colors.amber,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.water_drop),
-            label: 'Faucet',
+      appBar: const GlobalAppBar(showBackArrow: true),
+      body: PageWithFooter(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Privacy Policy",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.brown,
+                  ),
+                ),
+                const SizedBox(height: 15),
+                const Text(
+                  "1. Data We Collect\nWhen you register, we collect your email address. When you withdraw, we collect your FaucetPay linked Dogecoin address.\n\n"
+                  "2. Third-Party Services\nWe utilize Google Firebase for secure authentication and database management. We use Cloudflare and hCaptcha for bot mitigation.",
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.6,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: 'Staking'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
-        ],
+        ),
       ),
     );
   }
 }
 
-// ==========================================
-// 2. THE FAUCET PAGE
-// ==========================================
+
