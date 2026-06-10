@@ -34,6 +34,7 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
               primary: false,
               toolbarHeight: 70,
               backgroundColor: kAppBarColor,
+              surfaceTintColor: Colors.transparent,
               elevation: 10,
               shadowColor: Colors.black45,
               centerTitle: isMobile ? false : centerTitle,
