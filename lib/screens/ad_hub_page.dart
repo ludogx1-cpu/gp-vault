@@ -945,18 +945,13 @@ class _AdHubPageState extends State<AdHubPage> {
                       ),
                       const SizedBox(height: 15),
 
-                      Card(
-                        color: isDark
+                      AnimatedHoverCard(
+                        backgroundColor: isDark
                             ? themeProvider.darkGreyBoxColor
                             : Colors.white,
-                        elevation: isDark ? 0 : 2,
-                        shape: isDark
-                            ? RoundedRectangleBorder(
-                              side: BorderSide(
-                                color: themeProvider.darkGreyBorder,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                            )
+                        borderRadius: BorderRadius.circular(10),
+                        border: isDark
+                            ? Border.all(color: themeProvider.darkGreyBorder)
                             : null,
                         child: ListTile(
                           leading: const Icon(
@@ -992,18 +987,13 @@ class _AdHubPageState extends State<AdHubPage> {
                           ),
                         ),
                       ),
-                      Card(
-                        color: isDark
+                      AnimatedHoverCard(
+                        backgroundColor: isDark
                             ? themeProvider.darkGreyBoxColor
                             : Colors.white,
-                        elevation: isDark ? 0 : 2,
-                        shape: isDark
-                            ? RoundedRectangleBorder(
-                              side: BorderSide(
-                                color: themeProvider.darkGreyBorder,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                            )
+                        borderRadius: BorderRadius.circular(10),
+                        border: isDark
+                            ? Border.all(color: themeProvider.darkGreyBorder)
                             : null,
                         child: ListTile(
                           leading: const Icon(
@@ -1039,18 +1029,13 @@ class _AdHubPageState extends State<AdHubPage> {
                           ),
                         ),
                       ),
-                      Card(
-                        color: isDark
+                      AnimatedHoverCard(
+                        backgroundColor: isDark
                             ? themeProvider.darkGreyBoxColor
                             : Colors.white,
-                        elevation: isDark ? 0 : 2,
-                        shape: isDark
-                            ? RoundedRectangleBorder(
-                              side: BorderSide(
-                                color: themeProvider.darkGreyBorder,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                            )
+                        borderRadius: BorderRadius.circular(10),
+                        border: isDark
+                            ? Border.all(color: themeProvider.darkGreyBorder)
                             : null,
                         child: ListTile(
                           leading: const Icon(
@@ -1086,18 +1071,13 @@ class _AdHubPageState extends State<AdHubPage> {
                           ),
                         ),
                       ),
-                      Card(
-                        color: isDark
+                      AnimatedHoverCard(
+                        backgroundColor: isDark
                             ? themeProvider.darkGreyBoxColor
                             : Colors.white,
-                        elevation: isDark ? 0 : 2,
-                        shape: isDark
-                            ? RoundedRectangleBorder(
-                              side: BorderSide(
-                                color: themeProvider.darkGreyBorder,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                            )
+                        borderRadius: BorderRadius.circular(10),
+                        border: isDark
+                            ? Border.all(color: themeProvider.darkGreyBorder)
                             : null,
                         child: ListTile(
                           leading: const Icon(
@@ -1133,18 +1113,13 @@ class _AdHubPageState extends State<AdHubPage> {
                           ),
                         ),
                       ),
-                      Card(
-                        color: isDark
+                      AnimatedHoverCard(
+                        backgroundColor: isDark
                             ? themeProvider.darkGreyBoxColor
                             : Colors.white,
-                        elevation: isDark ? 0 : 2,
-                        shape: isDark
-                            ? RoundedRectangleBorder(
-                              side: BorderSide(
-                                color: themeProvider.darkGreyBorder,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                            )
+                        borderRadius: BorderRadius.circular(10),
+                        border: isDark
+                            ? Border.all(color: themeProvider.darkGreyBorder)
                             : null,
                         child: ListTile(
                           leading: const Icon(

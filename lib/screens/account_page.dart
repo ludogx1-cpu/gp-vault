@@ -264,18 +264,15 @@ class _AccountPageState extends State<AccountPage> {
                       listenable: themeProvider,
                       builder: (context, _) {
                         final isDark = themeProvider.isDarkMode;
-                        return Card(
-                          elevation: 0,
-                          color: isDark
+                        return AnimatedHoverCard(
+                          backgroundColor: isDark
                               ? Colors.grey.shade900
                               : Colors.amber.shade50,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            side: BorderSide(
-                              color: isDark
-                                  ? Colors.grey.shade700
-                                  : Colors.amber.shade200,
-                            ),
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.grey.shade700
+                                : Colors.amber.shade200,
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(20.0),
@@ -488,19 +485,16 @@ class _AccountPageState extends State<AccountPage> {
                               listenable: themeProvider,
                               builder: (context, _) {
                                 final isDark = themeProvider.isDarkMode;
-                                return Card(
-                                  elevation: 2,
-                                  color: isDark
+                                return AnimatedHoverCard(
+                                  backgroundColor: isDark
                                       ? Colors.grey.shade900
                                       : Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                    side: BorderSide(
-                                      color: isDark
-                                          ? Colors.grey.shade700
-                                          : Colors.amber.shade300,
-                                      width: 1,
-                                    ),
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: Border.all(
+                                    color: isDark
+                                        ? Colors.grey.shade700
+                                        : Colors.amber.shade300,
+                                    width: 1,
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(20.0),

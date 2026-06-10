@@ -550,19 +550,16 @@ class _FaucetPageState extends State<FaucetPage> {
                   listenable: themeProvider,
                   builder: (context, _) {
                     final isDark = themeProvider.isDarkMode;
-                    return Card(
-                      elevation: 0,
-                      color: isDark
+                    return AnimatedHoverCard(
+                      backgroundColor: isDark
                           ? themeProvider.darkGreyBoxColor
                           : Colors.amber[50],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        side: BorderSide(
-                          color: isDark
-                              ? themeProvider.darkGreyBorder
-                              : Colors.amber.shade200,
-                          width: 1,
-                        ),
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(
+                        color: isDark
+                            ? themeProvider.darkGreyBorder
+                            : Colors.amber.shade200,
+                        width: 1,
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(20.0),

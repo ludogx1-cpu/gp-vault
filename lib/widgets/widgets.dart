@@ -1,3 +1,4 @@
+export 'animated_hover_card.dart';
 export 'app_drawer.dart';
 export 'app_footer.dart';
 export 'auth_dialog.dart';
