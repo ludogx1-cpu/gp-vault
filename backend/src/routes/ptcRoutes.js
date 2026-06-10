@@ -69,7 +69,7 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
         throw new Error('Cooldown active. You can view this ad again tomorrow.');
       }
 
-      const rewardAmount = adData.tier === 'high' ? 0.005 : 0.001; 
+      const rewardAmount = adData.tier === 'high' ? 0.010 : 0.002; 
 
       transaction.update(userRef, {
         doge_balance: Number(userData.doge_balance || 0) + rewardAmount,

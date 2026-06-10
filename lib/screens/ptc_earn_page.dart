@@ -266,7 +266,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                                 doc.data() as Map<String, dynamic>? ?? {};
 
                             int duration = adData['duration'] as int? ?? 10;
-                            double reward = (adData['reward'] as num? ?? 0.001)
+                            double reward = (adData['reward'] as num? ?? 0.002)
                                 .toDouble();
                             String title =
                                 adData['title'] as String? ??

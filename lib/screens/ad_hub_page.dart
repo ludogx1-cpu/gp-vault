@@ -410,7 +410,7 @@ class _AdHubPageState extends State<AdHubPage> {
     int selectedTier = 1;
     int selectedClicks = 100;
 
-    Map<int, double> costs = {1: 0.50, 2: 1.00, 3: 1.50, 4: 3.00};
+    Map<int, double> costs = {1: 0.25, 2: 0.50, 3: 0.75, 4: 1.50};
     Map<int, String> labels = {
       1: "10 Seconds",
       2: "20 Seconds",
@@ -973,7 +973,7 @@ class _AdHubPageState extends State<AdHubPage> {
                             ),
                           ),
                           trailing: const Text(
-                            "\$7.00",
+                            "\$3.50",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.green,
@@ -983,7 +983,7 @@ class _AdHubPageState extends State<AdHubPage> {
                             adsBalance,
                             'global_banner',
                             'Global Banner',
-                            7.0,
+                            3.5,
                           ),
                         ),
                       ),
@@ -1015,7 +1015,7 @@ class _AdHubPageState extends State<AdHubPage> {
                             ),
                           ),
                           trailing: const Text(
-                            "\$3.50",
+                            "\$1.75",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.green,
@@ -1025,7 +1025,7 @@ class _AdHubPageState extends State<AdHubPage> {
                             adsBalance,
                             'square_left',
                             'Left Square Ad',
-                            3.5,
+                            1.75,
                           ),
                         ),
                       ),
@@ -1057,7 +1057,7 @@ class _AdHubPageState extends State<AdHubPage> {
                             ),
                           ),
                           trailing: const Text(
-                            "\$3.50",
+                            "\$1.75",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.green,
@@ -1067,7 +1067,7 @@ class _AdHubPageState extends State<AdHubPage> {
                             adsBalance,
                             'square_right',
                             'Right Square Ad',
-                            3.5,
+                            1.75,
                           ),
                         ),
                       ),
@@ -1099,7 +1099,7 @@ class _AdHubPageState extends State<AdHubPage> {
                             ),
                           ),
                           trailing: const Text(
-                            "\$14.00",
+                            "\$7.00",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.green,
@@ -1109,7 +1109,7 @@ class _AdHubPageState extends State<AdHubPage> {
                             adsBalance,
                             'interstitial',
                             'Interstitial Pop-up',
-                            14.0,
+                            7.0,
                           ),
                         ),
                       ),
