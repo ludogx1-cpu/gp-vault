@@ -47,7 +47,7 @@ class LandingPage extends StatelessWidget {
                   child: const Text(
                     "SIGN UP",
                     style: TextStyle(
-                      color: Colors.amber,
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
                     ),
@@ -69,7 +69,7 @@ class LandingPage extends StatelessWidget {
                     child: const Text(
                       "SIGN UP",
                       style: TextStyle(
-                        color: Colors.brown,
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),

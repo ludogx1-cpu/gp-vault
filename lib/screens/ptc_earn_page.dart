@@ -387,9 +387,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                                       backgroundColor: canClaimBonus
                                           ? Colors.amber
                                           : Colors.grey,
-                                      foregroundColor: canClaimBonus
-                                          ? (isDark ? Colors.white : Colors.brown.shade900)
-                                          : Colors.white,
+                                      foregroundColor: Colors.white,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(10),
                                       ),
