@@ -21,19 +21,28 @@ class PetOverlayWidget extends StatefulWidget {
   State<PetOverlayWidget> createState() => _PetOverlayWidgetState();
 }
 
-class _PetOverlayWidgetState extends State<PetOverlayWidget> with SingleTickerProviderStateMixin {
+class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProviderStateMixin {
   String _stage = 'egg';
   Timer? _statusTimer;
   Timer? _moveTimer;
+
+  // Stats
+  double _hunger = 50;
+  double _happiness = 50;
+  double _energy = 100;
+  int _lastBoopTime = 0;
 
   // Position & Animation
   double _petX = 100;
   double _petY = 100;
   bool _facingRight = true;
   bool _isWandering = false;
+  bool _isCloseUp = false;
 
-  // Shake animation for egg
+  // Animations
   late AnimationController _shakeController;
+  late AnimationController _walkController;
+  late AnimationController _boopController;
 
   // Poos
   final List<PooData> _poos = [];
@@ -42,16 +51,16 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with SingleTickerPr
   @override
   void initState() {
     super.initState();
+    
+    _shakeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
+    _walkController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    _boopController = AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
+
     _fetchPetStatus();
     _statusTimer = Timer.periodic(const Duration(minutes: 1), (_) => _fetchPetStatus());
     
     // Start movement loop
     _moveTimer = Timer.periodic(const Duration(seconds: 8), (_) => _movePetRandomly());
-
-    _shakeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-    );
   }
 
   @override
@@ -59,6 +68,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with SingleTickerPr
     _statusTimer?.cancel();
     _moveTimer?.cancel();
     _shakeController.dispose();
+    _walkController.dispose();
+    _boopController.dispose();
     super.dispose();
   }
 
@@ -75,6 +86,11 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with SingleTickerPr
         if (data['success'] && data['pet'] != null && mounted) {
           setState(() {
             _stage = data['pet']['stage'];
+            _hunger = (data['pet']['hunger'] as num).toDouble();
+            _happiness = (data['pet']['happiness'] as num).toDouble();
+            _energy = (data['pet']['energy'] as num).toDouble();
+            _lastBoopTime = data['pet']['last_boop_time'] ?? 0;
+
             if (_stage != 'egg') {
               _isWandering = true;
             } else {
@@ -100,7 +116,6 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with SingleTickerPr
                 ));
               }
             } else if (pendingPoos < _poos.length) {
-              // Should only happen if cleaned up from another device, sync down
               _poos.removeRange(0, _poos.length - pendingPoos);
             }
           });
@@ -115,14 +130,37 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with SingleTickerPr
     if (!_isWandering || !mounted) return;
     
     final size = MediaQuery.of(context).size;
-    final targetX = 50 + _random.nextDouble() * (size.width - 150);
-    // Keep Y in the upper half or random area, avoiding being completely hidden
-    final targetY = 100 + _random.nextDouble() * (size.height - 300);
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final msSinceBoop = now - _lastBoopTime;
 
-    setState(() {
-      _facingRight = targetX > _petX;
-      _petX = targetX;
-      _petY = targetY;
+    // Check if 15 mins passed since last boop
+    if (msSinceBoop >= 15 * 60 * 1000 && !_isCloseUp) {
+      _isCloseUp = true;
+      final targetX = (size.width / 2) - 50; // Center horizontal
+      final targetY = size.height - 250; // Bottom center
+      
+      setState(() {
+        _facingRight = targetX > _petX;
+        _petX = targetX;
+        _petY = targetY;
+      });
+    } else {
+      _isCloseUp = false;
+      final targetX = 50 + _random.nextDouble() * (size.width > 150 ? size.width - 150 : 100);
+      final targetY = 100 + _random.nextDouble() * (size.height > 300 ? size.height - 300 : 200);
+
+      setState(() {
+        _facingRight = targetX > _petX;
+        _petX = targetX;
+        _petY = targetY;
+      });
+    }
+
+    // Start waddle animation while moving
+    _walkController.repeat(reverse: true);
+    Future.delayed(const Duration(seconds: 4), () {
+      if (mounted) _walkController.stop();
+      if (mounted) setState(() {}); // Refresh to show emotion if stopped
     });
   }
 
@@ -157,6 +195,52 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with SingleTickerPr
     }
   }
 
+  Future<void> _boopPet() async {
+    if (!_isCloseUp) return;
+
+    _boopController.forward().then((_) => _boopController.reverse());
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (now - _lastBoopTime < 15 * 60 * 1000) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pet is not ready for another boop yet!')));
+      return;
+    }
+
+    // Optimistic UI update
+    setState(() {
+      _lastBoopTime = now;
+      _isCloseUp = false;
+    });
+
+    // Walk away happily
+    _movePetRandomly();
+
+    try {
+      final headers = await getAuthHeaders();
+      final response = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/pet-boop'),
+        headers: headers,
+      );
+
+      final data = jsonDecode(response.body);
+      if (response.statusCode == 200 && data['success']) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Boop! +${data['reward']} DOGE ❤️'), backgroundColor: Colors.green),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data['error'] ?? 'Boop failed'), backgroundColor: Colors.red),
+          );
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
   String _getImageAsset() {
     switch (_stage) {
       case 'egg': return 'assets/shiba_egg.png';
@@ -173,6 +257,13 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    String emotion = '';
+    if (!_walkController.isAnimating && !_isCloseUp && _stage != 'egg') {
+      if (_energy < 30) emotion = '💤';
+      else if (_hunger < 30) emotion = '🍖';
+      else if (_happiness > 80) emotion = '❤️';
+    }
+
     return Stack(
       children: [
         // Poos
@@ -196,24 +287,77 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with SingleTickerPr
           left: _petX,
           top: _petY,
           child: AnimatedBuilder(
-            animation: _shakeController,
+            animation: Listenable.merge([_shakeController, _walkController, _boopController]),
             builder: (context, child) {
-              double offset = 0;
+              double eggOffset = 0;
+              double walkOffset = 0;
+              
               if (_stage == 'egg') {
-                offset = sin(_shakeController.value * pi * 4) * 10;
+                eggOffset = sin(_shakeController.value * pi * 4) * 10;
+              } else if (_walkController.isAnimating) {
+                // Bob up and down while walking
+                walkOffset = sin(_walkController.value * pi) * -10;
               }
+
+              // Squish effect for boop
+              double boopScale = 1.0 - (_boopController.value * 0.15);
+
               return Transform.translate(
-                offset: Offset(offset, 0),
-                child: child,
+                offset: Offset(eggOffset, walkOffset),
+                child: AnimatedScale(
+                  scale: _isCloseUp ? 2.5 : 1.0, // Scale up if walking to camera
+                  duration: const Duration(seconds: 4),
+                  curve: Curves.easeInOut,
+                  child: Transform.scale(
+                    scale: boopScale,
+                    child: child,
+                  ),
+                ),
               );
             },
-            child: Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.rotationY(_facingRight ? pi : 0), // Flip horizontal
-              child: SizedBox(
-                width: 100,
-                height: 100,
-                child: Image.asset(_getImageAsset()),
+            child: GestureDetector(
+              onTap: _isCloseUp ? _boopPet : null,
+              child: Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.rotationY(_facingRight ? pi : 0), // Flip horizontal
+                    child: SizedBox(
+                      width: 100,
+                      height: 100,
+                      child: Image.asset(_getImageAsset()),
+                    ),
+                  ),
+                  // Emotion bubble
+                  if (emotion.isNotEmpty)
+                    Positioned(
+                      top: -20,
+                      child: AnimatedOpacity(
+                        opacity: emotion.isNotEmpty ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 500),
+                        child: Text(
+                          emotion,
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                      ),
+                    ),
+                  // Boop Hint
+                  if (_isCloseUp && !_walkController.isAnimating)
+                    const Positioned(
+                      top: -25,
+                      child: Text(
+                        "Boop!",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.pinkAccent,
+                          shadows: [Shadow(color: Colors.white, blurRadius: 4)],
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),

@@ -115,7 +115,8 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
           total_distance: data.pet_total_distance_walked || 0,
           pending_poos: pendingPoos,
           locked_returns: locked,
-          matured_returns: matured
+          matured_returns: matured,
+          last_boop_time: data.pet_last_boop_time ? data.pet_last_boop_time.toDate().getTime() : 0
         };
       }
     });
@@ -346,6 +347,38 @@ router.post('/pet-clean-poo', verifyFirebaseToken, async (req, res) => {
     });
 
     res.json({ success: true, message: 'Cleaned up poo!', reward });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/pet-boop', verifyFirebaseToken, async (req, res) => {
+  try {
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    let reward = 0.002;
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      const data = snapshot.data() || {};
+
+      if (!data.pet_birth_date) throw new Error('Pet not initialized');
+
+      if (data.pet_last_boop_time) {
+        const msPassed = Date.now() - data.pet_last_boop_time.toDate().getTime();
+        if (msPassed < 15 * 60 * 1000) {
+          throw new Error('Pet is not ready for a boop right now. Wait a bit!');
+        }
+      }
+
+      const newDogeBal = Number(data.doge_balance || 0) + reward;
+
+      transaction.update(userRef, {
+        doge_balance: newDogeBal,
+        pet_last_boop_time: admin.firestore.FieldValue.serverTimestamp()
+      });
+    });
+
+    res.json({ success: true, message: 'Boop! You found a reward!', reward });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
