@@ -27,6 +27,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   double _totalDistance = 0.0;
   double _ageMultiplier = 1.0;
   double _lockedReturns = 0.0;
+  String _petName = 'Golden Paw Shiba';
 
   Timer? _refreshTimer;
 
@@ -62,6 +63,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
             _ageMultiplier = (data['pet']['age_multiplier'] as num?)?.toDouble() ?? 1.0;
             _totalDistance = (data['pet']['total_distance'] as num).toDouble();
             _lockedReturns = (data['pet']['locked_returns'] as num?)?.toDouble() ?? 0.0;
+            _petName = data['pet']['name'] ?? 'Golden Paw Shiba';
             
             final matured = (data['pet']['matured_returns'] as num?)?.toDouble() ?? 0.0;
             if (matured > 0) {
@@ -174,6 +176,60 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
     }
   }
 
+  Future<void> _renamePet() async {
+    final TextEditingController nameController = TextEditingController(text: _petName);
+    
+    final newName = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Name Your Shiba"),
+          content: TextField(
+            controller: nameController,
+            maxLength: 20,
+            decoration: const InputDecoration(
+              hintText: "Enter a cool name...",
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, nameController.text.trim()),
+              child: const Text("Save"),
+            ),
+          ],
+        );
+      }
+    );
+
+    if (newName != null && newName.isNotEmpty && newName != _petName) {
+      setState(() => _isLoading = true);
+      try {
+        final headers = await getAuthHeaders();
+        final response = await http.post(
+          Uri.parse('${ApiConstants.baseUrl}/pet-rename'),
+          headers: headers,
+          body: jsonEncode({'newName': newName}),
+        );
+        final data = jsonDecode(response.body);
+        if (data['success'] && mounted) {
+          setState(() {
+            _petName = newName;
+            _isLoading = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pet renamed successfully!'), backgroundColor: Colors.green));
+        } else {
+          if (mounted) {
+            setState(() => _isLoading = false);
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['error'] ?? 'Failed to rename'), backgroundColor: Colors.red));
+          }
+        }
+      } catch (e) {
+        if (mounted) setState(() => _isLoading = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeProvider>(context);
@@ -204,6 +260,20 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                 flex: 3,
                 child: Column(
                   children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(_petName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        IconButton(
+                          icon: const Icon(Icons.edit, size: 16, color: Colors.grey),
+                          onPressed: _renamePet,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          splashRadius: 12,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
                     _buildStatBar("Hunger", _hunger, Colors.orange, Icons.restaurant),
                     _buildStatBar("Happiness", _happiness, Colors.pink, Icons.favorite),
                     _buildStatBar("Energy", _energy, Colors.blue, Icons.bolt),
@@ -248,6 +318,36 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                         padding: const EdgeInsets.only(top: 4.0),
                         child: Text("Locked Returns: ${_lockedReturns.toStringAsFixed(4)} DOGE (Matures in 24h)", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.purple)),
                       ),
+                    
+                    // Info Box
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      margin: const EdgeInsets.only(top: 15),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.blueGrey.withOpacity(0.2) : Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.blue.withOpacity(0.5)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.info_outline, color: Colors.blue, size: 20),
+                              const SizedBox(width: 8),
+                              Text("Interactive Features", style: TextStyle(fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black87)),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "• Your pet now waddles around the screen!\n"
+                            "• Every 15 mins, it may walk up to the camera. Tap its nose to 'Boop' it for a 0.002 DOGE reward!\n"
+                            "• Watch its thought bubbles (💤, 🍖, ❤️) to see how it's feeling.",
+                            style: TextStyle(fontSize: 12, height: 1.4, color: isDark ? Colors.white70 : Colors.black87),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               )
