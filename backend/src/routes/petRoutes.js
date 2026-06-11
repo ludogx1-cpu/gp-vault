@@ -5,7 +5,7 @@ const { calculateDecay, getGrowthStage, getAgeMultiplier, MAX_STAT } = require('
 
 const router = express.Router();
 
-const FEED_COST_DOGE = 0.05;
+const FEED_COST_DOGE = 0.0005;
 const FEED_HUNGER_RECOVERY = 30;
 const PLAY_ENERGY_COST = 15;
 const PLAY_HAPPINESS_RECOVERY = 25;
