@@ -230,4 +230,37 @@ router.post('/pet-walk-sync', verifyFirebaseToken, async (req, res) => {
   }
 });
 
+router.post('/pet-clean-poo', verifyFirebaseToken, async (req, res) => {
+  try {
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    let reward = 0.005;
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      const data = snapshot.data() || {};
+
+      if (!data.pet_birth_date) throw new Error('Pet not initialized');
+
+      const lastPooTime = data.pet_last_poo_time;
+      if (lastPooTime) {
+        const msPassed = Date.now() - lastPooTime.toDate().getTime();
+        if (msPassed < 5 * 60 * 1000) {
+          throw new Error('No poos to clean right now! Wait a few minutes.');
+        }
+      }
+
+      const newDogeBal = Number(data.doge_balance || 0) + reward;
+
+      transaction.update(userRef, {
+        doge_balance: newDogeBal,
+        pet_last_poo_time: admin.firestore.FieldValue.serverTimestamp()
+      });
+    });
+
+    res.json({ success: true, message: 'Cleaned up poo!', reward });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
 module.exports = router;
