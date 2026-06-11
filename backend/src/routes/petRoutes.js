@@ -1,7 +1,7 @@
 const express = require('express');
 const { admin, verifyFirebaseToken } = require('../services/firebaseService');
 
-const { calculateDecay, getGrowthStage, MAX_STAT } = require('../utils/petMechanics');
+const { calculateDecay, getGrowthStage, getAgeMultiplier, MAX_STAT } = require('../utils/petMechanics');
 
 const router = express.Router();
 
@@ -11,7 +11,8 @@ const PLAY_ENERGY_COST = 15;
 const PLAY_HAPPINESS_RECOVERY = 25;
 const SLEEP_ENERGY_RECOVERY = 40;
 const WALK_ENERGY_COST_PER_100M = 5;
-const WALK_REWARD_PER_100M = 0.01;
+const METERS_PER_MILE = 1609.34;
+const WALK_REWARD_PER_MILE = 0.001;
 
 router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
   try {
@@ -61,6 +62,7 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
           happiness: decayed.happiness,
           energy: decayed.energy,
           stage: getGrowthStage(data.pet_birth_date),
+          age_multiplier: getAgeMultiplier(data.pet_birth_date),
           total_distance: data.pet_total_distance_walked || 0
         };
       }
@@ -202,7 +204,10 @@ router.post('/pet-walk-sync', verifyFirebaseToken, async (req, res) => {
         throw new Error('Pet is too tired to walk that far!');
       }
 
-      const dogeReward = (validMeters / 100) * WALK_REWARD_PER_100M;
+      const ageMult = getAgeMultiplier(data.pet_birth_date);
+      const baseReward = (validMeters / METERS_PER_MILE) * WALK_REWARD_PER_MILE;
+      const dogeReward = baseReward * ageMult;
+      
       const newDogeBal = Number(data.doge_balance || 0) + dogeReward;
       const newTotalDist = Number(data.pet_total_distance_walked || 0) + validMeters;
       const newEnergy = decayed.energy - energyCost;
