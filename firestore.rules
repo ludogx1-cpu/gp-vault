@@ -12,7 +12,7 @@ service cloud.firestore {
       
       // Users can write their own data, but CANNOT modify sensitive fields like balances, xp, or roles
       allow write: if request.auth != null && request.auth.uid == userId
-                   && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['doge_balance', 'staked_balance', 'xp', 'role', 'last_claim_time']);
+                   && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['doge_balance', 'staked_balance', 'ads_balance', 'xp', 'role', 'last_claim_time', 'total_claims', 'faucet_claims', 'stake_timestamp']);
     }
     
     // Updates/News collection: Anyone can read, only admin can write (assuming admin backend uses firebase-admin which bypasses rules)
