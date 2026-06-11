@@ -57,13 +57,23 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
           pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
         });
 
+        let pendingPoos = 0;
+        if (data.pet_last_poo_time) {
+          const hoursSincePoo = (Date.now() - data.pet_last_poo_time.toDate().getTime()) / (1000 * 60 * 60);
+          pendingPoos = Math.min(12, Math.floor(hoursSincePoo / 2)); // 1 poo per 2 hours, max 12
+        } else {
+          // If no last poo time, initialize it
+          transaction.update(userRef, { pet_last_poo_time: admin.firestore.FieldValue.serverTimestamp() });
+        }
+
         petStats = {
           hunger: decayed.hunger,
           happiness: decayed.happiness,
           energy: decayed.energy,
           stage: getGrowthStage(data.pet_birth_date),
           age_multiplier: getAgeMultiplier(data.pet_birth_date),
-          total_distance: data.pet_total_distance_walked || 0
+          total_distance: data.pet_total_distance_walked || 0,
+          pending_poos: pendingPoos
         };
       }
     });
@@ -233,7 +243,7 @@ router.post('/pet-walk-sync', verifyFirebaseToken, async (req, res) => {
 router.post('/pet-clean-poo', verifyFirebaseToken, async (req, res) => {
   try {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    let reward = 0.005;
+    let reward = 0.0005;
 
     await admin.firestore().runTransaction(async (transaction) => {
       const snapshot = await transaction.get(userRef);
@@ -242,18 +252,34 @@ router.post('/pet-clean-poo', verifyFirebaseToken, async (req, res) => {
       if (!data.pet_birth_date) throw new Error('Pet not initialized');
 
       const lastPooTime = data.pet_last_poo_time;
-      if (lastPooTime) {
-        const msPassed = Date.now() - lastPooTime.toDate().getTime();
-        if (msPassed < 5 * 60 * 1000) {
-          throw new Error('No poos to clean right now! Wait a few minutes.');
-        }
+      if (!lastPooTime) throw new Error('No poos to clean right now!');
+
+      const msPassed = Date.now() - lastPooTime.toDate().getTime();
+      const hoursPassed = msPassed / (1000 * 60 * 60);
+      
+      if (hoursPassed < 2) {
+        throw new Error('No poos to clean right now! Wait a bit.');
       }
+
+      // Calculate how many poos they had pending before cleaning one
+      const pendingPoos = Math.min(12, Math.floor(hoursPassed / 2));
+      if (pendingPoos <= 0) throw new Error('No poos to clean!');
 
       const newDogeBal = Number(data.doge_balance || 0) + reward;
 
+      // Advance the timer by exactly 2 hours (1 poo worth), but don't exceed current time
+      // If they had 12 poos (max), we shouldn't keep the "overflow" time. We just deduct 2 hours from current time if they are at max.
+      let newLastPooTimeMs = lastPooTime.toDate().getTime() + (2 * 60 * 60 * 1000);
+      
+      if (pendingPoos === 12) {
+         // If they were capped, their timer is essentially "Now - 24 hours". 
+         // Deducting 1 poo means they should have 11 left (Now - 22 hours).
+         newLastPooTimeMs = Date.now() - (11 * 2 * 60 * 60 * 1000);
+      }
+
       transaction.update(userRef, {
         doge_balance: newDogeBal,
-        pet_last_poo_time: admin.firestore.FieldValue.serverTimestamp()
+        pet_last_poo_time: admin.firestore.Timestamp.fromMillis(newLastPooTimeMs)
       });
     });
 

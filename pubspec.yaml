@@ -42,3 +42,7 @@ flutter:
     - assets/shiba_adult.png
     - assets/shiba_egg.png
     - assets/shiba_poo.png
+    - assets/shiba_baby.png
+    - assets/shiba_toddler.png
+    - assets/shiba_child.png
+    - assets/shiba_young_adult.png
