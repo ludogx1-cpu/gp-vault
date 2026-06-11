@@ -333,16 +333,17 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.info_outline, color: Colors.blue, size: 20),
+                              const Icon(Icons.pets, color: Colors.blue, size: 20),
                               const SizedBox(width: 8),
-                              Text("Interactive Features", style: TextStyle(fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black87)),
+                              Text("Dogeogotcha", style: TextStyle(fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black87)),
                             ],
                           ),
                           const SizedBox(height: 8),
                           Text(
                             "• Your pet now waddles around the screen!\n"
                             "• Every 15 mins, it may walk up to the camera. Tap its nose to 'Boop' it for a 0.002 DOGE reward!\n"
-                            "• Watch its thought bubbles (💤, 🍖, ❤️) to see how it's feeling.",
+                            "• Watch its thought bubbles (💤, 🍖, ❤️) to see how it's feeling.\n"
+                            "• More features coming soon!",
                             style: TextStyle(fontSize: 12, height: 1.4, color: isDark ? Colors.white70 : Colors.black87),
                           ),
                         ],
@@ -359,11 +360,11 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: () => context.go('/walk-pet'),
+              onPressed: null, // Disabled for now
               icon: const Icon(Icons.directions_walk),
-              label: const Text("Take for a Walk (Earn DOGE!)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              label: const Text("Take for a Walk (Feature coming soon)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green.shade600,
+                backgroundColor: Colors.grey, // Grey out
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
