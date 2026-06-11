@@ -613,9 +613,13 @@ class _FaucetPageState extends State<FaucetPage> {
                           double expectedReward =
                               baseReward * (1 + (totalBonusPercent / 100));
 
-                          return ListenableBuilder(
-                            listenable: themeProvider,
-                            builder: (context, _) {
+                          return Column(
+                            children: [
+                              const ShibaPetWidget(),
+                              const SizedBox(height: 15),
+                              ListenableBuilder(
+                                listenable: themeProvider,
+                                builder: (context, _) {
                               final isDark = themeProvider.isDarkMode;
                               return Container(
                                 width: double.infinity,
@@ -700,7 +704,9 @@ class _FaucetPageState extends State<FaucetPage> {
                                     ),
                                   ],
                                 ),
-                              );
+                              ),
+                            ],
+                          );
                             },
                           );
                         },

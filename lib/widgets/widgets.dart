@@ -17,3 +17,4 @@ export 'root_gatekeeper.dart';
 export 'smart_fallback_ad.dart';
 export 'square_ad_placeholder.dart';
 export 'wallet_dropdown_button.dart';
+export 'shiba_pet_widget.dart';

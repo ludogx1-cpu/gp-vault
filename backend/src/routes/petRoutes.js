@@ -1,0 +1,228 @@
+const express = require('express');
+const { admin, verifyFirebaseToken } = require('../services/firebaseService');
+
+const { calculateDecay, getGrowthStage, MAX_STAT } = require('../utils/petMechanics');
+
+const router = express.Router();
+
+const FEED_COST_DOGE = 0.05;
+const FEED_HUNGER_RECOVERY = 30;
+const PLAY_ENERGY_COST = 15;
+const PLAY_HAPPINESS_RECOVERY = 25;
+const SLEEP_ENERGY_RECOVERY = 40;
+const WALK_ENERGY_COST_PER_100M = 5;
+const WALK_REWARD_PER_100M = 0.01;
+
+router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) return res.status(401).json({ success: false, error: 'Authentication required' });
+
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    
+    let petStats = null;
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      if (!snapshot.exists) throw new Error('User not found');
+
+      const data = snapshot.data() || {};
+      
+      // Initialize pet if doesn't exist
+      if (!data.pet_birth_date) {
+        const initData = {
+          pet_birth_date: admin.firestore.FieldValue.serverTimestamp(),
+          pet_hunger: 50,
+          pet_happiness: 50,
+          pet_energy: 100,
+          pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
+          pet_total_distance_walked: 0,
+        };
+        transaction.update(userRef, initData);
+        petStats = {
+          hunger: 50,
+          happiness: 50,
+          energy: 100,
+          stage: 'puppy',
+          total_distance: 0
+        };
+      } else {
+        const decayed = calculateDecay(data);
+        
+        // Update DB with decayed stats
+        transaction.update(userRef, {
+          pet_hunger: decayed.hunger,
+          pet_happiness: decayed.happiness,
+          pet_energy: decayed.energy,
+          pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        petStats = {
+          hunger: decayed.hunger,
+          happiness: decayed.happiness,
+          energy: decayed.energy,
+          stage: getGrowthStage(data.pet_birth_date),
+          total_distance: data.pet_total_distance_walked || 0
+        };
+      }
+    });
+
+    res.json({ success: true, pet: petStats });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/pet-feed', verifyFirebaseToken, async (req, res) => {
+  try {
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    let newStats = null;
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      const data = snapshot.data() || {};
+
+      if (!data.pet_birth_date) throw new Error('Pet not initialized');
+
+      const decayed = calculateDecay(data);
+      if (decayed.hunger >= MAX_STAT) throw new Error('Pet is already full!');
+
+      const currentDoge = Number(data.doge_balance || 0);
+      if (currentDoge < FEED_COST_DOGE) throw new Error(`Insufficient DOGE. Costs ${FEED_COST_DOGE} DOGE to feed.`);
+
+      const newHunger = Math.min(MAX_STAT, decayed.hunger + FEED_HUNGER_RECOVERY);
+
+      transaction.update(userRef, {
+        doge_balance: currentDoge - FEED_COST_DOGE,
+        pet_hunger: newHunger,
+        pet_happiness: decayed.happiness,
+        pet_energy: decayed.energy,
+        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
+      });
+
+      newStats = { hunger: newHunger, happiness: decayed.happiness, energy: decayed.energy, cost: FEED_COST_DOGE };
+    });
+
+    res.json({ success: true, message: 'Fed the pet!', stats: newStats });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/pet-play', verifyFirebaseToken, async (req, res) => {
+  try {
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    let newStats = null;
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      const data = snapshot.data() || {};
+
+      if (!data.pet_birth_date) throw new Error('Pet not initialized');
+
+      const decayed = calculateDecay(data);
+      if (decayed.energy < PLAY_ENERGY_COST) throw new Error('Pet is too tired to play. Let it sleep!');
+      if (decayed.happiness >= MAX_STAT) throw new Error('Pet is already at max happiness!');
+
+      const newHappiness = Math.min(MAX_STAT, decayed.happiness + PLAY_HAPPINESS_RECOVERY);
+      const newEnergy = decayed.energy - PLAY_ENERGY_COST;
+
+      transaction.update(userRef, {
+        pet_hunger: decayed.hunger,
+        pet_happiness: newHappiness,
+        pet_energy: newEnergy,
+        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
+      });
+
+      newStats = { hunger: decayed.hunger, happiness: newHappiness, energy: newEnergy };
+    });
+
+    res.json({ success: true, message: 'Played with pet!', stats: newStats });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/pet-sleep', verifyFirebaseToken, async (req, res) => {
+  try {
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    let newStats = null;
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      const data = snapshot.data() || {};
+
+      if (!data.pet_birth_date) throw new Error('Pet not initialized');
+
+      const decayed = calculateDecay(data);
+      if (decayed.energy >= MAX_STAT) throw new Error('Pet is not tired.');
+
+      const newEnergy = Math.min(MAX_STAT, decayed.energy + SLEEP_ENERGY_RECOVERY);
+
+      transaction.update(userRef, {
+        pet_hunger: decayed.hunger,
+        pet_happiness: decayed.happiness,
+        pet_energy: newEnergy,
+        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
+      });
+
+      newStats = { hunger: decayed.hunger, happiness: decayed.happiness, energy: newEnergy };
+    });
+
+    res.json({ success: true, message: 'Pet took a nap!', stats: newStats });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/pet-walk-sync', verifyFirebaseToken, async (req, res) => {
+  try {
+    const { distance_meters } = req.body;
+    if (!distance_meters || distance_meters <= 0) {
+      return res.status(400).json({ success: false, error: 'Invalid distance' });
+    }
+
+    const maxReasonableMetersPerMinute = 150; // About 9 km/h max walking/jogging speed
+    // Ideally we would verify timestamp since last sync to prevent spoofing
+    // For simplicity, we just cap per request assuming frontend sends reasonable chunks
+    const validMeters = Math.min(distance_meters, 500); 
+
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    let result = null;
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      const data = snapshot.data() || {};
+
+      if (!data.pet_birth_date) throw new Error('Pet not initialized');
+
+      const decayed = calculateDecay(data);
+      
+      const energyCost = (validMeters / 100) * WALK_ENERGY_COST_PER_100M;
+      if (decayed.energy < energyCost) {
+        throw new Error('Pet is too tired to walk that far!');
+      }
+
+      const dogeReward = (validMeters / 100) * WALK_REWARD_PER_100M;
+      const newDogeBal = Number(data.doge_balance || 0) + dogeReward;
+      const newTotalDist = Number(data.pet_total_distance_walked || 0) + validMeters;
+      const newEnergy = decayed.energy - energyCost;
+
+      transaction.update(userRef, {
+        doge_balance: newDogeBal,
+        pet_energy: newEnergy,
+        pet_hunger: decayed.hunger,
+        pet_happiness: decayed.happiness,
+        pet_total_distance_walked: newTotalDist,
+        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
+      });
+
+      result = { reward: dogeReward, distance: validMeters, total_distance: newTotalDist, energy: newEnergy };
+    });
+
+    res.json({ success: true, message: 'Walk synced', ...result });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+module.exports = router;

@@ -10,6 +10,7 @@ import 'widgets/widgets.dart';
 import 'screens/faucet_page.dart';
 import 'screens/staking_page.dart';
 import 'screens/account_page.dart';
+import 'screens/walk_pet_page.dart';
 
 // Router configuration
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -40,6 +41,10 @@ final _router = GoRouter(
         GoRoute(
           path: '/account',
           pageBuilder: (context, state) => const NoTransitionPage(child: AccountPage()),
+        ),
+        GoRoute(
+          path: '/walk-pet',
+          pageBuilder: (context, state) => const NoTransitionPage(child: WalkPetPage()),
         ),
       ],
     ),

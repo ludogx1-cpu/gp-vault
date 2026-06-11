@@ -22,6 +22,8 @@ dependencies:
   url_launcher: any
   provider: ^6.1.5+1
   go_router: ^17.3.0
+  geolocator: ^11.0.0
+  google_maps_flutter: ^2.5.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -35,3 +37,6 @@ flutter:
     - assets/bg.png
     - assets/logo2.png
     - assets/logo_landing.png
+    - assets/shiba_puppy.png
+    - assets/shiba_teen.png
+    - assets/shiba_adult.png
