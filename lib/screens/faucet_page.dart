@@ -443,9 +443,15 @@ class _FaucetPageState extends State<FaucetPage> {
     return Scaffold(
       drawer: const AppDrawer(),
       appBar: const GlobalAppBar(),
-      body: Stack(
-        children: [
-          PageWithFooter(
+      body: MouseRegion(
+        onHover: (event) {
+          globalMouseX = event.position.dx;
+          globalMouseY = event.position.dy;
+        },
+        hitTestBehavior: HitTestBehavior.translucent,
+        child: Stack(
+          children: [
+            PageWithFooter(
             child: MediaQuery(
           data: MediaQuery.of(context).copyWith(
             textScaler: TextScaler.linear(
@@ -1309,8 +1315,9 @@ class _FaucetPageState extends State<FaucetPage> {
           ),
         ),
       ),
-      const PetOverlayWidget(),
-    ],
+        const PetOverlayWidget(),
+      ],
+    ),
   ),
 );
   }
