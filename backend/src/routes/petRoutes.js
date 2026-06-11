@@ -5,7 +5,9 @@ const { calculateDecay, getGrowthStage, getAgeMultiplier, MAX_STAT } = require('
 
 const router = express.Router();
 
-const FEED_COST_DOGE = 0.0005;
+const FEED_COST_DOGE = 0.0001;
+const PLAY_COST_DOGE = 0.0001;
+const SLEEP_COST_DOGE = 0.0001;
 const FEED_HUNGER_RECOVERY = 30;
 const PLAY_ENERGY_COST = 15;
 const PLAY_HAPPINESS_RECOVERY = 25;
@@ -14,6 +16,37 @@ const WALK_ENERGY_COST_PER_100M = 5;
 const METERS_PER_MILE = 1609.34;
 const WALK_REWARD_PER_MILE = 0.001;
 
+function processInvestments(userRef, data, transaction) {
+  const currentInvestments = data.pet_investments || [];
+  const now = Date.now();
+  let matureAmount = 0;
+  const remainingInvestments = [];
+  let lockedAmount = 0;
+
+  currentInvestments.forEach(inv => {
+    if (now >= inv.unlock_time) {
+      matureAmount += inv.amount;
+    } else {
+      remainingInvestments.push(inv);
+      lockedAmount += inv.amount;
+    }
+  });
+
+  const updates = {};
+  if (currentInvestments.length !== remainingInvestments.length) {
+    updates.pet_investments = remainingInvestments;
+  }
+  if (matureAmount > 0) {
+    updates.doge_balance = Number(data.doge_balance || 0) + matureAmount;
+  }
+  
+  if (Object.keys(updates).length > 0) {
+    transaction.update(userRef, updates);
+  }
+
+  return { matured: matureAmount, locked: lockedAmount, remainingInvestments };
+}
+
 router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
   try {
     if (!req.user) return res.status(401).json({ success: false, error: 'Authentication required' });
@@ -21,12 +54,16 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     
     let petStats = null;
+    let maturedThisTime = 0;
 
     await admin.firestore().runTransaction(async (transaction) => {
       const snapshot = await transaction.get(userRef);
       if (!snapshot.exists) throw new Error('User not found');
 
       const data = snapshot.data() || {};
+      
+      const { matured, locked } = processInvestments(userRef, data, transaction);
+      maturedThisTime = matured;
       
       // Initialize pet if doesn't exist
       if (!data.pet_birth_date) {
@@ -37,6 +74,7 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
           pet_energy: 100,
           pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
           pet_total_distance_walked: 0,
+          pet_investments: []
         };
         transaction.update(userRef, initData);
         petStats = {
@@ -44,7 +82,9 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
           happiness: 50,
           energy: 100,
           stage: 'puppy',
-          total_distance: 0
+          total_distance: 0,
+          locked_returns: 0,
+          matured_returns: 0
         };
       } else {
         const decayed = calculateDecay(data);
@@ -74,7 +114,8 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
           age_multiplier: getAgeMultiplier(data.pet_birth_date),
           total_distance: data.pet_total_distance_walked || 0,
           pending_poos: pendingPoos,
-          pending_returns: data.pet_pending_returns || 0
+          locked_returns: locked,
+          matured_returns: matured
         };
       }
     });
@@ -99,17 +140,20 @@ router.post('/pet-feed', verifyFirebaseToken, async (req, res) => {
       const decayed = calculateDecay(data);
       if (decayed.hunger >= MAX_STAT) throw new Error('Pet is already full!');
 
-      const currentDoge = Number(data.doge_balance || 0);
+      const { matured, remainingInvestments } = processInvestments(userRef, data, transaction);
+      const currentDoge = Number(data.doge_balance || 0) + matured;
+
       if (currentDoge < FEED_COST_DOGE) throw new Error(`Insufficient DOGE. Costs ${FEED_COST_DOGE} DOGE to feed.`);
 
       const newHunger = Math.min(MAX_STAT, decayed.hunger + FEED_HUNGER_RECOVERY);
+      remainingInvestments.push({ amount: FEED_COST_DOGE * 2, unlock_time: Date.now() + 24 * 60 * 60 * 1000 });
 
       transaction.update(userRef, {
         doge_balance: currentDoge - FEED_COST_DOGE,
         pet_hunger: newHunger,
         pet_happiness: decayed.happiness,
         pet_energy: decayed.energy,
-        pet_pending_returns: admin.firestore.FieldValue.increment(FEED_COST_DOGE * 2),
+        pet_investments: remainingInvestments,
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
       });
 
@@ -137,13 +181,21 @@ router.post('/pet-play', verifyFirebaseToken, async (req, res) => {
       if (decayed.energy < PLAY_ENERGY_COST) throw new Error('Pet is too tired to play. Let it sleep!');
       if (decayed.happiness >= MAX_STAT) throw new Error('Pet is already at max happiness!');
 
+      const { matured, remainingInvestments } = processInvestments(userRef, data, transaction);
+      const currentDoge = Number(data.doge_balance || 0) + matured;
+
+      if (currentDoge < PLAY_COST_DOGE) throw new Error(`Insufficient DOGE. Costs ${PLAY_COST_DOGE} DOGE to play.`);
+
       const newHappiness = Math.min(MAX_STAT, decayed.happiness + PLAY_HAPPINESS_RECOVERY);
       const newEnergy = decayed.energy - PLAY_ENERGY_COST;
+      remainingInvestments.push({ amount: PLAY_COST_DOGE * 2, unlock_time: Date.now() + 24 * 60 * 60 * 1000 });
 
       transaction.update(userRef, {
+        doge_balance: currentDoge - PLAY_COST_DOGE,
         pet_hunger: decayed.hunger,
         pet_happiness: newHappiness,
         pet_energy: newEnergy,
+        pet_investments: remainingInvestments,
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
       });
 
@@ -170,12 +222,20 @@ router.post('/pet-sleep', verifyFirebaseToken, async (req, res) => {
       const decayed = calculateDecay(data);
       if (decayed.energy >= MAX_STAT) throw new Error('Pet is not tired.');
 
+      const { matured, remainingInvestments } = processInvestments(userRef, data, transaction);
+      const currentDoge = Number(data.doge_balance || 0) + matured;
+
+      if (currentDoge < SLEEP_COST_DOGE) throw new Error(`Insufficient DOGE. Costs ${SLEEP_COST_DOGE} DOGE to sleep.`);
+
       const newEnergy = Math.min(MAX_STAT, decayed.energy + SLEEP_ENERGY_RECOVERY);
+      remainingInvestments.push({ amount: SLEEP_COST_DOGE * 2, unlock_time: Date.now() + 24 * 60 * 60 * 1000 });
 
       transaction.update(userRef, {
+        doge_balance: currentDoge - SLEEP_COST_DOGE,
         pet_hunger: decayed.hunger,
         pet_happiness: decayed.happiness,
         pet_energy: newEnergy,
+        pet_investments: remainingInvestments,
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
       });
 

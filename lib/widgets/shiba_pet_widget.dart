@@ -26,7 +26,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   double _energy = 100;
   double _totalDistance = 0.0;
   double _ageMultiplier = 1.0;
-  double _pendingReturns = 0.0;
+  double _lockedReturns = 0.0;
 
   Timer? _refreshTimer;
 
@@ -61,7 +61,15 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
             _energy = (data['pet']['energy'] as num).toDouble();
             _ageMultiplier = (data['pet']['age_multiplier'] as num?)?.toDouble() ?? 1.0;
             _totalDistance = (data['pet']['total_distance'] as num).toDouble();
-            _pendingReturns = (data['pet']['pending_returns'] as num?)?.toDouble() ?? 0.0;
+            _lockedReturns = (data['pet']['locked_returns'] as num?)?.toDouble() ?? 0.0;
+            
+            final matured = (data['pet']['matured_returns'] as num?)?.toDouble() ?? 0.0;
+            if (matured > 0) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('+${matured.toStringAsFixed(4)} DOGE Investment Matured!'), backgroundColor: Colors.green),
+              );
+            }
+
             _isLoading = false;
           });
         }
@@ -94,9 +102,8 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(data['message'] ?? 'Action successful!'), backgroundColor: Colors.green),
           );
+          _fetchPetStatus(); // refresh the locked returns UI immediately
         }
-        // Force refresh user provider to update doge balance if fed
-        // The user provider automatically listens to Firestore, so it will update itself!
       } else {
         if (mounted) {
           setState(() => _isLoading = false);
@@ -210,19 +217,19 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                         ElevatedButton.icon(
                           onPressed: _isLoading ? null : () => _performAction('feed'),
                           icon: const Icon(Icons.restaurant, size: 16),
-                          label: const Text("Feed (0.0005 DOGE)", style: TextStyle(fontSize: 11)),
+                          label: const Text("Feed (0.0001)", style: TextStyle(fontSize: 11)),
                           style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
                         ),
                         ElevatedButton.icon(
                           onPressed: _isLoading ? null : () => _performAction('play'),
                           icon: const Icon(Icons.sports_baseball, size: 16),
-                          label: const Text("Play", style: TextStyle(fontSize: 11)),
+                          label: const Text("Play (0.0001)", style: TextStyle(fontSize: 11)),
                           style: ElevatedButton.styleFrom(backgroundColor: Colors.pink, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
                         ),
                         ElevatedButton.icon(
                           onPressed: _isLoading ? null : () => _performAction('sleep'),
                           icon: const Icon(Icons.bedtime, size: 16),
-                          label: const Text("Sleep", style: TextStyle(fontSize: 11)),
+                          label: const Text("Sleep (0.0001)", style: TextStyle(fontSize: 11)),
                           style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
                         ),
                         if (FirebaseAuth.instance.currentUser?.email == 'ludogx1@gmail.com')
@@ -236,10 +243,10 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                     ),
                     const SizedBox(height: 10),
                     Text("Age Multiplier: ${_ageMultiplier.toStringAsFixed(2)}x | Walked: ${_totalDistance.toStringAsFixed(0)}m", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green)),
-                    if (_pendingReturns > 0)
+                    if (_lockedReturns > 0)
                       Padding(
                         padding: const EdgeInsets.only(top: 4.0),
-                        child: Text("Pending Refund: ${_pendingReturns.toStringAsFixed(5)} DOGE", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.purple)),
+                        child: Text("Locked Returns: ${_lockedReturns.toStringAsFixed(4)} DOGE (Matures in 24h)", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.purple)),
                       ),
                   ],
                 ),

@@ -335,25 +335,20 @@ class _FaucetPageState extends State<FaucetPage> {
 
         if (response.statusCode == 200) {
           final resData = jsonDecode(response.body);
-          final refundBonus = resData['refundBonus'] ?? 0;
-          String refundText = "";
-          if (refundBonus > 0) {
-            refundText = "\n+ ${refundBonus.toStringAsFixed(5)} DOGE (Pet Care Refund!)";
-          }
           setState(() {
-            _status = "${resData['message']} (+10 XP!)$refundText";
+            _status = "${resData['message']} (+10 XP!)";
             _isLoading = false;
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Row(
+              content: const Row(
                 children: [
-                  const Icon(Icons.star, color: Colors.white),
-                  const SizedBox(width: 10),
+                  Icon(Icons.star, color: Colors.white),
+                  SizedBox(width: 10),
                   Text(
-                    "+10 XP Earned! 🚀${refundBonus > 0 ? '\n+ Refund Bonus!' : ''}",
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    "+10 XP Earned! 🚀",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ],
               ),
