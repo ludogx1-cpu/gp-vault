@@ -289,4 +289,33 @@ router.post('/pet-clean-poo', verifyFirebaseToken, async (req, res) => {
   }
 });
 
+router.post('/pet-admin-age-up', verifyFirebaseToken, async (req, res) => {
+  try {
+    // Basic admin check (could use custom claims, but hardcoding email is consistent with the frontend for now)
+    const userRecord = await admin.auth().getUser(req.user.uid);
+    if (userRecord.email !== 'ludogx1@gmail.com') {
+      return res.status(403).json({ success: false, error: 'Admin only' });
+    }
+
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      const data = snapshot.data() || {};
+      if (!data.pet_birth_date) throw new Error('Pet not initialized');
+
+      // Subtract 30 days from birth date to age it up
+      const oldBirthTime = data.pet_birth_date.toDate().getTime();
+      const newBirthTime = oldBirthTime - (30 * 24 * 60 * 60 * 1000);
+      
+      transaction.update(userRef, {
+        pet_birth_date: admin.firestore.Timestamp.fromMillis(newBirthTime)
+      });
+    });
+
+    res.json({ success: true, message: 'Aged up by 30 days!' });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
 module.exports = router;

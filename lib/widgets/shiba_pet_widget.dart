@@ -8,6 +8,7 @@ import '../src/firebase_service.dart';
 import '../api_constants.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ShibaPetWidget extends StatefulWidget {
   const ShibaPetWidget({super.key});
@@ -138,6 +139,32 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
     );
   }
 
+  Future<void> _forceAgeUpAdmin() async {
+    setState(() => _isLoading = true);
+    try {
+      final headers = await getAuthHeaders();
+      final response = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/pet-admin-age-up'),
+        headers: headers,
+      );
+
+      final data = jsonDecode(response.body);
+      if (response.statusCode == 200 && data['success']) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Aged up 30 days!'), backgroundColor: Colors.green));
+          _fetchPetStatus(); // Refresh UI
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['error'] ?? 'Error'), backgroundColor: Colors.red));
+          setState(() => _isLoading = false);
+        }
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeProvider>(context);
@@ -196,6 +223,13 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                           label: const Text("Sleep", style: TextStyle(fontSize: 11)),
                           style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
                         ),
+                        if (FirebaseAuth.instance.currentUser?.email == 'ludogx1@gmail.com')
+                          ElevatedButton.icon(
+                            onPressed: _isLoading ? null : _forceAgeUpAdmin,
+                            icon: const Icon(Icons.fast_forward, size: 16),
+                            label: const Text("Admin: +30 Days", style: TextStyle(fontSize: 11)),
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.purple, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
+                          ),
                       ],
                     ),
                     const SizedBox(height: 10),
