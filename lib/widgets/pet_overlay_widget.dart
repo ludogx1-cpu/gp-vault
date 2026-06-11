@@ -14,6 +14,9 @@ class PooData {
   PooData({required this.id, required this.x, required this.y});
 }
 
+double globalMouseX = 0;
+double globalMouseY = 0;
+
 class PetOverlayWidget extends StatefulWidget {
   const PetOverlayWidget({super.key});
 
@@ -41,8 +44,6 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
   bool _isWandering = false;
   bool _isCloseUp = false;
   bool _isChasing = false;
-  double _mouseX = 0;
-  double _mouseY = 0;
 
   // Animations
   late AnimationController _shakeController;
@@ -185,9 +186,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
     _chaseTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) return;
       setState(() {
-        _facingRight = _mouseX > _petX;
-        _petX = _mouseX - 50; // Center on mouse
-        _petY = _mouseY - 50;
+        _facingRight = globalMouseX > _petX;
+        _petX = globalMouseX - 50; // Center on mouse
+        _petY = globalMouseY - 50;
       });
       // Stop chasing after 10 seconds
       if (timer.tick >= 10) {
@@ -305,14 +306,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
       else if (_happiness > 80) emotion = '❤️';
     }
 
-    return MouseRegion(
-      onHover: (event) {
-        _mouseX = event.position.dx;
-        _mouseY = event.position.dy;
-      },
-      child: Stack(
-        children: [
-          // Poos
+    return Stack(
+      children: [
+        // Poos
         ..._poos.map((poo) => Positioned(
           left: poo.x,
           top: poo.y,
@@ -424,7 +420,6 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
           ),
         ),
       ],
-      ),
     );
   }
 }
