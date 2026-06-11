@@ -116,7 +116,8 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
           pending_poos: pendingPoos,
           locked_returns: locked,
           matured_returns: matured,
-          last_boop_time: data.pet_last_boop_time ? data.pet_last_boop_time.toDate().getTime() : 0
+          last_boop_time: data.pet_last_boop_time ? data.pet_last_boop_time.toDate().getTime() : 0,
+          name: data.pet_name || 'Golden Paw Shiba'
         };
       }
     });
@@ -379,6 +380,24 @@ router.post('/pet-boop', verifyFirebaseToken, async (req, res) => {
     });
 
     res.json({ success: true, message: 'Boop! You found a reward!', reward });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/pet-rename', verifyFirebaseToken, async (req, res) => {
+  try {
+    const { newName } = req.body;
+    if (!newName || newName.length > 20) {
+      throw new Error('Name must be 1-20 characters long.');
+    }
+
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    await userRef.update({
+      pet_name: newName
+    });
+
+    res.json({ success: true, message: 'Pet renamed successfully!' });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }

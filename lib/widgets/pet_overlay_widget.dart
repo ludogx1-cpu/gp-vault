@@ -31,6 +31,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
   double _happiness = 50;
   double _energy = 100;
   int _lastBoopTime = 0;
+  String _petName = 'Golden Paw Shiba';
 
   // Position & Animation
   double _petX = 100;
@@ -90,6 +91,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
             _happiness = (data['pet']['happiness'] as num).toDouble();
             _energy = (data['pet']['energy'] as num).toDouble();
             _lastBoopTime = data['pet']['last_boop_time'] ?? 0;
+            _petName = data['pet']['name'] ?? 'Golden Paw Shiba';
 
             if (_stage != 'egg') {
               _isWandering = true;
@@ -331,16 +333,31 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
                     ),
                   ),
                   // Emotion bubble
-                  if (emotion.isNotEmpty)
+                  if (emotion.isNotEmpty || _stage != 'egg')
                     Positioned(
-                      top: -20,
-                      child: AnimatedOpacity(
-                        opacity: emotion.isNotEmpty ? 1.0 : 0.0,
-                        duration: const Duration(milliseconds: 500),
-                        child: Text(
-                          emotion,
-                          style: const TextStyle(fontSize: 24),
-                        ),
+                      top: -30,
+                      child: Column(
+                        children: [
+                          if (_stage != 'egg')
+                            Text(
+                              _petName,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.amber,
+                                shadows: [Shadow(color: Colors.black, blurRadius: 2)],
+                              ),
+                            ),
+                          if (emotion.isNotEmpty)
+                            AnimatedOpacity(
+                              opacity: emotion.isNotEmpty ? 1.0 : 0.0,
+                              duration: const Duration(milliseconds: 500),
+                              child: Text(
+                                emotion,
+                                style: const TextStyle(fontSize: 24),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   // Boop Hint
