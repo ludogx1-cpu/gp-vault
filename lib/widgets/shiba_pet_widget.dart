@@ -93,9 +93,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
           );
         }
         // Force refresh user provider to update doge balance if fed
-        if (action == 'feed' && mounted) {
-          Provider.of<UserProvider>(context, listen: false).refreshUser();
-        }
+        // The user provider automatically listens to Firestore, so it will update itself!
       } else {
         if (mounted) {
           setState(() => _isLoading = false);
