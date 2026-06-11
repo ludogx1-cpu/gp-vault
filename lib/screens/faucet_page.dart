@@ -620,8 +620,8 @@ class _FaucetPageState extends State<FaucetPage> {
                               ListenableBuilder(
                                 listenable: themeProvider,
                                 builder: (context, _) {
-                              final isDark = themeProvider.isDarkMode;
-                              return Container(
+                                  final isDark = themeProvider.isDarkMode;
+                                  return Container(
                                 width: double.infinity,
                                 constraints: const BoxConstraints(
                                   maxWidth: 600,
@@ -704,13 +704,13 @@ class _FaucetPageState extends State<FaucetPage> {
                                     ),
                                   ],
                                 ),
-                              ),
-                            ],
-                          );
+                              );
                             },
-                          );
-                        },
+                          ),
+                        ],
                       );
+                    },
+                  );
                     } else {
                       return ListenableBuilder(
                         listenable: themeProvider,
