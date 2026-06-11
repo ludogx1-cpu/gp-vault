@@ -16,6 +16,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
 import '../widgets/widgets.dart';
+import '../widgets/pet_overlay_widget.dart';
 import '../api_constants.dart';
 
 
@@ -442,8 +443,10 @@ class _FaucetPageState extends State<FaucetPage> {
     return Scaffold(
       drawer: const AppDrawer(),
       appBar: const GlobalAppBar(),
-      body: PageWithFooter(
-        child: MediaQuery(
+      body: Stack(
+        children: [
+          PageWithFooter(
+            child: MediaQuery(
           data: MediaQuery.of(context).copyWith(
             textScaler: TextScaler.linear(
               MediaQuery.textScalerOf(context).scale(1.0) * 1.2,
@@ -1306,7 +1309,10 @@ class _FaucetPageState extends State<FaucetPage> {
           ),
         ),
       ),
-    );
+      const PetOverlayWidget(),
+    ],
+  ),
+);
   }
 }
 

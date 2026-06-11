@@ -114,16 +114,6 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
     }
   }
 
-  String _getImageAsset() {
-    switch (_stage) {
-      case 'egg': return 'assets/shiba_egg.png';
-      case 'teen': return 'assets/shiba_teen.png';
-      case 'adult': return 'assets/shiba_adult.png';
-      case 'puppy':
-      default: return 'assets/shiba_puppy.png';
-    }
-  }
-
   Widget _buildStatBar(String label, double value, Color color, IconData icon) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,27 +163,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Left side: Shiba Image
-              Expanded(
-                flex: 2,
-                child: Column(
-                  children: [
-                    Text("Your Shiba ${_stage.toUpperCase()}", style: TextStyle(fontWeight: FontWeight.bold, color: isDark ? Colors.amber : Colors.brown)),
-                    const SizedBox(height: 10),
-                    Container(
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: isDark ? Colors.black26 : Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Image.asset(_getImageAsset(), fit: BoxFit.contain),
-                    ),
-                    const SizedBox(height: 8),
-                    Text("Age Multiplier: ${_ageMultiplier.toStringAsFixed(2)}x", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green)),
-                    Text("Walked: ${_totalDistance.toStringAsFixed(0)}m", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
+              // Removed static image since pet now wanders the screen
               const SizedBox(width: 20),
               // Right side: Stats
               Expanded(
@@ -229,7 +199,9 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                           style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
                         ),
                       ],
-                    )
+                    ),
+                    const SizedBox(height: 10),
+                    Text("Age Multiplier: ${_ageMultiplier.toStringAsFixed(2)}x | Walked: ${_totalDistance.toStringAsFixed(0)}m", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green)),
                   ],
                 ),
               )
