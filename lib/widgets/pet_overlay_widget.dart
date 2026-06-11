@@ -25,7 +25,6 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with SingleTickerPr
   String _stage = 'egg';
   Timer? _statusTimer;
   Timer? _moveTimer;
-  Timer? _pooTimer;
 
   // Position & Animation
   double _petX = 100;
@@ -48,9 +47,6 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with SingleTickerPr
     
     // Start movement loop
     _moveTimer = Timer.periodic(const Duration(seconds: 8), (_) => _movePetRandomly());
-    
-    // Start poo loop
-    _pooTimer = Timer.periodic(const Duration(minutes: 5), (_) => _trySpawnPoo());
 
     _shakeController = AnimationController(
       vsync: this,
@@ -62,7 +58,6 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with SingleTickerPr
   void dispose() {
     _statusTimer?.cancel();
     _moveTimer?.cancel();
-    _pooTimer?.cancel();
     _shakeController.dispose();
     super.dispose();
   }
@@ -89,6 +84,25 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with SingleTickerPr
                 _shakeController.forward(from: 0.0);
               }
             }
+
+            int pendingPoos = data['pet']['pending_poos'] ?? 0;
+            // Add missing poos randomly across the screen
+            if (pendingPoos > _poos.length) {
+              final size = MediaQuery.of(context).size;
+              int toAdd = pendingPoos - _poos.length;
+              for (int i = 0; i < toAdd; i++) {
+                double px = 50 + _random.nextDouble() * (size.width > 100 ? size.width - 100 : 100);
+                double py = 100 + _random.nextDouble() * (size.height > 200 ? size.height - 200 : 200);
+                _poos.add(PooData(
+                  id: DateTime.now().millisecondsSinceEpoch.toString() + i.toString(),
+                  x: px,
+                  y: py,
+                ));
+              }
+            } else if (pendingPoos < _poos.length) {
+              // Should only happen if cleaned up from another device, sync down
+              _poos.removeRange(0, _poos.length - pendingPoos);
+            }
           });
         }
       }
@@ -110,21 +124,6 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with SingleTickerPr
       _petX = targetX;
       _petY = targetY;
     });
-  }
-
-  void _trySpawnPoo() {
-    if (!_isWandering || !mounted || _poos.length > 3) return;
-    
-    // Spawn at current pet location
-    setState(() {
-      _poos.add(PooData(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        x: _petX,
-        y: _petY + 50, // Drop below the pet
-      ));
-    });
-  }
-
   Future<void> _cleanPoo(String pooId) async {
     setState(() {
       _poos.removeWhere((p) => p.id == pooId);
@@ -159,9 +158,13 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with SingleTickerPr
   String _getImageAsset() {
     switch (_stage) {
       case 'egg': return 'assets/shiba_egg.png';
+      case 'baby': return 'assets/shiba_baby.png';
+      case 'toddler': return 'assets/shiba_toddler.png';
+      case 'puppy': return 'assets/shiba_puppy.png';
+      case 'child': return 'assets/shiba_child.png';
       case 'teen': return 'assets/shiba_teen.png';
+      case 'young_adult': return 'assets/shiba_young_adult.png';
       case 'adult': return 'assets/shiba_adult.png';
-      case 'puppy':
       default: return 'assets/shiba_puppy.png';
     }
   }

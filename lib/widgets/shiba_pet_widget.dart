@@ -23,7 +23,6 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   double _hunger = 50;
   double _happiness = 50;
   double _energy = 100;
-  String _stage = 'puppy';
   double _totalDistance = 0;
   double _ageMultiplier = 1.0;
 
@@ -58,7 +57,6 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
             _hunger = (data['pet']['hunger'] as num).toDouble();
             _happiness = (data['pet']['happiness'] as num).toDouble();
             _energy = (data['pet']['energy'] as num).toDouble();
-            _stage = data['pet']['stage'];
             _ageMultiplier = (data['pet']['age_multiplier'] as num?)?.toDouble() ?? 1.0;
             _totalDistance = (data['pet']['total_distance'] as num).toDouble();
             _isLoading = false;

@@ -22,9 +22,13 @@ function calculateDecay(userData) {
 function getGrowthStage(birthDate) {
   if (!birthDate) return 'egg';
   const daysOld = (Date.now() - birthDate.toDate().getTime()) / (1000 * 60 * 60 * 24);
-  if (daysOld < 15) return 'egg';
-  if (daysOld < 91) return 'puppy';
-  if (daysOld < 365) return 'teen';
+  if (daysOld < 2) return 'egg';
+  if (daysOld < 7) return 'baby';
+  if (daysOld < 14) return 'toddler';
+  if (daysOld < 30) return 'puppy';
+  if (daysOld < 90) return 'child';
+  if (daysOld < 180) return 'teen';
+  if (daysOld < 365) return 'young_adult';
   return 'adult';
 }
 
