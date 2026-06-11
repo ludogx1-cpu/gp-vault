@@ -117,6 +117,9 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
           locked_returns: locked,
           matured_returns: matured,
           last_boop_time: data.pet_last_boop_time ? data.pet_last_boop_time.toDate().getTime() : 0,
+          last_feed_time: data.pet_last_feed_time ? data.pet_last_feed_time.toDate().getTime() : 0,
+          last_play_time: data.pet_last_play_time ? data.pet_last_play_time.toDate().getTime() : 0,
+          last_sleep_time: data.pet_last_sleep_time ? data.pet_last_sleep_time.toDate().getTime() : 0,
           name: data.pet_name || 'Golden Paw Shiba'
         };
       }
@@ -141,6 +144,9 @@ router.post('/pet-feed', verifyFirebaseToken, async (req, res) => {
 
       const decayed = calculateDecay(data);
       if (decayed.hunger >= MAX_STAT) throw new Error('Pet is already full!');
+      if (data.pet_last_feed_time && (Date.now() - data.pet_last_feed_time.toDate().getTime()) < 24 * 60 * 60 * 1000) {
+        throw new Error('You can only feed your pet once every 24 hours!');
+      }
 
       const { matured, remainingInvestments } = processInvestments(userRef, data, transaction);
       const currentDoge = Number(data.doge_balance || 0) + matured;
@@ -156,7 +162,8 @@ router.post('/pet-feed', verifyFirebaseToken, async (req, res) => {
         pet_happiness: decayed.happiness,
         pet_energy: decayed.energy,
         pet_investments: remainingInvestments,
-        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
+        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
+        pet_last_feed_time: admin.firestore.FieldValue.serverTimestamp()
       });
 
       newStats = { hunger: newHunger, happiness: decayed.happiness, energy: decayed.energy, cost: FEED_COST_DOGE };
@@ -182,6 +189,9 @@ router.post('/pet-play', verifyFirebaseToken, async (req, res) => {
       const decayed = calculateDecay(data);
       if (decayed.energy < PLAY_ENERGY_COST) throw new Error('Pet is too tired to play. Let it sleep!');
       if (decayed.happiness >= MAX_STAT) throw new Error('Pet is already at max happiness!');
+      if (data.pet_last_play_time && (Date.now() - data.pet_last_play_time.toDate().getTime()) < 24 * 60 * 60 * 1000) {
+        throw new Error('You can only play with your pet once every 24 hours!');
+      }
 
       const { matured, remainingInvestments } = processInvestments(userRef, data, transaction);
       const currentDoge = Number(data.doge_balance || 0) + matured;
@@ -198,7 +208,8 @@ router.post('/pet-play', verifyFirebaseToken, async (req, res) => {
         pet_happiness: newHappiness,
         pet_energy: newEnergy,
         pet_investments: remainingInvestments,
-        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
+        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
+        pet_last_play_time: admin.firestore.FieldValue.serverTimestamp()
       });
 
       newStats = { hunger: decayed.hunger, happiness: newHappiness, energy: newEnergy };
@@ -223,6 +234,9 @@ router.post('/pet-sleep', verifyFirebaseToken, async (req, res) => {
 
       const decayed = calculateDecay(data);
       if (decayed.energy >= MAX_STAT) throw new Error('Pet is not tired.');
+      if (data.pet_last_sleep_time && (Date.now() - data.pet_last_sleep_time.toDate().getTime()) < 24 * 60 * 60 * 1000) {
+        throw new Error('Your pet can only sleep once every 24 hours!');
+      }
 
       const { matured, remainingInvestments } = processInvestments(userRef, data, transaction);
       const currentDoge = Number(data.doge_balance || 0) + matured;
@@ -238,7 +252,8 @@ router.post('/pet-sleep', verifyFirebaseToken, async (req, res) => {
         pet_happiness: decayed.happiness,
         pet_energy: newEnergy,
         pet_investments: remainingInvestments,
-        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
+        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
+        pet_last_sleep_time: admin.firestore.FieldValue.serverTimestamp()
       });
 
       newStats = { hunger: decayed.hunger, happiness: decayed.happiness, energy: newEnergy };

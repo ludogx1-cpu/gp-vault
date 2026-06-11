@@ -28,6 +28,10 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   double _ageMultiplier = 1.0;
   double _lockedReturns = 0.0;
   String _petName = 'Golden Paw Shiba';
+  
+  int _lastFeedTime = 0;
+  int _lastPlayTime = 0;
+  int _lastSleepTime = 0;
 
   Timer? _refreshTimer;
 
@@ -64,6 +68,9 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
             _totalDistance = (data['pet']['total_distance'] as num).toDouble();
             _lockedReturns = (data['pet']['locked_returns'] as num?)?.toDouble() ?? 0.0;
             _petName = data['pet']['name'] ?? 'Golden Paw Shiba';
+            _lastFeedTime = (data['pet']['last_feed_time'] as num?)?.toInt() ?? 0;
+            _lastPlayTime = (data['pet']['last_play_time'] as num?)?.toInt() ?? 0;
+            _lastSleepTime = (data['pet']['last_sleep_time'] as num?)?.toInt() ?? 0;
             
             final matured = (data['pet']['matured_returns'] as num?)?.toDouble() ?? 0.0;
             if (matured > 0) {
@@ -235,6 +242,11 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
     final theme = Provider.of<ThemeProvider>(context);
     final isDark = theme.isDarkMode;
 
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final bool canFeed = now - _lastFeedTime >= 24 * 60 * 60 * 1000;
+    final bool canPlay = now - _lastPlayTime >= 24 * 60 * 60 * 1000;
+    final bool canSleep = now - _lastSleepTime >= 24 * 60 * 60 * 1000;
+
     if (_isLoading && _hunger == 50 && _energy == 100) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -285,22 +297,22 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                       alignment: WrapAlignment.center,
                       children: [
                         ElevatedButton.icon(
-                          onPressed: _isLoading ? null : () => _performAction('feed'),
+                          onPressed: (_isLoading || !canFeed) ? null : () => _performAction('feed'),
                           icon: const Icon(Icons.restaurant, size: 16),
                           label: const Text("Feed (0.0001)", style: TextStyle(fontSize: 11)),
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
+                          style: ElevatedButton.styleFrom(backgroundColor: canFeed ? Colors.orange : Colors.grey, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
                         ),
                         ElevatedButton.icon(
-                          onPressed: _isLoading ? null : () => _performAction('play'),
+                          onPressed: (_isLoading || !canPlay) ? null : () => _performAction('play'),
                           icon: const Icon(Icons.sports_baseball, size: 16),
                           label: const Text("Play (0.0001)", style: TextStyle(fontSize: 11)),
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.pink, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
+                          style: ElevatedButton.styleFrom(backgroundColor: canPlay ? Colors.pink : Colors.grey, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
                         ),
                         ElevatedButton.icon(
-                          onPressed: _isLoading ? null : () => _performAction('sleep'),
+                          onPressed: (_isLoading || !canSleep) ? null : () => _performAction('sleep'),
                           icon: const Icon(Icons.bedtime, size: 16),
                           label: const Text("Sleep (0.0001)", style: TextStyle(fontSize: 11)),
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
+                          style: ElevatedButton.styleFrom(backgroundColor: canSleep ? Colors.blue : Colors.grey, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
                         ),
                         if (FirebaseAuth.instance.currentUser?.email == 'ludogx1@gmail.com')
                           ElevatedButton.icon(
