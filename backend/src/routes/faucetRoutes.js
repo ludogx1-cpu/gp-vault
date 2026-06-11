@@ -4,6 +4,7 @@ const { faucetPaySend } = require('../services/faucetPayService');
 const { getDogePrice } = require('../services/priceService');
 const { calculateDogeReward } = require('../utils/rewardCalculator');
 const { formatAmount, verifyCaptchaToken } = require('../utils/helpers');
+const { calculateDecay, calculatePetBonusPercent } = require('../utils/petMechanics');
 
 const router = express.Router();
 
@@ -52,14 +53,34 @@ router.post('/send-doge', verifyFirebaseToken, async (req, res) => {
         throw new Error(`Please wait ${minutesLeft} minutes before claiming again.`);
       }
 
-      transaction.update(userRef, {
-        last_direct_faucet_claim: admin.firestore.Timestamp.now()
-      });
+      let petBonus = 0;
+      if (data.pet_birth_date) {
+        const decayed = calculateDecay(data);
+        petBonus = calculatePetBonusPercent(decayed);
+        
+        transaction.update(userRef, {
+          last_direct_faucet_claim: admin.firestore.Timestamp.now(),
+          pet_hunger: decayed.hunger,
+          pet_happiness: decayed.happiness,
+          pet_energy: decayed.energy,
+          pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
+        });
+      } else {
+        transaction.update(userRef, {
+          last_direct_faucet_claim: admin.firestore.Timestamp.now()
+        });
+      }
+
     });
 
     const priceResult = await getDogePrice();
     const price = priceResult.price;
-    const dogeAmount = calculateDogeReward(price);
+    const baseReward = calculateDogeReward(price);
+    // Note: direct faucet claim doesn't get level/streak bonus, but does get pet bonus!
+    let dogeAmount = baseReward;
+    if (petBonus > 0) {
+      dogeAmount = baseReward * (1 + (petBonus / 100));
+    }
 
     const faucetPayResponse = await faucetPaySend(address, dogeAmount);
 
@@ -126,14 +147,33 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
       let level = Math.floor(Math.sqrt(xp / 100));
       if (level > 100) level = 100;
       
-      const totalBonusPercent = level + streak;
-      finalReward = baseReward * (1 + (totalBonusPercent / 100));
+      let petBonus = 0;
+      if (data.pet_birth_date) {
+        const decayed = calculateDecay(data);
+        petBonus = calculatePetBonusPercent(decayed);
+        
+        const totalBonusPercent = level + streak + petBonus;
+        finalReward = baseReward * (1 + (totalBonusPercent / 100));
 
-      transaction.update(userRef, {
-        doge_balance: Number(data.doge_balance || 0) + finalReward,
-        xp: xp + 10,
-        last_claim_time: now,
-      });
+        transaction.update(userRef, {
+          doge_balance: Number(data.doge_balance || 0) + finalReward,
+          xp: xp + 10,
+          last_claim_time: now,
+          pet_hunger: decayed.hunger,
+          pet_happiness: decayed.happiness,
+          pet_energy: decayed.energy,
+          pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
+        });
+      } else {
+        const totalBonusPercent = level + streak + petBonus;
+        finalReward = baseReward * (1 + (totalBonusPercent / 100));
+
+        transaction.update(userRef, {
+          doge_balance: Number(data.doge_balance || 0) + finalReward,
+          xp: xp + 10,
+          last_claim_time: now,
+        });
+      }
     });
 
     res.json({

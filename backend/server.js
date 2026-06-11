@@ -7,6 +7,7 @@ const ptcRoutes = require('./src/routes/ptcRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const bannerRoutes = require('./src/routes/bannerRoutes');
 const stakingRoutes = require('./src/routes/stakingRoutes');
+const petRoutes = require('./src/routes/petRoutes');
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
@@ -70,6 +71,7 @@ app.use('/', faucetRoutes);
 app.use('/', ptcRoutes);
 app.use('/', bannerRoutes);
 app.use('/', stakingRoutes);
+app.use('/', petRoutes);
 app.use('/admin', adminRoutes);
 
 if (require.main === module) {
