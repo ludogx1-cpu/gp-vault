@@ -128,6 +128,7 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
     const baseReward = calculateDogeReward(price);
 
     let finalReward = 0;
+    let refundBonus = 0;
 
     await admin.firestore().runTransaction(async (transaction) => {
       const snapshot = await transaction.get(userRef);
@@ -161,6 +162,14 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
         finalReward = baseReward * (1 + (totalBonusPercent / 100));
         finalReward = finalReward * ageMult;
 
+        let pendingReturns = Number(data.pet_pending_returns || 0);
+        if (pendingReturns > 0) {
+          const tenPercent = finalReward * 0.1;
+          refundBonus = Math.min(pendingReturns, tenPercent);
+          finalReward += refundBonus;
+          pendingReturns -= refundBonus;
+        }
+
         transaction.update(userRef, {
           doge_balance: Number(data.doge_balance || 0) + finalReward,
           xp: xp + 10,
@@ -168,6 +177,7 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
           pet_hunger: decayed.hunger,
           pet_happiness: decayed.happiness,
           pet_energy: decayed.energy,
+          pet_pending_returns: pendingReturns,
           pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
         });
       } else {
@@ -187,6 +197,7 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
       success: true,
       message: 'Vault claim verified. Your reward has been recorded.',
       earned: finalReward,
+      refundBonus: refundBonus,
       authUser: req.user.uid,
     });
   } catch (error) {

@@ -24,8 +24,9 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   double _hunger = 50;
   double _happiness = 50;
   double _energy = 100;
-  double _totalDistance = 0;
+  double _totalDistance = 0.0;
   double _ageMultiplier = 1.0;
+  double _pendingReturns = 0.0;
 
   Timer? _refreshTimer;
 
@@ -60,6 +61,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
             _energy = (data['pet']['energy'] as num).toDouble();
             _ageMultiplier = (data['pet']['age_multiplier'] as num?)?.toDouble() ?? 1.0;
             _totalDistance = (data['pet']['total_distance'] as num).toDouble();
+            _pendingReturns = (data['pet']['pending_returns'] as num?)?.toDouble() ?? 0.0;
             _isLoading = false;
           });
         }
@@ -208,7 +210,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                         ElevatedButton.icon(
                           onPressed: _isLoading ? null : () => _performAction('feed'),
                           icon: const Icon(Icons.restaurant, size: 16),
-                          label: const Text("Feed (0.05 DOGE)", style: TextStyle(fontSize: 11)),
+                          label: const Text("Feed (0.0005 DOGE)", style: TextStyle(fontSize: 11)),
                           style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
                         ),
                         ElevatedButton.icon(
@@ -234,6 +236,11 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                     ),
                     const SizedBox(height: 10),
                     Text("Age Multiplier: ${_ageMultiplier.toStringAsFixed(2)}x | Walked: ${_totalDistance.toStringAsFixed(0)}m", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green)),
+                    if (_pendingReturns > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text("Pending Refund: ${_pendingReturns.toStringAsFixed(5)} DOGE", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.purple)),
+                      ),
                   ],
                 ),
               )
