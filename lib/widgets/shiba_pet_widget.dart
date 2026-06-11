@@ -25,6 +25,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   double _energy = 100;
   String _stage = 'puppy';
   double _totalDistance = 0;
+  double _ageMultiplier = 1.0;
 
   Timer? _refreshTimer;
 
@@ -58,6 +59,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
             _happiness = (data['pet']['happiness'] as num).toDouble();
             _energy = (data['pet']['energy'] as num).toDouble();
             _stage = data['pet']['stage'];
+            _ageMultiplier = (data['pet']['age_multiplier'] as num?)?.toDouble() ?? 1.0;
             _totalDistance = (data['pet']['total_distance'] as num).toDouble();
             _isLoading = false;
           });
@@ -114,6 +116,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
 
   String _getImageAsset() {
     switch (_stage) {
+      case 'egg': return 'assets/shiba_egg.png';
       case 'teen': return 'assets/shiba_teen.png';
       case 'adult': return 'assets/shiba_adult.png';
       case 'puppy':
@@ -186,6 +189,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                       child: Image.asset(_getImageAsset(), fit: BoxFit.contain),
                     ),
                     const SizedBox(height: 8),
+                    Text("Age Multiplier: ${_ageMultiplier.toStringAsFixed(2)}x", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green)),
                     Text("Walked: ${_totalDistance.toStringAsFixed(0)}m", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   ],
                 ),

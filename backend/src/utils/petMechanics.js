@@ -20,10 +20,11 @@ function calculateDecay(userData) {
 }
 
 function getGrowthStage(birthDate) {
-  if (!birthDate) return 'puppy';
+  if (!birthDate) return 'egg';
   const daysOld = (Date.now() - birthDate.toDate().getTime()) / (1000 * 60 * 60 * 24);
-  if (daysOld < 7) return 'puppy';
-  if (daysOld < 30) return 'teen';
+  if (daysOld < 15) return 'egg';
+  if (daysOld < 91) return 'puppy';
+  if (daysOld < 365) return 'teen';
   return 'adult';
 }
 
@@ -37,9 +38,25 @@ function calculatePetBonusPercent(decayedStats) {
   return 0;
 }
 
+function getAgeMultiplier(birthDate) {
+  if (!birthDate) return 1.0;
+  const daysOld = (Date.now() - birthDate.toDate().getTime()) / (1000 * 60 * 60 * 24);
+  
+  if (daysOld < 15) {
+    return 1.0; // Egg gives no bonus
+  }
+  
+  // From day 15 to day 365, multiplier scales from 1.0 to 2.0
+  // Max bonus at 365 days
+  const daysProgress = Math.min(daysOld - 14, 351); // Max 351 days of growth
+  const multiplier = 1.0 + (daysProgress / 351);
+  return Number(multiplier.toFixed(4));
+}
+
 module.exports = {
   calculateDecay,
   getGrowthStage,
   calculatePetBonusPercent,
+  getAgeMultiplier,
   MAX_STAT
 };

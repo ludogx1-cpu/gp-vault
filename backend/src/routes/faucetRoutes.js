@@ -4,7 +4,7 @@ const { faucetPaySend } = require('../services/faucetPayService');
 const { getDogePrice } = require('../services/priceService');
 const { calculateDogeReward } = require('../utils/rewardCalculator');
 const { formatAmount, verifyCaptchaToken } = require('../utils/helpers');
-const { calculateDecay, calculatePetBonusPercent } = require('../utils/petMechanics');
+const { calculateDecay, calculatePetBonusPercent, getAgeMultiplier } = require('../utils/petMechanics');
 
 const router = express.Router();
 
@@ -54,9 +54,11 @@ router.post('/send-doge', verifyFirebaseToken, async (req, res) => {
       }
 
       let petBonus = 0;
+      let ageMult = 1.0;
       if (data.pet_birth_date) {
         const decayed = calculateDecay(data);
         petBonus = calculatePetBonusPercent(decayed);
+        ageMult = getAgeMultiplier(data.pet_birth_date);
         
         transaction.update(userRef, {
           last_direct_faucet_claim: admin.firestore.Timestamp.now(),
@@ -81,6 +83,7 @@ router.post('/send-doge', verifyFirebaseToken, async (req, res) => {
     if (petBonus > 0) {
       dogeAmount = baseReward * (1 + (petBonus / 100));
     }
+    dogeAmount = dogeAmount * ageMult;
 
     const faucetPayResponse = await faucetPaySend(address, dogeAmount);
 
@@ -148,12 +151,15 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
       if (level > 100) level = 100;
       
       let petBonus = 0;
+      let ageMult = 1.0;
       if (data.pet_birth_date) {
         const decayed = calculateDecay(data);
         petBonus = calculatePetBonusPercent(decayed);
+        ageMult = getAgeMultiplier(data.pet_birth_date);
         
         const totalBonusPercent = level + streak + petBonus;
         finalReward = baseReward * (1 + (totalBonusPercent / 100));
+        finalReward = finalReward * ageMult;
 
         transaction.update(userRef, {
           doge_balance: Number(data.doge_balance || 0) + finalReward,
@@ -167,6 +173,7 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
       } else {
         const totalBonusPercent = level + streak + petBonus;
         finalReward = baseReward * (1 + (totalBonusPercent / 100));
+        finalReward = finalReward * ageMult;
 
         transaction.update(userRef, {
           doge_balance: Number(data.doge_balance || 0) + finalReward,

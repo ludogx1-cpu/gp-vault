@@ -22,6 +22,7 @@ class _WalkPetPageState extends State<WalkPetPage> {
   GoogleMapController? _mapController;
   Position? _currentPosition;
   Position? _lastPosition;
+  Position? _originPosition;
   double _totalDistanceMeters = 0;
   double _unsyncedDistanceMeters = 0;
   bool _isWalking = false;
@@ -84,6 +85,7 @@ class _WalkPetPageState extends State<WalkPetPage> {
       _unsyncedDistanceMeters = 0;
       if (_currentPosition != null) {
         _lastPosition = _currentPosition;
+        _originPosition = _currentPosition;
         _routePoints.add(LatLng(_currentPosition!.latitude, _currentPosition!.longitude));
       }
     });
@@ -97,14 +99,30 @@ class _WalkPetPageState extends State<WalkPetPage> {
       if (!mounted) return;
 
       if (_lastPosition != null) {
+        // Speed Check: 10 mph is roughly 4.5 meters per second. 
+        // If speed > 4.5, ignore distance (likely driving)
+        bool isSpeeding = position.speed > 4.5;
+        
+        // Geofence Check: 3 miles is roughly 4828 meters
+        bool isOutsideLocalArea = false;
+        if (_originPosition != null) {
+          double distFromOrigin = Geolocator.distanceBetween(
+            _originPosition!.latitude, _originPosition!.longitude,
+            position.latitude, position.longitude,
+          );
+          if (distFromOrigin > 4828) isOutsideLocalArea = true;
+        }
+
         double distance = Geolocator.distanceBetween(
           _lastPosition!.latitude, _lastPosition!.longitude,
           position.latitude, position.longitude,
         );
         
         setState(() {
-          _totalDistanceMeters += distance;
-          _unsyncedDistanceMeters += distance;
+          if (!isSpeeding && !isOutsideLocalArea) {
+            _totalDistanceMeters += distance;
+            _unsyncedDistanceMeters += distance;
+          }
           _currentPosition = position;
           _lastPosition = position;
           _routePoints.add(LatLng(position.latitude, position.longitude));
@@ -112,7 +130,7 @@ class _WalkPetPageState extends State<WalkPetPage> {
           _polylines.add(Polyline(
             polylineId: const PolylineId('route'),
             points: _routePoints,
-            color: Colors.blue,
+            color: (isSpeeding || isOutsideLocalArea) ? Colors.red : Colors.blue,
             width: 5,
           ));
         });
