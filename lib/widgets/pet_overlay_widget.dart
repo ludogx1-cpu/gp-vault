@@ -124,6 +124,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with SingleTickerPr
       _petX = targetX;
       _petY = targetY;
     });
+  }
+
   Future<void> _cleanPoo(String pooId) async {
     setState(() {
       _poos.removeWhere((p) => p.id == pooId);
