@@ -25,6 +25,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
   String _stage = 'egg';
   Timer? _statusTimer;
   Timer? _moveTimer;
+  Timer? _chaseTimer;
 
   // Stats
   double _hunger = 50;
@@ -39,6 +40,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
   bool _facingRight = true;
   bool _isWandering = false;
   bool _isCloseUp = false;
+  bool _isChasing = false;
+  double _mouseX = 0;
+  double _mouseY = 0;
 
   // Animations
   late AnimationController _shakeController;
@@ -68,6 +72,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
   void dispose() {
     _statusTimer?.cancel();
     _moveTimer?.cancel();
+    _chaseTimer?.cancel();
     _shakeController.dispose();
     _walkController.dispose();
     _boopController.dispose();
@@ -131,6 +136,12 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
   void _movePetRandomly() {
     if (!_isWandering || !mounted) return;
     
+    // 15% chance to start chasing the mouse if not already close up or chasing
+    if (!_isCloseUp && !_isChasing && _stage != 'egg' && _random.nextDouble() < 0.15) {
+      _startChasingMouse();
+      return;
+    }
+
     final size = MediaQuery.of(context).size;
     final now = DateTime.now().millisecondsSinceEpoch;
     final msSinceBoop = now - _lastBoopTime;
@@ -161,9 +172,37 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
     // Start waddle animation while moving
     _walkController.repeat(reverse: true);
     Future.delayed(const Duration(seconds: 4), () {
-      if (mounted) _walkController.stop();
+      if (mounted && !_isChasing) _walkController.stop();
       if (mounted) setState(() {}); // Refresh to show emotion if stopped
     });
+  }
+
+  void _startChasingMouse() {
+    _isChasing = true;
+    _moveTimer?.cancel();
+    _walkController.repeat(reverse: true); // Constantly walk while chasing
+
+    _chaseTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+      setState(() {
+        _facingRight = _mouseX > _petX;
+        _petX = _mouseX - 50; // Center on mouse
+        _petY = _mouseY - 50;
+      });
+      // Stop chasing after 10 seconds
+      if (timer.tick >= 10) {
+        _stopChasingMouse();
+      }
+    });
+  }
+
+  void _stopChasingMouse() {
+    _isChasing = false;
+    _chaseTimer?.cancel();
+    if (mounted) {
+      _walkController.stop();
+      _moveTimer = Timer.periodic(const Duration(seconds: 8), (_) => _movePetRandomly());
+    }
   }
 
   Future<void> _cleanPoo(String pooId) async {
@@ -260,15 +299,20 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
   @override
   Widget build(BuildContext context) {
     String emotion = '';
-    if (!_walkController.isAnimating && !_isCloseUp && _stage != 'egg') {
+    if (!_walkController.isAnimating && !_isCloseUp && !_isChasing && _stage != 'egg') {
       if (_energy < 30) emotion = '💤';
       else if (_hunger < 30) emotion = '🍖';
       else if (_happiness > 80) emotion = '❤️';
     }
 
-    return Stack(
-      children: [
-        // Poos
+    return MouseRegion(
+      onHover: (event) {
+        _mouseX = event.position.dx;
+        _mouseY = event.position.dy;
+      },
+      child: Stack(
+        children: [
+          // Poos
         ..._poos.map((poo) => Positioned(
           left: poo.x,
           top: poo.y,
@@ -284,7 +328,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
 
         // Pet
         AnimatedPositioned(
-          duration: const Duration(seconds: 4),
+          duration: Duration(seconds: _isChasing ? 1 : 4),
           curve: Curves.easeInOut,
           left: _petX,
           top: _petY,
@@ -361,7 +405,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
                       ),
                     ),
                   // Boop Hint
-                  if (_isCloseUp && !_walkController.isAnimating)
+                  if (_isCloseUp && !_walkController.isAnimating && !_isChasing)
                     const Positioned(
                       top: -25,
                       child: Text(
@@ -380,6 +424,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
           ),
         ),
       ],
+      ),
     );
   }
 }
