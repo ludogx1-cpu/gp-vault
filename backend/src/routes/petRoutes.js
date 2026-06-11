@@ -73,7 +73,8 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
           stage: getGrowthStage(data.pet_birth_date),
           age_multiplier: getAgeMultiplier(data.pet_birth_date),
           total_distance: data.pet_total_distance_walked || 0,
-          pending_poos: pendingPoos
+          pending_poos: pendingPoos,
+          pending_returns: data.pet_pending_returns || 0
         };
       }
     });
@@ -108,6 +109,7 @@ router.post('/pet-feed', verifyFirebaseToken, async (req, res) => {
         pet_hunger: newHunger,
         pet_happiness: decayed.happiness,
         pet_energy: decayed.energy,
+        pet_pending_returns: admin.firestore.FieldValue.increment(FEED_COST_DOGE * 2),
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
       });
 
