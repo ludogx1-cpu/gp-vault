@@ -46,8 +46,7 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
       return "https://wall.lootably.com/web/YOUR_LOOTABLY_ID/$uid";
     }
     if (provider == "BITCOTASKS") {
-      // ⚠️ Replace 'YOUR_BITCOTASKS_API_KEY' with your real API Key from BitcoTasks
-      return "https://bitcotasks.com/offerwall/YOUR_BITCOTASKS_API_KEY/$uid";
+      return "https://bitcotasks.com/offerwall/6xwmdur28o2s2jx3y4nj4ldt6jx5u9/$uid";
     }
     return "https://google.com"; // Fallback placeholder
   }
