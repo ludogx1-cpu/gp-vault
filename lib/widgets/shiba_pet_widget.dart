@@ -11,6 +11,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:web/web.dart' as web;
 import 'walk_treadmill_dialog.dart';
+import '../utils/pet_events.dart';
 
 class ShibaPetWidget extends StatefulWidget {
   const ShibaPetWidget({super.key});
@@ -36,6 +37,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   int _lastSleepTime = 0;
   List<String> _ownedAccessories = [];
   List<String> _equippedAccessories = [];
+  List<String> _ownedTricks = [];
 
   Timer? _refreshTimer;
 
@@ -77,6 +79,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
             _lastSleepTime = (data['pet']['last_sleep_time'] as num?)?.toInt() ?? 0;
             _ownedAccessories = List<String>.from(data['pet']['owned_accessories'] ?? []);
             _equippedAccessories = List<String>.from(data['pet']['equipped_accessories'] ?? []);
+            _ownedTricks = List<String>.from(data['pet']['owned_tricks'] ?? []);
             
             final matured = (data['pet']['matured_returns'] as num?)?.toDouble() ?? 0.0;
             if (matured > 0) {
@@ -380,22 +383,32 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                                   ListView(
                                     padding: const EdgeInsets.all(8),
                                     children: [
-                                      _buildShopItem('top_hat', 'Fancy Top Hat', 0.01),
-                                      _buildShopItem('sunglasses', 'Cool Shades', 0.005),
-                                      _buildShopItem('gold_chain', 'Gold Chain', 0.05),
+                                      _buildShopItem('top_hat', 'Fancy Top Hat', 1.0, '+10% Faucet Bonus'),
+                                      _buildShopItem('sunglasses', 'Cool Shades', 2.0, '+20% Faucet Bonus'),
+                                      _buildShopItem('gold_chain', 'Gold Chain', 3.0, '+30% Faucet Bonus'),
+                                      _buildShopItem('diamond_watch', 'Diamond Watch', 5.0, '+50% Faucet Bonus'),
+                                      _buildShopItem('crown', 'Royal Crown', 10.0, '+100% Faucet Bonus'),
+                                      _buildShopItem('coat_basic', 'Basic Coat', 1.5, '+15% Faucet Bonus'),
+                                      _buildShopItem('coat_rain', 'Rain Coat', 2.5, '+25% Faucet Bonus'),
+                                      _buildShopItem('coat_winter', 'Winter Coat', 4.0, '+40% Faucet Bonus'),
+                                      _buildShopItem('coat_luxury', 'Luxury Coat', 7.5, '+75% Faucet Bonus'),
                                     ],
                                   ),
                                   // Tricks Tab
                                   Center(
-                                    child: Wrap(
-                                      spacing: 10,
-                                      runSpacing: 10,
-                                      alignment: WrapAlignment.center,
-                                      children: [
-                                        _buildTrickButton('Spin', Icons.rotate_right),
-                                        _buildTrickButton('Jump', Icons.arrow_upward),
-                                        _buildTrickButton('Roll Over', Icons.replay),
-                                      ],
+                                    child: SingleChildScrollView(
+                                      child: Wrap(
+                                        spacing: 10,
+                                        runSpacing: 10,
+                                        alignment: WrapAlignment.center,
+                                        children: [
+                                          _buildTrickButton('Spin', Icons.rotate_right, 1.0, '+10% Bonus'),
+                                          _buildTrickButton('Jump', Icons.arrow_upward, 2.0, '+20% Bonus'),
+                                          _buildTrickButton('Roll Over', Icons.replay, 3.0, '+30% Bonus'),
+                                          _buildTrickButton('Backflip', Icons.loop, 5.0, '+50% Bonus'),
+                                          _buildTrickButton('Moonwalk', Icons.directions_walk, 10.0, '+100% Bonus'),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -432,7 +445,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
     );
   }
 
-  Widget _buildShopItem(String id, String name, double price) {
+  Widget _buildShopItem(String id, String name, double price, String bonus) {
     final isOwned = _ownedAccessories.contains(id);
     final isEquipped = _equippedAccessories.contains(id);
     
@@ -440,7 +453,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
       visualDensity: VisualDensity.compact,
       leading: Image.asset('assets/shiba_$id.png', width: 30, height: 30, errorBuilder: (c,e,s) => const Icon(Icons.checkroom)),
       title: Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-      subtitle: isOwned ? null : Text('$price DOGE', style: const TextStyle(fontSize: 10, color: Colors.amber)),
+      subtitle: isOwned ? Text(bonus, style: const TextStyle(fontSize: 10, color: Colors.green)) : Text('\$$price USDT (Ad Credit)\n$bonus', style: const TextStyle(fontSize: 10, color: Colors.amber)),
       trailing: isOwned
           ? ElevatedButton(
               onPressed: () => _equipAccessory(id, !isEquipped),
@@ -463,16 +476,47 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
     );
   }
 
-  Widget _buildTrickButton(String name, IconData icon) {
-    return ElevatedButton.icon(
-      onPressed: () => _performTrick(name),
-      icon: Icon(icon, size: 16),
-      label: Text(name),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.purple.shade400,
-        foregroundColor: Colors.white,
+  Widget _buildTrickButton(String name, IconData icon, double price, String bonus) {
+    final isOwned = _ownedTricks.contains(name);
+    return Tooltip(
+      message: isOwned ? 'Perform $name' : 'Buy $name for \$$price USDT ($bonus)',
+      child: ElevatedButton.icon(
+        onPressed: () => isOwned ? _performTrick(name) : _buyTrick(name),
+        icon: Icon(isOwned ? icon : Icons.lock, size: 16),
+        label: Text(isOwned ? name : '\$$price'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isOwned ? Colors.purple.shade400 : Colors.grey.shade700,
+          foregroundColor: Colors.white,
+        ),
       ),
     );
+  }
+
+  Future<void> _buyTrick(String name) async {
+    setState(() => _isLoading = true);
+    try {
+      final headers = await getAuthHeaders();
+      final response = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/pet-buy-trick'),
+        headers: headers,
+        body: jsonEncode({'trickName': name}),
+      );
+      final data = jsonDecode(response.body);
+      if (data['success'] && mounted) {
+        setState(() {
+          _ownedTricks.add(name);
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['message'] ?? 'Trick learned!'), backgroundColor: Colors.green));
+      } else {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['error'] ?? 'Failed to buy'), backgroundColor: Colors.red));
+        }
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _buyAccessory(String id) async {
@@ -503,6 +547,11 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   }
 
   Future<void> _equipAccessory(String id, bool equip) async {
+    if (equip && _equippedAccessories.length >= 3) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Max 3 items equipped! Unequip something first.'), backgroundColor: Colors.orange));
+      return;
+    }
+
     setState(() => _isLoading = true);
     try {
       final headers = await getAuthHeaders();
@@ -539,6 +588,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
       final response = await http.post(
         Uri.parse('${ApiConstants.baseUrl}/pet-trick'),
         headers: headers,
+        body: jsonEncode({'trickName': trickName}),
       );
       final data = jsonDecode(response.body);
       if (data['success'] && mounted) {
@@ -547,10 +597,8 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
           _energy = (data['stats']['energy'] as num).toDouble();
           _isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Trick performed! +Happiness'), backgroundColor: Colors.green));
-        
         // Notify overlay to perform animation
-        import_html(); // Call top level import wrapper instead or just use the web package we already have
+        PetEvents.performTrick(trickName);
       } else {
         if (mounted) {
           setState(() => _isLoading = false);

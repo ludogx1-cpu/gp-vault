@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../api_constants.dart';
 import '../src/firebase_service.dart';
+import '../utils/pet_events.dart';
 
 class PooData {
   final String id;
@@ -91,22 +92,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
   }
 
   void _listenForTricks() {
-    import_html();
-  }
-
-  void import_html() {
-    import('dart:html' as html);
-    _trickSubscription = html.window.onMessage.listen((event) {
-      if (event.data is String) {
-        try {
-          final data = jsonDecode(event.data);
-          if (data['type'] == 'pet_trick') {
-            _playTrickAnimation(data['trick']);
-          }
-        } catch (e) {
-          // ignore
-        }
-      }
+    _trickSubscription = PetEvents.trickStream.listen((trickName) {
+      _playTrickAnimation(trickName);
     });
   }
 
@@ -405,12 +392,27 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
                         } else if (_currentTrick == 'Roll Over') {
                           trickRotation = _trickController.value * pi * 2;
                           trickYOffset = sin(_trickController.value * pi) * 20; // dip down
+                        } else if (_currentTrick == 'Backflip') {
+                          trickRotation = _trickController.value * pi * 2 * -1; // rotate backwards
+                          trickYOffset = sin(_trickController.value * pi) * -80; // jump higher
+                        } else if (_currentTrick == 'Moonwalk') {
+                          // Slide backwards while facing forward
+                          double direction = _facingRight ? -1.0 : 1.0;
+                          double slideDist = sin(_trickController.value * pi) * 60;
+                          // Since the image is flipped horizontally by the parent if _facingRight is true,
+                          // we just need to translate on X. Actually trick translation is applied before flip?
+                          // Let's just use trickYOffset for vertical, and we can add a trickXOffset.
+                        }
+
+                        double trickXOffset = 0;
+                        if (_currentTrick == 'Moonwalk') {
+                          trickXOffset = sin(_trickController.value * pi) * -60;
                         }
 
                         return Transform(
                           alignment: Alignment.center,
                           transform: Matrix4.identity()
-                            ..translate(0.0, trickYOffset)
+                            ..translate(trickXOffset, trickYOffset)
                             ..rotateZ(trickRotation)
                             ..scale(trickScale),
                           child: child,
@@ -435,10 +437,22 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
                                   // Render equipped accessories
                                   if (_equippedAccessories.contains('top_hat'))
                                     Positioned(top: -15, left: 30, child: Image.asset('assets/shiba_top_hat.png', width: 40)),
+                                  if (_equippedAccessories.contains('crown'))
+                                    Positioned(top: -10, left: 25, child: Image.asset('assets/shiba_crown.png', width: 50)),
                                   if (_equippedAccessories.contains('sunglasses'))
                                     Positioned(top: 25, left: 20, child: Image.asset('assets/shiba_sunglasses.png', width: 45)),
                                   if (_equippedAccessories.contains('gold_chain'))
                                     Positioned(top: 55, left: 25, child: Image.asset('assets/shiba_gold_chain.png', width: 50)),
+                                  if (_equippedAccessories.contains('coat_basic'))
+                                    Positioned(top: 20, left: 10, child: Image.asset('assets/shiba_coat_basic.png', width: 80)),
+                                  if (_equippedAccessories.contains('coat_rain'))
+                                    Positioned(top: 20, left: 10, child: Image.asset('assets/shiba_coat_rain.png', width: 80)),
+                                  if (_equippedAccessories.contains('coat_winter'))
+                                    Positioned(top: 20, left: 10, child: Image.asset('assets/shiba_coat_winter.png', width: 80)),
+                                  if (_equippedAccessories.contains('coat_luxury'))
+                                    Positioned(top: 20, left: 10, child: Image.asset('assets/shiba_coat_luxury.png', width: 80)),
+                                  if (_equippedAccessories.contains('diamond_watch'))
+                                    Positioned(top: 55, left: 25, child: Image.asset('assets/shiba_diamond_watch.png', width: 50)),
                                 ],
                               ),
                             ),
@@ -487,8 +501,13 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
                 ],
               ),
             ),
-          ),
-        ),
+          ), // closes AnimatedBuilder (trickController)
+        ), // closes Transform.scale (boopScale)
+      ), // closes AnimatedScale
+    ); // closes Transform.translate
+  },
+), // closes AnimatedBuilder (shake/walk)
+), // closes AnimatedPositioned
       ],
     );
   }

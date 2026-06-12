@@ -32,15 +32,49 @@ function getGrowthStage(birthDate) {
   return 'adult';
 }
 
-function calculatePetBonusPercent(decayedStats) {
+function calculatePetBonusPercent(decayedStats, userData) {
   // If stats average > 80%, give +10% bonus
   // If average > 50%, give +5%
   // If average < 20%, give 0%
   const avg = (decayedStats.hunger + decayedStats.happiness + decayedStats.energy) / 3;
-  if (avg >= 80) return 10;
-  if (avg >= 50) return 5;
-  return 0;
+  let baseBonus = 0;
+  if (avg >= 80) baseBonus = 10;
+  else if (avg >= 50) baseBonus = 5;
+
+  const accessoryBonuses = {
+    'top_hat': 10,
+    'sunglasses': 20,
+    'gold_chain': 30,
+    'diamond_watch': 50,
+    'crown': 100,
+    'coat_basic': 15,
+    'coat_rain': 25,
+    'coat_winter': 40,
+    'coat_luxury': 75
+  };
+
+  const trickBonuses = {
+    'Spin': 10,
+    'Jump': 20,
+    'Roll Over': 30,
+    'Backflip': 50,
+    'Moonwalk': 100
+  };
+
+  let shopBonus = 0;
+  const equippedAccessories = userData.pet_equipped_accessories || [];
+  for (const acc of equippedAccessories) {
+    if (accessoryBonuses[acc]) shopBonus += accessoryBonuses[acc];
+  }
+
+  const activeTricks = userData.active_trick_buffs || [];
+  for (const trick of activeTricks) {
+    if (trickBonuses[trick]) shopBonus += trickBonuses[trick];
+  }
+
+  return baseBonus + shopBonus;
 }
+
 
 function getAgeMultiplier(birthDate) {
   if (!birthDate) return 1.0;
