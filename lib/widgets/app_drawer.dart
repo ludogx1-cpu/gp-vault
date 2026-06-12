@@ -6,6 +6,7 @@ import '../screens/affiliate_links_page.dart';
 import '../screens/ad_hub_page.dart';
 import '../screens/referral_page.dart';
 import '../screens/ptc_earn_page.dart';
+import '../screens/dogeogotcha_instructions_page.dart';
 import 'platform_indicator_level_text.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -181,6 +182,30 @@ class AppDrawer extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => const PtcEarnPage(),
+                    ),
+                  );
+                },
+              ),
+              Divider(color: dividerColor),
+              ListTile(
+                leading: const Icon(Icons.pets, color: Colors.amber),
+                title: Text(
+                  'Dogeogotcha Guide',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: titleColor,
+                  ),
+                ),
+                subtitle: Text(
+                  'How to play & earn',
+                  style: TextStyle(fontSize: 12, color: subColor),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const DogeogotchaInstructionsPage(),
                     ),
                   );
                 },

@@ -53,7 +53,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
     _originalTitle = web.document.title;
     _timeLeft = 10; // 10 seconds required
     _updateBrowserTitle("Click an ad...");
-    _message = "Please click an ad/sponsor on the page that just opened to start the timer!";
+    _message = "Click an ad and stay on the page for 10 seconds to earn your reward!";
 
     _messageSubscription = web.EventStreamProviders.messageEvent
         .forTarget(web.window)

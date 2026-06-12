@@ -57,7 +57,7 @@ router.post('/send-doge', verifyFirebaseToken, async (req, res) => {
       let ageMult = 1.0;
       if (data.pet_birth_date) {
         const decayed = calculateDecay(data);
-        petBonus = calculatePetBonusPercent(decayed);
+        petBonus = calculatePetBonusPercent(decayed, data);
         ageMult = getAgeMultiplier(data.pet_birth_date);
         
         transaction.update(userRef, {
@@ -65,7 +65,8 @@ router.post('/send-doge', verifyFirebaseToken, async (req, res) => {
           pet_hunger: decayed.hunger,
           pet_happiness: decayed.happiness,
           pet_energy: decayed.energy,
-          pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
+          pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
+          active_trick_buffs: []
         });
       } else {
         transaction.update(userRef, {
@@ -84,6 +85,9 @@ router.post('/send-doge', verifyFirebaseToken, async (req, res) => {
       dogeAmount = baseReward * (1 + (petBonus / 100));
     }
     dogeAmount = dogeAmount * ageMult;
+    
+    // Hard cap max Faucet reward
+    dogeAmount = Math.min(dogeAmount, 0.008);
 
     const faucetPayResponse = await faucetPaySend(address, dogeAmount);
 
@@ -164,12 +168,13 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
       let ageMult = 1.0;
       if (data.pet_birth_date) {
         const decayed = calculateDecay(data);
-        petBonus = calculatePetBonusPercent(decayed);
+        petBonus = calculatePetBonusPercent(decayed, data);
         ageMult = getAgeMultiplier(data.pet_birth_date);
         
         const totalBonusPercent = level + streak + petBonus;
         finalReward = baseReward * (1 + (totalBonusPercent / 100));
         finalReward = finalReward * ageMult;
+        finalReward = Math.min(finalReward, 0.008);
 
         const updates = {
           doge_balance: Number(data.doge_balance || 0) + finalReward,
@@ -178,7 +183,8 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
           pet_hunger: decayed.hunger,
           pet_happiness: decayed.happiness,
           pet_energy: decayed.energy,
-          pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
+          pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
+          active_trick_buffs: []
         };
         if (isNewUser) {
           transaction.set(userRef, { ...data, ...updates });
@@ -189,6 +195,7 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
         const totalBonusPercent = level + streak + petBonus;
         finalReward = baseReward * (1 + (totalBonusPercent / 100));
         finalReward = finalReward * ageMult;
+        finalReward = Math.min(finalReward, 0.008);
 
         const updates = {
           doge_balance: Number(data.doge_balance || 0) + finalReward,
