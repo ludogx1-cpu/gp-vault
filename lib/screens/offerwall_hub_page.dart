@@ -45,6 +45,10 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
       // ⚠️ Replace 'YOUR_LOOTABLY_ID' with your real API ID from your Lootably account
       return "https://wall.lootably.com/web/YOUR_LOOTABLY_ID/$uid";
     }
+    if (provider == "BITCOTASKS") {
+      // ⚠️ Replace 'YOUR_BITCOTASKS_API_KEY' with your real API Key from BitcoTasks
+      return "https://bitcotasks.com/offerwall/YOUR_BITCOTASKS_API_KEY/$uid";
+    }
     return "https://google.com"; // Fallback placeholder
   }
 
@@ -257,6 +261,32 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                         ),
                         onPressed: () =>
                             setState(() => selectedNetwork = "LOOTABLY"),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  children: [
+                    // BitcoTasks Selection Button
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: selectedNetwork == "BITCOTASKS"
+                              ? Colors.blue
+                              : Colors.grey.shade200,
+                          foregroundColor: selectedNetwork == "BITCOTASKS"
+                              ? Colors.white
+                              : Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                        ),
+                        icon: const Icon(Icons.task_alt),
+                        label: const Text(
+                          "BitcoTasks",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: () =>
+                            setState(() => selectedNetwork = "BITCOTASKS"),
                       ),
                     ),
                   ],
