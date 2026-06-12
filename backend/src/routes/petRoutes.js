@@ -120,7 +120,9 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
           last_feed_time: data.pet_last_feed_time ? data.pet_last_feed_time.toDate().getTime() : 0,
           last_play_time: data.pet_last_play_time ? data.pet_last_play_time.toDate().getTime() : 0,
           last_sleep_time: data.pet_last_sleep_time ? data.pet_last_sleep_time.toDate().getTime() : 0,
-          name: data.pet_name || 'Golden Paw Shiba'
+          name: data.pet_name || 'Golden Paw Shiba',
+          owned_accessories: data.pet_owned_accessories || [],
+          equipped_accessories: data.pet_equipped_accessories || []
         };
       }
     });
@@ -442,6 +444,109 @@ router.post('/pet-admin-age-up', verifyFirebaseToken, async (req, res) => {
     });
 
     res.json({ success: true, message: 'Aged up by 30 days!' });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+const ACCESSORY_PRICES = {
+  'top_hat': 0.01,
+  'sunglasses': 0.005,
+  'gold_chain': 0.05
+};
+
+router.post('/pet-buy-accessory', verifyFirebaseToken, async (req, res) => {
+  try {
+    const { accessoryId } = req.body;
+    if (!ACCESSORY_PRICES[accessoryId]) throw new Error('Invalid accessory');
+
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      const data = snapshot.data() || {};
+      if (!data.pet_birth_date) throw new Error('Pet not initialized');
+
+      const price = ACCESSORY_PRICES[accessoryId];
+      const { matured } = processInvestments(userRef, data, transaction);
+      const currentDoge = Number(data.doge_balance || 0) + matured;
+
+      if (currentDoge < price) throw new Error(`Insufficient DOGE. Costs ${price} DOGE.`);
+
+      const owned = data.pet_owned_accessories || [];
+      if (owned.includes(accessoryId)) throw new Error('You already own this accessory!');
+
+      owned.push(accessoryId);
+
+      transaction.update(userRef, {
+        doge_balance: currentDoge - price,
+        pet_owned_accessories: owned
+      });
+    });
+
+    res.json({ success: true, message: 'Accessory purchased!' });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/pet-equip-accessory', verifyFirebaseToken, async (req, res) => {
+  try {
+    const { accessoryId, equip } = req.body; // equip boolean
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      const data = snapshot.data() || {};
+      if (!data.pet_birth_date) throw new Error('Pet not initialized');
+
+      const owned = data.pet_owned_accessories || [];
+      if (equip && !owned.includes(accessoryId)) throw new Error('You do not own this accessory.');
+
+      let equipped = data.pet_equipped_accessories || [];
+      if (equip && !equipped.includes(accessoryId)) {
+        equipped.push(accessoryId);
+      } else if (!equip && equipped.includes(accessoryId)) {
+        equipped = equipped.filter(i => i !== accessoryId);
+      }
+
+      transaction.update(userRef, {
+        pet_equipped_accessories: equipped
+      });
+    });
+
+    res.json({ success: true, message: 'Accessory updated!' });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/pet-trick', verifyFirebaseToken, async (req, res) => {
+  try {
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    let newStats = null;
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      const data = snapshot.data() || {};
+
+      if (!data.pet_birth_date) throw new Error('Pet not initialized');
+
+      const decayed = calculateDecay(data);
+      if (decayed.energy < 5) throw new Error('Pet is too tired for tricks!');
+
+      const newHappiness = Math.min(MAX_STAT, decayed.happiness + 5);
+      const newEnergy = decayed.energy - 5;
+
+      transaction.update(userRef, {
+        pet_happiness: newHappiness,
+        pet_energy: newEnergy,
+        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
+      });
+
+      newStats = { hunger: decayed.hunger, happiness: newHappiness, energy: newEnergy };
+    });
+
+    res.json({ success: true, message: 'Trick performed!', stats: newStats });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }

@@ -9,6 +9,8 @@ import '../api_constants.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:web/web.dart' as web;
+import 'walk_treadmill_dialog.dart';
 
 class ShibaPetWidget extends StatefulWidget {
   const ShibaPetWidget({super.key});
@@ -32,6 +34,8 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   int _lastFeedTime = 0;
   int _lastPlayTime = 0;
   int _lastSleepTime = 0;
+  List<String> _ownedAccessories = [];
+  List<String> _equippedAccessories = [];
 
   Timer? _refreshTimer;
 
@@ -71,6 +75,8 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
             _lastFeedTime = (data['pet']['last_feed_time'] as num?)?.toInt() ?? 0;
             _lastPlayTime = (data['pet']['last_play_time'] as num?)?.toInt() ?? 0;
             _lastSleepTime = (data['pet']['last_sleep_time'] as num?)?.toInt() ?? 0;
+            _ownedAccessories = List<String>.from(data['pet']['owned_accessories'] ?? []);
+            _equippedAccessories = List<String>.from(data['pet']['equipped_accessories'] ?? []);
             
             final matured = (data['pet']['matured_returns'] as num?)?.toDouble() ?? 0.0;
             if (matured > 0) {
@@ -331,34 +337,72 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                         child: Text("Locked Returns: ${_lockedReturns.toStringAsFixed(4)} DOGE (Matures in 24h)", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.purple)),
                       ),
                     
-                    // Info Box
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      margin: const EdgeInsets.only(top: 15),
-                      decoration: BoxDecoration(
-                        color: isDark ? Colors.blueGrey.withOpacity(0.2) : Colors.blue.shade50,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.blue.withOpacity(0.5)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.pets, color: Colors.blue, size: 20),
-                              const SizedBox(width: 8),
-                              Text("Dogeogotcha", style: TextStyle(fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black87)),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "• Your pet now waddles around the screen!\n"
-                            "• Every 15 mins, it may walk up to the camera. Tap its nose to 'Boop' it for a 0.002 DOGE reward!\n"
-                            "• Watch its thought bubbles (💤, 🍖, ❤️) to see how it's feeling.\n"
-                            "• More features coming soon!",
-                            style: TextStyle(fontSize: 12, height: 1.4, color: isDark ? Colors.white70 : Colors.black87),
-                          ),
-                        ],
+                    // Tabbed Area (Info, Shop, Tricks)
+                    DefaultTabController(
+                      length: 3,
+                      child: Container(
+                        height: 180,
+                        margin: const EdgeInsets.only(top: 15),
+                        decoration: BoxDecoration(
+                          color: isDark ? Colors.blueGrey.withOpacity(0.2) : Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.blue.withOpacity(0.5)),
+                        ),
+                        child: Column(
+                          children: [
+                            TabBar(
+                              labelColor: isDark ? Colors.amber : Colors.blue.shade800,
+                              unselectedLabelColor: isDark ? Colors.white54 : Colors.black54,
+                              indicatorColor: Colors.amber,
+                              tabs: const [
+                                Tab(icon: Icon(Icons.info, size: 20), text: "Info"),
+                                Tab(icon: Icon(Icons.shopping_cart, size: 20), text: "Shop"),
+                                Tab(icon: Icon(Icons.star, size: 20), text: "Tricks"),
+                              ],
+                            ),
+                            Expanded(
+                              child: TabBarView(
+                                children: [
+                                  // Info Tab
+                                  Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: SingleChildScrollView(
+                                      child: Text(
+                                        "• Your pet wanders around the screen!\n"
+                                        "• Every 15 mins, it walks to the camera. Boop its nose for 0.002 DOGE!\n"
+                                        "• Watch thought bubbles (💤, 🍖, ❤️).\n"
+                                        "• Buy items and perform tricks!",
+                                        style: TextStyle(fontSize: 12, height: 1.4, color: isDark ? Colors.white70 : Colors.black87),
+                                      ),
+                                    ),
+                                  ),
+                                  // Shop Tab
+                                  ListView(
+                                    padding: const EdgeInsets.all(8),
+                                    children: [
+                                      _buildShopItem('top_hat', 'Fancy Top Hat', 0.01),
+                                      _buildShopItem('sunglasses', 'Cool Shades', 0.005),
+                                      _buildShopItem('gold_chain', 'Gold Chain', 0.05),
+                                    ],
+                                  ),
+                                  // Tricks Tab
+                                  Center(
+                                    child: Wrap(
+                                      spacing: 10,
+                                      runSpacing: 10,
+                                      alignment: WrapAlignment.center,
+                                      children: [
+                                        _buildTrickButton('Spin', Icons.rotate_right),
+                                        _buildTrickButton('Jump', Icons.arrow_upward),
+                                        _buildTrickButton('Roll Over', Icons.replay),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -372,11 +416,11 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: null, // Disabled for now
+              onPressed: _isLoading ? null : () => _showWalkDialog(),
               icon: const Icon(Icons.directions_walk),
-              label: const Text("Take for a Walk (Feature coming soon)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              label: const Text("Take for a Walk", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey, // Grey out
+                backgroundColor: Colors.green,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -387,4 +431,143 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
       ),
     );
   }
+
+  Widget _buildShopItem(String id, String name, double price) {
+    final isOwned = _ownedAccessories.contains(id);
+    final isEquipped = _equippedAccessories.contains(id);
+    
+    return ListTile(
+      visualDensity: VisualDensity.compact,
+      leading: Image.asset('assets/shiba_$id.png', width: 30, height: 30, errorBuilder: (c,e,s) => const Icon(Icons.checkroom)),
+      title: Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+      subtitle: isOwned ? null : Text('$price DOGE', style: const TextStyle(fontSize: 10, color: Colors.amber)),
+      trailing: isOwned
+          ? ElevatedButton(
+              onPressed: () => _equipAccessory(id, !isEquipped),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isEquipped ? Colors.grey : Colors.blue,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                minimumSize: const Size(60, 30),
+              ),
+              child: Text(isEquipped ? "Unequip" : "Equip", style: const TextStyle(fontSize: 10, color: Colors.white)),
+            )
+          : ElevatedButton(
+              onPressed: () => _buyAccessory(id),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amber,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                minimumSize: const Size(60, 30),
+              ),
+              child: const Text("Buy", style: TextStyle(fontSize: 10, color: Colors.black)),
+            ),
+    );
+  }
+
+  Widget _buildTrickButton(String name, IconData icon) {
+    return ElevatedButton.icon(
+      onPressed: () => _performTrick(name),
+      icon: Icon(icon, size: 16),
+      label: Text(name),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.purple.shade400,
+        foregroundColor: Colors.white,
+      ),
+    );
+  }
+
+  Future<void> _buyAccessory(String id) async {
+    setState(() => _isLoading = true);
+    try {
+      final headers = await getAuthHeaders();
+      final response = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/pet-buy-accessory'),
+        headers: headers,
+        body: jsonEncode({'accessoryId': id}),
+      );
+      final data = jsonDecode(response.body);
+      if (data['success'] && mounted) {
+        setState(() {
+          _ownedAccessories.add(id);
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['message'] ?? 'Purchased!'), backgroundColor: Colors.green));
+      } else {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['error'] ?? 'Failed to buy'), backgroundColor: Colors.red));
+        }
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _equipAccessory(String id, bool equip) async {
+    setState(() => _isLoading = true);
+    try {
+      final headers = await getAuthHeaders();
+      final response = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/pet-equip-accessory'),
+        headers: headers,
+        body: jsonEncode({'accessoryId': id, 'equip': equip}),
+      );
+      final data = jsonDecode(response.body);
+      if (data['success'] && mounted) {
+        setState(() {
+          if (equip) {
+            _equippedAccessories.add(id);
+          } else {
+            _equippedAccessories.remove(id);
+          }
+          _isLoading = false;
+        });
+        // We broadcast an event so the pet overlay can update immediately
+      } else {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _performTrick(String trickName) async {
+    setState(() => _isLoading = true);
+    try {
+      final headers = await getAuthHeaders();
+      final response = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/pet-trick'),
+        headers: headers,
+      );
+      final data = jsonDecode(response.body);
+      if (data['success'] && mounted) {
+        setState(() {
+          _happiness = (data['stats']['happiness'] as num).toDouble();
+          _energy = (data['stats']['energy'] as num).toDouble();
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Trick performed! +Happiness'), backgroundColor: Colors.green));
+        
+        // Notify overlay to perform animation
+        import_html(); // Call top level import wrapper instead or just use the web package we already have
+      } else {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['error'] ?? 'Too tired!'), backgroundColor: Colors.red));
+        }
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showWalkDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const WalkTreadmillDialog(),
+    ).then((_) => _fetchPetStatus()); // Refresh stats after walk
+  }
+
 }
