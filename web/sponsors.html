@@ -73,6 +73,20 @@
       'Bottom 3': document.getElementById('bottom-3')
     };
 
+    function notifyParentTimer() {
+      if (window.opener) {
+        window.opener.postMessage(JSON.stringify({ type: 'start_bonus_timer' }), '*');
+      }
+    }
+
+    // Track mouse over ads to detect iframe clicks
+    let mouseOverAd = false;
+    window.addEventListener('blur', () => {
+      if (mouseOverAd) {
+        notifyParentTimer();
+      }
+    });
+
     // Fetch Ad Placeholders
     db.collection("sponsor_placeholders").onSnapshot((querySnapshot) => {
       Object.values(zones).forEach(z => z.innerHTML = ''); 
@@ -81,15 +95,35 @@
         if (data.iframe_code && zones[data.position]) {
           const adWrapper = document.createElement('div');
           adWrapper.innerHTML = data.iframe_code;
+          
+          adWrapper.addEventListener('mouseenter', () => mouseOverAd = true);
+          adWrapper.addEventListener('mouseleave', () => mouseOverAd = false);
+          
           zones[data.position].appendChild(adWrapper);
         }
       });
     });
 
+    // Hardcoded BitcoTasks Banner
+    const bitcotasksCard = document.createElement('a');
+    bitcotasksCard.className = 'sponsor-card';
+    bitcotasksCard.href = 'YOUR_BITCOTASKS_REFERRAL_LINK_HERE'; // User needs to provide this
+    bitcotasksCard.target = '_blank';
+    bitcotasksCard.innerHTML = `<div style="height: 180px; background-color: #2196F3; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold;">BitcoTasks</div><div class="card-title">Earn More Crypto with BitcoTasks!</div>`;
+    bitcotasksCard.addEventListener('click', notifyParentTimer);
+    document.getElementById('sponsors-container').appendChild(bitcotasksCard);
+
     // Fetch Sponsor Cards
     const cardContainer = document.getElementById('sponsors-container');
     db.collection("bonus_sponsors").orderBy("created_at", "desc").onSnapshot((querySnapshot) => {
-      cardContainer.innerHTML = ''; 
+      // Don't clear innerHTML so we don't remove the hardcoded Bitcotasks card
+      // Let's just remove dynamically added ones
+      Array.from(cardContainer.children).forEach(child => {
+         if(!child.href.includes('YOUR_BITCOTASKS_REFERRAL_LINK_HERE')) {
+             cardContainer.removeChild(child);
+         }
+      });
+
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         const card = document.createElement('a');
@@ -98,6 +132,7 @@
         card.target = '_blank';
         let imageHtml = data.image_url ? `<img src="${data.image_url}" alt="Banner">` : '';
         card.innerHTML = `${imageHtml}<div class="card-title">${data.title || 'Sponsored Link'}</div>`;
+        card.addEventListener('click', notifyParentTimer);
         cardContainer.appendChild(card);
       });
     });

@@ -41,6 +41,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
   String _message = "Please wait...";
 
   bool _showCaptcha = false;
+  bool _timerStarted = false;
   String _selectedCaptcha = 'hCaptcha';
   bool _captchaLoading = false;
   String? _captchaToken;
@@ -51,9 +52,8 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
     super.initState();
     _originalTitle = web.document.title;
     _timeLeft = 10; // 10 seconds required
-    _updateBrowserTitle("${_timeLeft}s left");
-    _stopwatch.start();
-    _startTimer();
+    _updateBrowserTitle("Click an ad...");
+    _message = "Please click an ad/sponsor on the page that just opened to start the timer!";
 
     _messageSubscription = web.EventStreamProviders.messageEvent
         .forTarget(web.window)
@@ -68,7 +68,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
               dataStr = dartData.toString();
             }
 
-            if (dataStr != null && dataStr.contains('captcha')) {
+            if (dataStr != null) {
               final data = jsonDecode(dataStr);
               if (data['type'] == 'captcha') {
                 if (mounted) {
@@ -77,6 +77,17 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
                   });
                   if (_showCaptcha && !_isProcessing) {
                     _processBonusClaim();
+                  }
+                }
+              } else if (data['type'] == 'start_bonus_timer') {
+                if (!_timerStarted) {
+                  _timerStarted = true;
+                  _stopwatch.start();
+                  _startTimer();
+                  if (mounted) {
+                    setState(() {
+                      _message = "Watching Sponsor... $_timeLeft seconds left";
+                    });
                   }
                 }
               }
