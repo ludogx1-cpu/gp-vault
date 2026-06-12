@@ -50,7 +50,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
   void initState() {
     super.initState();
     _originalTitle = web.document.title;
-    _timeLeft = 30; // 30 seconds required
+    _timeLeft = 10; // 10 seconds required
     _updateBrowserTitle("${_timeLeft}s left");
     _stopwatch.start();
     _startTimer();
@@ -113,7 +113,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
       }
 
       int elapsedSeconds = _stopwatch.elapsed.inSeconds;
-      int remaining = 30 - elapsedSeconds;
+      int remaining = 10 - elapsedSeconds;
 
       if (remaining <= 0) {
         timer.cancel();

@@ -1245,7 +1245,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                   ),
                                   const SizedBox(height: 5),
                                   const Text(
-                                    "Stay on the page for 30 seconds to earn\n0.006 DOGE & 60 XP!",
+                                    "Stay on the page for 10 seconds to earn\n0.006 DOGE & 60 XP!",
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       color: Colors.green,
