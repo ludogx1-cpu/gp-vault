@@ -36,6 +36,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
   double _energy = 100;
   int _lastBoopTime = 0;
   String _petName = 'Golden Paw Shiba';
+  List<String> _equippedAccessories = [];
 
   // Position & Animation
   double _petX = 100;
@@ -49,6 +50,10 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
   late AnimationController _shakeController;
   late AnimationController _walkController;
   late AnimationController _boopController;
+  late AnimationController _trickController;
+
+  String _currentTrick = '';
+  StreamSubscription? _trickSubscription;
 
   // Poos
   final List<PooData> _poos = [];
@@ -61,6 +66,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
     _shakeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
     _walkController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
     _boopController = AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
+    _trickController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000));
+
+    _listenForTricks();
 
     _fetchPetStatus();
     _statusTimer = Timer.periodic(const Duration(minutes: 1), (_) => _fetchPetStatus());
@@ -74,10 +82,40 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
     _statusTimer?.cancel();
     _moveTimer?.cancel();
     _chaseTimer?.cancel();
+    _trickSubscription?.cancel();
     _shakeController.dispose();
     _walkController.dispose();
     _boopController.dispose();
+    _trickController.dispose();
     super.dispose();
+  }
+
+  void _listenForTricks() {
+    import_html();
+  }
+
+  void import_html() {
+    import('dart:html' as html);
+    _trickSubscription = html.window.onMessage.listen((event) {
+      if (event.data is String) {
+        try {
+          final data = jsonDecode(event.data);
+          if (data['type'] == 'pet_trick') {
+            _playTrickAnimation(data['trick']);
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+    });
+  }
+
+  void _playTrickAnimation(String trickName) {
+    if (!mounted) return;
+    setState(() => _currentTrick = trickName);
+    _trickController.forward(from: 0).then((_) {
+      if (mounted) setState(() => _currentTrick = '');
+    });
   }
 
   Future<void> _fetchPetStatus() async {
@@ -98,6 +136,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
             _energy = (data['pet']['energy'] as num).toDouble();
             _lastBoopTime = data['pet']['last_boop_time'] ?? 0;
             _petName = data['pet']['name'] ?? 'Golden Paw Shiba';
+            _equippedAccessories = List<String>.from(data['pet']['equipped_accessories'] ?? []);
 
             if (_stage != 'egg') {
               _isWandering = true;
@@ -352,27 +391,58 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
                   curve: Curves.easeInOut,
                   child: Transform.scale(
                     scale: boopScale,
-                    child: child,
-                  ),
-                ),
-              );
-            },
-            child: GestureDetector(
-              onTap: _isCloseUp ? _boopPet : null,
-              child: Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.center,
-                children: [
-                  Transform(
-                    alignment: Alignment.center,
-                    transform: Matrix4.rotationY(_facingRight ? pi : 0), // Flip horizontal
-                    child: SizedBox(
-                      width: 100,
-                      height: 100,
-                      child: Image.asset(_getImageAsset()),
-                    ),
-                  ),
-                  // Emotion bubble
+                    child: AnimatedBuilder(
+                      animation: _trickController,
+                      builder: (context, child) {
+                        double trickRotation = 0;
+                        double trickScale = 1.0;
+                        double trickYOffset = 0;
+
+                        if (_currentTrick == 'Spin') {
+                          trickRotation = _trickController.value * pi * 2;
+                        } else if (_currentTrick == 'Jump') {
+                          trickYOffset = sin(_trickController.value * pi) * -50;
+                        } else if (_currentTrick == 'Roll Over') {
+                          trickRotation = _trickController.value * pi * 2;
+                          trickYOffset = sin(_trickController.value * pi) * 20; // dip down
+                        }
+
+                        return Transform(
+                          alignment: Alignment.center,
+                          transform: Matrix4.identity()
+                            ..translate(0.0, trickYOffset)
+                            ..rotateZ(trickRotation)
+                            ..scale(trickScale),
+                          child: child,
+                        );
+                      },
+                      child: GestureDetector(
+                        onTap: _isCloseUp ? _boopPet : null,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          alignment: Alignment.center,
+                          children: [
+                            Transform(
+                              alignment: Alignment.center,
+                              transform: Matrix4.rotationY(_facingRight ? pi : 0), // Flip horizontal
+                              child: Stack(
+                                children: [
+                                  SizedBox(
+                                    width: 100,
+                                    height: 100,
+                                    child: Image.asset(_getImageAsset()),
+                                  ),
+                                  // Render equipped accessories
+                                  if (_equippedAccessories.contains('top_hat'))
+                                    Positioned(top: -15, left: 30, child: Image.asset('assets/shiba_top_hat.png', width: 40)),
+                                  if (_equippedAccessories.contains('sunglasses'))
+                                    Positioned(top: 25, left: 20, child: Image.asset('assets/shiba_sunglasses.png', width: 45)),
+                                  if (_equippedAccessories.contains('gold_chain'))
+                                    Positioned(top: 55, left: 25, child: Image.asset('assets/shiba_gold_chain.png', width: 50)),
+                                ],
+                              ),
+                            ),
+                            // Emotion bubble
                   if (emotion.isNotEmpty || _stage != 'egg')
                     Positioned(
                       top: -30,
