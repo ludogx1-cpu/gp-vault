@@ -131,11 +131,21 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
 
     await admin.firestore().runTransaction(async (transaction) => {
       const snapshot = await transaction.get(userRef);
+      let data = snapshot.data() || {};
+      let isNewUser = false;
       if (!snapshot.exists) {
-        throw new Error('User profile not found');
+        isNewUser = true;
+        data = {
+          email: req.user.email || 'unknown@example.com',
+          doge_balance: 0.0,
+          staked_balance: 0.0,
+          ads_balance: 0.0,
+          offerwall_balance: 0.0,
+          xp: 0,
+          streak_count: 0,
+          joined_date: new Date().toISOString()
+        };
       }
-
-      const data = snapshot.data() || {};
       
       const lastClaim = data.last_claim_time;
       if (lastClaim && Date.now() - lastClaim.toDate().getTime() < cooldownMs) {
@@ -161,7 +171,7 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
         finalReward = baseReward * (1 + (totalBonusPercent / 100));
         finalReward = finalReward * ageMult;
 
-        transaction.update(userRef, {
+        const updates = {
           doge_balance: Number(data.doge_balance || 0) + finalReward,
           xp: xp + 10,
           last_claim_time: now,
@@ -169,17 +179,27 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
           pet_happiness: decayed.happiness,
           pet_energy: decayed.energy,
           pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
-        });
+        };
+        if (isNewUser) {
+          transaction.set(userRef, { ...data, ...updates });
+        } else {
+          transaction.update(userRef, updates);
+        }
       } else {
         const totalBonusPercent = level + streak + petBonus;
         finalReward = baseReward * (1 + (totalBonusPercent / 100));
         finalReward = finalReward * ageMult;
 
-        transaction.update(userRef, {
+        const updates = {
           doge_balance: Number(data.doge_balance || 0) + finalReward,
           xp: xp + 10,
           last_claim_time: now,
-        });
+        };
+        if (isNewUser) {
+          transaction.set(userRef, { ...data, ...updates });
+        } else {
+          transaction.update(userRef, updates);
+        }
       }
     });
 
@@ -295,11 +315,22 @@ router.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
 
     await admin.firestore().runTransaction(async (transaction) => {
       const snapshot = await transaction.get(userRef);
+      let data = snapshot.data() || {};
+      let isNewUser = false;
       if (!snapshot.exists) {
-        throw new Error('User profile not found');
+        isNewUser = true;
+        data = {
+          email: req.user.email || 'unknown@example.com',
+          doge_balance: 0.0,
+          staked_balance: 0.0,
+          ads_balance: 0.0,
+          offerwall_balance: 0.0,
+          xp: 0,
+          streak_count: 0,
+          joined_date: new Date().toISOString()
+        };
       }
 
-      const data = snapshot.data() || {};
       const lastClaim = data.last_bonus_sponsor_claim;
       if (lastClaim && Date.now() - lastClaim.toDate().getTime() < cooldownMs) {
         const minutesLeft = Math.ceil((cooldownMs - (Date.now() - lastClaim.toDate().getTime())) / 60000);
@@ -308,11 +339,17 @@ router.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
         throw cooldownError;
       }
 
-      transaction.update(userRef, {
+      const updates = {
         doge_balance: Number(data.doge_balance || 0) + rewardAmount,
         xp: Number(data.xp || 0) + xpReward,
         last_bonus_sponsor_claim: now,
-      });
+      };
+
+      if (isNewUser) {
+        transaction.set(userRef, { ...data, ...updates });
+      } else {
+        transaction.update(userRef, updates);
+      }
     });
 
     res.json({
