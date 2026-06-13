@@ -79,22 +79,30 @@ function formatAmount(amount) {
 }
 
 async function verifyCaptchaToken(token, provider) {
-  if (process.env.NODE_ENV === 'development' || !process.env.CAPTCHA_SECRET) {
-    console.warn('CAPTCHA verification bypassed (Missing CAPTCHA_SECRET or in development mode)');
+  // If we are explicitly in development mode, we bypass captcha
+  if (process.env.NODE_ENV === 'development') {
+    console.warn('CAPTCHA verification bypassed (development mode)');
     return true; 
   }
 
   try {
-    const secret = process.env.CAPTCHA_SECRET;
+    let secret = '';
     let url = '';
 
     if (provider === 'hcaptcha') {
       url = 'https://hcaptcha.com/siteverify';
+      secret = process.env.HCAPTCHA_SECRET;
     } else if (provider === 'turnstile') {
       url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+      secret = process.env.TURNSTILE_SECRET_KEY || process.env.TURNSTILE_SECRET;
     } else {
       console.error(`Unknown captcha provider: ${provider}`);
       return false;
+    }
+
+    if (!secret) {
+      console.warn(`CAPTCHA verification bypassed (Missing secret key for ${provider})`);
+      return true; // We bypass if the secret is missing so the app doesn't break, but we log a warning.
     }
 
     const params = new URLSearchParams({
