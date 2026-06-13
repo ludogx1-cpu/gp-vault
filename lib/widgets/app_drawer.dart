@@ -11,6 +11,7 @@ import 'platform_indicator_level_text.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../src/theme_provider.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -307,6 +308,7 @@ class AppDrawer extends StatelessWidget {
                   );
                 },
               ),
+
               Divider(color: dividerColor),
               ListTile(
                 leading: const Icon(Icons.star, color: Colors.orange),

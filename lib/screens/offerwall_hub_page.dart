@@ -71,7 +71,6 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
           'Offerwall Tasks',
@@ -208,11 +207,11 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                 const SizedBox(height: 25),
 
                 // 🌐 PROVIDER SELECTION INTERFACE
-                const Text(
+                Text(
                   "Select a Task Provider Network:",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.brown,
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.brown,
                     fontSize: 16,
                   ),
                 ),

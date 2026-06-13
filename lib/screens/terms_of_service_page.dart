@@ -31,29 +31,38 @@ class TermsOfServicePage extends StatelessWidget {
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Terms of Service",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.brown,
-                  ),
-                ),
-                const SizedBox(height: 15),
-                const Text(
-                  "1. User Conduct & Fair Play\nUsers are permitted strictly ONE account per person. The use of automated claiming scripts, bots, VPNs, or VPS services is strictly prohibited.\n\n"
-                  "2. Earnings and Withdrawals\nBalances held within the Vault hold no real-world fiat value until successfully withdrawn to a third-party wallet.\n\n"
-                  "3. Advertising Network\nFunds deposited into the Advertising Balance are strictly for the purchase of on-site ad campaigns. All ad purchases are final and non-refundable.",
-                  style: TextStyle(
-                    fontSize: 14,
-                    height: 1.6,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
+            child: ListenableBuilder(
+              listenable: themeProvider,
+              builder: (context, _) {
+                final isDark = themeProvider.isDarkMode;
+                final titleColor = isDark ? Colors.white : Colors.brown;
+                final textColor = isDark ? Colors.white : Colors.black87;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Terms of Service",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: titleColor,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Text(
+                      "1. User Conduct & Fair Play\nUsers are permitted strictly ONE account per person. The use of automated claiming scripts, bots, VPNs, or VPS services is strictly prohibited.\n\n"
+                      "2. Earnings and Withdrawals\nBalances held within the Vault hold no real-world fiat value until successfully withdrawn to a third-party wallet.\n\n"
+                      "3. Advertising Network\nFunds deposited into the Advertising Balance are strictly for the purchase of on-site ad campaigns. All ad purchases are final and non-refundable.",
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 1.6,
+                        color: textColor,
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ),

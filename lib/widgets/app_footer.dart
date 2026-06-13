@@ -5,6 +5,7 @@ import '../screens/privacy_policy_page.dart';
 import '../screens/terms_of_service_page.dart';
 import 'package:web/web.dart' as web;
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../src/theme_provider.dart';
 
 class AppFooter extends StatelessWidget {
@@ -193,6 +194,22 @@ class AppFooter extends StatelessWidget {
                   ),
                 ),
               ),
+              TextButton(
+                onPressed: () async {
+                  final Uri url = Uri.parse('https://www.trustpilot.com/review/goldenpaw.net');
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url);
+                  }
+                },
+                child: const Text(
+                  "Trustpilot Reviews",
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -285,7 +302,7 @@ class AppFooter extends StatelessWidget {
           const SizedBox(height: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: const [
+            children: [
               Text(
                 "© 2026 Golden Paw. All rights reserved.",
                 textAlign: TextAlign.center,
@@ -299,6 +316,16 @@ class AppFooter extends StatelessWidget {
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   color: Colors.amber,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                "In loving memory of Butch the Pug & Jack the Jack",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontStyle: FontStyle.italic,
+                  color: Colors.amber.shade200,
                 ),
               ),
             ],

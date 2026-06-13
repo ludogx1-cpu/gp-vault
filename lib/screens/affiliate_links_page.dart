@@ -201,12 +201,12 @@ class _AffiliateLinksPageState extends State<AffiliateLinksPage>
       body: Column(
         children: [
           const SizedBox(height: 15),
-          const Text(
+          Text(
             "Earn More Crypto",
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Colors.brown,
+              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.brown,
             ),
           ),
           const Padding(
@@ -275,6 +275,7 @@ class _AffiliateLinksPageState extends State<AffiliateLinksPage>
                       children: [
                         ...staticPartners.map(
                           (p) => _buildCompactCard(
+                            context: context,
                             title: p.title,
                             sub: p.sub,
                             reward: p.reward,
@@ -290,6 +291,7 @@ class _AffiliateLinksPageState extends State<AffiliateLinksPage>
                                 0xFF000000,
                           );
                           return _buildCompactCard(
+                            context: context,
                             title: data['title'] ?? '',
                             sub: data['sub'] ?? '',
                             reward: data['reward'] ?? '',
@@ -312,6 +314,7 @@ class _AffiliateLinksPageState extends State<AffiliateLinksPage>
   }
 
   Widget _buildCompactCard({
+    required BuildContext context,
     required String title,
     required String sub,
     required String reward,
@@ -342,10 +345,10 @@ class _AffiliateLinksPageState extends State<AffiliateLinksPage>
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.brown,
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.brown,
                     ),
                   ),
                   Text(

@@ -274,13 +274,30 @@ router.post('/withdraw', verifyFirebaseToken, async (req, res) => {
       });
     });
 
-    const formattedAmount = formatAmount(sendAmount);
-    const faucetPayResponse = await faucetPaySend(user_address, formattedAmount);
+    let faucetPayResponse;
+    try {
+      const formattedAmount = formatAmount(sendAmount);
+      faucetPayResponse = await faucetPaySend(user_address, formattedAmount);
+    } catch (faucetError) {
+      // If FaucetPay fails, securely refund the user's balance
+      await admin.firestore().runTransaction(async (refundTx) => {
+        const snapshot = await refundTx.get(userRef);
+        if (snapshot.exists) {
+          const data = snapshot.data();
+          refundTx.update(userRef, {
+            doge_balance: Number(data.doge_balance || 0) + sendAmount,
+            // We do not reset last_withdrawal so they still hit the 1 minute anti-spam cooldown
+          });
+        }
+      });
+      console.error('FaucetPay send failed, user refunded:', faucetError.message || faucetError);
+      throw new Error('Payment processor is temporarily down. Your funds have been securely refunded. Please try again later.');
+    }
 
     const resultPayload = {
       success: true,
       address: user_address,
-      amount: formattedAmount,
+      amount: formatAmount(sendAmount),
       faucetPayResponse,
       authUser: req.user,
     };

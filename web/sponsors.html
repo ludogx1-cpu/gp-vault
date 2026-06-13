@@ -17,9 +17,16 @@
     .sponsor-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.15); }
     .sponsor-card img { width: 100%; height: 180px; object-fit: cover; background-color: #eee; }
     .card-title { padding: 15px; text-align: center; font-size: 18px; font-weight: bold; }
+    @media (prefers-color-scheme: dark) {
+      body { background-color: #121212; color: #ffffff; }
+      .header { background-color: #ffb300; color: #121212; }
+      .sponsor-card { background: #1e1e1e; color: white; }
+      .welcome-text { color: #eeeeee; }
+    }
   </style>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://bitcotasks.com/popad.min.js?pub=MzU3NzM=&f=100&t=1"></script>
 </head>
 <body>
 
@@ -30,6 +37,24 @@
   <div class="container">
     <p class="welcome-text">Please click on an ad below and stay on the page for 10 seconds to earn your reward. Thank you for supporting the Golden Paw ecosystem!</p>
     
+    <!-- 🚀 HARDCODED AADS ZONES -->
+    <div class="ad-zone">
+      <!-- BEGIN AADS AD UNIT 2437206 -->
+      <div style="width: 300px;margin: auto;z-index: 99998;height: auto" onmouseenter="mouseOverAd = true" onmouseleave="mouseOverAd = false">
+        <iframe data-aa='2437206' src='//ad.a-ads.com/2437206/?size=300x250'
+          style='border:0; padding:0; width:300px; height:250px; overflow:hidden;display: block;margin: auto'></iframe>
+      </div>
+      <!-- END AADS AD UNIT 2437206 -->
+    </div>
+    <div class="ad-zone">
+      <!-- BEGIN AADS AD UNIT 2437207 -->
+      <div style="width: 300px;margin: auto;z-index: 99998;height: auto" onmouseenter="mouseOverAd = true" onmouseleave="mouseOverAd = false">
+        <iframe data-aa='2437207' src='//ad.a-ads.com/2437207/?size=300x250'
+          style='border:0; padding:0; width:300px; height:250px; overflow:hidden;display: block;margin: auto'></iframe>
+      </div>
+      <!-- END AADS AD UNIT 2437207 -->
+    </div>
+
     <!-- 🚀 9 AD ZONES -->
     <div id="top-1" class="ad-zone"></div>
     <div id="top-2" class="ad-zone"></div>
