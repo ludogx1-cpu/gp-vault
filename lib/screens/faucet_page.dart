@@ -972,7 +972,7 @@ class _FaucetPageState extends State<FaucetPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.security, color: Colors.brown, size: 20),
+                    const Icon(Icons.security, color: Colors.yellow, size: 20),
                     const SizedBox(width: 8),
                     Text(
                       "Security:",

@@ -36,72 +36,78 @@ class ReferralPage extends StatelessWidget {
     return Scaffold(
       appBar: const GlobalAppBar(showBackArrow: true),
       body: PageWithFooter(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.group_add, size: 80, color: Colors.purple),
-              const SizedBox(height: 20),
-              const Text(
-                "Earn 20% For Life!",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.brown,
-                ),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                "Share your link. Every time your friend claims from the faucet, you get a 20% bonus automatically added to your Vault!",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey),
-              ),
-              const SizedBox(height: 30),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  color: Colors.purple.shade50,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.purple.shade200),
-                ),
-                child: Column(
-                  children: [
-                    const Text(
-                      "Your Unique Link:",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.purple,
-                      ),
+        child: ListenableBuilder(
+          listenable: themeProvider,
+          builder: (context, _) {
+            final isDark = themeProvider.isDarkMode;
+            final titleColor = isDark ? Colors.white : Colors.brown;
+            
+            return Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.group_add, size: 80, color: Colors.purple),
+                  const SizedBox(height: 20),
+                  Text(
+                    "Earn 20% For Life!",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: titleColor,
                     ),
-                    const SizedBox(height: 10),
-                    SelectableText(
-                      refLink,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Your Referral Network",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.brown,
                   ),
-                ),
-              ),
-              const SizedBox(height: 15),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "Share your link. Every time your friend claims from the faucet, you get a 20% bonus automatically added to your Vault!",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  const SizedBox(height: 30),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(15),
+                    decoration: BoxDecoration(
+                      color: Colors.purple.shade50,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.purple.shade200),
+                    ),
+                    child: Column(
+                      children: [
+                        const Text(
+                          "Your Unique Link:",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.purple,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        SelectableText(
+                          refLink,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Your Referral Network",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: titleColor,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
 
               if (user == null)
                 const Card(
@@ -210,8 +216,10 @@ class ReferralPage extends StatelessWidget {
                   ),
                 ),
               ),
-            ],
-          ),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
