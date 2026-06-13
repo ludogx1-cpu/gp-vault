@@ -2,7 +2,6 @@ const express = require('express');
 const { admin, verifyFirebaseToken } = require('../services/firebaseService');
 
 const { calculateDecay, getGrowthStage, getAgeMultiplier, MAX_STAT } = require('../utils/petMechanics');
-const { processInvestments } = require('../utils/helpers');
 const { getDogePrice } = require('../services/priceService');
 
 const router = express.Router();
