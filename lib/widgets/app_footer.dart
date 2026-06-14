@@ -238,11 +238,11 @@ class AppFooter extends StatelessWidget {
                 tooltip: 'Follow us on Facebook',
               ),
               IconButton(
-                icon: const Icon(Icons.camera_alt, color: Colors.pink),
+                icon: const Icon(Icons.tiktok, color: Colors.white),
                 onPressed: () {
-                  web.window.open('https://instagram.com', '_blank');
+                  web.window.open('https://www.tiktok.com/@ludogx1', '_blank');
                 },
-                tooltip: 'Follow us on Instagram',
+                tooltip: 'Follow us on TikTok',
               ),
             ],
           ),
