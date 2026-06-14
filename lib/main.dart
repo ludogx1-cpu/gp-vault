@@ -113,6 +113,32 @@ void main() async {
         ''');
       return iframe;
     });
+
+    // 4. A-Ads Left Ad Unit
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('aads-2437206', (int viewId) {
+      final div = web.HTMLDivElement();
+      div.setAttribute('style', 'width: 300px;margin: auto;z-index: 99998;height: auto;');
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('data-aa', '2437206');
+      iframe.setAttribute('src', 'https://ad.a-ads.com/2437206/?size=300x250');
+      iframe.setAttribute('style', 'border:0; padding:0; width:300px; height:250px; overflow:hidden;display: block;margin: auto;');
+      div.append(iframe);
+      return div;
+    });
+
+    // 5. A-Ads Right Ad Unit
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('aads-2437207', (int viewId) {
+      final div = web.HTMLDivElement();
+      div.setAttribute('style', 'width: 300px;margin: auto;z-index: 99998;height: auto;');
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('data-aa', '2437207');
+      iframe.setAttribute('src', 'https://ad.a-ads.com/2437207/?size=300x250');
+      iframe.setAttribute('style', 'border:0; padding:0; width:300px; height:250px; overflow:hidden;display: block;margin: auto;');
+      div.append(iframe);
+      return div;
+    });
   } catch (e) {
     // ignore: empty_catches
   }

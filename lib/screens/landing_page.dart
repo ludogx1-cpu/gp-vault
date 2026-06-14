@@ -3,7 +3,7 @@ import '../widgets/global_app_bar.dart';
 import '../widgets/feature_card.dart';
 import '../src/theme_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import '../widgets/trustpilot_widget.dart';
 
 class LandingPage extends StatelessWidget {
   final void Function(BuildContext, bool) onAuthTrigger;
@@ -230,28 +230,7 @@ class LandingPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 50),
-            ElevatedButton.icon(
-              onPressed: () async {
-                final Uri url = Uri.parse('https://www.trustpilot.com/review/goldenpaw.net');
-                if (await canLaunchUrl(url)) {
-                  await launchUrl(url);
-                }
-              },
-              icon: const Icon(Icons.star_rate, color: Colors.green),
-              label: const Text(
-                "Read Our Trustpilot Reviews",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  side: const BorderSide(color: Colors.green, width: 2),
-                ),
-              ),
-            ),
+            const TrustpilotWidget(),
             const SizedBox(height: 100),
           ],
         ),

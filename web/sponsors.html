@@ -37,23 +37,7 @@
   <div class="container">
     <p class="welcome-text">Please click on an ad below and stay on the page for 10 seconds to earn your reward. Thank you for supporting the Golden Paw ecosystem!</p>
     
-    <!-- 🚀 HARDCODED AADS ZONES -->
-    <div class="ad-zone">
-      <!-- BEGIN AADS AD UNIT 2437206 -->
-      <div style="width: 300px;margin: auto;z-index: 99998;height: auto" onmouseenter="mouseOverAd = true" onmouseleave="mouseOverAd = false">
-        <iframe data-aa='2437206' src='//ad.a-ads.com/2437206/?size=300x250'
-          style='border:0; padding:0; width:300px; height:250px; overflow:hidden;display: block;margin: auto'></iframe>
-      </div>
-      <!-- END AADS AD UNIT 2437206 -->
-    </div>
-    <div class="ad-zone">
-      <!-- BEGIN AADS AD UNIT 2437207 -->
-      <div style="width: 300px;margin: auto;z-index: 99998;height: auto" onmouseenter="mouseOverAd = true" onmouseleave="mouseOverAd = false">
-        <iframe data-aa='2437207' src='//ad.a-ads.com/2437207/?size=300x250'
-          style='border:0; padding:0; width:300px; height:250px; overflow:hidden;display: block;margin: auto'></iframe>
-      </div>
-      <!-- END AADS AD UNIT 2437207 -->
-    </div>
+    <!-- Removed Hardcoded AADS Zones -->
 
     <!-- 🚀 9 AD ZONES -->
     <div id="top-1" class="ad-zone"></div>
@@ -129,22 +113,31 @@
       });
     });
 
-    // Hardcoded BitcoTasks Banner
-    const bitcotasksCard = document.createElement('a');
-    bitcotasksCard.className = 'sponsor-card';
-    bitcotasksCard.href = 'https://bitcotasks.com/?ref=1khwboa0vs';
-    bitcotasksCard.target = '_blank';
-    bitcotasksCard.innerHTML = `<div style="height: 180px; background-color: #2196F3; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold;">BitcoTasks</div><div class="card-title">Earn More Crypto with BitcoTasks!</div>`;
-    bitcotasksCard.addEventListener('click', notifyParentTimer);
-    document.getElementById('sponsors-container').appendChild(bitcotasksCard);
+    // Hardcoded Promo Cards
+    function createPromoCard(name, title, link, color) {
+      const card = document.createElement('a');
+      card.className = 'sponsor-card';
+      card.href = link;
+      card.target = '_blank';
+      card.innerHTML = `<div style="height: 180px; background-color: ${color}; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold;">${name}</div><div class="card-title">${title}</div>`;
+      card.addEventListener('click', notifyParentTimer);
+      return card;
+    }
+
+    document.getElementById('sponsors-container').appendChild(
+      createPromoCard('BitcoTasks', 'Earn More Crypto with BitcoTasks!', 'https://bitcotasks.com/?ref=1khwboa0vs', '#2196F3')
+    );
+    document.getElementById('sponsors-container').appendChild(
+      createPromoCard('FaucetList', 'Find the Best Crypto Faucets!', 'https://faucetlist.top', '#4CAF50')
+    );
 
     // Fetch Sponsor Cards
     const cardContainer = document.getElementById('sponsors-container');
     db.collection("bonus_sponsors").orderBy("created_at", "desc").onSnapshot((querySnapshot) => {
-      // Don't clear innerHTML so we don't remove the hardcoded Bitcotasks card
+      // Don't clear innerHTML so we don't remove the hardcoded promo cards
       // Let's just remove dynamically added ones
       Array.from(cardContainer.children).forEach(child => {
-         if(!child.href.includes('https://bitcotasks.com/?ref=1khwboa0vs')) {
+         if(!child.href.includes('bitcotasks.com') && !child.href.includes('faucetlist.top')) {
              cardContainer.removeChild(child);
          }
       });

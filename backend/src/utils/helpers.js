@@ -89,10 +89,12 @@ async function verifyCaptchaToken(token, provider) {
     let secret = '';
     let url = '';
 
-    if (provider === 'hcaptcha') {
+    const normalizedProvider = String(provider || '').toLowerCase();
+
+    if (normalizedProvider === 'hcaptcha') {
       url = 'https://hcaptcha.com/siteverify';
       secret = process.env.HCAPTCHA_SECRET;
-    } else if (provider === 'turnstile') {
+    } else if (normalizedProvider === 'turnstile') {
       url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
       secret = process.env.TURNSTILE_SECRET_KEY || process.env.TURNSTILE_SECRET;
     } else {

@@ -3,9 +3,6 @@ import '../screens/landing_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
-import 'auth_dialog.dart';
-import '../screens/landing_page.dart';
-import '../main.dart';
 
 class RootGatekeeper extends StatelessWidget {
   const RootGatekeeper({super.key});
