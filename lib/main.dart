@@ -139,6 +139,17 @@ void main() async {
       div.append(iframe);
       return div;
     });
+
+    // 6. YouTube Short Embed
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('youtube-short', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('src', 'https://www.youtube.com/embed/_MjLuFCm21Q?autoplay=0&loop=1');
+      iframe.setAttribute('style', 'border:none; width:100%; height:100%; border-radius: 15px;');
+      iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+      iframe.setAttribute('allowfullscreen', 'true');
+      return iframe;
+    });
   } catch (e) {
     // ignore: empty_catches
   }

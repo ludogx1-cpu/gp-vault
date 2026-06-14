@@ -231,6 +231,24 @@ class LandingPage extends StatelessWidget {
             ),
             const SizedBox(height: 50),
             const TrustpilotWidget(),
+            const SizedBox(height: 80),
+            
+            // --- YOUTUBE SHORT EMBED ---
+            Container(
+              width: 315,
+              height: 560,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 5)),
+                ],
+              ),
+              child: const ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(15)),
+                child: HtmlElementView(viewType: 'youtube-short'),
+              ),
+            ),
+            
             const SizedBox(height: 100),
           ],
         ),
