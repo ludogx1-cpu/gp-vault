@@ -196,7 +196,7 @@ class AppFooter extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () async {
-                  final Uri url = Uri.parse('https://www.trustpilot.com/review/goldenpaw.net');
+                  final Uri url = Uri.parse('https://www.trustpilot.com/review/goldenpaw.dog');
                   if (await canLaunchUrl(url)) {
                     await launchUrl(url);
                   }

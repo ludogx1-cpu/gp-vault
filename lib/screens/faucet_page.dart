@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'dart:math';
-import 'dart:ui_web' as ui;
 import 'package:web/web.dart' as web;
 import 'dart:js_interop';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
@@ -323,7 +322,7 @@ class _FaucetPageState extends State<FaucetPage> {
       if (_saveToVault && user != null) {
         final response = await http
             .post(
-              Uri.parse(ApiConstants.baseUrl + '/claim-vault'),
+              Uri.parse('${ApiConstants.baseUrl}/claim-vault'),
               headers: await getAuthHeaders(),
               body: jsonEncode({}),
             )
@@ -368,7 +367,7 @@ class _FaucetPageState extends State<FaucetPage> {
       } else {
         final response = await http
             .post(
-              Uri.parse(ApiConstants.baseUrl + '/send-doge'),
+              Uri.parse('${ApiConstants.baseUrl}/send-doge'),
               headers: {"Content-Type": "application/json"},
               body: jsonEncode({
                 "user_address": _addressController.text.trim(),
@@ -1118,7 +1117,11 @@ class _FaucetPageState extends State<FaucetPage> {
                   spacing: 160,
                   runSpacing: 30,
                   children: [
-                    const SquareAdPlaceholder(slotId: 'square_left'),
+                    const SizedBox(
+                      width: 300,
+                      height: 250,
+                      child: HtmlElementView(viewType: 'aads-2437206'),
+                    ),
                     SizedBox(
                       width: 160,
                       height: 60,
@@ -1158,7 +1161,11 @@ class _FaucetPageState extends State<FaucetPage> {
                               ),
                       ),
                     ),
-                    const SquareAdPlaceholder(slotId: 'square_right'),
+                    const SizedBox(
+                      width: 300,
+                      height: 250,
+                      child: HtmlElementView(viewType: 'aads-2437207'),
+                    ),
                   ],
                 ),
 

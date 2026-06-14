@@ -39,7 +39,7 @@ class _StakingPageState extends State<StakingPage> {
   Future<void> _harvestInterest() async {
     try {
       final response = await http.post(
-        Uri.parse(ApiConstants.baseUrl + '/harvest'),
+        Uri.parse('${ApiConstants.baseUrl}/harvest'),
         headers: await getAuthHeaders(),
       );
 
@@ -74,7 +74,7 @@ class _StakingPageState extends State<StakingPage> {
   Future<void> _stakeDoge(double amountToStake) async {
     try {
       final response = await http.post(
-        Uri.parse(ApiConstants.baseUrl + '/stake'),
+        Uri.parse('${ApiConstants.baseUrl}/stake'),
         headers: await getAuthHeaders(),
         body: jsonEncode({'amount': amountToStake}),
       );
@@ -111,7 +111,7 @@ class _StakingPageState extends State<StakingPage> {
   Future<void> _unstakeDoge(double amountToUnstake) async {
     try {
       final response = await http.post(
-        Uri.parse(ApiConstants.baseUrl + '/unstake'),
+        Uri.parse('${ApiConstants.baseUrl}/unstake'),
         headers: await getAuthHeaders(),
         body: jsonEncode({'amount': amountToUnstake}),
       );

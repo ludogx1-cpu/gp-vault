@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
-import 'dart:ui_web' as ui;
-import 'package:web/web.dart' as web;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
@@ -94,7 +92,7 @@ class _AccountPageState extends State<AccountPage> {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         final response = await http.post(
-          Uri.parse(ApiConstants.baseUrl + '/withdraw'),
+          Uri.parse('${ApiConstants.baseUrl}/withdraw'),
           headers: await getAuthHeaders(),
           body: jsonEncode({
             "user_address": _withdrawAddressController.text.trim(),

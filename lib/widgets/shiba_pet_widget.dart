@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
-import '../src/user_provider.dart';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
 import '../api_constants.dart';
-import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:web/web.dart' as web;
 import 'walk_treadmill_dialog.dart';
 import '../utils/pet_events.dart';
 
@@ -22,7 +19,6 @@ class ShibaPetWidget extends StatefulWidget {
 
 class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   bool _isLoading = true;
-  String _error = "";
   
   double _hunger = 50;
   double _happiness = 50;
@@ -347,9 +343,9 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                         height: 180,
                         margin: const EdgeInsets.only(top: 15),
                         decoration: BoxDecoration(
-                          color: isDark ? Colors.blueGrey.withOpacity(0.2) : Colors.blue.shade50,
+                          color: isDark ? Colors.blueGrey.withValues(alpha: 0.2) : Colors.blue.shade50,
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.blue.withOpacity(0.5)),
+                          border: Border.all(color: Colors.blue.withValues(alpha: 0.5)),
                         ),
                         child: Column(
                           children: [

@@ -327,9 +327,13 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
   Widget build(BuildContext context) {
     String emotion = '';
     if (!_walkController.isAnimating && !_isCloseUp && !_isChasing && _stage != 'egg') {
-      if (_energy < 30) emotion = '💤';
-      else if (_hunger < 30) emotion = '🍖';
-      else if (_happiness > 80) emotion = '❤️';
+      if (_energy < 30) {
+        emotion = '💤';
+      } else if (_hunger < 30) {
+        emotion = '🍖';
+      } else if (_happiness > 80) {
+        emotion = '❤️';
+      }
     }
 
     return Stack(
@@ -395,26 +399,20 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
                         } else if (_currentTrick == 'Backflip') {
                           trickRotation = _trickController.value * pi * 2 * -1; // rotate backwards
                           trickYOffset = sin(_trickController.value * pi) * -80; // jump higher
-                        } else if (_currentTrick == 'Moonwalk') {
-                          // Slide backwards while facing forward
-                          double direction = _facingRight ? -1.0 : 1.0;
-                          double slideDist = sin(_trickController.value * pi) * 60;
-                          // Since the image is flipped horizontally by the parent if _facingRight is true,
-                          // we just need to translate on X. Actually trick translation is applied before flip?
-                          // Let's just use trickYOffset for vertical, and we can add a trickXOffset.
                         }
 
                         double trickXOffset = 0;
                         if (_currentTrick == 'Moonwalk') {
-                          trickXOffset = sin(_trickController.value * pi) * -60;
+                          double direction = _facingRight ? -1.0 : 1.0;
+                          double slideDist = sin(_trickController.value * pi) * 60;
+                          trickXOffset = slideDist * direction;
                         }
 
                         return Transform(
                           alignment: Alignment.center,
-                          transform: Matrix4.identity()
-                            ..translate(trickXOffset, trickYOffset)
-                            ..rotateZ(trickRotation)
-                            ..scale(trickScale),
+                          transform: Matrix4.translationValues(trickXOffset, trickYOffset, 0.0)
+                            * Matrix4.rotationZ(trickRotation)
+                            * Matrix4.diagonal3Values(trickScale, trickScale, 1.0),
                           child: child,
                         );
                       },

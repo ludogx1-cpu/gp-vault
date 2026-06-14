@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
-import 'dart:ui_web' as ui;
 import 'package:web/web.dart' as web;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
@@ -61,7 +60,7 @@ class _AdHubPageState extends State<AdHubPage> {
 
     try {
       final response = await http.post(
-        Uri.parse(ApiConstants.baseUrl + '/swap-doge'),
+        Uri.parse('${ApiConstants.baseUrl}/swap-doge'),
         headers: await getAuthHeaders(),
         body: jsonEncode({'amount': amount}),
       );
@@ -166,7 +165,7 @@ class _AdHubPageState extends State<AdHubPage> {
                   htmlForm.append(
                     _createHiddenInput(
                       'callback_url',
-                      ApiConstants.baseUrl + '/ipn',
+                      '${ApiConstants.baseUrl}/ipn',
                     ),
                   );
 
@@ -273,7 +272,7 @@ class _AdHubPageState extends State<AdHubPage> {
                       try {
                         final response = await http.post(
                           Uri.parse(
-                            ApiConstants.baseUrl + '/buy-banner',
+                            '${ApiConstants.baseUrl}/buy-banner',
                           ),
                           headers: await getAuthHeaders(),
                           body: jsonEncode({
@@ -455,7 +454,7 @@ class _AdHubPageState extends State<AdHubPage> {
                         try {
                           final response = await http.post(
                             Uri.parse(
-                              ApiConstants.baseUrl + '/buy-ptc',
+                              '${ApiConstants.baseUrl}/buy-ptc',
                             ),
                             headers: await getAuthHeaders(),
                             body: jsonEncode({
