@@ -21,7 +21,7 @@ Future<Map<String, String>> getAuthHeaders() async {
   final headers = {'Content-Type': 'application/json'};
   final user = FirebaseAuth.instance.currentUser;
   if (user != null) {
-    final token = await user.getIdToken(true);
+    final token = await user.getIdToken();
     headers['Authorization'] = 'Bearer $token';
   }
   return headers;
