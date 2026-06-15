@@ -2,13 +2,53 @@ import '../widgets/page_with_footer.dart';
 import '../widgets/global_app_bar.dart';
 import '../widgets/feature_card.dart';
 import '../src/theme_provider.dart';
+import '../src/js_bindings.dart';
 import 'package:flutter/material.dart';
 import '../widgets/trustpilot_widget.dart';
+import 'dart:async';
 
-class LandingPage extends StatelessWidget {
+class LandingPage extends StatefulWidget {
   final void Function(BuildContext, bool) onAuthTrigger;
 
   const LandingPage({super.key, required this.onAuthTrigger});
+
+  @override
+  State<LandingPage> createState() => _LandingPageState();
+}
+
+class _LandingPageState extends State<LandingPage> {
+  final GlobalKey _bannerAdKey = GlobalKey();
+  Timer? _adPositionTimer;
+
+  void _updateBannerPosition() {
+    final ctx = _bannerAdKey.currentContext;
+    if (ctx != null) {
+      final box = ctx.findRenderObject() as RenderBox?;
+      if (box != null && box.hasSize) {
+        final pos = box.localToGlobal(Offset.zero);
+        // Center the 728px banner within the placeholder
+        final placeholderWidth = box.size.width;
+        final offsetX = pos.dx + (placeholderWidth - 728) / 2;
+        showAadsOverlay('aads-banner', offsetX > 0 ? offsetX : 0, pos.dy);
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateBannerPosition());
+    _adPositionTimer = Timer.periodic(const Duration(milliseconds: 500), (_) {
+      if (mounted) _updateBannerPosition();
+    });
+  }
+
+  @override
+  void dispose() {
+    _adPositionTimer?.cancel();
+    hideAadsOverlay('aads-banner');
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +62,7 @@ class LandingPage extends StatelessWidget {
         actions: [
           // --- LOG IN BUTTON ---
           TextButton(
-            onPressed: () => onAuthTrigger(context, true),
+            onPressed: () => widget.onAuthTrigger(context, true),
             style: TextButton.styleFrom(
               minimumSize: Size.zero,
               padding: EdgeInsets.symmetric(horizontal: isMobile ? 8 : 12),
@@ -40,7 +80,7 @@ class LandingPage extends StatelessWidget {
           // --- SIGN UP BUTTON ---
           isMobile
               ? TextButton(
-                  onPressed: () => onAuthTrigger(context, false),
+                  onPressed: () => widget.onAuthTrigger(context, false),
                   style: TextButton.styleFrom(
                     minimumSize: Size.zero,
                     padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -60,7 +100,7 @@ class LandingPage extends StatelessWidget {
                     vertical: 8,
                   ),
                   child: ElevatedButton(
-                    onPressed: () => onAuthTrigger(context, false),
+                    onPressed: () => widget.onAuthTrigger(context, false),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.amber,
                       shape: RoundedRectangleBorder(
@@ -155,7 +195,7 @@ class LandingPage extends StatelessWidget {
                     width: 250,
                     height: 60,
                     child: ElevatedButton(
-                      onPressed: () => onAuthTrigger(context, false),
+                      onPressed: () => widget.onAuthTrigger(context, false),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.amber.shade700,
                         shape: RoundedRectangleBorder(
@@ -233,18 +273,9 @@ class LandingPage extends StatelessWidget {
             
             // --- A-Ads Long Banner ---
             SizedBox(
+              key: _bannerAdKey,
               width: double.infinity,
               height: 90,
-              child: ClipRect(
-                child: OverflowBox(
-                  minWidth: 728,
-                  maxWidth: 728,
-                  minHeight: 90,
-                  maxHeight: 90,
-                  alignment: Alignment.center,
-                  child: const HtmlElementView(viewType: 'aads-2437203'),
-                ),
-              ),
             ),
             const SizedBox(height: 50),
             const TrustpilotWidget(),

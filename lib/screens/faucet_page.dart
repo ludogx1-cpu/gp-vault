@@ -51,10 +51,30 @@ class _FaucetPageState extends State<FaucetPage> {
   bool _saveToVault = false;
   Timer? _countdownTimer;
   Timer? _captchaPoller;
+  Timer? _adPositionTimer;
   int _secondsRemaining = 0;
   double _currentDogePrice = 0.15;
 
   bool _isCheckingCooldown = true;
+
+  // Keys to track ad placeholder positions
+  final GlobalKey _leftAdKey = GlobalKey();
+  final GlobalKey _rightAdKey = GlobalKey();
+
+  void _updateAdPositions() {
+    void positionAd(GlobalKey key, String overlayId) {
+      final ctx = key.currentContext;
+      if (ctx != null) {
+        final box = ctx.findRenderObject() as RenderBox?;
+        if (box != null && box.hasSize) {
+          final pos = box.localToGlobal(Offset.zero);
+          showAadsOverlay(overlayId, pos.dx, pos.dy);
+        }
+      }
+    }
+    positionAd(_leftAdKey, 'aads-left');
+    positionAd(_rightAdKey, 'aads-right');
+  }
 
   @override
   void initState() {
@@ -62,6 +82,13 @@ class _FaucetPageState extends State<FaucetPage> {
     _loadSavedAddress();
     _fetchDogePrice();
     _syncCheckLock();
+
+    // Position the A-Ads overlays after the first frame renders
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateAdPositions());
+    // Keep positions updated (handles scrolling/resizing)
+    _adPositionTimer = Timer.periodic(const Duration(milliseconds: 500), (_) {
+      if (mounted) _updateAdPositions();
+    });
 
     _captchaPoller = Timer.periodic(const Duration(milliseconds: 500), (timer) {
       try {
@@ -412,8 +439,12 @@ class _FaucetPageState extends State<FaucetPage> {
 
   @override
   void dispose() {
+    _adPositionTimer?.cancel();
     _countdownTimer?.cancel();
     _captchaPoller?.cancel();
+    hideAadsOverlay('aads-left');
+    hideAadsOverlay('aads-right');
+    _addressController.dispose();
     super.dispose();
   }
 
@@ -1117,10 +1148,10 @@ class _FaucetPageState extends State<FaucetPage> {
                   spacing: 160,
                   runSpacing: 30,
                   children: [
-                    const SizedBox(
+                    SizedBox(
+                      key: _leftAdKey,
                       width: 300,
                       height: 250,
-                      child: HtmlElementView(viewType: 'aads-2437206'),
                     ),
                     SizedBox(
                       width: 160,
@@ -1161,10 +1192,10 @@ class _FaucetPageState extends State<FaucetPage> {
                               ),
                       ),
                     ),
-                    const SizedBox(
+                    SizedBox(
+                      key: _rightAdKey,
                       width: 300,
                       height: 250,
-                      child: HtmlElementView(viewType: 'aads-2437207'),
                     ),
                   ],
                 ),
