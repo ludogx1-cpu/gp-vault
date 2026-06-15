@@ -138,6 +138,18 @@ void main() async {
       return iframe;
     });
 
+    // 6. A-Ads Long Banner Ad Unit
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('aads-2437203', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('data-aa', '2437203');
+      iframe.setAttribute('src', 'https://ad.a-ads.com/2437203?size=728x90');
+      iframe.setAttribute('style', 'width:728px; height:90px; border:0px; padding:0; overflow:hidden; background-color: transparent;');
+      iframe.setAttribute('allowtransparency', 'true');
+      iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+      return iframe;
+    });
+
     // 6. YouTube Short Embed
     // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory('youtube-short', (int viewId) {

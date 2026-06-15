@@ -230,6 +230,25 @@ class LandingPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 50),
+            
+            // --- A-Ads Long Banner ---
+            ClipRect(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: 90,
+                child: const OverflowBox(
+                  maxWidth: 728,
+                  maxHeight: 90,
+                  alignment: Alignment.center,
+                  child: SizedBox(
+                    width: 728,
+                    height: 90,
+                    child: HtmlElementView(viewType: 'aads-2437203'),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 50),
             const TrustpilotWidget(),
             const SizedBox(height: 80),
             
