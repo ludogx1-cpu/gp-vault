@@ -171,6 +171,7 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
         body: jsonEncode({
           'captcha_token': _captchaToken,
           'captcha_provider': _selectedCaptcha,
+          'ad_id': widget.adId,
         }),
       );
 
