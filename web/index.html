@@ -155,12 +155,12 @@
   <div id="aads-banner" class="aads-overlay"></div>
 
   <!-- Bot Bait: A-Ads scraper looks for these in the raw source code. 
-       Using <template> prevents the browser from actually loading the iframes and triggering 'hidden' fraud errors on load. -->
-  <template id="aads-scraper-bait">
+       Using <noscript> prevents the browser from actually loading the iframes for real users, but the bot will see them. -->
+  <noscript id="aads-scraper-bait">
     <iframe data-aa='2437206' src='https://ad.a-ads.com/2437206/?size=300x250' referrerpolicy='no-referrer-when-downgrade' allowtransparency='true'></iframe>
     <iframe data-aa='2437207' src='https://ad.a-ads.com/2437207/?size=300x250' referrerpolicy='no-referrer-when-downgrade' allowtransparency='true'></iframe>
     <iframe data-aa='2437203' src='https://ad.a-ads.com/2437203/?size=728x90' referrerpolicy='no-referrer-when-downgrade' allowtransparency='true'></iframe>
-  </template>
+  </noscript>
 
   <script src="flutter_bootstrap.js" async></script>
 </body>
