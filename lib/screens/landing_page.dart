@@ -18,28 +18,37 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
   final GlobalKey _bannerAdKey = GlobalKey();
+  final GlobalKey _leftAdKey = GlobalKey();
+  final GlobalKey _rightAdKey = GlobalKey();
   Timer? _adPositionTimer;
 
-  void _updateBannerPosition() {
-    final ctx = _bannerAdKey.currentContext;
-    if (ctx != null) {
-      final box = ctx.findRenderObject() as RenderBox?;
-      if (box != null && box.hasSize) {
-        final pos = box.localToGlobal(Offset.zero);
-        // Center the 728px banner within the placeholder
-        final placeholderWidth = box.size.width;
-        final offsetX = pos.dx + (placeholderWidth - 728) / 2;
-        showAadsOverlay('aads-banner', offsetX > 0 ? offsetX : 0, pos.dy);
+  void _updateAdPositions() {
+    void positionAd(GlobalKey key, String overlayId, {bool center = false}) {
+      final ctx = key.currentContext;
+      if (ctx != null) {
+        final box = ctx.findRenderObject() as RenderBox?;
+        if (box != null && box.hasSize) {
+          final pos = box.localToGlobal(Offset.zero);
+          double offsetX = pos.dx;
+          if (center) {
+            final placeholderWidth = box.size.width;
+            offsetX = pos.dx + (placeholderWidth - 728) / 2;
+          }
+          showAadsOverlay(overlayId, offsetX > 0 ? offsetX : 0, pos.dy);
+        }
       }
     }
+    positionAd(_bannerAdKey, 'aads-banner', center: true);
+    positionAd(_leftAdKey, 'aads-left');
+    positionAd(_rightAdKey, 'aads-right');
   }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _updateBannerPosition());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateAdPositions());
     _adPositionTimer = Timer.periodic(const Duration(milliseconds: 500), (_) {
-      if (mounted) _updateBannerPosition();
+      if (mounted) _updateAdPositions();
     });
   }
 
@@ -47,6 +56,8 @@ class _LandingPageState extends State<LandingPage> {
   void dispose() {
     _adPositionTimer?.cancel();
     hideAadsOverlay('aads-banner');
+    hideAadsOverlay('aads-left');
+    hideAadsOverlay('aads-right');
     super.dispose();
   }
 
@@ -276,6 +287,25 @@ class _LandingPageState extends State<LandingPage> {
               key: _bannerAdKey,
               width: double.infinity,
               height: 90,
+            ),
+            const SizedBox(height: 30),
+            // --- A-Ads Square Units ---
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 30,
+              runSpacing: 30,
+              children: [
+                SizedBox(
+                  key: _leftAdKey,
+                  width: 300,
+                  height: 250,
+                ),
+                SizedBox(
+                  key: _rightAdKey,
+                  width: 300,
+                  height: 250,
+                ),
+              ],
             ),
             const SizedBox(height: 50),
             const TrustpilotWidget(),
