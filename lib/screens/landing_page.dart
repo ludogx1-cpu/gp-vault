@@ -232,19 +232,17 @@ class LandingPage extends StatelessWidget {
             const SizedBox(height: 50),
             
             // --- A-Ads Long Banner ---
-            ClipRect(
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 90,
-                child: const OverflowBox(
+            SizedBox(
+              width: double.infinity,
+              height: 90,
+              child: ClipRect(
+                child: OverflowBox(
+                  minWidth: 728,
                   maxWidth: 728,
+                  minHeight: 90,
                   maxHeight: 90,
                   alignment: Alignment.center,
-                  child: SizedBox(
-                    width: 728,
-                    height: 90,
-                    child: HtmlElementView(viewType: 'aads-2437203'),
-                  ),
+                  child: const HtmlElementView(viewType: 'aads-2437203'),
                 ),
               ),
             ),
