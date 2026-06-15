@@ -154,13 +154,18 @@
   <div id="aads-right" class="aads-overlay"></div>
   <div id="aads-banner" class="aads-overlay"></div>
 
-  <!-- Bot Bait: A-Ads scraper looks for these in the raw source code. 
-       Using <noscript> prevents the browser from actually loading the iframes for real users, but the bot will see them. -->
-  <noscript id="aads-scraper-bait">
+  <!-- Bot Bait: Plain div so dumb parsers find it. 
+       The inline script removes it instantly for real users so it doesn't trigger fraud checks. -->
+  <div id="aads-scraper-bait" style="position: absolute; left: -9999px;">
     <iframe data-aa='2437206' src='https://ad.a-ads.com/2437206/?size=300x250' referrerpolicy='no-referrer-when-downgrade' allowtransparency='true'></iframe>
     <iframe data-aa='2437207' src='https://ad.a-ads.com/2437207/?size=300x250' referrerpolicy='no-referrer-when-downgrade' allowtransparency='true'></iframe>
     <iframe data-aa='2437203' src='https://ad.a-ads.com/2437203/?size=728x90' referrerpolicy='no-referrer-when-downgrade' allowtransparency='true'></iframe>
-  </noscript>
+  </div>
+  <script>
+    // Remove the bait instantly so real users don't trigger "partly hidden" fake impressions
+    var bait = document.getElementById('aads-scraper-bait');
+    if (bait) bait.parentNode.removeChild(bait);
+  </script>
 
   <script src="flutter_bootstrap.js" async></script>
 </body>
