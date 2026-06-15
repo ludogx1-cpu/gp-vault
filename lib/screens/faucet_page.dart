@@ -835,7 +835,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 16,
+                                          fontSize: 15,
                                           color: isDark ? Colors.white : Colors.black87,
                                         ),
                                       ),
@@ -844,7 +844,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                         data['message'] ?? '',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
-                                          fontSize: 14,
+                                          fontSize: 13,
                                           color: isDark ? Colors.white70 : Colors.black54,
                                         ),
                                       ),
