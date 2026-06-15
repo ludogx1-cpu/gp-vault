@@ -338,10 +338,10 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                       );
                     },
                   );
-                },
-              );
             },
           );
+        },
+      ),
     );
   }
 }
