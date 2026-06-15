@@ -11,6 +11,7 @@ class FirebaseService {
         storageBucket: "golden-paw-database.firebasestorage.app",
         messagingSenderId: "163858364889",
         appId: "1:163858364889:web:12db63a67659cd094a01c8",
+        measurementId: "G-H0R68LWSK6",
       ),
     );
   }
