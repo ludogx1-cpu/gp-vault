@@ -325,6 +325,7 @@ class _AdHubPageState extends State<AdHubPage> {
   }
 
   void _buyPtcAd(double currentAdsBalance) {
+    final titleCtrl = TextEditingController();
     final targetCtrl = TextEditingController();
     bool loading = false;
     int selectedTier = 1;
@@ -412,6 +413,14 @@ class _AdHubPageState extends State<AdHubPage> {
                 ),
                 const SizedBox(height: 15),
                 TextField(
+                  controller: titleCtrl,
+                  decoration: const InputDecoration(
+                    labelText: "Ad Title",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                TextField(
                   controller: targetCtrl,
                   decoration: const InputDecoration(
                     labelText: "Target Link (URL)",
@@ -443,7 +452,7 @@ class _AdHubPageState extends State<AdHubPage> {
                           }
                           return;
                         }
-                        if (targetCtrl.text.isEmpty) {
+                        if (titleCtrl.text.isEmpty || targetCtrl.text.isEmpty) {
                           return;
                         }
 
@@ -458,6 +467,7 @@ class _AdHubPageState extends State<AdHubPage> {
                             ),
                             headers: await getAuthHeaders(),
                             body: jsonEncode({
+                              'title': titleCtrl.text.trim(),
                               'target_url': targetCtrl.text.trim(),
                               'tier': selectedTier,
                               'clicks': selectedClicks,
