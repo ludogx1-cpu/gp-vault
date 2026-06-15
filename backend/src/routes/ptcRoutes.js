@@ -11,7 +11,7 @@ router.post('/buy-ptc', verifyFirebaseToken, async (req, res) => {
       return res.status(401).json({ success: false, error: 'Authentication required for PTC purchase' });
     }
 
-    const { target_url, tier, clicks } = req.body;
+    const { target_url, tier, clicks, title } = req.body;
     if (!target_url || !tier || !clicks) {
       return res.status(400).json({ success: false, error: 'Missing required PTC fields' });
     }
@@ -43,7 +43,10 @@ router.post('/buy-ptc', verifyFirebaseToken, async (req, res) => {
 
       transaction.set(newAdRef, {
         target_url: target_url,
+        title: title || "Sponsored Website",
         tier: tier,
+        duration: ptcConfig.duration,
+        reward: ptcConfig.reward,
         clicks_total: clicks,
         clicks_remaining: clicks,
         creator_uid: req.user.uid,
@@ -110,7 +113,7 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
         throw new Error('Cooldown active. You can view this ad again tomorrow.');
       }
 
-      const rewardAmount = adData.tier === 'high' ? 0.010 : 0.002; 
+      const rewardAmount = Number(adData.reward || 0.001); 
 
       transaction.update(userRef, {
         doge_balance: Number(userData.doge_balance || 0) + rewardAmount,
