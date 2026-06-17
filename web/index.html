@@ -124,9 +124,9 @@
   <script>
     // --- A-Ads Overlay Management ---
     const aadsConfig = {
-      'aads-left': "<iframe data-aa='2437206' src='//ad.a-ads.com/2437206?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>",
-      'aads-right': "<iframe data-aa='2437207' src='//ad.a-ads.com/2437207?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>",
-      'aads-banner': "<iframe data-aa='2437203' src='//ad.a-ads.com/2437203?size=728x90' style='width:728px; height:90px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>"
+      'aads-left': "<iframe data-aa='2437206' src='//ad.a-ads.com/2437206?size=300x250' loading='lazy' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>",
+      'aads-right': "<iframe data-aa='2437207' src='//ad.a-ads.com/2437207?size=300x250' loading='lazy' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>",
+      'aads-banner': "<iframe data-aa='2437203' src='//ad.a-ads.com/2437203?size=728x90' loading='lazy' style='width:728px; height:90px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>"
     };
 
     function showAadsOverlay(id, x, y) {
@@ -135,10 +135,7 @@
 
       // Only inject the iframe when it's actually being positioned on screen
       if (el.innerHTML.trim() === '') {
-        var template = document.getElementById('template-' + id);
-        if (template) {
-          el.innerHTML = template.innerHTML;
-        }
+        el.innerHTML = aadsConfig[id];
       }
 
       el.style.left = x + 'px';
@@ -165,28 +162,17 @@
 <body>
   <div id="gp-captcha-token"></div>
 
-  <!-- A-Ads Verification Block (For Crawler) -->
-  <noscript>
-    <iframe data-aa='2437206' src='//ad.a-ads.com/2437206?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
-    <iframe data-aa='2437207' src='//ad.a-ads.com/2437207?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
-    <iframe data-aa='2437203' src='//ad.a-ads.com/2437203?size=728x90' style='width:728px; height:90px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
-  </noscript>
-
-  <!-- A-Ads Templates: The crawler can see these, but the browser doesn't load them until Flutter needs them -->
-  <template id="template-aads-left">
-    <iframe data-aa='2437206' src='//ad.a-ads.com/2437206?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
-  </template>
-  <template id="template-aads-right">
-    <iframe data-aa='2437207' src='//ad.a-ads.com/2437207?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
-  </template>
-  <template id="template-aads-banner">
-    <iframe data-aa='2437203' src='//ad.a-ads.com/2437203?size=728x90' style='width:728px; height:90px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
-  </template>
-
-  <!-- Empty containers that will hold the iframes when they are positioned on screen -->
-  <div id="aads-left" class="aads-overlay"></div>
-  <div id="aads-right" class="aads-overlay"></div>
-  <div id="aads-banner" class="aads-overlay"></div>
+  <!-- Empty containers that will hold the iframes when they are positioned on screen. 
+       We put the lazy-loaded iframes in here by default so the A-Ads crawler can verify the site. -->
+  <div id="aads-left" class="aads-overlay">
+    <iframe data-aa='2437206' src='//ad.a-ads.com/2437206?size=300x250' loading='lazy' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
+  </div>
+  <div id="aads-right" class="aads-overlay">
+    <iframe data-aa='2437207' src='//ad.a-ads.com/2437207?size=300x250' loading='lazy' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
+  </div>
+  <div id="aads-banner" class="aads-overlay">
+    <iframe data-aa='2437203' src='//ad.a-ads.com/2437203?size=728x90' loading='lazy' style='width:728px; height:90px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
+  </div>
 
   <script src="flutter_bootstrap.js" async></script>
 </body>
