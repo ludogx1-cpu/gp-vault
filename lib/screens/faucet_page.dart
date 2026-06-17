@@ -1020,11 +1020,11 @@ class _FaucetPageState extends State<FaucetPage> {
                             value: _selectedCaptcha,
                             icon: Icon(
                               Icons.arrow_drop_down,
-                              color: isDark ? Colors.amber : Colors.brown,
+                              color: isDark ? Colors.amber : Colors.black87,
                             ),
                             elevation: 16,
                             style: TextStyle(
-                              color: isDark ? Colors.amber : Colors.brown,
+                              color: isDark ? Colors.amber : Colors.black87,
                               fontWeight: FontWeight.bold,
                             ),
                             underline: Container(),
@@ -1106,7 +1106,7 @@ class _FaucetPageState extends State<FaucetPage> {
                             ),
                             child: const Text(
                               "Tap to Load Captcha",
-                              style: TextStyle(color: Colors.black),
+                              style: TextStyle(color: Colors.black87),
                             ),
                           ),
                         if (!_isCheckingCooldown && _secondsRemaining > 0)
