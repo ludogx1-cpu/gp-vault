@@ -855,6 +855,16 @@ class _FaucetPageState extends State<FaucetPage> {
                                   ),
                                 );
                               }),
+                              const SizedBox(height: 15),
+                              Text(
+                                "For support, contact: ludogx1@gmail.com",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: isDark ? Colors.white70 : Colors.black87,
+                                ),
+                              ),
                             ],
                           ),
                         );
