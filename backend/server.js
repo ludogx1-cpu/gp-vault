@@ -9,6 +9,7 @@ const bannerRoutes = require('./src/routes/bannerRoutes');
 const stakingRoutes = require('./src/routes/stakingRoutes');
 const petRoutes = require('./src/routes/petRoutes');
 const offerwallRoutes = require('./src/routes/offerwallRoutes');
+const chatRoutes = require('./src/routes/chatRoutes');
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
@@ -74,6 +75,7 @@ app.use('/', bannerRoutes);
 app.use('/', stakingRoutes);
 app.use('/', petRoutes);
 app.use('/api/offerwall', offerwallRoutes);
+app.use('/chat', chatRoutes);
 app.use('/admin', adminRoutes);
 
 if (require.main === module) {

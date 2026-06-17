@@ -410,11 +410,16 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                           }
 
                           if (widget.isLogin) {
-                            await FirebaseAuth.instance
+                            UserCredential userCred = await FirebaseAuth.instance
                                 .signInWithEmailAndPassword(
                                   email: emailCtrl.text.trim(),
                                   password: passCtrl.text.trim(),
                                 );
+                                
+                            // Send verification email automatically to existing unverified users
+                            if (userCred.user != null && !userCred.user!.emailVerified) {
+                              await userCred.user!.sendEmailVerification();
+                            }
                           } else {
                             UserCredential userCred = await FirebaseAuth
                                 .instance
@@ -422,6 +427,12 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                   email: emailCtrl.text.trim(),
                                   password: passCtrl.text.trim(),
                                 );
+                                
+                            // Send verification email automatically
+                            if (userCred.user != null && !userCred.user!.emailVerified) {
+                              await userCred.user!.sendEmailVerification();
+                            }
+
                             await FirebaseFirestore.instance
                                 .collection('users')
                                 .doc(userCred.user!.uid)

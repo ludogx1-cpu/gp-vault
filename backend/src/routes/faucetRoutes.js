@@ -3,7 +3,7 @@ const { admin, verifyFirebaseToken } = require('../services/firebaseService');
 const { faucetPaySend } = require('../services/faucetPayService');
 const { getDogePrice } = require('../services/priceService');
 const { calculateDogeReward } = require('../utils/rewardCalculator');
-const { formatAmount, verifyCaptchaToken } = require('../utils/helpers');
+const { formatAmount, verifyCaptchaToken, getStreakUpdates } = require('../utils/helpers');
 const { calculateDecay, calculatePetBonusPercent, getAgeMultiplier } = require('../utils/petMechanics');
 
 const router = express.Router();
@@ -53,6 +53,8 @@ router.post('/send-doge', verifyFirebaseToken, async (req, res) => {
         throw new Error(`Please wait ${minutesLeft} minutes before claiming again.`);
       }
 
+      const streakUpdates = getStreakUpdates(data);
+
       let petBonus = 0;
       let ageMult = 1.0;
       if (data.pet_birth_date) {
@@ -66,11 +68,13 @@ router.post('/send-doge', verifyFirebaseToken, async (req, res) => {
           pet_happiness: decayed.happiness,
           pet_energy: decayed.energy,
           pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
-          active_trick_buffs: []
+          active_trick_buffs: [],
+          ...streakUpdates
         });
       } else {
         transaction.update(userRef, {
-          last_direct_faucet_claim: admin.firestore.Timestamp.now()
+          last_direct_faucet_claim: admin.firestore.Timestamp.now(),
+          ...streakUpdates
         });
       }
 
@@ -160,7 +164,8 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
       }
 
       const xp = Number(data.xp || 0);
-      const streak = Number(data.streak_count || 0);
+      const streakUpdates = getStreakUpdates(data);
+      const streak = streakUpdates.streak_count !== undefined ? streakUpdates.streak_count : Number(data.streak_count || 0);
       let level = Math.floor(Math.sqrt(xp / 100));
       if (level > 100) level = 100;
       
@@ -184,7 +189,8 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
           pet_happiness: decayed.happiness,
           pet_energy: decayed.energy,
           pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
-          active_trick_buffs: []
+          active_trick_buffs: [],
+          ...streakUpdates
         };
         if (isNewUser) {
           transaction.set(userRef, { ...data, ...updates });
@@ -201,6 +207,7 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
           doge_balance: Number(data.doge_balance || 0) + finalReward,
           xp: xp + 10,
           last_claim_time: now,
+          ...streakUpdates
         };
         if (isNewUser) {
           transaction.set(userRef, { ...data, ...updates });

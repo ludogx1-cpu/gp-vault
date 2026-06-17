@@ -127,6 +127,40 @@ async function verifyCaptchaToken(token, provider) {
   }
 }
 
+function getStreakUpdates(data) {
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  
+  let streak_count = Number(data.streak_count || 0);
+  let last_streak_date = data.last_streak_date || ''; 
+  
+  let updates = {};
+  
+  if (last_streak_date === todayStr) {
+    return updates;
+  }
+  
+  if (!last_streak_date) {
+    updates.streak_count = 1;
+    updates.last_streak_date = todayStr;
+    return updates;
+  }
+
+  const yesterday = new Date(now);
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+  if (last_streak_date === yesterdayStr) {
+    updates.streak_count = streak_count + 1;
+    updates.last_streak_date = todayStr;
+  } else {
+    updates.streak_count = 1;
+    updates.last_streak_date = todayStr;
+  }
+  
+  return updates;
+}
+
 module.exports = {
   normalizeHttpUrl,
   getBannerCost,
@@ -135,4 +169,5 @@ module.exports = {
   parseUsdNumber,
   formatAmount,
   verifyCaptchaToken,
+  getStreakUpdates,
 };

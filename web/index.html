@@ -123,9 +123,16 @@
   </script>
   <script>
     // --- A-Ads Overlay Management ---
+    const aadsConfig = {
+      'aads-left': "<iframe data-aa='2437206' src='//ad.a-ads.com/2437206?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>",
+      'aads-right': "<iframe data-aa='2437207' src='//ad.a-ads.com/2437207?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>",
+      'aads-banner': "<iframe data-aa='2437203' src='//ad.a-ads.com/2437203?size=728x90' style='width:728px; height:90px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>"
+    };
+
     function showAadsOverlay(id, x, y) {
       var el = document.getElementById(id);
       if (!el) return;
+
 
       el.style.left = x + 'px';
       el.style.top = y + 'px';
@@ -133,6 +140,7 @@
     function hideAadsOverlay(id) {
       var el = document.getElementById(id);
       if (el) {
+        el.innerHTML = '';
         el.style.left = '-9999px';
         el.style.top = '-9999px';
       }
@@ -140,6 +148,7 @@
     function hideAllAads() {
       var els = document.querySelectorAll('.aads-overlay');
       for (var i = 0; i < els.length; i++) { 
+        els[i].innerHTML = '';
         els[i].style.left = '-9999px';
         els[i].style.top = '-9999px';
       }

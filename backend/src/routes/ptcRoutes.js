@@ -115,9 +115,13 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
 
       const rewardAmount = Number(adData.reward || 0.001); 
 
+      const { getStreakUpdates } = require('../utils/helpers');
+      const streakUpdates = getStreakUpdates(userData);
+
       transaction.update(userRef, {
         doge_balance: Number(userData.doge_balance || 0) + rewardAmount,
-        [`ptc_history.${ad_id}`]: now
+        [`ptc_history.${ad_id}`]: now,
+        ...streakUpdates
       });
 
       if (req.user.uid !== getAdminUid()) {
