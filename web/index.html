@@ -133,6 +133,13 @@
       var el = document.getElementById(id);
       if (!el) return;
 
+      // Only inject the iframe when it's actually being positioned on screen
+      if (el.innerHTML.trim() === '') {
+        var template = document.getElementById('template-' + id);
+        if (template) {
+          el.innerHTML = template.innerHTML;
+        }
+      }
 
       el.style.left = x + 'px';
       el.style.top = y + 'px';
@@ -140,7 +147,7 @@
     function hideAadsOverlay(id) {
       var el = document.getElementById(id);
       if (el) {
-        el.innerHTML = '';
+        el.innerHTML = ''; // Remove the iframe to stop background refreshes
         el.style.left = '-9999px';
         el.style.top = '-9999px';
       }
@@ -148,7 +155,7 @@
     function hideAllAads() {
       var els = document.querySelectorAll('.aads-overlay');
       for (var i = 0; i < els.length; i++) { 
-        els[i].innerHTML = '';
+        els[i].innerHTML = ''; // Remove the iframe
         els[i].style.left = '-9999px';
         els[i].style.top = '-9999px';
       }
@@ -158,16 +165,21 @@
 <body>
   <div id="gp-captcha-token"></div>
 
-  <!-- A-Ads iframes are static DOM nodes so the ad platform can verify them before Flutter finishes booting. -->
-  <div id="aads-left" class="aads-overlay">
+  <!-- A-Ads Templates: The crawler can see these, but the browser doesn't load them until Flutter needs them -->
+  <template id="template-aads-left">
     <iframe data-aa='2437206' src='//ad.a-ads.com/2437206?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
-  </div>
-  <div id="aads-right" class="aads-overlay">
+  </template>
+  <template id="template-aads-right">
     <iframe data-aa='2437207' src='//ad.a-ads.com/2437207?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
-  </div>
-  <div id="aads-banner" class="aads-overlay">
+  </template>
+  <template id="template-aads-banner">
     <iframe data-aa='2437203' src='//ad.a-ads.com/2437203?size=728x90' style='width:728px; height:90px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
-  </div>
+  </template>
+
+  <!-- Empty containers that will hold the iframes when they are positioned on screen -->
+  <div id="aads-left" class="aads-overlay"></div>
+  <div id="aads-right" class="aads-overlay"></div>
+  <div id="aads-banner" class="aads-overlay"></div>
 
   <script src="flutter_bootstrap.js" async></script>
 </body>
