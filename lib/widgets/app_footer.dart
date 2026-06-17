@@ -282,8 +282,8 @@ class AppFooter extends StatelessWidget {
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      foregroundColor: Colors.brown,
-                      side: const BorderSide(color: Colors.brown, width: 1.5),
+                      foregroundColor: Colors.black87,
+                      side: const BorderSide(color: Colors.black87, width: 1.5),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),

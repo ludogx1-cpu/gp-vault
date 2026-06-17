@@ -258,12 +258,12 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
                   value: _selectedCaptcha,
                   icon: const Icon(
                     Icons.arrow_drop_down,
-                    color: Colors.brown,
+                    color: Colors.black87,
                     size: 16,
                   ),
                   elevation: 16,
                   style: const TextStyle(
-                    color: Colors.brown,
+                    color: Colors.black87,
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
                   ),
@@ -324,7 +324,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
                           ),
                           child: const Text(
                             "Tap to Verify",
-                            style: TextStyle(color: Colors.brown),
+                            style: TextStyle(color: Colors.black87),
                           ),
                         ),
                     ],
