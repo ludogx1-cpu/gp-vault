@@ -38,6 +38,7 @@ class _LandingPageState extends State<LandingPage> {
         }
       }
     }
+
     positionAd(_bannerAdKey, 'aads-banner', center: true);
     positionAd(_leftAdKey, 'aads-left');
     positionAd(_rightAdKey, 'aads-right');
@@ -281,7 +282,7 @@ class _LandingPageState extends State<LandingPage> {
               ],
             ),
             const SizedBox(height: 50),
-            
+
             // --- A-Ads Long Banner ---
             SizedBox(
               key: _bannerAdKey,
@@ -310,7 +311,7 @@ class _LandingPageState extends State<LandingPage> {
             const SizedBox(height: 50),
             const TrustpilotWidget(),
             const SizedBox(height: 80),
-            
+
             // --- YOUTUBE SHORT EMBED ---
             Container(
               width: 315,
@@ -318,7 +319,11 @@ class _LandingPageState extends State<LandingPage> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 boxShadow: const [
-                  BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 5)),
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: Offset(0, 5),
+                  ),
                 ],
               ),
               child: const ClipRRect(
@@ -326,7 +331,7 @@ class _LandingPageState extends State<LandingPage> {
                 child: HtmlElementView(viewType: 'youtube-short'),
               ),
             ),
-            
+
             const SizedBox(height: 100),
           ],
         ),

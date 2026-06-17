@@ -17,7 +17,6 @@ class FirebaseService {
   }
 }
 
-
 Future<Map<String, String>> getAuthHeaders() async {
   final headers = {'Content-Type': 'application/json'};
   final user = FirebaseAuth.instance.currentUser;

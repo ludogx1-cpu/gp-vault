@@ -10,15 +10,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
 
-
-
 // --- GLOBAL THEME CONSTANTS 🚀 ---
 
-
 // --- CAPTCHA JS BINDINGS ---
-
-
-
 
 // ==========================================
 // 1. THE SHELL
@@ -383,4 +377,3 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
 // ==========================================
 // 🌟 TRUSTED BONUS SPONSOR 30-SECOND TIMER DIALOG
 // ==========================================
-
