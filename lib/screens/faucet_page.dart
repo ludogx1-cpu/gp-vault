@@ -257,6 +257,7 @@ class _FaucetPageState extends State<FaucetPage> {
             const SnackBar(
               content: Text(
                 "Timer complete! 🐾 Please refresh the page to load your next Captcha.",
+                style: TextStyle(color: Colors.black87),
               ),
               duration: Duration(seconds: 8),
               backgroundColor: Colors.blue,
