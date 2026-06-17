@@ -375,7 +375,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
                 child: Text(
                   "CLOSE",
                   style: TextStyle(
-                    color: isDark ? Colors.grey.shade300 : Colors.brown,
+                    color: isDark ? Colors.grey.shade300 : Colors.black87,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

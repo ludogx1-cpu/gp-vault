@@ -203,7 +203,7 @@ class _AffiliateLinksPageState extends State<AffiliateLinksPage>
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.brown,
+              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
             ),
           ),
           const Padding(
@@ -230,7 +230,7 @@ class _AffiliateLinksPageState extends State<AffiliateLinksPage>
                 color: Colors.amber,
                 borderRadius: BorderRadius.circular(20),
               ),
-              labelColor: Colors.brown.shade900,
+              labelColor: Colors.black87,
               unselectedLabelColor: Colors.grey.shade600,
               labelStyle: const TextStyle(
                 fontWeight: FontWeight.bold,
@@ -345,7 +345,7 @@ class _AffiliateLinksPageState extends State<AffiliateLinksPage>
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.brown,
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
                     ),
                   ),
                   Text(
@@ -395,7 +395,7 @@ class _AffiliateLinksPageState extends State<AffiliateLinksPage>
               child: const Text(
                 "JOIN",
                 style: TextStyle(
-                  color: Colors.brown,
+                  color: Colors.black87,
                   fontWeight: FontWeight.bold,
                   fontSize: 12,
                 ),

@@ -108,7 +108,7 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.brown,
+                        color: Colors.black87,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -147,7 +147,7 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                               "Pending Offer Yield:",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.brown,
+                                color: Colors.black87,
                               ),
                             ),
                             SizedBox(height: 5),
@@ -206,7 +206,7 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                   "Select a Task Provider Network:",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.brown,
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
                     fontSize: 16,
                   ),
                 ),

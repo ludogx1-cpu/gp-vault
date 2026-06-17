@@ -209,7 +209,7 @@ class _AdHubPageState extends State<AdHubPage> {
           title: Text(
             "Buy $title",
             style: const TextStyle(
-              color: Colors.brown,
+              color: Colors.black87,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -350,7 +350,7 @@ class _AdHubPageState extends State<AdHubPage> {
             title: const Text(
               "Buy Guaranteed PTC Clicks",
               style: TextStyle(
-                color: Colors.brown,
+                color: Colors.black87,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -537,7 +537,7 @@ class _AdHubPageState extends State<AdHubPage> {
                     "Log in to buy Ads!",
                     style: TextStyle(
                       fontSize: 18,
-                      color: Colors.brown,
+                      color: Colors.black87,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -550,7 +550,7 @@ class _AdHubPageState extends State<AdHubPage> {
                     child: const Text(
                       "Go Back",
                       style: TextStyle(
-                        color: Colors.brown,
+                        color: Colors.black87,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -665,7 +665,7 @@ class _AdHubPageState extends State<AdHubPage> {
                                   Icons.swap_horizontal_circle,
                                   color: isDark
                                       ? Colors.amber
-                                      : Colors.brown,
+                                      : Colors.black87,
                                 ),
                                 const SizedBox(width: 10),
                                 Text(
@@ -675,7 +675,7 @@ class _AdHubPageState extends State<AdHubPage> {
                                     fontWeight: FontWeight.bold,
                                     color: isDark
                                         ? Colors.white
-                                        : Colors.brown,
+                                        : Colors.black87,
                                   ),
                                 ),
                               ],
@@ -687,7 +687,7 @@ class _AdHubPageState extends State<AdHubPage> {
                                 fontSize: 12,
                                 color: isDark
                                     ? Colors.amber.shade200
-                                    : Colors.brown,
+                                    : Colors.black87,
                               ),
                             ),
                             const SizedBox(height: 15),
@@ -750,7 +750,7 @@ class _AdHubPageState extends State<AdHubPage> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: isDark
                                       ? Colors.amber
-                                      : Colors.brown,
+                                      : Colors.black87,
                                   foregroundColor: isDark
                                       ? Colors.white
                                       : Colors.white,
@@ -869,7 +869,7 @@ class _AdHubPageState extends State<AdHubPage> {
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.white : Colors.brown,
+                            color: isDark ? Colors.white : Colors.black87,
                           ),
                         ),
                       ),

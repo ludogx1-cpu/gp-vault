@@ -209,7 +209,7 @@ class _AccountPageState extends State<AccountPage> {
                                       fontWeight: FontWeight.bold,
                                       color: isDark
                                           ? Colors.white
-                                          : Colors.brown,
+                                          : Colors.black87,
                                       fontSize: 16,
                                     ),
                                   ),
@@ -234,7 +234,7 @@ class _AccountPageState extends State<AccountPage> {
                                       fontWeight: FontWeight.bold,
                                       color: isDark
                                           ? Colors.white
-                                          : Colors.brown,
+                                          : Colors.black87,
                                       fontSize: 16,
                                     ),
                                   ),
@@ -268,7 +268,7 @@ class _AccountPageState extends State<AccountPage> {
                         child: Text(
                           "LOG IN",
                           style: TextStyle(
-                            color: isDark ? Colors.white : Colors.brown,
+                            color: isDark ? Colors.white : Colors.black87,
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
@@ -427,7 +427,7 @@ class _AccountPageState extends State<AccountPage> {
                                               Icons.outbound,
                                               color: isDark
                                                   ? Colors.amber
-                                                  : Colors.brown,
+                                                  : Colors.black87,
                                             ),
                                             const SizedBox(width: 10),
                                             Text(
@@ -437,7 +437,7 @@ class _AccountPageState extends State<AccountPage> {
                                                 fontWeight: FontWeight.bold,
                                                 color: isDark
                                                     ? Colors.white
-                                                    : Colors.brown,
+                                                    : Colors.black87,
                                               ),
                                             ),
                                           ],
@@ -587,7 +587,7 @@ class _AccountPageState extends State<AccountPage> {
                                                 : Text(
                                                     "WITHDRAW NOW",
                                                     style: TextStyle(
-                                                      color: isDark ? Colors.white : Colors.brown,
+                                                      color: isDark ? Colors.white : Colors.black87,
                                                       fontWeight:
                                                           FontWeight.bold,
                                                     ),

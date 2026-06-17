@@ -50,7 +50,7 @@ class _InterstitialAdDialogState extends State<InterstitialAdDialog> {
               "Sponsor Advertisement",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.brown,
+                color: Colors.grey,
                 fontSize: 18,
               ),
             ),

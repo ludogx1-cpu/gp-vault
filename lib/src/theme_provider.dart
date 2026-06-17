@@ -80,5 +80,5 @@ const kAppBarLogoColor = Colors.white;
 const kTextColorOnBlack = Colors.white;
 
 Color gpBrownText(BuildContext context, {Color darkColor = Colors.white70}) {
-  return themeProvider.isDarkMode ? darkColor : Colors.brown;
+  return themeProvider.isDarkMode ? darkColor : Colors.black87;
 }

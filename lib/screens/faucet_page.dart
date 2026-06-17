@@ -511,7 +511,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                       fontWeight: FontWeight.bold,
                                       color: isDark
                                           ? Colors.white
-                                          : Colors.brown,
+                                          : Colors.black87,
                                     ),
                                   ),
                                 ),
@@ -922,7 +922,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                       fontWeight: FontWeight.bold,
                                       color: _saveToVault
                                           ? Colors.green.shade800
-                                          : Colors.brown,
+                                          : Colors.black87,
                                     ),
                                   ),
                                 ],
@@ -1257,7 +1257,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                       fontWeight: FontWeight.bold,
                                       color: isDark
                                           ? Colors.white
-                                          : Colors.brown,
+                                          : Colors.black87,
                                       fontSize: 16,
                                     ),
                                   ),

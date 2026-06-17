@@ -293,7 +293,7 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            const Icon(Icons.chat_bubble_outline, color: Colors.brown, size: 30),
+            const Icon(Icons.chat_bubble_outline, color: Colors.black87, size: 30),
             if (_hasUnread)
               Positioned(
                 top: 12,

@@ -160,7 +160,7 @@ class _LandingPageState extends State<LandingPage> {
                           fontWeight: FontWeight.w900,
                           color: themeProvider.isDarkMode
                               ? Colors.white
-                              : Colors.brown.shade900.withValues(alpha: 0.9),
+                              : Colors.black87.withValues(alpha: 0.9),
                           height: 1.2,
                           shadows: [
                             Shadow(
@@ -186,7 +186,7 @@ class _LandingPageState extends State<LandingPage> {
                           fontSize: isMobile ? 15 : 18,
                           color: themeProvider.isDarkMode
                               ? Colors.white70
-                              : Colors.brown.shade800,
+                              : Colors.black87,
                           height: 1.5,
                           fontWeight: FontWeight.bold,
                           shadows: [
@@ -240,7 +240,7 @@ class _LandingPageState extends State<LandingPage> {
                     fontWeight: FontWeight.w900,
                     color: themeProvider.isDarkMode
                         ? Colors.white
-                        : Colors.brown,
+                        : Colors.black87,
                   ),
                 );
               },
