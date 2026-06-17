@@ -26,7 +26,7 @@ class AppDrawer extends StatelessWidget {
       listenable: themeProvider,
       builder: (context, _) {
         final isDark = themeProvider.isDarkMode;
-        final Color titleColor = isDark ? Colors.white : Colors.brown;
+        final Color titleColor = isDark ? Colors.white : Colors.black87;
         final Color subColor = isDark ? Colors.white70 : Colors.black87;
         final Color dividerColor = isDark
             ? themeProvider.darkGreyBorder

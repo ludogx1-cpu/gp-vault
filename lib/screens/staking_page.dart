@@ -165,7 +165,7 @@ class _StakingPageState extends State<StakingPage> {
                     "You must log in to access The Vault.",
                     style: TextStyle(
                       fontSize: 18,
-                      color: Colors.brown,
+                      color: Colors.black87,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -207,7 +207,7 @@ class _StakingPageState extends State<StakingPage> {
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : Colors.brown,
+                          color: isDark ? Colors.white : Colors.black87,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -277,7 +277,7 @@ class _StakingPageState extends State<StakingPage> {
                                   fontWeight: FontWeight.bold,
                                   color: isDark
                                       ? Colors.white
-                                      : Colors.brown,
+                                      : Colors.black87,
                                   fontSize: 14,
                                 ),
                               ),
@@ -313,7 +313,7 @@ class _StakingPageState extends State<StakingPage> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 20,
-                                    color: isDark ? Colors.amber : Colors.brown,
+                                    color: isDark ? Colors.amber : Colors.black87,
                                   ),
                                 ),
                               ),
@@ -360,7 +360,7 @@ class _StakingPageState extends State<StakingPage> {
                               "Total Staked (Principal)",
                               style: TextStyle(
                                 fontSize: 14,
-                                color: isDark ? Colors.white : Colors.brown,
+                                color: isDark ? Colors.white : Colors.black87,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -376,7 +376,7 @@ class _StakingPageState extends State<StakingPage> {
                                 fontSize: 12,
                                 color: isDark
                                     ? Colors.white70
-                                    : Colors.brown,
+                                    : Colors.black87,
                                 fontStyle: FontStyle.italic,
                               ),
                             ),
@@ -534,7 +534,7 @@ class _StakingPageState extends State<StakingPage> {
                                   Icons.lock_open,
                                   color: isDark
                                       ? Colors.white
-                                      : Colors.brown,
+                                      : Colors.black87,
                                   size: 18,
                                 ),
                                 label: Text(
@@ -542,7 +542,7 @@ class _StakingPageState extends State<StakingPage> {
                                   style: TextStyle(
                                     color: isDark
                                         ? Colors.white
-                                        : Colors.brown,
+                                        : Colors.black87,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                   ),

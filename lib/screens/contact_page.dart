@@ -29,7 +29,7 @@ class ContactPage extends StatelessWidget {
           listenable: themeProvider,
           builder: (context, _) {
             final isDark = themeProvider.isDarkMode;
-            final titleColor = isDark ? Colors.white : Colors.brown;
+            final titleColor = isDark ? Colors.white : Colors.black87;
             final textColor = isDark ? Colors.white70 : Colors.grey;
 
             return Padding(
@@ -96,7 +96,7 @@ class ContactPage extends StatelessWidget {
                     child: const Text(
                       "Back",
                       style: TextStyle(
-                        color: Colors.brown,
+                        color: Colors.black87,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

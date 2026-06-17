@@ -247,7 +247,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).brightness == Brightness.dark
                               ? Colors.white70
-                              : Colors.brown,
+                              : Colors.black87,
                           fontSize: 13,
                         ),
                       ),

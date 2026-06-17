@@ -86,7 +86,7 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
 
   Widget _buildSection(BuildContext context, String title, String content) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final titleColor = isDark ? Colors.white : Colors.brown;
+    final titleColor = isDark ? Colors.white : Colors.black87;
     final textColor = isDark ? Colors.white : Colors.black87;
 
     return Padding(

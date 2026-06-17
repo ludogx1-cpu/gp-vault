@@ -97,7 +97,7 @@ class _LiveInterestDisplayState extends State<LiveInterestDisplay> {
                   style: TextStyle(
                     fontSize: 36,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.brown,
+                    color: isDark ? Colors.white : Colors.black87,
                   ),
                 ),
               ),
@@ -106,7 +106,7 @@ class _LiveInterestDisplayState extends State<LiveInterestDisplay> {
               "DOGE",
               style: TextStyle(
                 fontSize: 16,
-                color: isDark ? Colors.amber : Colors.brown,
+                color: isDark ? Colors.amber : Colors.black87,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -123,7 +123,7 @@ class _LiveInterestDisplayState extends State<LiveInterestDisplay> {
                   "+ ${_liveInterest.toStringAsFixed(10)} Pending Yield",
                   style: TextStyle(
                     fontSize: 13,
-                    color: isDark ? Colors.greenAccent : Colors.brown,
+                    color: isDark ? Colors.greenAccent : Colors.black87,
                     fontStyle: FontStyle.italic,
                     fontWeight: FontWeight.bold,
                   ),

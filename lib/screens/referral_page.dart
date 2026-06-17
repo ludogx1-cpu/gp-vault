@@ -37,7 +37,7 @@ class ReferralPage extends StatelessWidget {
           listenable: themeProvider,
           builder: (context, _) {
             final isDark = themeProvider.isDarkMode;
-            final titleColor = isDark ? Colors.white : Colors.brown;
+            final titleColor = isDark ? Colors.white : Colors.black87;
             
             return Padding(
               padding: const EdgeInsets.all(20.0),
@@ -208,7 +208,7 @@ class ReferralPage extends StatelessWidget {
                 child: const Text(
                   "Back to Faucet",
                   style: TextStyle(
-                    color: Colors.brown,
+                    color: Colors.black87,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

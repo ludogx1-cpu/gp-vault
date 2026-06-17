@@ -75,7 +75,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
         appBar: AppBar(
           title: const Text(
             'EARN DOGE (PTC)',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.brown),
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
           ),
           backgroundColor: Colors.amber,
           centerTitle: true,
@@ -85,7 +85,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
             "You must log in to earn from PTC ads!",
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Colors.brown,
+              color: Colors.black87,
               fontSize: 18,
             ),
           ),
@@ -204,7 +204,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                                       fontWeight: FontWeight.bold,
                                       color: isClicked
                                           ? Colors.grey
-                                          : (isDark ? Colors.white : Colors.brown),
+                                          : (isDark ? Colors.white : Colors.black87),
                                     ),
                                   ),
                                   subtitle: Text(
@@ -270,7 +270,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                                   "🌟 Support Golden Paw & Earn DOGE 🌟",
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: isDark ? Colors.white : Colors.brown,
+                                    color: isDark ? Colors.white : Colors.black87,
                                     fontSize: 16,
                                   ),
                                 ),

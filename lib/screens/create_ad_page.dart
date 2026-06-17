@@ -46,7 +46,7 @@ class _CreateAdPageState extends State<CreateAdPage> {
               const SizedBox(height: 20),
               const Icon(Icons.rocket_launch, size: 60, color: Colors.orange),
               const SizedBox(height: 15),
-              const Text("Setup Your Ad Campaign", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.brown)),
+              const Text("Setup Your Ad Campaign", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
               const SizedBox(height: 10),
               const Text("Fill out the details below to submit your custom banner or PTC link to the network.", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
               const SizedBox(height: 40),

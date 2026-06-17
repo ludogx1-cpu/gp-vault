@@ -70,7 +70,7 @@ class SmartFallbackAd extends StatelessWidget {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: height > 100 ? 14 : 12,
-                          color: isDark ? Colors.white : Colors.brown,
+                          color: isDark ? Colors.white : Colors.black87,
                         ),
                       ),
                       Text(
@@ -149,7 +149,7 @@ class SmartFallbackAd extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: height > 100 ? 14 : 12,
-                        color: isDark ? Colors.white : Colors.brown,
+                        color: isDark ? Colors.white : Colors.black87,
                       ),
                     ),
                     Text(
