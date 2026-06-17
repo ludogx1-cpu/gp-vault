@@ -352,7 +352,7 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.chat, color: Colors.brown, size: 20),
+                    Icon(Icons.chat, color: gpBrownText(context), size: 20),
                     const SizedBox(width: 8),
                     Text(
                       "Community Chat",
@@ -433,7 +433,7 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
                       backgroundColor: Colors.amber,
                       minimumSize: const Size(0, 30),
                     ),
-                    child: const Text("Empty Jar", style: TextStyle(fontSize: 12)),
+                    child: const Text("Empty Jar", style: TextStyle(fontSize: 12, color: Colors.black87)),
                   ),
               ],
             ),
