@@ -367,7 +367,7 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
                 Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.gavel, size: 20, color: Colors.brown),
+                      icon: Icon(Icons.gavel, size: 20, color: gpBrownText(context)),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                       onPressed: _showRulesDialog,
@@ -375,7 +375,7 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
                     ),
                     const SizedBox(width: 15),
                     IconButton(
-                      icon: const Icon(Icons.close, size: 20, color: Colors.brown),
+                      icon: Icon(Icons.close, size: 20, color: gpBrownText(context)),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                       onPressed: () {
