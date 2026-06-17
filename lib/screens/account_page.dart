@@ -68,8 +68,8 @@ class _AccountPageState extends State<AccountPage> {
       setState(() => _withdrawMessage = "Please enter a valid number.");
       return;
     }
-    if (amountToWithdraw < 0.001) {
-      setState(() => _withdrawMessage = "Minimum withdrawal is 0.001 DOGE.");
+    if (amountToWithdraw < 1.0) {
+      setState(() => _withdrawMessage = "Minimum withdrawal is 1 DOGE.");
       return;
     }
     if (amountToWithdraw > maxBalance) {
@@ -476,7 +476,7 @@ class _AccountPageState extends State<AccountPage> {
                                         ),
                                         const SizedBox(height: 5),
                                         Text(
-                                          "Minimum Withdrawal: 0.001 DOGE",
+                                          "Minimum Withdrawal: 1 DOGE",
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: isDark

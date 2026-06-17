@@ -52,7 +52,7 @@ class FAQPage extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.all(15),
                       child: Text(
-                        "Once you reach the minimum withdrawal threshold of 0.001 DOGE in your Vault, you can navigate to your Profile, enter your FaucetPay Dogecoin address, and initiate an instant withdrawal.",
+                        "Once you reach the minimum withdrawal threshold of 1 DOGE in your Vault, you can navigate to your Profile, enter your FaucetPay Dogecoin address, and initiate an instant withdrawal.",
                       ),
                     ),
                   ],
