@@ -278,9 +278,9 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
     final isDark = theme.isDarkMode;
 
     final now = DateTime.now().millisecondsSinceEpoch;
-    final bool canFeed = now - _lastFeedTime >= 3 * 60 * 60 * 1000;
-    final bool canPlay = now - _lastPlayTime >= 3 * 60 * 60 * 1000;
-    final bool canSleep = now - _lastSleepTime >= 3 * 60 * 60 * 1000;
+    final bool canFeed = now - _lastFeedTime >= 5 * 60 * 60 * 1000;
+    final bool canPlay = now - _lastPlayTime >= 5 * 60 * 60 * 1000;
+    final bool canSleep = now - _lastSleepTime >= 5 * 60 * 60 * 1000;
 
     if (_isLoading && _hunger == 50 && _energy == 100) {
       return const Center(child: CircularProgressIndicator());
