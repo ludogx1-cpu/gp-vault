@@ -29,49 +29,10 @@
 
   <style>
     #gp-captcha-token { display: none; }
-    
-    /* Crawler mode ensures bots can see the ads and click them (pointer-events: auto) */
-    .aads-crawler-mode {
-      position: relative !important;
-      left: auto !important;
-      top: auto !important;
-      opacity: 1 !important;
-      pointer-events: auto !important;
-      z-index: 1 !important;
-      margin: 10px;
-    }
-    
-    /* Overlay mode is for real users when ads are positioned by Flutter */
-    .aads-overlay {
-      position: fixed !important;
-      z-index: 2147483647 !important;
-      opacity: 1 !important;
-      pointer-events: auto !important;
-      overflow: hidden !important;
-      line-height: 0 !important;
-    }
-    
-    .aads-overlay iframe, .aads-crawler-mode iframe { display: block; }
-    #aads-left { width: 300px; height: 250px; }
-    #aads-right { width: 300px; height: 250px; }
-    #aads-banner { width: 728px; height: 90px; }
-    
-    /* The crawler container takes over the screen initially until user interaction */
-    #aads-crawler-container {
-      position: absolute; 
-      top: 0; 
-      left: 0; 
-      width: 100vw; 
-      height: 100vh;
-      background-color: #ffffff; /* Opaque background so it isn't considered floating over content */
-      z-index: 2147483647; 
-      display: flex; 
-      flex-wrap: wrap; 
-      justify-content: center;
-      align-content: flex-start;
-      padding: 20px; 
-      pointer-events: auto; /* MUST be auto for viewability checks */
-      overflow-y: auto;
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.7; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.7; }
     }
   </style>
  
@@ -148,89 +109,10 @@
     }
   </script>
   <script>
-    // --- User Interaction Tracking for Bot Evasion ---
-    let userInteracted = false;
-    function markInteracted() { 
-      if (userInteracted) return;
-      userInteracted = true; 
-      
-      // Hide the crawler container overlay
-      var container = document.getElementById('aads-crawler-container');
-      if (container) {
-        container.style.display = 'none';
-        container.style.pointerEvents = 'none';
-        
-        // Move the ads to the body so they can be positioned by Flutter
-        document.body.appendChild(document.getElementById('aads-left'));
-        document.body.appendChild(document.getElementById('aads-right'));
-        document.body.appendChild(document.getElementById('aads-banner'));
-      }
-    }
-    
-    window.addEventListener('mousemove', markInteracted, {once: true});
-    window.addEventListener('touchstart', markInteracted, {once: true});
-    window.addEventListener('keydown', markInteracted, {once: true});
-    window.addEventListener('wheel', markInteracted, {once: true});
-    window.addEventListener('pointermove', markInteracted, {once: true});
-
-    // --- A-Ads Overlay Management ---
-    const aadsConfig = {
-      'aads-left': "<iframe data-aa='2437206' src='//ad.a-ads.com/2437206?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>",
-      'aads-right': "<iframe data-aa='2437207' src='//ad.a-ads.com/2437207?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>",
-      'aads-banner': "<iframe data-aa='2437203' src='//ad.a-ads.com/2437203?size=728x90' style='width:728px; height:90px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>"
-    };
-
-    function showAadsOverlay(id, x, y) {
-      var el = document.getElementById(id);
-      if (!el) return;
-
-      if (el.innerHTML.trim() === '') {
-        el.innerHTML = aadsConfig[id];
-      }
-
-      if (!userInteracted) {
-        // Bot is viewing. Let them flow naturally in the crawler container.
-        el.className = 'aads-crawler-mode';
-      } else {
-        // Real user interacted. Position normally.
-        el.className = 'aads-overlay';
-        el.style.left = x + 'px';
-        el.style.top = y + 'px';
-      }
-    }
-    
-    function hideAadsOverlay(id) {
-      var el = document.getElementById(id);
-      if (el) {
-        el.className = 'aads-crawler-mode';
-      }
-    }
-    
-    function hideAllAads() {
-      var els = document.querySelectorAll('.aads-overlay, .aads-crawler-mode');
-      for (var i = 0; i < els.length; i++) { 
-        if (els[i].id && els[i].id.startsWith('aads-')) {
-          els[i].className = 'aads-crawler-mode';
-        }
-      }
-    }
   </script>
 </head>
 <body>
   <div id="gp-captcha-token"></div>
-
-  <!-- A-Ads Bot Container: an opaque white overlay that ensures bots see the ads perfectly, without overlapping content, and with pointer-events enabled -->
-  <div id="aads-crawler-container">
-    <div id="aads-left" class="aads-crawler-mode">
-      <iframe data-aa='2437206' src='//ad.a-ads.com/2437206?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
-    </div>
-    <div id="aads-right" class="aads-crawler-mode">
-      <iframe data-aa='2437207' src='//ad.a-ads.com/2437207?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
-    </div>
-    <div id="aads-banner" class="aads-crawler-mode">
-      <iframe data-aa='2437203' src='//ad.a-ads.com/2437203?size=728x90' style='width:728px; height:90px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
-    </div>
-  </div>
 
   <script src="flutter_bootstrap.js" async></script>
 </body>
