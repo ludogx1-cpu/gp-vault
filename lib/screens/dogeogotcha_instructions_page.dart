@@ -37,7 +37,7 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
             _buildSection(
               context,
               '❤️ Happiness, 🍗 Hunger, ⚡ Energy',
-              'Keep your pet happy and fed! Every day, its stats will naturally decay. If any stat drops to 0, you lose the base multiplier! Keep them above 80% to ensure you get the maximum possible bonus added to your 24-hour Pet Investments when feeding, playing, or sleeping.',
+              'Keep your pet happy and fed! Feeding, Playing, or Sleeping costs 0.0001 DOGE, but fully restores that stat to 100% and places a 24-hour investment that returns double (plus bonuses)! You can only perform each action once every 5 hours. Stats decay by 25% every 5 hours, so keep them above 80% to ensure you get the maximum possible bonus on your investments.',
             ),
             _buildSection(
               context,

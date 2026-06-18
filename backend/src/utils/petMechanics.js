@@ -1,4 +1,4 @@
-const DECAY_RATE_PER_HOUR = 2.0;
+const DECAY_RATE_PER_HOUR = 5.0;
 const MAX_STAT = 100;
 
 function calculateDecay(userData) {
@@ -14,7 +14,7 @@ function calculateDecay(userData) {
 
   hunger = Math.max(0, hunger - decayAmount);
   happiness = Math.max(0, happiness - decayAmount);
-  energy = Math.max(0, energy - (decayAmount * 0.5));
+  energy = Math.max(0, energy - decayAmount);
 
   return { hunger, happiness, energy, hoursPassed };
 }

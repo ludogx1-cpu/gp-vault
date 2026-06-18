@@ -183,8 +183,8 @@ router.post('/pet-feed', verifyFirebaseToken, async (req, res) => {
 
       const decayed = calculateDecay(data);
       if (decayed.hunger >= MAX_STAT) throw new Error('Pet is already full!');
-      if (data.pet_last_feed_time && (Date.now() - data.pet_last_feed_time.toDate().getTime()) < 3 * 60 * 60 * 1000) {
-        throw new Error('You can only feed your pet once every 3 hours!');
+      if (data.pet_last_feed_time && (Date.now() - data.pet_last_feed_time.toDate().getTime()) < 5 * 60 * 60 * 1000) {
+        throw new Error('You can only feed your pet once every 5 hours!');
       }
 
       const { matured, remainingInvestments } = processInvestments(userRef, data, transaction);
@@ -194,7 +194,7 @@ router.post('/pet-feed', verifyFirebaseToken, async (req, res) => {
 
       const petBonus = calculatePetBonusPercent(decayed, data);
       const investmentAmount = (FEED_COST_DOGE * 2) * (1 + (petBonus / 100));
-      const newHunger = Math.min(MAX_STAT, decayed.hunger + FEED_HUNGER_RECOVERY);
+      const newHunger = MAX_STAT;
       remainingInvestments.push({ amount: investmentAmount, unlock_time: Date.now() + 24 * 60 * 60 * 1000 });
 
       transaction.update(userRef, {
@@ -228,10 +228,9 @@ router.post('/pet-play', verifyFirebaseToken, async (req, res) => {
       if (!data.pet_birth_date) throw new Error('Pet not initialized');
 
       const decayed = calculateDecay(data);
-      if (decayed.energy < PLAY_ENERGY_COST) throw new Error('Pet is too tired to play. Let it sleep!');
       if (decayed.happiness >= MAX_STAT) throw new Error('Pet is already at max happiness!');
-      if (data.pet_last_play_time && (Date.now() - data.pet_last_play_time.toDate().getTime()) < 3 * 60 * 60 * 1000) {
-        throw new Error('You can only play with your pet once every 3 hours!');
+      if (data.pet_last_play_time && (Date.now() - data.pet_last_play_time.toDate().getTime()) < 5 * 60 * 60 * 1000) {
+        throw new Error('You can only play with your pet once every 5 hours!');
       }
 
       const { matured, remainingInvestments } = processInvestments(userRef, data, transaction);
@@ -241,21 +240,20 @@ router.post('/pet-play', verifyFirebaseToken, async (req, res) => {
 
       const petBonus = calculatePetBonusPercent(decayed, data);
       const investmentAmount = (PLAY_COST_DOGE * 2) * (1 + (petBonus / 100));
-      const newHappiness = Math.min(MAX_STAT, decayed.happiness + PLAY_HAPPINESS_RECOVERY);
-      const newEnergy = decayed.energy - PLAY_ENERGY_COST;
+      const newHappiness = MAX_STAT;
       remainingInvestments.push({ amount: investmentAmount, unlock_time: Date.now() + 24 * 60 * 60 * 1000 });
 
       transaction.update(userRef, {
         doge_balance: currentDoge - PLAY_COST_DOGE,
         pet_hunger: decayed.hunger,
         pet_happiness: newHappiness,
-        pet_energy: newEnergy,
+        pet_energy: decayed.energy,
         pet_investments: remainingInvestments,
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
         pet_last_play_time: admin.firestore.FieldValue.serverTimestamp()
       });
 
-      newStats = { hunger: decayed.hunger, happiness: newHappiness, energy: newEnergy };
+      newStats = { hunger: decayed.hunger, happiness: newHappiness, energy: decayed.energy };
     });
 
     res.json({ success: true, message: 'Played with pet!', stats: newStats });
@@ -277,8 +275,8 @@ router.post('/pet-sleep', verifyFirebaseToken, async (req, res) => {
 
       const decayed = calculateDecay(data);
       if (decayed.energy >= MAX_STAT) throw new Error('Pet is not tired.');
-      if (data.pet_last_sleep_time && (Date.now() - data.pet_last_sleep_time.toDate().getTime()) < 3 * 60 * 60 * 1000) {
-        throw new Error('Your pet can only sleep once every 3 hours!');
+      if (data.pet_last_sleep_time && (Date.now() - data.pet_last_sleep_time.toDate().getTime()) < 5 * 60 * 60 * 1000) {
+        throw new Error('Your pet can only sleep once every 5 hours!');
       }
 
       const { matured, remainingInvestments } = processInvestments(userRef, data, transaction);
@@ -288,7 +286,7 @@ router.post('/pet-sleep', verifyFirebaseToken, async (req, res) => {
 
       const petBonus = calculatePetBonusPercent(decayed, data);
       const investmentAmount = (SLEEP_COST_DOGE * 2) * (1 + (petBonus / 100));
-      const newEnergy = Math.min(MAX_STAT, decayed.energy + SLEEP_ENERGY_RECOVERY);
+      const newEnergy = MAX_STAT;
       remainingInvestments.push({ amount: investmentAmount, unlock_time: Date.now() + 24 * 60 * 60 * 1000 });
 
       transaction.update(userRef, {
