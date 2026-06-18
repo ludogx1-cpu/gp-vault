@@ -66,7 +66,6 @@ router.post('/send-doge', verifyFirebaseToken, async (req, res) => {
           pet_happiness: decayed.happiness,
           pet_energy: decayed.energy,
           pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
-          active_trick_buffs: [],
           ...streakUpdates
         });
       } else {
@@ -182,7 +181,6 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
           pet_happiness: decayed.happiness,
           pet_energy: decayed.energy,
           pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
-          active_trick_buffs: [],
           ...streakUpdates
         };
         if (isNewUser) {
@@ -371,6 +369,7 @@ router.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
         doge_balance: Number(data.doge_balance || 0) + finalRewardAmount,
         xp: Number(data.xp || 0) + xpReward,
         last_bonus_sponsor_claim: now,
+        active_trick_buffs: [],
       };
 
       if (isNewUser) {
