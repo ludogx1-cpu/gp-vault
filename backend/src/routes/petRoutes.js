@@ -465,22 +465,25 @@ router.post('/pet-admin-age-up', verifyFirebaseToken, async (req, res) => {
       return res.status(403).json({ success: false, error: 'Admin only' });
     }
 
+    const { days = 30 } = req.body;
+    const daysNumber = Number(days);
+
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     await admin.firestore().runTransaction(async (transaction) => {
       const snapshot = await transaction.get(userRef);
       const data = snapshot.data() || {};
       if (!data.pet_birth_date) throw new Error('Pet not initialized');
 
-      // Subtract 30 days from birth date to age it up
+      // Subtract days from birth date to age it up (or negative to age down)
       const oldBirthTime = data.pet_birth_date.toDate().getTime();
-      const newBirthTime = oldBirthTime - (30 * 24 * 60 * 60 * 1000);
+      const newBirthTime = oldBirthTime - (daysNumber * 24 * 60 * 60 * 1000);
       
       transaction.update(userRef, {
         pet_birth_date: admin.firestore.Timestamp.fromMillis(newBirthTime)
       });
     });
 
-    res.json({ success: true, message: 'Aged up by 30 days!' });
+    res.json({ success: true, message: `Aged by ${daysNumber} days!` });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
