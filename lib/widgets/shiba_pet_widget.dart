@@ -7,6 +7,7 @@ import '../src/firebase_service.dart';
 import '../api_constants.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'walk_treadmill_dialog.dart';
 import '../utils/pet_events.dart';
 
@@ -27,6 +28,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   double _ageMultiplier = 1.0;
   double _lockedReturns = 0.0;
   String _petName = 'Golden Paw Shiba';
+  String _stage = 'egg'; // Track stage to lock features
   
   int _lastFeedTime = 0;
   int _lastPlayTime = 0;
@@ -70,6 +72,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
             _totalDistance = (data['pet']['total_distance'] as num).toDouble();
             _lockedReturns = (data['pet']['locked_returns'] as num?)?.toDouble() ?? 0.0;
             _petName = data['pet']['name'] ?? 'Golden Paw Shiba';
+            _stage = data['pet']['stage'] ?? 'egg'; // Get stage from backend
             _lastFeedTime = (data['pet']['last_feed_time'] as num?)?.toInt() ?? 0;
             _lastPlayTime = (data['pet']['last_play_time'] as num?)?.toInt() ?? 0;
             _lastSleepTime = (data['pet']['last_sleep_time'] as num?)?.toInt() ?? 0;
@@ -186,6 +189,32 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
       }
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _unlockAllAdmin() async {
+    setState(() => _isLoading = true);
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+          'pet_owned_accessories': [
+            'top_hat', 'sunglasses', 'gold_chain', 'diamond_watch', 'crown',
+            'coat_basic', 'coat_rain', 'coat_winter', 'coat_luxury'
+          ],
+          'active_trick_buffs': ['Spin', 'Jump', 'Roll Over', 'Backflip', 'Moonwalk'],
+          'pet_owned_tricks': ['Spin', 'Jump', 'Roll Over', 'Backflip', 'Moonwalk'],
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Admin Unlock Successful! Refreshing...'), backgroundColor: Colors.green));
+          _fetchPetStatus(); // Refresh UI
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Unlock Error: $e'), backgroundColor: Colors.red));
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -333,6 +362,12 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                             label: const Text("+5 Days", style: TextStyle(fontSize: 11)),
                             style: ElevatedButton.styleFrom(backgroundColor: Colors.purple, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
                           ),
+                          ElevatedButton.icon(
+                            onPressed: _isLoading ? null : () => _unlockAllAdmin(),
+                            icon: const Icon(Icons.admin_panel_settings, size: 16),
+                            label: const Text("Unlock All", style: TextStyle(fontSize: 11)),
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
+                          ),
                         ]
                       ],
                     ),
@@ -384,37 +419,41 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                                     ),
                                   ),
                                   // Shop Tab
-                                  ListView(
-                                    padding: const EdgeInsets.all(8),
-                                    children: [
-                                      _buildShopItem('top_hat', 'Fancy Top Hat', 1.0, '+10% Faucet Bonus'),
-                                      _buildShopItem('sunglasses', 'Cool Shades', 2.0, '+20% Faucet Bonus'),
-                                      _buildShopItem('gold_chain', 'Gold Chain', 3.0, '+30% Faucet Bonus'),
-                                      _buildShopItem('diamond_watch', 'Diamond Watch', 5.0, '+50% Faucet Bonus'),
-                                      _buildShopItem('crown', 'Royal Crown', 10.0, '+100% Faucet Bonus'),
-                                      _buildShopItem('coat_basic', 'Basic Coat', 1.5, '+15% Faucet Bonus'),
-                                      _buildShopItem('coat_rain', 'Rain Coat', 2.5, '+25% Faucet Bonus'),
-                                      _buildShopItem('coat_winter', 'Winter Coat', 4.0, '+40% Faucet Bonus'),
-                                      _buildShopItem('coat_luxury', 'Luxury Coat', 7.5, '+75% Faucet Bonus'),
-                                    ],
-                                  ),
+                                  _stage == 'egg' 
+                                  ? const Center(child: Text("Shop unlocks at Baby stage!\n(Wait 2 days or use Admin controls)", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)))
+                                  : ListView(
+                                      padding: const EdgeInsets.all(8),
+                                      children: [
+                                        _buildShopItem('top_hat', 'Fancy Top Hat', 1.0, '+10% PTC Bonus'),
+                                        _buildShopItem('sunglasses', 'Cool Shades', 2.0, '+20% PTC Bonus'),
+                                        _buildShopItem('gold_chain', 'Gold Chain', 3.0, '+30% PTC Bonus'),
+                                        _buildShopItem('diamond_watch', 'Diamond Watch', 5.0, '+50% PTC Bonus'),
+                                        _buildShopItem('crown', 'Royal Crown', 10.0, '+100% PTC Bonus'),
+                                        _buildShopItem('coat_basic', 'Basic Coat', 1.5, '+15% PTC Bonus'),
+                                        _buildShopItem('coat_rain', 'Rain Coat', 2.5, '+25% PTC Bonus'),
+                                        _buildShopItem('coat_winter', 'Winter Coat', 4.0, '+40% PTC Bonus'),
+                                        _buildShopItem('coat_luxury', 'Luxury Coat', 7.5, '+75% PTC Bonus'),
+                                      ],
+                                    ),
                                   // Tricks Tab
-                                  Center(
-                                    child: SingleChildScrollView(
-                                      child: Wrap(
-                                        spacing: 10,
-                                        runSpacing: 10,
-                                        alignment: WrapAlignment.center,
-                                        children: [
-                                          _buildTrickButton('Spin', Icons.rotate_right, 1.0, '+10% Bonus'),
-                                          _buildTrickButton('Jump', Icons.arrow_upward, 2.0, '+20% Bonus'),
-                                          _buildTrickButton('Roll Over', Icons.replay, 3.0, '+30% Bonus'),
-                                          _buildTrickButton('Backflip', Icons.loop, 5.0, '+50% Bonus'),
-                                          _buildTrickButton('Moonwalk', Icons.directions_walk, 10.0, '+100% Bonus'),
-                                        ],
+                                  _stage == 'egg'
+                                  ? const Center(child: Text("Tricks unlock at Baby stage!\n(Wait 2 days or use Admin controls)", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)))
+                                  : Center(
+                                      child: SingleChildScrollView(
+                                        child: Wrap(
+                                          spacing: 10,
+                                          runSpacing: 10,
+                                          alignment: WrapAlignment.center,
+                                          children: [
+                                            _buildTrickButton('Spin', Icons.rotate_right, 1.0, '+10% Sponsor Bonus'),
+                                            _buildTrickButton('Jump', Icons.arrow_upward, 2.0, '+20% Sponsor Bonus'),
+                                            _buildTrickButton('Roll Over', Icons.replay, 3.0, '+30% Sponsor Bonus'),
+                                            _buildTrickButton('Backflip', Icons.loop, 5.0, '+50% Sponsor Bonus'),
+                                            _buildTrickButton('Moonwalk', Icons.directions_walk, 10.0, '+100% Sponsor Bonus'),
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ),
                                 ],
                               ),
                             ),

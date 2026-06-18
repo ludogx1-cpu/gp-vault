@@ -41,6 +41,10 @@ function calculatePetBonusPercent(decayedStats, userData) {
   if (avg >= 80) baseBonus = 10;
   else if (avg >= 50) baseBonus = 5;
 
+  return baseBonus; // Only base stats apply to the faucet now
+}
+
+function calculateShopBonusPercent(userData) {
   const accessoryBonuses = {
     'top_hat': 10,
     'sunglasses': 20,
@@ -53,6 +57,15 @@ function calculatePetBonusPercent(decayedStats, userData) {
     'coat_luxury': 75
   };
 
+  let shopBonus = 0;
+  const equippedAccessories = userData.pet_equipped_accessories || [];
+  for (const acc of equippedAccessories) {
+    if (accessoryBonuses[acc]) shopBonus += accessoryBonuses[acc];
+  }
+  return shopBonus;
+}
+
+function calculateTrickBonusPercent(userData) {
   const trickBonuses = {
     'Spin': 10,
     'Jump': 20,
@@ -61,18 +74,12 @@ function calculatePetBonusPercent(decayedStats, userData) {
     'Moonwalk': 100
   };
 
-  let shopBonus = 0;
-  const equippedAccessories = userData.pet_equipped_accessories || [];
-  for (const acc of equippedAccessories) {
-    if (accessoryBonuses[acc]) shopBonus += accessoryBonuses[acc];
-  }
-
+  let trickBonus = 0;
   const activeTricks = userData.active_trick_buffs || [];
   for (const trick of activeTricks) {
-    if (trickBonuses[trick]) shopBonus += trickBonuses[trick];
+    if (trickBonuses[trick]) trickBonus += trickBonuses[trick];
   }
-
-  return baseBonus + shopBonus;
+  return trickBonus;
 }
 
 
@@ -80,21 +87,22 @@ function getAgeMultiplier(birthDate) {
   if (!birthDate) return 1.0;
   const daysOld = (Date.now() - birthDate.toDate().getTime()) / (1000 * 60 * 60 * 24);
   
-  if (daysOld < 15) {
-    return 1.0; // Egg gives no bonus
-  }
-  
-  // From day 15 to day 365, multiplier scales from 1.0 to 2.0
-  // Max bonus at 365 days
-  const daysProgress = Math.min(daysOld - 14, 351); // Max 351 days of growth
-  const multiplier = 1.0 + (daysProgress / 351);
-  return Number(multiplier.toFixed(4));
+  if (daysOld < 2) return 1.0; // Egg: 0%
+  if (daysOld < 7) return 1.05; // Baby: 5%
+  if (daysOld < 14) return 1.10; // Toddler: 10%
+  if (daysOld < 30) return 1.30; // Puppy: 30%
+  if (daysOld < 90) return 1.40; // Child: 40%
+  if (daysOld < 180) return 1.50; // Teen: 50%
+  if (daysOld < 365) return 1.75; // Young Adult: 75%
+  return 2.0; // Adult: 100%
 }
 
 module.exports = {
   calculateDecay,
   getGrowthStage,
   calculatePetBonusPercent,
+  calculateShopBonusPercent,
+  calculateTrickBonusPercent,
   getAgeMultiplier,
   MAX_STAT
 };
