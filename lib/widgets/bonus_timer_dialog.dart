@@ -188,7 +188,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
           setState(() {
             _claimed = true;
             _showCaptcha = false;
-            _message = "Success! 0.006 DOGE & +60 XP added!";
+            _message = "Success! 0.004 DOGE & +60 XP added!";
           });
           _updateBrowserTitle("Claim complete");
         }
