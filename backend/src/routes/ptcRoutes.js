@@ -1,6 +1,7 @@
 const express = require('express');
 const { admin, verifyFirebaseToken } = require('../services/firebaseService');
 const { verifyCaptchaToken } = require('../utils/helpers');
+const { calculateShopBonusPercent } = require('../utils/petMechanics');
 
 const router = express.Router();
 const getAdminUid = () => process.env.ADMIN_UID || 'P8iffVqbUgetAVA4MdHVZ1CfvUv1';
@@ -113,13 +114,15 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
         throw new Error('Cooldown active. You can view this ad again tomorrow.');
       }
 
-      const rewardAmount = Number(adData.reward || 0.001); 
+      const baseRewardAmount = Number(adData.reward || 0.001); 
+      const shopBonusPercent = calculateShopBonusPercent(userData);
+      const finalRewardAmount = baseRewardAmount * (1 + (shopBonusPercent / 100));
 
       const { getStreakUpdates } = require('../utils/helpers');
       const streakUpdates = getStreakUpdates(userData);
 
       transaction.update(userRef, {
-        doge_balance: Number(userData.doge_balance || 0) + rewardAmount,
+        doge_balance: Number(userData.doge_balance || 0) + finalRewardAmount,
         [`ptc_history.${ad_id}`]: now,
         ...streakUpdates
       });

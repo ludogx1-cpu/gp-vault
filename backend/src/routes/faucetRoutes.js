@@ -4,7 +4,7 @@ const { faucetPaySend } = require('../services/faucetPayService');
 const { getDogePrice } = require('../services/priceService');
 const { calculateDogeReward } = require('../utils/rewardCalculator');
 const { formatAmount, verifyCaptchaToken, getStreakUpdates } = require('../utils/helpers');
-const { calculateDecay, calculatePetBonusPercent, getAgeMultiplier } = require('../utils/petMechanics');
+const { calculateDecay, calculatePetBonusPercent, calculateTrickBonusPercent, getAgeMultiplier } = require('../utils/petMechanics');
 
 const router = express.Router();
 
@@ -55,11 +55,9 @@ router.post('/send-doge', verifyFirebaseToken, async (req, res) => {
 
       const streakUpdates = getStreakUpdates(data);
 
-      let petBonus = 0;
       let ageMult = 1.0;
       if (data.pet_birth_date) {
         const decayed = calculateDecay(data);
-        petBonus = calculatePetBonusPercent(decayed, data);
         ageMult = getAgeMultiplier(data.pet_birth_date);
         
         transaction.update(userRef, {
@@ -85,9 +83,6 @@ router.post('/send-doge', verifyFirebaseToken, async (req, res) => {
     const baseReward = calculateDogeReward(price);
     // Note: direct faucet claim doesn't get level/streak bonus, but does get pet bonus!
     let dogeAmount = baseReward;
-    if (petBonus > 0) {
-      dogeAmount = baseReward * (1 + (petBonus / 100));
-    }
     dogeAmount = dogeAmount * ageMult;
     
     // Hard cap max Faucet reward
@@ -169,14 +164,12 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
       let level = Math.floor(Math.sqrt(xp / 100));
       if (level > 100) level = 100;
       
-      let petBonus = 0;
       let ageMult = 1.0;
       if (data.pet_birth_date) {
         const decayed = calculateDecay(data);
-        petBonus = calculatePetBonusPercent(decayed, data);
         ageMult = getAgeMultiplier(data.pet_birth_date);
         
-        const totalBonusPercent = level + streak + petBonus;
+        const totalBonusPercent = level + streak;
         finalReward = baseReward * (1 + (totalBonusPercent / 100));
         finalReward = finalReward * ageMult;
         finalReward = Math.min(finalReward, 0.008);
@@ -343,6 +336,7 @@ router.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
     const xpReward = 60;
     const cooldownMs = 3 * 60 * 60 * 1000;
     const now = admin.firestore.Timestamp.now();
+    let finalRewardAmount = rewardAmount;
 
     await admin.firestore().runTransaction(async (transaction) => {
       const snapshot = await transaction.get(userRef);
@@ -370,8 +364,11 @@ router.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
         throw cooldownError;
       }
 
+      const trickBonusPercent = calculateTrickBonusPercent(data);
+      finalRewardAmount = rewardAmount * (1 + (trickBonusPercent / 100));
+
       const updates = {
-        doge_balance: Number(data.doge_balance || 0) + rewardAmount,
+        doge_balance: Number(data.doge_balance || 0) + finalRewardAmount,
         xp: Number(data.xp || 0) + xpReward,
         last_bonus_sponsor_claim: now,
       };
@@ -386,7 +383,7 @@ router.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
     res.json({
       success: true,
       message: 'Sponsor bonus claim processed successfully',
-      rewardAmount,
+      rewardAmount: finalRewardAmount, // Updated to return actual given amount
       xpReward,
     });
   } catch (error) {

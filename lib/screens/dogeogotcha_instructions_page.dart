@@ -32,34 +32,24 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
             _buildSection(
               context,
               'Welcome to Dogeogotcha!',
-              'Your Dogeogotcha is your virtual pet that earns you extra DOGE from the faucet! Taking care of your pet and buying it items increases your Faucet multiplier.',
+              'Your Dogeogotcha is your virtual pet that earns you extra DOGE! As your pet grows, you unlock new ways to boost your earnings across the platform.',
             ),
             _buildSection(
               context,
               '❤️ Happiness, 🍗 Hunger, ⚡ Energy',
-              'Keep your pet happy and fed! You can feed your pet, play with it, or put it to sleep to restore its stats. Every day, its stats will naturally decay. If any stat drops to 0, you lose the multiplier from the pet completely! Keep them above 80% to ensure you get the maximum possible multiplier.',
+              'Keep your pet happy and fed! Every day, its stats will naturally decay. If any stat drops to 0, you lose the base multiplier! Keep them above 80% to ensure you get the maximum possible bonus added to your 24-hour Pet Investments when feeding, playing, or sleeping.',
             ),
             _buildSection(
               context,
-              '🎒 The Shop & Equipping Items',
-              'Use your Ad Credit (USDT) to buy premium accessories!\n\n'
-              '• Sunglasses (+10%)\n'
-              '• Top Hat (+20%)\n'
-              '• Gold Chain (+30%)\n'
-              '• Royal Crown (+50%)\n'
-              '• Diamond Watch (+100%)\n\n'
-              'You can also purchase Coats ranging from +15% to +75% bonus!\n\n'
-              'You can equip up to 3 items at the same time. The total bonus of all equipped items directly multiplies your daily Faucet rewards. (E.g., Crown + Watch = 150% extra!)',
+              '🎒 The Shop & PTC Rewards',
+              'Once your pet reaches the Baby stage, you unlock the Shop! Use your Ad Credit (USDT) to buy premium accessories.\n\n'
+              'Equipping accessories directly boosts your Pay-To-Click (PTC) ad rewards. You can equip up to 3 items at the same time. The total bonus of all equipped items multiplies your PTC rewards. (E.g., Crown + Watch = 150% extra!)',
             ),
             _buildSection(
               context,
-              '🤸 Tricks & Active Buffs',
-              'Buy tricks from the Shop and command your pet to perform them! Each time your pet performs a trick, it receives an "Active Buff".\n\n'
-              '• Sit (+10%)\n'
-              '• Spin (+20%)\n'
-              '• Roll Over (+40%)\n'
-              '• Backflip (+100%)\n\n'
-              'When you claim the Faucet, all your Active Buffs are consumed to give you a massive temporary multiplier on that claim! You must perform the tricks again before your next claim to get the buff again.',
+              '🤸 Tricks & Sponsor Bonuses',
+              'Once your pet reaches the Baby stage, you can buy Tricks! Command your pet to perform them to receive an "Active Buff".\n\n'
+              'Active Trick Buffs directly boost the rewards you get from clicking Visit Bonus Sponsors! (E.g., Moonwalk = +100% Sponsor Bonus!)',
             ),
             const SizedBox(height: 15),
             Text(
@@ -76,14 +66,14 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
               style: TextStyle(fontSize: 14, height: 1.5, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87)
             ),
             const SizedBox(height: 15),
-            _buildStageItem(context, 'Egg', '0 - 2 days', 'No bonus (Hatching...)', 'assets/shiba_egg.png'),
-            _buildStageItem(context, 'Baby', '2 - 7 days', 'No bonus (Too young)', 'assets/shiba_baby.png'),
-            _buildStageItem(context, 'Toddler', '7 - 14 days', 'No bonus (Learning...)', 'assets/shiba_baby.png'),
-            _buildStageItem(context, 'Puppy', '14 - 30 days', 'Bonus starts scaling up!', 'assets/shiba_puppy.png'),
-            _buildStageItem(context, 'Child', '1 - 3 months', 'Bonus continues scaling', 'assets/shiba_child.png'),
-            _buildStageItem(context, 'Teen', '3 - 6 months', 'Bonus continues scaling', 'assets/shiba_teen.png'),
-            _buildStageItem(context, 'Young Adult', '6 - 12 months', 'Bonus continues scaling', 'assets/shiba_young_adult.png'),
-            _buildStageItem(context, 'Adult', '1 year+', 'Maximum Bonus (+100% Base Reward)', 'assets/shiba_adult.png'),
+            _buildStageItem(context, 'Egg', '0 - 2 days', '+0% Bonus', 'assets/shiba_egg.png'),
+            _buildStageItem(context, 'Baby', '2 - 7 days', '+5% Bonus', 'assets/shiba_baby.png'),
+            _buildStageItem(context, 'Toddler', '7 - 14 days', '+10% Bonus', 'assets/shiba_baby.png'),
+            _buildStageItem(context, 'Puppy', '14 - 30 days', '+30% Bonus', 'assets/shiba_teen.png'),
+            _buildStageItem(context, 'Child', '1 - 3 months', '+40% Bonus', 'assets/shiba_child.png'),
+            _buildStageItem(context, 'Teen', '3 - 6 months', '+50% Bonus', 'assets/shiba_puppy.png'),
+            _buildStageItem(context, 'Young Adult', '6 - 12 months', '+75% Bonus', 'assets/shiba_young_adult.png'),
+            _buildStageItem(context, 'Adult', '1 year+', '+100% Bonus (Max)', 'assets/shiba_adult.png'),
             const SizedBox(height: 30),
             Center(
               child: ElevatedButton(

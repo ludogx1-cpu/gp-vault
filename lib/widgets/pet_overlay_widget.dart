@@ -314,9 +314,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
       case 'egg': return 'assets/shiba_egg.png';
       case 'baby': return 'assets/shiba_baby.png';
       case 'toddler': return 'assets/shiba_baby.png'; // Uses baby image but scaled larger
-      case 'puppy': return 'assets/shiba_puppy.png';
+      case 'puppy': return 'assets/shiba_teen.png'; // Swapped with teen
       case 'child': return 'assets/shiba_child.png';
-      case 'teen': return 'assets/shiba_teen.png';
+      case 'teen': return 'assets/shiba_puppy.png'; // Swapped with puppy
       case 'young_adult': return 'assets/shiba_young_adult.png';
       case 'adult': return 'assets/shiba_adult.png';
       default: return 'assets/shiba_toddler.png';
@@ -325,14 +325,14 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
 
   double _getScaleForStage() {
     switch (_stage) {
-      case 'egg': return 0.4;
-      case 'baby': return 0.5;
-      case 'toddler': return 0.6;
-      case 'puppy': return 0.7;
-      case 'child': return 0.8;
-      case 'teen': return 0.9;
-      case 'young_adult': return 1.0;
-      case 'adult': return 1.2;
+      case 'egg': return 0.65; // Increased from 0.4
+      case 'baby': return 0.75; // Increased from 0.5
+      case 'toddler': return 0.85; // Increased from 0.6
+      case 'puppy': return 0.95; // Increased from 0.7
+      case 'child': return 1.0; // Increased from 0.8
+      case 'teen': return 1.1; // Increased from 0.9
+      case 'young_adult': return 1.2; // Increased from 1.0
+      case 'adult': return 1.4; // Increased from 1.2
       default: return 0.7;
     }
   }

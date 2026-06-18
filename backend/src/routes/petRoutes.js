@@ -1,7 +1,7 @@
 const express = require('express');
 const { admin, verifyFirebaseToken } = require('../services/firebaseService');
 
-const { calculateDecay, getGrowthStage, getAgeMultiplier, MAX_STAT } = require('../utils/petMechanics');
+const { calculateDecay, getGrowthStage, getAgeMultiplier, MAX_STAT, calculatePetBonusPercent } = require('../utils/petMechanics');
 const { getDogePrice } = require('../services/priceService');
 
 const router = express.Router();
@@ -192,8 +192,10 @@ router.post('/pet-feed', verifyFirebaseToken, async (req, res) => {
 
       if (currentDoge < FEED_COST_DOGE) throw new Error(`Insufficient DOGE. Costs ${FEED_COST_DOGE} DOGE to feed.`);
 
+      const petBonus = calculatePetBonusPercent(decayed, data);
+      const investmentAmount = (FEED_COST_DOGE * 2) * (1 + (petBonus / 100));
       const newHunger = Math.min(MAX_STAT, decayed.hunger + FEED_HUNGER_RECOVERY);
-      remainingInvestments.push({ amount: FEED_COST_DOGE * 2, unlock_time: Date.now() + 24 * 60 * 60 * 1000 });
+      remainingInvestments.push({ amount: investmentAmount, unlock_time: Date.now() + 24 * 60 * 60 * 1000 });
 
       transaction.update(userRef, {
         doge_balance: currentDoge - FEED_COST_DOGE,
@@ -237,9 +239,11 @@ router.post('/pet-play', verifyFirebaseToken, async (req, res) => {
 
       if (currentDoge < PLAY_COST_DOGE) throw new Error(`Insufficient DOGE. Costs ${PLAY_COST_DOGE} DOGE to play.`);
 
+      const petBonus = calculatePetBonusPercent(decayed, data);
+      const investmentAmount = (PLAY_COST_DOGE * 2) * (1 + (petBonus / 100));
       const newHappiness = Math.min(MAX_STAT, decayed.happiness + PLAY_HAPPINESS_RECOVERY);
       const newEnergy = decayed.energy - PLAY_ENERGY_COST;
-      remainingInvestments.push({ amount: PLAY_COST_DOGE * 2, unlock_time: Date.now() + 24 * 60 * 60 * 1000 });
+      remainingInvestments.push({ amount: investmentAmount, unlock_time: Date.now() + 24 * 60 * 60 * 1000 });
 
       transaction.update(userRef, {
         doge_balance: currentDoge - PLAY_COST_DOGE,
@@ -282,8 +286,10 @@ router.post('/pet-sleep', verifyFirebaseToken, async (req, res) => {
 
       if (currentDoge < SLEEP_COST_DOGE) throw new Error(`Insufficient DOGE. Costs ${SLEEP_COST_DOGE} DOGE to sleep.`);
 
+      const petBonus = calculatePetBonusPercent(decayed, data);
+      const investmentAmount = (SLEEP_COST_DOGE * 2) * (1 + (petBonus / 100));
       const newEnergy = Math.min(MAX_STAT, decayed.energy + SLEEP_ENERGY_RECOVERY);
-      remainingInvestments.push({ amount: SLEEP_COST_DOGE * 2, unlock_time: Date.now() + 24 * 60 * 60 * 1000 });
+      remainingInvestments.push({ amount: investmentAmount, unlock_time: Date.now() + 24 * 60 * 60 * 1000 });
 
       transaction.update(userRef, {
         doge_balance: currentDoge - SLEEP_COST_DOGE,
