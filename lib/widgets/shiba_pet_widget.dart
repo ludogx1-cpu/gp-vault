@@ -162,19 +162,20 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
     );
   }
 
-  Future<void> _forceAgeUpAdmin() async {
+  Future<void> _forceAgeAdmin(int days) async {
     setState(() => _isLoading = true);
     try {
       final headers = await getAuthHeaders();
       final response = await http.post(
         Uri.parse('${ApiConstants.baseUrl}/pet-admin-age-up'),
         headers: headers,
+        body: jsonEncode({'days': days}),
       );
 
       final data = jsonDecode(response.body);
       if (response.statusCode == 200 && data['success']) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Aged up 30 days!'), backgroundColor: Colors.green));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Aged by $days days!'), backgroundColor: Colors.green));
           _fetchPetStatus(); // Refresh UI
         }
       } else {
@@ -319,13 +320,20 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                           label: const Text("Sleep (0.0001)", style: TextStyle(fontSize: 11)),
                           style: ElevatedButton.styleFrom(backgroundColor: canSleep ? Colors.blue : Colors.grey, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
                         ),
-                        if (FirebaseAuth.instance.currentUser?.email == 'ludogx1@gmail.com')
+                        if (FirebaseAuth.instance.currentUser?.email == 'ludogx1@gmail.com') ...[
                           ElevatedButton.icon(
-                            onPressed: _isLoading ? null : _forceAgeUpAdmin,
-                            icon: const Icon(Icons.fast_forward, size: 16),
-                            label: const Text("Admin: +30 Days", style: TextStyle(fontSize: 11)),
+                            onPressed: _isLoading ? null : () => _forceAgeAdmin(-5),
+                            icon: const Icon(Icons.fast_rewind, size: 16),
+                            label: const Text("-5 Days", style: TextStyle(fontSize: 11)),
                             style: ElevatedButton.styleFrom(backgroundColor: Colors.purple, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
                           ),
+                          ElevatedButton.icon(
+                            onPressed: _isLoading ? null : () => _forceAgeAdmin(5),
+                            icon: const Icon(Icons.fast_forward, size: 16),
+                            label: const Text("+5 Days", style: TextStyle(fontSize: 11)),
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.purple, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
+                          ),
+                        ]
                       ],
                     ),
                     const SizedBox(height: 10),

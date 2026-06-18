@@ -310,16 +310,20 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
   }
 
   String _getImageAsset() {
+    return 'assets/shiba_toddler.png';
+  }
+
+  double _getScaleForStage() {
     switch (_stage) {
-      case 'egg': return 'assets/shiba_egg.png';
-      case 'baby': return 'assets/shiba_baby.png';
-      case 'toddler': return 'assets/shiba_toddler.png';
-      case 'puppy': return 'assets/shiba_puppy.png';
-      case 'child': return 'assets/shiba_child.png';
-      case 'teen': return 'assets/shiba_teen.png';
-      case 'young_adult': return 'assets/shiba_young_adult.png';
-      case 'adult': return 'assets/shiba_adult.png';
-      default: return 'assets/shiba_puppy.png';
+      case 'egg': return 0.4;
+      case 'baby': return 0.5;
+      case 'toddler': return 0.6;
+      case 'puppy': return 0.7;
+      case 'child': return 0.8;
+      case 'teen': return 0.9;
+      case 'young_adult': return 1.0;
+      case 'adult': return 1.2;
+      default: return 0.7;
     }
   }
 
@@ -372,7 +376,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
               }
 
               // Squish effect for boop
-              double boopScale = 1.0 - (_boopController.value * 0.15);
+              double baseScale = _getScaleForStage();
+              double boopScale = baseScale - (_boopController.value * 0.15 * baseScale);
 
               return Transform.translate(
                 offset: Offset(eggOffset, walkOffset),

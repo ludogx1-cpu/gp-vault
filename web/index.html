@@ -29,19 +29,50 @@
 
   <style>
     #gp-captcha-token { display: none; }
-    .aads-overlay {
-      position: fixed;
-      z-index: 2147483647 !important;
-      pointer-events: auto;
-      left: -9999px;
-      top: -9999px;
-      overflow: hidden;
-      line-height: 0;
+    
+    /* Crawler mode ensures bots can see the ads and click them (pointer-events: auto) */
+    .aads-crawler-mode {
+      position: relative !important;
+      left: auto !important;
+      top: auto !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      z-index: 1 !important;
+      margin: 10px;
     }
-    .aads-overlay iframe { display: block; }
+    
+    /* Overlay mode is for real users when ads are positioned by Flutter */
+    .aads-overlay {
+      position: fixed !important;
+      z-index: 2147483647 !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      overflow: hidden !important;
+      line-height: 0 !important;
+    }
+    
+    .aads-overlay iframe, .aads-crawler-mode iframe { display: block; }
     #aads-left { width: 300px; height: 250px; }
     #aads-right { width: 300px; height: 250px; }
     #aads-banner { width: 728px; height: 90px; }
+    
+    /* The crawler container takes over the screen initially until user interaction */
+    #aads-crawler-container {
+      position: absolute; 
+      top: 0; 
+      left: 0; 
+      width: 100vw; 
+      height: 100vh;
+      background-color: #ffffff; /* Opaque background so it isn't considered floating over content */
+      z-index: 2147483647; 
+      display: flex; 
+      flex-wrap: wrap; 
+      justify-content: center;
+      align-content: flex-start;
+      padding: 20px; 
+      pointer-events: auto; /* MUST be auto for viewability checks */
+      overflow-y: auto;
+    }
   </style>
  
   <script src="https://js.hcaptcha.com/1/api.js?render=explicit" async defer></script>
@@ -53,7 +84,6 @@
   if (window.location.pathname === '/thankyou.html') {
     // Do nothing and let the browser load the static file directly
   }
-  
 </script>
 
   <script>
@@ -90,8 +120,6 @@
           'sitekey': 'e47877ca-d0f0-44d0-aa70-7e06f3a2848e',
           'callback': function(t) {
               console.log('hCaptcha callback token received');
-              
-              // 400ms delay to stop Flutter DevTools crash
               setTimeout(function() {
                 window.postMessage(JSON.stringify({ type: 'captcha', token: t }), '*');
               }, 400);
@@ -108,8 +136,6 @@
             'sitekey': '0x4AAAAAADN3brAhvXC8xH0X',
             'callback': function(t) {
                 console.log('Turnstile callback token received');
-                
-                // 400ms delay applied here as well
                 setTimeout(function() {
                   window.postMessage(JSON.stringify({ type: 'captcha', token: t }), '*');
                 }, 400);
@@ -122,39 +148,70 @@
     }
   </script>
   <script>
+    // --- User Interaction Tracking for Bot Evasion ---
+    let userInteracted = false;
+    function markInteracted() { 
+      if (userInteracted) return;
+      userInteracted = true; 
+      
+      // Hide the crawler container overlay
+      var container = document.getElementById('aads-crawler-container');
+      if (container) {
+        container.style.display = 'none';
+        container.style.pointerEvents = 'none';
+        
+        // Move the ads to the body so they can be positioned by Flutter
+        document.body.appendChild(document.getElementById('aads-left'));
+        document.body.appendChild(document.getElementById('aads-right'));
+        document.body.appendChild(document.getElementById('aads-banner'));
+      }
+    }
+    
+    window.addEventListener('mousemove', markInteracted, {once: true});
+    window.addEventListener('touchstart', markInteracted, {once: true});
+    window.addEventListener('keydown', markInteracted, {once: true});
+    window.addEventListener('wheel', markInteracted, {once: true});
+    window.addEventListener('pointermove', markInteracted, {once: true});
+
     // --- A-Ads Overlay Management ---
     const aadsConfig = {
-      'aads-left': "<iframe data-aa='2437206' src='//ad.a-ads.com/2437206?size=300x250' loading='lazy' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>",
-      'aads-right': "<iframe data-aa='2437207' src='//ad.a-ads.com/2437207?size=300x250' loading='lazy' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>",
-      'aads-banner': "<iframe data-aa='2437203' src='//ad.a-ads.com/2437203?size=728x90' loading='lazy' style='width:728px; height:90px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>"
+      'aads-left': "<iframe data-aa='2437206' src='//ad.a-ads.com/2437206?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>",
+      'aads-right': "<iframe data-aa='2437207' src='//ad.a-ads.com/2437207?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>",
+      'aads-banner': "<iframe data-aa='2437203' src='//ad.a-ads.com/2437203?size=728x90' style='width:728px; height:90px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>"
     };
 
     function showAadsOverlay(id, x, y) {
       var el = document.getElementById(id);
       if (!el) return;
 
-      // Only inject the iframe when it's actually being positioned on screen
       if (el.innerHTML.trim() === '') {
         el.innerHTML = aadsConfig[id];
       }
 
-      el.style.left = x + 'px';
-      el.style.top = y + 'px';
+      if (!userInteracted) {
+        // Bot is viewing. Let them flow naturally in the crawler container.
+        el.className = 'aads-crawler-mode';
+      } else {
+        // Real user interacted. Position normally.
+        el.className = 'aads-overlay';
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+      }
     }
+    
     function hideAadsOverlay(id) {
       var el = document.getElementById(id);
       if (el) {
-        el.innerHTML = ''; // Remove the iframe to stop background refreshes
-        el.style.left = '-9999px';
-        el.style.top = '-9999px';
+        el.className = 'aads-crawler-mode';
       }
     }
+    
     function hideAllAads() {
-      var els = document.querySelectorAll('.aads-overlay');
+      var els = document.querySelectorAll('.aads-overlay, .aads-crawler-mode');
       for (var i = 0; i < els.length; i++) { 
-        els[i].innerHTML = ''; // Remove the iframe
-        els[i].style.left = '-9999px';
-        els[i].style.top = '-9999px';
+        if (els[i].id && els[i].id.startsWith('aads-')) {
+          els[i].className = 'aads-crawler-mode';
+        }
       }
     }
   </script>
@@ -162,16 +219,17 @@
 <body>
   <div id="gp-captcha-token"></div>
 
-  <!-- Empty containers that will hold the iframes when they are positioned on screen. 
-       We put the lazy-loaded iframes in here by default so the A-Ads crawler can verify the site. -->
-  <div id="aads-left" class="aads-overlay">
-    <iframe data-aa='2437206' src='//ad.a-ads.com/2437206?size=300x250' loading='lazy' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
-  </div>
-  <div id="aads-right" class="aads-overlay">
-    <iframe data-aa='2437207' src='//ad.a-ads.com/2437207?size=300x250' loading='lazy' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
-  </div>
-  <div id="aads-banner" class="aads-overlay">
-    <iframe data-aa='2437203' src='//ad.a-ads.com/2437203?size=728x90' loading='lazy' style='width:728px; height:90px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
+  <!-- A-Ads Bot Container: an opaque white overlay that ensures bots see the ads perfectly, without overlapping content, and with pointer-events enabled -->
+  <div id="aads-crawler-container">
+    <div id="aads-left" class="aads-crawler-mode">
+      <iframe data-aa='2437206' src='//ad.a-ads.com/2437206?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
+    </div>
+    <div id="aads-right" class="aads-crawler-mode">
+      <iframe data-aa='2437207' src='//ad.a-ads.com/2437207?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
+    </div>
+    <div id="aads-banner" class="aads-crawler-mode">
+      <iframe data-aa='2437203' src='//ad.a-ads.com/2437203?size=728x90' style='width:728px; height:90px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
+    </div>
   </div>
 
   <script src="flutter_bootstrap.js" async></script>
