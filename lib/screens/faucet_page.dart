@@ -1,6 +1,5 @@
 import 'package:provider/provider.dart';
 import '../src/user_provider.dart';
-import '../widgets/smart_fallback_ad.dart';
 import '../src/js_bindings.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -52,7 +51,6 @@ class _FaucetPageState extends State<FaucetPage> {
   bool _saveToVault = false;
   Timer? _countdownTimer;
   Timer? _captchaPoller;
-  Timer? _adPositionTimer;
   int _secondsRemaining = 0;
   double _currentDogePrice = 0.15;
 

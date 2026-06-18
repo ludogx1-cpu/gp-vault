@@ -310,7 +310,17 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
   }
 
   String _getImageAsset() {
-    return 'assets/shiba_toddler.png';
+    switch (_stage) {
+      case 'egg': return 'assets/shiba_egg.png';
+      case 'baby': return 'assets/shiba_baby.png';
+      case 'toddler': return 'assets/shiba_baby.png'; // Uses baby image but scaled larger
+      case 'puppy': return 'assets/shiba_puppy.png';
+      case 'child': return 'assets/shiba_child.png';
+      case 'teen': return 'assets/shiba_teen.png';
+      case 'young_adult': return 'assets/shiba_young_adult.png';
+      case 'adult': return 'assets/shiba_adult.png';
+      default: return 'assets/shiba_toddler.png';
+    }
   }
 
   double _getScaleForStage() {
@@ -462,18 +472,32 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
                             // Emotion bubble
                   if (emotion.isNotEmpty || _stage != 'egg')
                     Positioned(
-                      top: -30,
+                      top: -45,
                       child: Column(
                         children: [
                           if (_stage != 'egg')
-                            Text(
-                              _petName,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.amber,
-                                shadows: [Shadow(color: Colors.black, blurRadius: 2)],
-                              ),
+                            Column(
+                              children: [
+                                Text(
+                                  _petName,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.amber,
+                                    shadows: [Shadow(color: Colors.black, blurRadius: 2)],
+                                  ),
+                                ),
+                                Text(
+                                  _stage.replaceAll('_', ' ').toUpperCase(),
+                                  style: const TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    letterSpacing: 1.0,
+                                    shadows: [Shadow(color: Colors.black, blurRadius: 2)],
+                                  ),
+                                ),
+                              ],
                             ),
                           if (emotion.isNotEmpty)
                             AnimatedOpacity(

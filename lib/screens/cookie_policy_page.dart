@@ -2,17 +2,9 @@ import 'package:flutter/material.dart';
 import '../src/theme_provider.dart';
 import '../widgets/widgets.dart';
 
-
-
 // --- GLOBAL THEME CONSTANTS 🚀 ---
 
-
 // --- CAPTCHA JS BINDINGS ---
-
-
-
-
-
 
 // ==========================================
 // 1. THE SHELL
@@ -67,5 +59,3 @@ class CookiePolicyPage extends StatelessWidget {
     );
   }
 }
-
-

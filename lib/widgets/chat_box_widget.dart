@@ -168,6 +168,9 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
         headers: await getAuthHeaders(),
         body: jsonEncode({"username": name}),
       );
+      
+      if (!mounted) return;
+      
       final resData = jsonDecode(response.body);
       if (response.statusCode == 200) {
         setState(() {
@@ -178,6 +181,7 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(resData['error'] ?? "Failed to set username")));
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error connecting to server")));
     }
   }
@@ -216,6 +220,8 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
         body: jsonEncode({"message": text}),
       );
 
+      if (!mounted) return;
+
       final resData = jsonDecode(response.body);
       if (response.statusCode != 200) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -227,6 +233,7 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
         );
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Failed to send message.")),
       );
@@ -240,6 +247,9 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
         headers: await getAuthHeaders(),
         body: jsonEncode({"target_uid": targetUid, "reason": reason}),
       );
+      
+      if (!mounted) return;
+      
       final resData = jsonDecode(response.body);
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("User banned successfully")));
@@ -247,6 +257,7 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(resData['error'] ?? "Ban failed")));
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Failed to connect")));
     }
   }
@@ -257,6 +268,9 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
         Uri.parse('${ApiConstants.baseUrl}/chat/payout-jar'),
         headers: await getAuthHeaders(),
       );
+      
+      if (!mounted) return;
+      
       final resData = jsonDecode(response.body);
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(resData['message'] ?? "Jar emptied!")));
@@ -264,6 +278,7 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(resData['error'] ?? "Failed to empty jar")));
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Failed to connect")));
     }
   }
