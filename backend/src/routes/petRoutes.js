@@ -136,7 +136,7 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
         let pendingPoos = 0;
         if (data.pet_last_poo_time) {
           const hoursSincePoo = (Date.now() - data.pet_last_poo_time.toDate().getTime()) / (1000 * 60 * 60);
-          pendingPoos = Math.min(12, Math.floor(hoursSincePoo / 2)); // 1 poo per 2 hours, max 12
+          pendingPoos = Math.min(12, Math.floor(hoursSincePoo / 0.5)); // 1 poo per 30 minutes, max 12
         } else {
           // If no last poo time, initialize it
           transaction.update(userRef, { pet_last_poo_time: admin.firestore.FieldValue.serverTimestamp() });
