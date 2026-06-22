@@ -719,6 +719,18 @@ class _FaucetPageState extends State<FaucetPage> {
                                         fontStyle: FontStyle.italic,
                                       ),
                                     ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "Absolute Maximum Payout: 0.072 DOGE",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: isDark
+                                            ? Colors.redAccent.shade100
+                                            : Colors.red.shade900,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               );
@@ -773,6 +785,18 @@ class _FaucetPageState extends State<FaucetPage> {
                                         : Colors.green.shade900,
                                     fontSize: 13,
                                     fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  "Absolute Maximum Payout: 0.072 DOGE",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: isDark
+                                        ? Colors.redAccent.shade100
+                                        : Colors.red.shade900,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ],
