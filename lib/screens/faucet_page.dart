@@ -252,12 +252,12 @@ class _FaucetPageState extends State<FaucetPage> {
           _syncRemoveLock();
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text(
-                "Timer complete! 🐾 Please refresh the page to load your next Captcha.",
-                style: TextStyle(color: Colors.black87),
+                "Timer complete! 🐶 Please refresh the page to load your next Captcha.",
+                style: TextStyle(color: themeProvider.isDarkMode ? Colors.white : Colors.black87),
               ),
-              duration: Duration(seconds: 8),
+              duration: const Duration(seconds: 8),
               backgroundColor: Colors.blue,
             ),
           );
@@ -339,20 +339,27 @@ class _FaucetPageState extends State<FaucetPage> {
             _status = "${resData['message']} (+10 XP!)";
             _isLoading = false;
           });
+          final earnedStr = resData['earned'] != null ? resData['earned'].toStringAsFixed(8) : "0.00000000";
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Row(
+              content: Row(
                 children: [
-                  Icon(Icons.star, color: Colors.white),
-                  SizedBox(width: 10),
-                  Text(
-                    "+10 XP Earned! 🚀",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  Icon(Icons.star, color: themeProvider.isDarkMode ? Colors.white : null),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      "+10 XP Earned! 🐶\nYou claimed $earnedStr DOGE!",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold, 
+                        fontSize: themeProvider.isDarkMode ? 14 : 16, 
+                        color: themeProvider.isDarkMode ? Colors.white : null,
+                      ),
+                    ),
                   ),
                 ],
               ),
-              backgroundColor: Colors.purple.shade600,
+              backgroundColor: themeProvider.isDarkMode ? Colors.grey.shade800 : Colors.purple.shade600,
               behavior: SnackBarBehavior.floating,
               margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
               duration: const Duration(seconds: 4),
@@ -464,7 +471,7 @@ class _FaucetPageState extends State<FaucetPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const BannerAdPlaceholder(),
+                const AdsterraBannerAd(),
                 const SizedBox(height: 15),
 
                 const SizedBox(
@@ -784,7 +791,7 @@ class _FaucetPageState extends State<FaucetPage> {
                   stream: FirebaseFirestore.instance
                       .collection('updates')
                       .orderBy('timestamp', descending: true)
-                      .limit(3)
+                      .limit(10)
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -825,35 +832,47 @@ class _FaucetPageState extends State<FaucetPage> {
                                 ],
                               ),
                               const SizedBox(height: 15),
-                              ...snapshot.data!.docs.map((doc) {
-                                var data = doc.data() as Map<String, dynamic>;
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 10),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        data['title'] ?? 'Update',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15,
-                                          color: isDark ? Colors.white : Colors.black87,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        data['message'] ?? '',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: isDark ? Colors.white70 : Colors.black54,
-                                        ),
-                                      ),
-                                    ],
+                              Container(
+                                constraints: const BoxConstraints(maxHeight: 250),
+                                child: Scrollbar(
+                                  thumbVisibility: true,
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      children: snapshot.data!.docs.asMap().entries.map((entry) {
+                                        int index = entry.key;
+                                        var data = entry.value.data() as Map<String, dynamic>;
+                                        bool isLatest = index == 0;
+                                        return Padding(
+                                          padding: const EdgeInsets.only(bottom: 15, right: 10, left: 10),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                data['title'] ?? 'Update',
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: isLatest ? 15 : 12,
+                                                  color: isDark ? Colors.white : Colors.black87,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                data['message'] ?? '',
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  fontSize: isLatest ? 13 : 11,
+                                                  color: isDark ? Colors.white70 : Colors.black54,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
                                   ),
-                                );
-                              }),
+                                ),
+                              ),
                               const SizedBox(height: 15),
                               Text(
                                 "For support, contact: ludogx1@gmail.com",
@@ -965,6 +984,9 @@ class _FaucetPageState extends State<FaucetPage> {
                       controller: _addressController,
                       enabled: _secondsRemaining == 0,
                       onChanged: (value) => _saveAddress(value),
+                      style: TextStyle(
+                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
+                      ),
                       decoration: InputDecoration(
                         labelText: 'FaucetPay Dogecoin Address',
                         prefixIcon: const Icon(
@@ -973,6 +995,19 @@ class _FaucetPageState extends State<FaucetPage> {
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.amber : Colors.grey.shade400,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.amber : Colors.blue,
+                            width: 2.0,
+                          ),
                         ),
                       ),
                     ),
@@ -1126,13 +1161,10 @@ class _FaucetPageState extends State<FaucetPage> {
                 Wrap(
                   alignment: WrapAlignment.center,
                   crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 160,
+                  spacing: 20,
                   runSpacing: 30,
                   children: [
-                    const SmartFallbackAd(
-                      width: 300,
-                      height: 250,
-                    ),
+                    const AdsenseSquareAd(adSlot: '6054324338'),
                     SizedBox(
                       width: 160,
                       height: 60,
@@ -1172,10 +1204,7 @@ class _FaucetPageState extends State<FaucetPage> {
                               ),
                       ),
                     ),
-                    const SmartFallbackAd(
-                      width: 300,
-                      height: 250,
-                    ),
+                    const AdsenseSquareAd(adSlot: '5587420478'),
                   ],
                 ),
 
@@ -1332,8 +1361,8 @@ class _FaucetPageState extends State<FaucetPage> {
           ),
         ),
       ),
-        const PetOverlayWidget(),
-        const ChatBoxWidget(),
+      const PetOverlayWidget(),
+      const ChatBoxWidget(),
       ],
     ),
   ),
