@@ -709,7 +709,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                     ),
                                     const SizedBox(height: 3),
                                     Text(
-                                      "Your base reward scales dynamically against the USD value of DOGE. The cheaper DOGE gets, the more you earn!",
+                                      "Your base reward scales dynamically against the USD value of DOGE between 0.001 and 0.01. The cheaper DOGE gets, the more you earn!",
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         color: isDark
@@ -765,7 +765,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                 ),
                                 const SizedBox(height: 5),
                                 Text(
-                                  "Rewards scale dynamically. If the USD value of DOGE drops, you earn more DOGE!",
+                                  "Rewards scale dynamically between 0.001 and 0.01. If the USD value of DOGE drops, you earn more DOGE!",
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: isDark
