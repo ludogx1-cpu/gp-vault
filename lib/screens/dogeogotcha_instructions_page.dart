@@ -41,6 +41,11 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
             ),
             _buildSection(
               context,
+              '💤 Sleep Mode (Hiding your Pet)',
+              'If you prefer to have a clean screen, you can click the "Power Button" icon on your pet to put it to sleep. When your pet is off and not roaming the screen, it will still automatically wake up when it needs a poo or a boop! Once you finish taking care of it, it will automatically go back to bed and disappear again.',
+            ),
+            _buildSection(
+              context,
               '🎒 The Shop & PTC Rewards',
               'Once your pet reaches the Baby stage, you unlock the Shop! Use your Ad Credit (USDT) to buy premium accessories.\n\n'
               'Equipping accessories directly boosts your Pay-To-Click (PTC) ad rewards. You can equip up to 3 items at the same time. The total bonus of all equipped items multiplies your PTC rewards. (E.g., Crown + Watch = 150% extra!)',

@@ -48,6 +48,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
   bool _isCloseUp = false;
   bool _isChasing = false;
   bool _isSleepingOverlay = false;
+  bool _userWantsSleep = false;
 
   // Animations
   late AnimationController _shakeController;
@@ -82,7 +83,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
     // Load saved sleep state
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
-        _isSleepingOverlay = prefs.getBool('pet_sleeping') ?? false;
+        _userWantsSleep = prefs.getBool('pet_sleeping') ?? false;
+        _isSleepingOverlay = _userWantsSleep;
       });
     });
   }
@@ -153,6 +155,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
               bool userWantsSleep = prefs.getBool('pet_sleeping') ?? false;
               if (mounted) {
                 setState(() {
+                  _userWantsSleep = userWantsSleep;
                   if (pendingPoos > 0 || boopReady) {
                     _isSleepingOverlay = false;
                   } else {
@@ -528,16 +531,22 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
                                 child: IconButton(
                                   padding: EdgeInsets.zero,
                                   constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
-                                  icon: const Icon(Icons.power_settings_new, color: Colors.redAccent, size: 16),
+                                  icon: Icon(Icons.power_settings_new, color: _userWantsSleep ? Colors.blue : Colors.green, size: 16),
                                   onPressed: () async {
                                     final prefs = await SharedPreferences.getInstance();
-                                    await prefs.setBool('pet_sleeping', true);
+                                    bool newValue = !_userWantsSleep;
+                                    await prefs.setBool('pet_sleeping', newValue);
                                     setState(() {
-                                      _isSleepingOverlay = true;
+                                      _userWantsSleep = newValue;
+                                      if (newValue) {
+                                        _isSleepingOverlay = true;
+                                      } else {
+                                        _isSleepingOverlay = false;
+                                      }
                                     });
                                     if (mounted) {
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Dogeogotcha turned off! It will automatically wake up when it needs you.')),
+                                        SnackBar(content: Text(newValue ? 'Dogeogotcha turned off! It will automatically wake up when it needs you.' : 'Dogeogotcha turned on!')),
                                       );
                                     }
                                   },
