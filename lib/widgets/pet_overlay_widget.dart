@@ -6,6 +6,7 @@ import 'dart:convert';
 import '../api_constants.dart';
 import '../src/firebase_service.dart';
 import '../utils/pet_events.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PooData {
   final String id;
@@ -77,6 +78,13 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
     
     // Start movement loop
     _moveTimer = Timer.periodic(const Duration(seconds: 8), (_) => _movePetRandomly());
+    
+    // Load saved sleep state
+    SharedPreferences.getInstance().then((prefs) {
+      setState(() {
+        _isSleepingOverlay = prefs.getBool('pet_sleeping') ?? false;
+      });
+    });
   }
 
   @override
@@ -141,9 +149,18 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
             final now = DateTime.now().millisecondsSinceEpoch;
             bool boopReady = (now - _lastBoopTime) >= 30 * 60 * 1000;
 
-            if (pendingPoos > 0 || boopReady) {
-              _isSleepingOverlay = false;
-            }
+            SharedPreferences.getInstance().then((prefs) {
+              bool userWantsSleep = prefs.getBool('pet_sleeping') ?? false;
+              if (mounted) {
+                setState(() {
+                  if (pendingPoos > 0 || boopReady) {
+                    _isSleepingOverlay = false;
+                  } else {
+                    _isSleepingOverlay = userWantsSleep;
+                  }
+                });
+              }
+            });
 
             // Add missing poos randomly across the screen
             if (pendingPoos > _poos.length) {
@@ -171,6 +188,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
 
   void _movePetRandomly() {
     if (!_isWandering || !mounted) return;
+    if (_isSleepingOverlay && _stage != 'egg') return;
+
     
     // 15% chance to start chasing the mouse if not already close up or chasing
     if (!_isCloseUp && !_isChasing && _stage != 'egg' && _random.nextDouble() < 0.15) {
@@ -395,7 +414,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
         )),
 
         // Pet
-        AnimatedPositioned(
+        if (_isSleepingOverlay && _stage != 'egg') const SizedBox.shrink() else AnimatedPositioned(
           duration: Duration(seconds: _isChasing ? 1 : 4),
           curve: Curves.easeInOut,
           left: _petX,
@@ -509,14 +528,18 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
                                 child: IconButton(
                                   padding: EdgeInsets.zero,
                                   constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
-                                  icon: const Icon(Icons.bedtime, color: Colors.blueAccent, size: 16),
-                                  onPressed: () {
+                                  icon: const Icon(Icons.power_settings_new, color: Colors.redAccent, size: 16),
+                                  onPressed: () async {
+                                    final prefs = await SharedPreferences.getInstance();
+                                    await prefs.setBool('pet_sleeping', true);
                                     setState(() {
                                       _isSleepingOverlay = true;
                                     });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Zzz... Dogeogotcha is sleeping.')),
-                                    );
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Dogeogotcha turned off! It will automatically wake up when it needs you.')),
+                                      );
+                                    }
                                   },
                                 ),
                               ),
