@@ -132,13 +132,13 @@ class _FaucetPageState extends State<FaucetPage> {
   }
 
   double _getBaseReward(double price) {
-    if (price <= 0.05) {
+    if (price <= 0.02) {
       return 0.016;
     }
-    if (price >= 0.50) {
+    if (price >= 0.20) {
       return 0.004;
     }
-    return 0.016 - ((price - 0.05) / 0.45) * 0.012;
+    return 0.016 - ((price - 0.02) / 0.18) * 0.012;
   }
 
   Future<void> _loadSavedAddress() async {

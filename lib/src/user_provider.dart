@@ -32,6 +32,8 @@ class UserProvider extends ChangeNotifier {
         _userData = snapshot.data();
         notifyListeners();
       }
+    }, onError: (e) {
+      debugPrint("User listener error: $e");
     });
   }
 

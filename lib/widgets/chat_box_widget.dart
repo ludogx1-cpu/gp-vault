@@ -29,12 +29,14 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
   bool _hasUsername = true; // Assume true until we load
   bool _isCheckingUsername = true;
 
+  StreamSubscription? _unreadSubscription;
+
   @override
   void initState() {
     super.initState();
     _checkUsername();
 
-    FirebaseFirestore.instance
+    _unreadSubscription = FirebaseFirestore.instance
         .collection('chat_messages')
         .orderBy('timestamp', descending: true)
         .limit(1)
@@ -47,6 +49,8 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
           });
         }
       }
+    }, onError: (e) {
+      debugPrint("Chat listener error: $e");
     });
   }
 
@@ -78,6 +82,7 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
     _usernameController.dispose();
     _scrollController.dispose();
     _cooldownTimer?.cancel();
+    _unreadSubscription?.cancel();
     super.dispose();
   }
 

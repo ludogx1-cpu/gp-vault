@@ -85,7 +85,7 @@ router.post('/send-doge', verifyFirebaseToken, async (req, res) => {
     dogeAmount = dogeAmount * ageMult;
     
     // Hard cap max Faucet reward
-    dogeAmount = Math.min(dogeAmount, 0.008);
+    dogeAmount = Math.min(dogeAmount, 0.072);
 
     const faucetPayResponse = await faucetPaySend(address, dogeAmount);
 
@@ -171,7 +171,11 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
         const totalBonusPercent = level + streak;
         finalReward = baseReward * (1 + (totalBonusPercent / 100));
         finalReward = finalReward * ageMult;
-        finalReward = Math.min(finalReward, 0.008);
+        finalReward = Math.min(finalReward, 0.072);
+
+        let history = data.reward_history || [];
+        history.unshift({ sector: 'Vault Faucet', amount: finalReward, timestamp: Date.now() });
+        if (history.length > 15) history = history.slice(0, 15);
 
         const updates = {
           doge_balance: Number(data.doge_balance || 0) + finalReward,
@@ -181,6 +185,7 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
           pet_happiness: decayed.happiness,
           pet_energy: decayed.energy,
           pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
+          reward_history: history,
           ...streakUpdates
         };
         if (isNewUser) {
@@ -192,12 +197,17 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
         const totalBonusPercent = level + streak + petBonus;
         finalReward = baseReward * (1 + (totalBonusPercent / 100));
         finalReward = finalReward * ageMult;
-        finalReward = Math.min(finalReward, 0.008);
+        finalReward = Math.min(finalReward, 0.072);
+
+        let history = data.reward_history || [];
+        history.unshift({ sector: 'Vault Faucet', amount: finalReward, timestamp: Date.now() });
+        if (history.length > 15) history = history.slice(0, 15);
 
         const updates = {
           doge_balance: Number(data.doge_balance || 0) + finalReward,
           xp: xp + 10,
           last_claim_time: now,
+          reward_history: history,
           ...streakUpdates
         };
         if (isNewUser) {

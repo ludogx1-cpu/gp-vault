@@ -399,9 +399,14 @@ router.post('/pet-clean-poo', verifyFirebaseToken, async (req, res) => {
          newLastPooTimeMs = Date.now() - (11 * 2 * 60 * 60 * 1000);
       }
 
+      let history = data.reward_history || [];
+      history.unshift({ sector: 'Pet Care (Poo)', amount: reward, timestamp: Date.now() });
+      if (history.length > 15) history = history.slice(0, 15);
+
       transaction.update(userRef, {
         doge_balance: newDogeBal,
-        pet_last_poo_time: admin.firestore.Timestamp.fromMillis(newLastPooTimeMs)
+        pet_last_poo_time: admin.firestore.Timestamp.fromMillis(newLastPooTimeMs),
+        reward_history: history
       });
     });
 
@@ -414,7 +419,7 @@ router.post('/pet-clean-poo', verifyFirebaseToken, async (req, res) => {
 router.post('/pet-boop', verifyFirebaseToken, async (req, res) => {
   try {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    let reward = 0.002;
+    let reward = 0.004;
 
     await admin.firestore().runTransaction(async (transaction) => {
       const snapshot = await transaction.get(userRef);
@@ -424,16 +429,21 @@ router.post('/pet-boop', verifyFirebaseToken, async (req, res) => {
 
       if (data.pet_last_boop_time) {
         const msPassed = Date.now() - data.pet_last_boop_time.toDate().getTime();
-        if (msPassed < 15 * 60 * 1000) {
+        if (msPassed < 30 * 60 * 1000) {
           throw new Error('Pet is not ready for a boop right now. Wait a bit!');
         }
       }
 
       const newDogeBal = Number(data.doge_balance || 0) + reward;
 
+      let history = data.reward_history || [];
+      history.unshift({ sector: 'Pet Care (Boop)', amount: reward, timestamp: Date.now() });
+      if (history.length > 15) history = history.slice(0, 15);
+
       transaction.update(userRef, {
         doge_balance: newDogeBal,
-        pet_last_boop_time: admin.firestore.FieldValue.serverTimestamp()
+        pet_last_boop_time: admin.firestore.FieldValue.serverTimestamp(),
+        reward_history: history
       });
     });
 

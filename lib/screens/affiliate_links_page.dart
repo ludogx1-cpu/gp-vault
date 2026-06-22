@@ -144,6 +144,24 @@ final partnerList = [
     "https://join.honeygain.com/LUDOG88986",
     "Other",
   ),
+  PartnerData(
+    "EarnApp",
+    "Earn passive income by securely sharing your unused internet bandwidth.",
+    "Passive Income",
+    Icons.wifi_tethering,
+    Colors.green,
+    "https://earnapp.com/i/kFQACykZ",
+    "Other",
+  ),
+  PartnerData(
+    "YesCoiner",
+    "Earn free crypto instantly with high payouts.",
+    "Instant Crypto",
+    Icons.monetization_on,
+    Colors.deepPurple,
+    "https://yescoiner.com/?ref=1681170",
+    "Faucets",
+  ),
 ];
 
 
