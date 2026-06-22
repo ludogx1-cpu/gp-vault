@@ -133,12 +133,12 @@ class _FaucetPageState extends State<FaucetPage> {
 
   double _getBaseReward(double price) {
     if (price <= 0.02) {
-      return 0.016;
+      return 0.01;
     }
     if (price >= 0.20) {
-      return 0.004;
+      return 0.001;
     }
-    return 0.016 - ((price - 0.02) / 0.18) * 0.012;
+    return 0.01 - ((price - 0.02) / 0.18) * 0.009;
   }
 
   Future<void> _loadSavedAddress() async {
@@ -719,18 +719,6 @@ class _FaucetPageState extends State<FaucetPage> {
                                         fontStyle: FontStyle.italic,
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      "Absolute Maximum Payout: 0.072 DOGE",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: isDark
-                                            ? Colors.redAccent.shade100
-                                            : Colors.red.shade900,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
                                   ],
                                 ),
                               );
@@ -785,18 +773,6 @@ class _FaucetPageState extends State<FaucetPage> {
                                         : Colors.green.shade900,
                                     fontSize: 13,
                                     fontStyle: FontStyle.italic,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  "Absolute Maximum Payout: 0.072 DOGE",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: isDark
-                                        ? Colors.redAccent.shade100
-                                        : Colors.red.shade900,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ],
