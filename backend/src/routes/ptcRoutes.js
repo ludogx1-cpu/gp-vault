@@ -121,9 +121,14 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
       const { getStreakUpdates } = require('../utils/helpers');
       const streakUpdates = getStreakUpdates(userData);
 
+      let history = userData.reward_history || [];
+      history.unshift({ sector: 'PTC Ads', amount: finalRewardAmount, timestamp: Date.now() });
+      if (history.length > 15) history = history.slice(0, 15);
+
       transaction.update(userRef, {
         doge_balance: Number(userData.doge_balance || 0) + finalRewardAmount,
         [`ptc_history.${ad_id}`]: now,
+        reward_history: history,
         ...streakUpdates
       });
 

@@ -4,6 +4,7 @@ import '../widgets/feature_card.dart';
 import '../src/theme_provider.dart';
 import 'package:flutter/material.dart';
 import '../widgets/trustpilot_widget.dart';
+import '../widgets/adsterra_landing_ad.dart';
 
 class LandingPage extends StatefulWidget {
   final void Function(BuildContext, bool) onAuthTrigger;
@@ -103,6 +104,7 @@ class _LandingPageState extends State<LandingPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  const AdsterraLandingAd(),
                   const SizedBox(height: 20),
                   Image.asset(
                     'assets/logo_landing.png',
@@ -248,23 +250,28 @@ class _LandingPageState extends State<LandingPage> {
             const TrustpilotWidget(),
             const SizedBox(height: 80),
 
-            // --- YOUTUBE SHORT EMBED ---
+            // --- YOUTUBE EMBED ---
             Container(
-              width: 315,
-              height: 560,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10,
-                    offset: Offset(0, 5),
+              width: isMobile ? double.infinity : 560,
+              constraints: const BoxConstraints(maxWidth: 560),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 10,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: const ClipRRect(
-                borderRadius: BorderRadius.all(Radius.circular(15)),
-                child: HtmlElementView(viewType: 'youtube-short'),
+                  child: const ClipRRect(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    child: HtmlElementView(viewType: 'youtube-promo'),
+                  ),
+                ),
               ),
             ),
 

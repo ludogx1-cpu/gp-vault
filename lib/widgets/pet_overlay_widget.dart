@@ -46,6 +46,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
   bool _isWandering = false;
   bool _isCloseUp = false;
   bool _isChasing = false;
+  bool _isSleepingOverlay = false;
 
   // Animations
   late AnimationController _shakeController;
@@ -136,6 +137,14 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
             }
 
             int pendingPoos = data['pet']['pending_poos'] ?? 0;
+            
+            final now = DateTime.now().millisecondsSinceEpoch;
+            bool boopReady = (now - _lastBoopTime) >= 30 * 60 * 1000;
+
+            if (pendingPoos > 0 || boopReady) {
+              _isSleepingOverlay = false;
+            }
+
             // Add missing poos randomly across the screen
             if (pendingPoos > _poos.length) {
               final size = MediaQuery.of(context).size;
@@ -173,8 +182,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
     final now = DateTime.now().millisecondsSinceEpoch;
     final msSinceBoop = now - _lastBoopTime;
 
-    // Check if 15 mins passed since last boop
-    if (msSinceBoop >= 15 * 60 * 1000 && !_isCloseUp) {
+    // Check if 30 mins passed since last boop
+    if (msSinceBoop >= 30 * 60 * 1000) {
       _isCloseUp = true;
       final targetX = (size.width / 2) - 50; // Center horizontal
       final targetY = size.height - 250; // Bottom center
@@ -184,6 +193,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
         _petX = targetX;
         _petY = targetY;
       });
+      // Do not walk away if waiting for a boop
+      return;
     } else {
       _isCloseUp = false;
       final targetX = 50 + _random.nextDouble() * (size.width > 150 ? size.width - 150 : 100);
@@ -269,7 +280,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
     _boopController.forward().then((_) => _boopController.reverse());
 
     final now = DateTime.now().millisecondsSinceEpoch;
-    if (now - _lastBoopTime < 15 * 60 * 1000) {
+    if (now - _lastBoopTime < 30 * 60 * 1000) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pet is not ready for another boop yet!')));
       return;
     }
@@ -348,6 +359,23 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
       } else if (_happiness > 80) {
         emotion = '❤️';
       }
+    }
+
+    if (_isSleepingOverlay && _stage != 'egg') {
+      return Stack(
+        children: _poos.map((poo) => Positioned(
+          left: poo.x,
+          top: poo.y,
+          child: GestureDetector(
+            onTap: () => _cleanPoo(poo.id),
+            child: SizedBox(
+              width: 40,
+              height: 40,
+              child: Image.asset('assets/shiba_poo.png'),
+            ),
+          ),
+        )).toList(),
+      );
     }
 
     return Stack(
@@ -470,6 +498,29 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
                               ),
                             ),
                             // Emotion bubble
+                            Positioned(
+                              top: -20,
+                              right: -10,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.5),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: IconButton(
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+                                  icon: const Icon(Icons.bedtime, color: Colors.blueAccent, size: 16),
+                                  onPressed: () {
+                                    setState(() {
+                                      _isSleepingOverlay = true;
+                                    });
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Zzz... Dogeogotcha is sleeping.')),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
                   if (emotion.isNotEmpty || _stage != 'egg')
                     Positioned(
                       top: -45,

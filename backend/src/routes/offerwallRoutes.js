@@ -71,8 +71,14 @@ router.all('/postback/bitcotasks', async (req, res) => {
       // Update user pending offer balance
       const userData = userDoc.data();
       const currentPending = Number(userData.pending_offer_balance || 0);
+
+      let history = userData.reward_history || [];
+      history.unshift({ sector: 'Offerwalls (Pending)', amount: Number(reward), timestamp: Date.now() });
+      if (history.length > 15) history = history.slice(0, 15);
+
       transaction.update(userRef, {
-        pending_offer_balance: currentPending + Number(reward)
+        pending_offer_balance: currentPending + Number(reward),
+        reward_history: history
       });
     });
 

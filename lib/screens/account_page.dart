@@ -132,6 +132,101 @@ class _AccountPageState extends State<AccountPage> {
     }
   }
 
+  Widget _buildHistoryBox(BuildContext context, Map<String, dynamic>? userData, bool isDark) {
+    List<dynamic> history = userData?['reward_history'] ?? [];
+    
+    return AnimatedHoverCard(
+      backgroundColor: isDark ? Colors.grey.shade900 : Colors.white,
+      borderRadius: BorderRadius.circular(15),
+      border: Border.all(
+        color: isDark ? Colors.grey.shade700 : Colors.amber.shade300,
+        width: 1,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.history, color: isDark ? Colors.amber : Colors.black87),
+                const SizedBox(width: 10),
+                Text(
+                  "Latest Rewards History",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+            Divider(height: 20, color: isDark ? Colors.amber.withValues(alpha: 0.3) : Colors.amber.shade100),
+            if (history.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Center(
+                  child: Text(
+                    "No rewards yet. Start earning!",
+                    style: TextStyle(color: isDark ? Colors.white54 : Colors.black54),
+                  ),
+                ),
+              )
+            else
+              ...history.map((item) {
+                final sector = item['sector'] ?? 'Unknown';
+                final amount = item['amount']?.toString() ?? '0.0';
+                final ts = item['timestamp'] as int?;
+                String timeStr = '';
+                if (ts != null) {
+                  final date = DateTime.fromMillisecondsSinceEpoch(ts);
+                  timeStr = '${date.month}/${date.day} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+                }
+                
+                IconData icon;
+                if (sector.contains('Faucet')) icon = Icons.water_drop;
+                else if (sector.contains('PTC')) icon = Icons.ads_click;
+                else if (sector.contains('Pet')) icon = Icons.pets;
+                else if (sector.contains('Offer')) icon = Icons.card_giftcard;
+                else icon = Icons.monetization_on;
+
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.amber.withValues(alpha: 0.2),
+                    child: Icon(icon, color: Colors.amber, size: 20),
+                  ),
+                  title: Text(
+                    sector,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black87,
+                      fontSize: 14,
+                    ),
+                  ),
+                  subtitle: Text(
+                    timeStr,
+                    style: TextStyle(
+                      color: isDark ? Colors.white54 : Colors.black54,
+                      fontSize: 12,
+                    ),
+                  ),
+                  trailing: Text(
+                    '+$amount DOGE',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                      fontSize: 14,
+                    ),
+                  ),
+                );
+              }),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = themeProvider.isDarkMode;
@@ -618,6 +713,8 @@ class _AccountPageState extends State<AccountPage> {
                                 );
                               },
                             ),
+                            const SizedBox(height: 30),
+                            _buildHistoryBox(context, userData, isDark),
                             const SizedBox(height: 30),
                             SizedBox(
                               width: double.infinity,
