@@ -43,6 +43,7 @@ class _AccountPageState extends State<AccountPage> {
   bool _isWithdrawing = false;
   String _withdrawMessage = "";
   final bool _twoFactorEnabled = false;
+  int _historyPage = 0;
 
   @override
   void initState() {
@@ -172,15 +173,34 @@ class _AccountPageState extends State<AccountPage> {
                   ),
                 ),
               )
-            else
-              ...history.map((item) {
+            else ...[
+              Builder(
+                builder: (context) {
+                  final int itemsPerPage = 10;
+                  final int totalPages = (history.length / itemsPerPage).ceil();
+                  
+                  // Ensure page is within bounds
+                  if (_historyPage >= totalPages) {
+                    _historyPage = totalPages - 1;
+                    if (_historyPage < 0) _historyPage = 0;
+                  }
+
+                  final int startIndex = _historyPage * itemsPerPage;
+                  final int endIndex = (startIndex + itemsPerPage > history.length) ? history.length : startIndex + itemsPerPage;
+                  final List<dynamic> currentHistory = history.sublist(startIndex, endIndex);
+
+                  return Column(
+                    children: [
+                      ...currentHistory.map((item) {
                 final sector = item['sector'] ?? 'Unknown';
                 final amount = item['amount']?.toString() ?? '0.0';
                 final ts = item['timestamp'] as int?;
-                String timeStr = '';
+                String timeStr = 'Unknown Date';
                 if (ts != null) {
                   final date = DateTime.fromMillisecondsSinceEpoch(ts);
-                  timeStr = '${date.month}/${date.day} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+                  final ampm = date.hour >= 12 ? 'PM' : 'AM';
+                  final hour12 = date.hour % 12 == 0 ? 12 : date.hour % 12;
+                  timeStr = '${date.month}/${date.day}/${date.year} at $hour12:${date.minute.toString().padLeft(2, '0')} $ampm';
                 }
                 
                 IconData icon;
@@ -221,8 +241,42 @@ class _AccountPageState extends State<AccountPage> {
                   ),
                 );
               }),
-          ],
+            ],
+          );
+        },
+      ),
+      if ((history.length / 10).ceil() > 1)
+        Padding(
+          padding: const EdgeInsets.only(top: 15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TextButton.icon(
+                onPressed: _historyPage > 0 ? () => setState(() => _historyPage--) : null,
+                icon: const Icon(Icons.chevron_left),
+                label: const Text('Prev'),
+              ),
+              Text(
+                'Page ${_historyPage + 1} of ${(history.length / 10).ceil()}',
+                style: TextStyle(color: isDark ? Colors.white54 : Colors.black54, fontSize: 13),
+              ),
+              TextButton(
+                onPressed: _historyPage < (history.length / 10).ceil() - 1 ? () => setState(() => _historyPage++) : null,
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Next'),
+                    SizedBox(width: 4),
+                    Icon(Icons.chevron_right, size: 18),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
+    ],
+  ],
+),
       ),
     );
   }
