@@ -26,7 +26,8 @@ class PetOverlayWidget extends StatefulWidget {
   State<PetOverlayWidget> createState() => _PetOverlayWidgetState();
 }
 
-class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProviderStateMixin {
+class _PetOverlayWidgetState extends State<PetOverlayWidget>
+    with TickerProviderStateMixin {
   String _stage = 'egg';
   Timer? _statusTimer;
   Timer? _moveTimer;
@@ -67,20 +68,38 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
   @override
   void initState() {
     super.initState();
-    
-    _shakeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
-    _walkController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
-    _boopController = AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
-    _trickController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000));
+
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _walkController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _boopController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _trickController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
 
     _listenForEvents();
 
     _fetchPetStatus();
-    _statusTimer = Timer.periodic(const Duration(minutes: 1), (_) => _fetchPetStatus());
-    
+    _statusTimer = Timer.periodic(
+      const Duration(minutes: 1),
+      (_) => _fetchPetStatus(),
+    );
+
     // Start movement loop
-    _moveTimer = Timer.periodic(const Duration(seconds: 8), (_) => _movePetRandomly());
-    
+    _moveTimer = Timer.periodic(
+      const Duration(seconds: 8),
+      (_) => _movePetRandomly(),
+    );
+
     // Load saved sleep state
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
@@ -113,8 +132,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
       if (mounted) {
         setState(() {
           _userWantsSleep = sleep;
-          
-          bool boopReady = (DateTime.now().millisecondsSinceEpoch ~/ 1800000) > (_lastBoopTime ~/ 1800000);
+
+          bool boopReady = (DateTime.now().millisecondsSinceEpoch - _lastBoopTime) >= 1800000;
           if (_poos.isNotEmpty || boopReady) {
             _isSleepingOverlay = false;
           } else {
@@ -151,7 +170,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
             _energy = (data['pet']['energy'] as num).toDouble();
             _lastBoopTime = data['pet']['last_boop_time'] ?? 0;
             _petName = data['pet']['name'] ?? 'Golden Paw Shiba';
-            _equippedAccessories = List<String>.from(data['pet']['equipped_accessories'] ?? []);
+            _equippedAccessories = List<String>.from(
+              data['pet']['equipped_accessories'] ?? [],
+            );
 
             if (_stage != 'egg') {
               _isWandering = true;
@@ -164,9 +185,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
             }
 
             int pendingPoos = data['pet']['pending_poos'] ?? 0;
-            
+
             final now = DateTime.now().millisecondsSinceEpoch;
-            bool boopReady = (now ~/ 1800000) > (_lastBoopTime ~/ 1800000);
+            bool boopReady = (now - _lastBoopTime) >= 1800000;
 
             SharedPreferences.getInstance().then((prefs) {
               bool userWantsSleep = prefs.getBool('pet_sleeping') ?? false;
@@ -187,13 +208,23 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
               final size = MediaQuery.of(context).size;
               int toAdd = pendingPoos - _poos.length;
               for (int i = 0; i < toAdd; i++) {
-                double px = 50 + _random.nextDouble() * (size.width > 100 ? size.width - 100 : 100);
-                double py = 100 + _random.nextDouble() * (size.height > 200 ? size.height - 200 : 200);
-                _poos.add(PooData(
-                  id: DateTime.now().millisecondsSinceEpoch.toString() + i.toString(),
-                  x: px,
-                  y: py,
-                ));
+                double px =
+                    50 +
+                    _random.nextDouble() *
+                        (size.width > 100 ? size.width - 100 : 100);
+                double py =
+                    100 +
+                    _random.nextDouble() *
+                        (size.height > 200 ? size.height - 200 : 200);
+                _poos.add(
+                  PooData(
+                    id:
+                        DateTime.now().millisecondsSinceEpoch.toString() +
+                        i.toString(),
+                    x: px,
+                    y: py,
+                  ),
+                );
               }
             } else if (pendingPoos < _poos.length) {
               _poos.removeRange(0, _poos.length - pendingPoos);
@@ -210,23 +241,25 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
     if (!_isWandering || !mounted) return;
     if (_isSleepingOverlay && _stage != 'egg') return;
 
-    
     // 15% chance to start chasing the mouse if not already close up or chasing
-    if (!_isCloseUp && !_isChasing && _stage != 'egg' && _random.nextDouble() < 0.15) {
+    if (!_isCloseUp &&
+        !_isChasing &&
+        _stage != 'egg' &&
+        _random.nextDouble() < 0.15) {
       _startChasingMouse();
       return;
     }
 
     final size = MediaQuery.of(context).size;
     final now = DateTime.now().millisecondsSinceEpoch;
-    bool boopReady = (now ~/ 1800000) > (_lastBoopTime ~/ 1800000);
+    bool boopReady = (now - _lastBoopTime) >= 1800000;
 
-    // Check if 30 mins passed since last boop (half hour boundary crossed)
+    // Check if 30 mins passed since last boop
     if (boopReady) {
       _isCloseUp = true;
       final targetX = (size.width / 2) - 50; // Center horizontal
       final targetY = size.height - 250; // Bottom center
-      
+
       setState(() {
         _facingRight = targetX > _petX;
         _petX = targetX;
@@ -236,8 +269,12 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
       return;
     } else {
       _isCloseUp = false;
-      final targetX = 50 + _random.nextDouble() * (size.width > 150 ? size.width - 150 : 100);
-      final targetY = 100 + _random.nextDouble() * (size.height > 300 ? size.height - 300 : 200);
+      final targetX =
+          50 +
+          _random.nextDouble() * (size.width > 150 ? size.width - 150 : 100);
+      final targetY =
+          100 +
+          _random.nextDouble() * (size.height > 300 ? size.height - 300 : 200);
 
       setState(() {
         _facingRight = targetX > _petX;
@@ -278,7 +315,10 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
     _chaseTimer?.cancel();
     if (mounted) {
       _walkController.stop();
-      _moveTimer = Timer.periodic(const Duration(seconds: 8), (_) => _movePetRandomly());
+      _moveTimer = Timer.periodic(
+        const Duration(seconds: 8),
+        (_) => _movePetRandomly(),
+      );
     }
   }
 
@@ -298,13 +338,19 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
       if (response.statusCode == 200 && data['success']) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Cleaned up! +${data['reward']} DOGE'), backgroundColor: Colors.green),
+            SnackBar(
+              content: Text('Cleaned up! +${data['reward']} DOGE'),
+              backgroundColor: Colors.green,
+            ),
           );
         }
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(data['error'] ?? 'Failed to clean'), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text(data['error'] ?? 'Failed to clean'),
+              backgroundColor: Colors.red,
+            ),
           );
         }
       }
@@ -320,7 +366,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
 
     final now = DateTime.now().millisecondsSinceEpoch;
     if (now - _lastBoopTime < 30 * 60 * 1000) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pet is not ready for another boop yet!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Pet is not ready for another boop yet!')),
+      );
       return;
     }
 
@@ -344,13 +392,19 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
       if (response.statusCode == 200 && data['success']) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Boop! +${data['reward']} DOGE ❤️'), backgroundColor: Colors.green),
+            SnackBar(
+              content: Text('Boop! +${data['reward']} DOGE ❤️'),
+              backgroundColor: Colors.green,
+            ),
           );
         }
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(data['error'] ?? 'Boop failed'), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text(data['error'] ?? 'Boop failed'),
+              backgroundColor: Colors.red,
+            ),
           );
         }
       }
@@ -361,36 +415,57 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
 
   String _getImageAsset() {
     switch (_stage) {
-      case 'egg': return 'assets/shiba_egg.png';
-      case 'baby': return 'assets/shiba_baby.png';
-      case 'toddler': return 'assets/shiba_baby.png'; // Uses baby image but scaled larger
-      case 'puppy': return 'assets/shiba_teen.png'; // Swapped with teen
-      case 'child': return 'assets/shiba_child.png';
-      case 'teen': return 'assets/shiba_puppy.png'; // Swapped with puppy
-      case 'young_adult': return 'assets/shiba_young_adult.png';
-      case 'adult': return 'assets/shiba_adult.png';
-      default: return 'assets/shiba_toddler.png';
+      case 'egg':
+        return 'assets/shiba_egg.png';
+      case 'baby':
+        return 'assets/shiba_baby.png';
+      case 'toddler':
+        return 'assets/shiba_baby.png'; // Uses baby image but scaled larger
+      case 'puppy':
+        return 'assets/shiba_teen.png'; // Swapped with teen
+      case 'child':
+        return 'assets/shiba_child.png';
+      case 'teen':
+        return 'assets/shiba_puppy.png'; // Swapped with puppy
+      case 'young_adult':
+        return 'assets/shiba_young_adult.png';
+      case 'adult':
+        return 'assets/shiba_adult.png';
+      default:
+        return 'assets/shiba_toddler.png';
     }
   }
 
   double _getScaleForStage() {
     switch (_stage) {
-      case 'egg': return 0.65; // Increased from 0.4
-      case 'baby': return 0.75; // Increased from 0.5
-      case 'toddler': return 0.85; // Increased from 0.6
-      case 'puppy': return 0.95; // Increased from 0.7
-      case 'child': return 1.0; // Increased from 0.8
-      case 'teen': return 1.1; // Increased from 0.9
-      case 'young_adult': return 1.2; // Increased from 1.0
-      case 'adult': return 1.4; // Increased from 1.2
-      default: return 0.7;
+      case 'egg':
+        return 0.65; // Increased from 0.4
+      case 'baby':
+        return 0.75; // Increased from 0.5
+      case 'toddler':
+        return 0.85; // Increased from 0.6
+      case 'puppy':
+        return 0.95; // Increased from 0.7
+      case 'child':
+        return 1.0; // Increased from 0.8
+      case 'teen':
+        return 1.1; // Increased from 0.9
+      case 'young_adult':
+        return 1.2; // Increased from 1.0
+      case 'adult':
+        return 1.4; // Increased from 1.2
+      default:
+        return 0.7;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     String emotion = '';
-    if (!_walkController.isAnimating && !_isCloseUp && !_isChasing && _stage != 'egg') {
+    if (!_walkController.isAnimating &&
+        !_isCloseUp &&
+        !_isChasing &&
+        _stage != 'egg') {
       if (_energy < 30) {
         emotion = '💤';
       } else if (_hunger < 30) {
@@ -402,206 +477,347 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
 
     if (_isSleepingOverlay && _stage != 'egg') {
       return Stack(
-        children: _poos.map((poo) => Positioned(
-          left: poo.x,
-          top: poo.y,
-          child: GestureDetector(
-            onTap: () => _cleanPoo(poo.id),
-            child: SizedBox(
-              width: 40,
-              height: 40,
-              child: Image.asset('assets/shiba_poo.png'),
-            ),
-          ),
-        )).toList(),
+        children: _poos
+            .map(
+              (poo) => Positioned(
+                left: poo.x,
+                top: poo.y,
+                child: GestureDetector(
+                  onTap: () => _cleanPoo(poo.id),
+                  child: SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: Image.asset('assets/shiba_poo.png'),
+                  ),
+                ),
+              ),
+            )
+            .toList(),
       );
     }
 
     return Stack(
       children: [
         // Poos
-        ..._poos.map((poo) => Positioned(
-          left: poo.x,
-          top: poo.y,
-          child: GestureDetector(
-            onTap: () => _cleanPoo(poo.id),
-            child: SizedBox(
-              width: 40,
-              height: 40,
-              child: Image.asset('assets/shiba_poo.png'),
-            ),
-          ),
-        )),
-
-        // Pet
-        if (_isSleepingOverlay && _stage != 'egg') const SizedBox.shrink() else AnimatedPositioned(
-          duration: Duration(seconds: _isChasing ? 1 : 4),
-          curve: Curves.easeInOut,
-          left: _petX,
-          top: _petY,
-          child: AnimatedBuilder(
-            animation: Listenable.merge([_shakeController, _walkController, _boopController]),
-            builder: (context, child) {
-              double eggOffset = 0;
-              double walkOffset = 0;
-              
-              if (_stage == 'egg') {
-                eggOffset = sin(_shakeController.value * pi * 4) * 10;
-              } else if (_walkController.isAnimating) {
-                // Bob up and down while walking
-                walkOffset = sin(_walkController.value * pi) * -10;
-              }
-
-              // Squish effect for boop
-              double baseScale = _getScaleForStage();
-              double boopScale = baseScale - (_boopController.value * 0.15 * baseScale);
-
-              return Transform.translate(
-                offset: Offset(eggOffset, walkOffset),
-                child: AnimatedScale(
-                  scale: _isCloseUp ? 2.5 : 1.0, // Scale up if walking to camera
-                  duration: const Duration(seconds: 4),
-                  curve: Curves.easeInOut,
-                  child: Transform.scale(
-                    scale: boopScale,
-                    child: AnimatedBuilder(
-                      animation: _trickController,
-                      builder: (context, child) {
-                        double trickRotation = 0;
-                        double trickScale = 1.0;
-                        double trickYOffset = 0;
-
-                        if (_currentTrick == 'Spin') {
-                          trickRotation = _trickController.value * pi * 2;
-                        } else if (_currentTrick == 'Jump') {
-                          trickYOffset = sin(_trickController.value * pi) * -50;
-                        } else if (_currentTrick == 'Roll Over') {
-                          trickRotation = _trickController.value * pi * 2;
-                          trickYOffset = sin(_trickController.value * pi) * 20; // dip down
-                        } else if (_currentTrick == 'Backflip') {
-                          trickRotation = _trickController.value * pi * 2 * -1; // rotate backwards
-                          trickYOffset = sin(_trickController.value * pi) * -80; // jump higher
-                        }
-
-                        double trickXOffset = 0;
-                        if (_currentTrick == 'Moonwalk') {
-                          double direction = _facingRight ? -1.0 : 1.0;
-                          double slideDist = sin(_trickController.value * pi) * 60;
-                          trickXOffset = slideDist * direction;
-                        }
-
-                        return Transform(
-                          alignment: Alignment.center,
-                          transform: Matrix4.translationValues(trickXOffset, trickYOffset, 0.0)
-                            * Matrix4.rotationZ(trickRotation)
-                            * Matrix4.diagonal3Values(trickScale, trickScale, 1.0),
-                          child: child,
-                        );
-                      },
-                      child: GestureDetector(
-                        onTap: _isCloseUp ? _boopPet : null,
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          alignment: Alignment.center,
-                          children: [
-                            Transform(
-                              alignment: Alignment.center,
-                              transform: Matrix4.rotationY(_facingRight ? pi : 0), // Flip horizontal
-                              child: Stack(
-                                children: [
-                                  SizedBox(
-                                    width: 100,
-                                    height: 100,
-                                    child: Image.asset(_getImageAsset()),
-                                  ),
-                                  // Render equipped accessories
-                                  if (_equippedAccessories.contains('top_hat'))
-                                    Positioned(top: -15, left: 30, child: Image.asset('assets/shiba_top_hat.png', width: 40)),
-                                  if (_equippedAccessories.contains('crown'))
-                                    Positioned(top: -10, left: 25, child: Image.asset('assets/shiba_crown.png', width: 50)),
-                                  if (_equippedAccessories.contains('sunglasses'))
-                                    Positioned(top: 25, left: 20, child: Image.asset('assets/shiba_sunglasses.png', width: 45)),
-                                  if (_equippedAccessories.contains('gold_chain'))
-                                    Positioned(top: 55, left: 25, child: Image.asset('assets/shiba_gold_chain.png', width: 50)),
-                                  if (_equippedAccessories.contains('coat_basic'))
-                                    Positioned(top: 20, left: 10, child: Image.asset('assets/shiba_coat_basic.png', width: 80)),
-                                  if (_equippedAccessories.contains('coat_rain'))
-                                    Positioned(top: 20, left: 10, child: Image.asset('assets/shiba_coat_rain.png', width: 80)),
-                                  if (_equippedAccessories.contains('coat_winter'))
-                                    Positioned(top: 20, left: 10, child: Image.asset('assets/shiba_coat_winter.png', width: 80)),
-                                  if (_equippedAccessories.contains('coat_luxury'))
-                                    Positioned(top: 20, left: 10, child: Image.asset('assets/shiba_coat_luxury.png', width: 80)),
-                                  if (_equippedAccessories.contains('diamond_watch'))
-                                    Positioned(top: 55, left: 25, child: Image.asset('assets/shiba_diamond_watch.png', width: 50)),
-                                ],
-                              ),
-                            ),
-                            // Emotion bubble
-                  if (emotion.isNotEmpty || _stage != 'egg')
-                    Positioned(
-                      top: -45,
-                      child: Column(
-                        children: [
-                          if (_stage != 'egg')
-                            Column(
-                              children: [
-                                Text(
-                                  _petName,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.amber,
-                                    shadows: [Shadow(color: Colors.black, blurRadius: 2)],
-                                  ),
-                                ),
-                                Text(
-                                  _stage.replaceAll('_', ' ').toUpperCase(),
-                                  style: const TextStyle(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    letterSpacing: 1.0,
-                                    shadows: [Shadow(color: Colors.black, blurRadius: 2)],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          if (emotion.isNotEmpty)
-                            AnimatedOpacity(
-                              opacity: emotion.isNotEmpty ? 1.0 : 0.0,
-                              duration: const Duration(milliseconds: 500),
-                              child: Text(
-                                emotion,
-                                style: const TextStyle(fontSize: 24),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  // Boop Hint
-                  if (_isCloseUp && !_walkController.isAnimating && !_isChasing)
-                    const Positioned(
-                      top: -25,
-                      child: Text(
-                        "Boop!",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.pinkAccent,
-                          shadows: [Shadow(color: Colors.white, blurRadius: 4)],
-                        ),
-                      ),
-                    ),
-                ],
+        ..._poos.map(
+          (poo) => Positioned(
+            left: poo.x,
+            top: poo.y,
+            child: GestureDetector(
+              onTap: () => _cleanPoo(poo.id),
+              child: SizedBox(
+                width: 40,
+                height: 40,
+                child: Image.asset('assets/shiba_poo.png'),
               ),
             ),
-          ), // closes AnimatedBuilder (trickController)
-        ), // closes Transform.scale (boopScale)
-      ), // closes AnimatedScale
-    ); // closes Transform.translate
-  },
-), // closes AnimatedBuilder (shake/walk)
-), // closes AnimatedPositioned
+          ),
+        ),
+
+        // Pet
+        if (_isSleepingOverlay && _stage != 'egg')
+          const SizedBox.shrink()
+        else
+          AnimatedPositioned(
+            duration: Duration(seconds: _isChasing ? 1 : 4),
+            curve: Curves.easeInOut,
+            left: _petX,
+            top: _petY,
+            child: AnimatedBuilder(
+              animation: Listenable.merge([
+                _shakeController,
+                _walkController,
+                _boopController,
+              ]),
+              builder: (context, child) {
+                double eggOffset = 0;
+                double walkOffset = 0;
+
+                if (_stage == 'egg') {
+                  eggOffset = sin(_shakeController.value * pi * 4) * 10;
+                } else if (_walkController.isAnimating) {
+                  // Bob up and down while walking
+                  walkOffset = sin(_walkController.value * pi) * -10;
+                }
+
+                // Squish effect for boop
+                double baseScale = _getScaleForStage();
+                double boopScale =
+                    baseScale - (_boopController.value * 0.15 * baseScale);
+
+                return Transform.translate(
+                  offset: Offset(eggOffset, walkOffset),
+                  child: AnimatedScale(
+                    scale: _isCloseUp
+                        ? 2.5
+                        : 1.0, // Scale up if walking to camera
+                    duration: const Duration(seconds: 4),
+                    curve: Curves.easeInOut,
+                    child: Transform.scale(
+                      scale: boopScale,
+                      child: AnimatedBuilder(
+                        animation: _trickController,
+                        builder: (context, child) {
+                          double trickRotation = 0;
+                          double trickScale = 1.0;
+                          double trickYOffset = 0;
+
+                          if (_currentTrick == 'Spin') {
+                            trickRotation = _trickController.value * pi * 2;
+                          } else if (_currentTrick == 'Jump') {
+                            trickYOffset =
+                                sin(_trickController.value * pi) * -50;
+                          } else if (_currentTrick == 'Roll Over') {
+                            trickRotation = _trickController.value * pi * 2;
+                            trickYOffset =
+                                sin(_trickController.value * pi) *
+                                20; // dip down
+                          } else if (_currentTrick == 'Backflip') {
+                            trickRotation =
+                                _trickController.value *
+                                pi *
+                                2 *
+                                -1; // rotate backwards
+                            trickYOffset =
+                                sin(_trickController.value * pi) *
+                                -80; // jump higher
+                          }
+
+                          double trickXOffset = 0;
+                          if (_currentTrick == 'Moonwalk') {
+                            double direction = _facingRight ? -1.0 : 1.0;
+                            double slideDist =
+                                sin(_trickController.value * pi) * 60;
+                            trickXOffset = slideDist * direction;
+                          }
+
+                          return Transform(
+                            alignment: Alignment.center,
+                            transform:
+                                Matrix4.translationValues(
+                                  trickXOffset,
+                                  trickYOffset,
+                                  0.0,
+                                ) *
+                                Matrix4.rotationZ(trickRotation) *
+                                Matrix4.diagonal3Values(
+                                  trickScale,
+                                  trickScale,
+                                  1.0,
+                                ),
+                            child: child,
+                          );
+                        },
+                        child: GestureDetector(
+                          onTap: _isCloseUp ? _boopPet : null,
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            alignment: Alignment.center,
+                            children: [
+                              Transform(
+                                alignment: Alignment.center,
+                                transform: Matrix4.rotationY(
+                                  _facingRight ? pi : 0,
+                                ), // Flip horizontal
+                                child: Stack(
+                                  children: [
+                                    SizedBox(
+                                      width: 100,
+                                      height: 100,
+                                      child: Image.asset(_getImageAsset()),
+                                    ),
+                                    // Render equipped accessories
+                                    if (_equippedAccessories.contains(
+                                      'top_hat',
+                                    ))
+                                      Positioned(
+                                        top: -15,
+                                        left: 30,
+                                        child: Image.asset(
+                                          'assets/shiba_top_hat.png',
+                                          width: 40,
+                                        ),
+                                      ),
+                                    if (_equippedAccessories.contains('crown'))
+                                      Positioned(
+                                        top: -10,
+                                        left: 25,
+                                        child: Image.asset(
+                                          'assets/shiba_crown.png',
+                                          width: 50,
+                                        ),
+                                      ),
+                                    if (_equippedAccessories.contains(
+                                      'sunglasses',
+                                    ))
+                                      Positioned(
+                                        top: 25,
+                                        left: 20,
+                                        child: Image.asset(
+                                          'assets/shiba_sunglasses.png',
+                                          width: 45,
+                                        ),
+                                      ),
+                                    if (_equippedAccessories.contains(
+                                      'gold_chain',
+                                    ))
+                                      Positioned(
+                                        top: 55,
+                                        left: 25,
+                                        child: Image.asset(
+                                          'assets/shiba_gold_chain.png',
+                                          width: 50,
+                                        ),
+                                      ),
+                                    if (_equippedAccessories.contains(
+                                      'coat_basic',
+                                    ))
+                                      Positioned(
+                                        top: 20,
+                                        left: 10,
+                                        child: Image.asset(
+                                          'assets/shiba_coat_basic.png',
+                                          width: 80,
+                                        ),
+                                      ),
+                                    if (_equippedAccessories.contains(
+                                      'coat_rain',
+                                    ))
+                                      Positioned(
+                                        top: 20,
+                                        left: 10,
+                                        child: Image.asset(
+                                          'assets/shiba_coat_rain.png',
+                                          width: 80,
+                                        ),
+                                      ),
+                                    if (_equippedAccessories.contains(
+                                      'coat_winter',
+                                    ))
+                                      Positioned(
+                                        top: 20,
+                                        left: 10,
+                                        child: Image.asset(
+                                          'assets/shiba_coat_winter.png',
+                                          width: 80,
+                                        ),
+                                      ),
+                                    if (_equippedAccessories.contains(
+                                      'coat_luxury',
+                                    ))
+                                      Positioned(
+                                        top: 20,
+                                        left: 10,
+                                        child: Image.asset(
+                                          'assets/shiba_coat_luxury.png',
+                                          width: 80,
+                                        ),
+                                      ),
+                                    if (_equippedAccessories.contains(
+                                      'diamond_watch',
+                                    ))
+                                      Positioned(
+                                        top: 55,
+                                        left: 25,
+                                        child: Image.asset(
+                                          'assets/shiba_diamond_watch.png',
+                                          width: 50,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              // Emotion bubble
+                              if (emotion.isNotEmpty || _stage != 'egg')
+                                Positioned(
+                                  top: -45,
+                                  child: Column(
+                                    children: [
+                                      if (_stage != 'egg')
+                                        Column(
+                                          children: [
+                                            Text(
+                                              _petName,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.amber,
+                                                shadows: [
+                                                  Shadow(
+                                                    color: Colors.black,
+                                                    blurRadius: 2,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Text(
+                                              _stage
+                                                  .replaceAll('_', ' ')
+                                                  .toUpperCase(),
+                                              style: const TextStyle(
+                                                fontSize: 9,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                                letterSpacing: 1.0,
+                                                shadows: [
+                                                  Shadow(
+                                                    color: Colors.black,
+                                                    blurRadius: 2,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      if (emotion.isNotEmpty)
+                                        AnimatedOpacity(
+                                          opacity: emotion.isNotEmpty
+                                              ? 1.0
+                                              : 0.0,
+                                          duration: const Duration(
+                                            milliseconds: 500,
+                                          ),
+                                          child: Text(
+                                            emotion,
+                                            style: const TextStyle(
+                                              fontSize: 24,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              // Boop Hint
+                              if (_isCloseUp &&
+                                  !_walkController.isAnimating &&
+                                  !_isChasing)
+                                const Positioned(
+                                  top: -25,
+                                  child: Text(
+                                    "Boop!",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.pinkAccent,
+                                      shadows: [
+                                        Shadow(
+                                          color: Colors.white,
+                                          blurRadius: 4,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ), // closes AnimatedBuilder (trickController)
+                    ), // closes Transform.scale (boopScale)
+                  ), // closes AnimatedScale
+                ); // closes Transform.translate
+              },
+            ), // closes AnimatedBuilder (shake/walk)
+          ), // closes AnimatedPositioned
       ],
     );
   }

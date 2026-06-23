@@ -162,6 +162,24 @@ final partnerList = [
     "https://yescoiner.com/?ref=1681170",
     "Faucets",
   ),
+  PartnerData(
+    "Surfe.be",
+    "Earn crypto by simply viewing banners and visiting websites.",
+    "Web Surfing Rewards",
+    Icons.travel_explore,
+    Colors.lightBlue,
+    "https://surfe.be/rar/2433417",
+    "PTC",
+  ),
+  PartnerData(
+    "Satoshi Hero",
+    "Play games, spin the wheel, and claim free crypto daily.",
+    "Games & Faucets",
+    Icons.casino,
+    Colors.deepOrange,
+    "https://satoshihero.com/register?r=62g97002",
+    "Faucets",
+  ),
 ];
 
 

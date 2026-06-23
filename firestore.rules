@@ -42,6 +42,12 @@ service cloud.firestore {
       allow read: if true;
       allow write: if request.auth != null && request.auth.uid == 'P8iffVqbUgetAVA4MdHVZ1CfvUv1';
     }
+    
+    // Blog Posts Collection
+    match /blog_posts/{postId} {
+      allow read: if true; // Anyone can read the blog
+      allow write: if false; // Only the Python script (Firebase Admin) can write
+    }
 
     // Default rule: block all other access
     match /{document=**} {

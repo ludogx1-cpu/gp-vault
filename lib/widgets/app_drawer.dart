@@ -8,6 +8,7 @@ import '../screens/referral_page.dart';
 import '../screens/ptc_earn_page.dart';
 import '../screens/dogeogotcha_instructions_page.dart';
 import '../screens/suggestion_box_page.dart';
+import '../screens/blog_page.dart';
 import 'platform_indicator_level_text.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -329,6 +330,31 @@ class AppDrawer extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => const SuggestionBoxPage(),
+                    ),
+                  );
+                },
+              ),
+
+              Divider(color: dividerColor),
+              ListTile(
+                leading: const Icon(Icons.article, color: Colors.teal),
+                title: Text(
+                  'Blog',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: titleColor,
+                  ),
+                ),
+                subtitle: Text(
+                  'Read our latest posts',
+                  style: TextStyle(fontSize: 12, color: subColor),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const BlogPage(),
                     ),
                   );
                 },
