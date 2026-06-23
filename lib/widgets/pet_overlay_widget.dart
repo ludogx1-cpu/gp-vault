@@ -114,7 +114,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
         setState(() {
           _userWantsSleep = sleep;
           
-          bool boopReady = (DateTime.now().millisecondsSinceEpoch - _lastBoopTime) >= 30 * 60 * 1000;
+          bool boopReady = (DateTime.now().millisecondsSinceEpoch ~/ 1800000) > (_lastBoopTime ~/ 1800000);
           if (_poos.isNotEmpty || boopReady) {
             _isSleepingOverlay = false;
           } else {
@@ -166,7 +166,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
             int pendingPoos = data['pet']['pending_poos'] ?? 0;
             
             final now = DateTime.now().millisecondsSinceEpoch;
-            bool boopReady = (now - _lastBoopTime) >= 30 * 60 * 1000;
+            bool boopReady = (now ~/ 1800000) > (_lastBoopTime ~/ 1800000);
 
             SharedPreferences.getInstance().then((prefs) {
               bool userWantsSleep = prefs.getBool('pet_sleeping') ?? false;
@@ -219,10 +219,10 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
 
     final size = MediaQuery.of(context).size;
     final now = DateTime.now().millisecondsSinceEpoch;
-    final msSinceBoop = now - _lastBoopTime;
+    bool boopReady = (now ~/ 1800000) > (_lastBoopTime ~/ 1800000);
 
-    // Check if 30 mins passed since last boop
-    if (msSinceBoop >= 30 * 60 * 1000) {
+    // Check if 30 mins passed since last boop (half hour boundary crossed)
+    if (boopReady) {
       _isCloseUp = true;
       final targetX = (size.width / 2) - 50; // Center horizontal
       final targetY = size.height - 250; // Bottom center
