@@ -3,6 +3,7 @@ import '../screens/faq_page.dart';
 import '../screens/cookie_policy_page.dart';
 import '../screens/privacy_policy_page.dart';
 import '../screens/terms_of_service_page.dart';
+import '../screens/blog_page.dart';
 import 'package:web/web.dart' as web;
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -112,12 +113,29 @@ class AppFooter extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 20),
+
           Wrap(
             alignment: WrapAlignment.center,
             spacing: 16,
             runSpacing: 8,
             children: [
+              TextButton(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const BlogPage(),
+                  ),
+                ),
+                child: const Text(
+                  "Blog",
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
               TextButton(
                 onPressed: () => Navigator.push(
                   context,

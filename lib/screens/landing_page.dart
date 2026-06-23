@@ -5,6 +5,7 @@ import '../src/theme_provider.dart';
 import 'package:flutter/material.dart';
 import '../widgets/trustpilot_widget.dart';
 import '../widgets/adsterra_landing_ad.dart';
+import 'blog_page.dart';
 
 class LandingPage extends StatefulWidget {
   final void Function(BuildContext, bool) onAuthTrigger;
@@ -36,6 +37,28 @@ class _LandingPageState extends State<LandingPage> {
         centerTitle: false,
         showWallet: false,
         actions: [
+          // --- BLOG BUTTON ---
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const BlogPage()),
+              );
+            },
+            style: TextButton.styleFrom(
+              minimumSize: Size.zero,
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 8 : 12),
+            ),
+            child: Text(
+              "BLOG",
+              style: TextStyle(
+                color: kTextColorOnBlack,
+                fontWeight: FontWeight.bold,
+                fontSize: isMobile ? 13 : 16,
+              ),
+            ),
+          ),
+
           // --- LOG IN BUTTON ---
           TextButton(
             onPressed: () => widget.onAuthTrigger(context, true),

@@ -124,6 +124,19 @@ void main() async {
       iframe.setAttribute('allowfullscreen', 'true');
       return iframe;
     });
+
+    // 5. Substack Embed
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('substack-embed', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('src', 'https://goldenpawcrypto.substack.com/embed');
+      iframe.setAttribute('width', '100%');
+      iframe.setAttribute('height', '320');
+      iframe.setAttribute('style', 'border: 1px solid #EEE; background: white; border-radius: 8px;');
+      iframe.setAttribute('frameborder', '0');
+      iframe.setAttribute('scrolling', 'no');
+      return iframe;
+    });
   } catch (e) {
     // ignore: empty_catches
   }
