@@ -8,6 +8,7 @@ import '../api_constants.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'walk_treadmill_dialog.dart';
 import '../utils/pet_events.dart';
 
@@ -36,6 +37,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   List<String> _ownedAccessories = [];
   List<String> _equippedAccessories = [];
   List<String> _ownedTricks = [];
+  bool _userWantsSleep = false;
 
   Timer? _refreshTimer;
 
@@ -43,8 +45,16 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   void initState() {
     super.initState();
     _fetchPetStatus();
+    _loadSleepState();
     // Refresh stats every minute to show decay/growth
     _refreshTimer = Timer.periodic(const Duration(minutes: 1), (_) => _fetchPetStatus());
+  }
+
+  Future<void> _loadSleepState() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userWantsSleep = prefs.getBool('pet_sleeping') ?? false;
+    });
   }
 
   @override
@@ -317,6 +327,34 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
                           splashRadius: 12,
+                        ),
+                        const SizedBox(width: 8),
+                        Tooltip(
+                          message: _userWantsSleep ? 'Turn Dogeogotcha On' : 'Turn Dogeogotcha Off (Sleep Mode)',
+                          child: InkWell(
+                            onTap: () async {
+                              final prefs = await SharedPreferences.getInstance();
+                              bool newValue = !_userWantsSleep;
+                              await prefs.setBool('pet_sleeping', newValue);
+                              setState(() {
+                                _userWantsSleep = newValue;
+                              });
+                              PetEvents.toggleSleep(newValue);
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(newValue ? 'Dogeogotcha turned off! It will automatically wake up when it needs you.' : 'Dogeogotcha turned on!')),
+                                );
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: isDark ? Colors.black26 : Colors.white54,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.power_settings_new, color: _userWantsSleep ? Colors.blue : Colors.green, size: 18),
+                            ),
+                          ),
                         ),
                       ],
                     ),

@@ -58,6 +58,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
 
   String _currentTrick = '';
   StreamSubscription? _trickSubscription;
+  StreamSubscription? _sleepSubscription;
 
   // Poos
   final List<PooData> _poos = [];
@@ -72,7 +73,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
     _boopController = AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
     _trickController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000));
 
-    _listenForTricks();
+    _listenForEvents();
 
     _fetchPetStatus();
     _statusTimer = Timer.periodic(const Duration(minutes: 1), (_) => _fetchPetStatus());
@@ -95,6 +96,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
     _moveTimer?.cancel();
     _chaseTimer?.cancel();
     _trickSubscription?.cancel();
+    _sleepSubscription?.cancel();
     _shakeController.dispose();
     _walkController.dispose();
     _boopController.dispose();
@@ -102,9 +104,24 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
     super.dispose();
   }
 
-  void _listenForTricks() {
+  void _listenForEvents() {
     _trickSubscription = PetEvents.trickStream.listen((trickName) {
       _playTrickAnimation(trickName);
+    });
+
+    _sleepSubscription = PetEvents.sleepStream.listen((sleep) {
+      if (mounted) {
+        setState(() {
+          _userWantsSleep = sleep;
+          
+          bool boopReady = (DateTime.now().millisecondsSinceEpoch - _lastBoopTime) >= 30 * 60 * 1000;
+          if (_poos.isNotEmpty || boopReady) {
+            _isSleepingOverlay = false;
+          } else {
+            _isSleepingOverlay = sleep;
+          }
+        });
+      }
     });
   }
 
@@ -520,39 +537,6 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget> with TickerProvider
                               ),
                             ),
                             // Emotion bubble
-                            Positioned(
-                              top: -20,
-                              right: -10,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.5),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: IconButton(
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
-                                  icon: Icon(Icons.power_settings_new, color: _userWantsSleep ? Colors.blue : Colors.green, size: 16),
-                                  onPressed: () async {
-                                    final prefs = await SharedPreferences.getInstance();
-                                    bool newValue = !_userWantsSleep;
-                                    await prefs.setBool('pet_sleeping', newValue);
-                                    setState(() {
-                                      _userWantsSleep = newValue;
-                                      if (newValue) {
-                                        _isSleepingOverlay = true;
-                                      } else {
-                                        _isSleepingOverlay = false;
-                                      }
-                                    });
-                                    if (mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text(newValue ? 'Dogeogotcha turned off! It will automatically wake up when it needs you.' : 'Dogeogotcha turned on!')),
-                                      );
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
                   if (emotion.isNotEmpty || _stage != 'egg')
                     Positioned(
                       top: -45,
