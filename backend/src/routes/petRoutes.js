@@ -137,7 +137,7 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
         if (data.pet_last_poo_time) {
           const currentHour = Math.floor(Date.now() / 3600000);
           const lastPooHour = Math.floor(data.pet_last_poo_time.toDate().getTime() / 3600000);
-          pendingPoos = Math.max(0, Math.min(12, currentHour - lastPooHour)); // 1 poo on the hour, max 12
+          pendingPoos = Math.max(0, Math.min(4, currentHour - lastPooHour)); // 1 poo on the hour, max 4
         } else {
           // If no last poo time, initialize it
           transaction.update(userRef, { pet_last_poo_time: admin.firestore.FieldValue.serverTimestamp() });
@@ -385,8 +385,8 @@ router.post('/pet-clean-poo', verifyFirebaseToken, async (req, res) => {
         throw new Error('No poos to clean right now! Wait a bit.');
       }
 
-      pendingPoos = Math.min(12, pendingPoos);
-      let effectiveLastPooHour = pendingPoos === 12 ? (currentHour - 12) : lastPooHour;
+      pendingPoos = Math.min(4, pendingPoos);
+      let effectiveLastPooHour = pendingPoos === 4 ? (currentHour - 4) : lastPooHour;
       
       // Advance by 1 hour boundary
       let newLastPooHour = effectiveLastPooHour + 1;
