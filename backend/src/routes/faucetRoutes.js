@@ -340,9 +340,9 @@ router.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
     }
 
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    const rewardAmount = 0.004;
-    const xpReward = 60;
-    const cooldownMs = 3 * 60 * 60 * 1000;
+    const rewardAmount = 0.0002;
+    const xpReward = 15;
+    const cooldownMs = 15 * 60 * 1000;
     const now = admin.firestore.Timestamp.now();
     let finalRewardAmount = rewardAmount;
 
@@ -400,6 +400,89 @@ router.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
     res.status(error.statusCode || 500).json({
       success: false,
       error: error.message || 'Failed to process sponsor bonus claim',
+    });
+  }
+});
+
+router.post('/claim-monetag-sponsor', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required for monetag sponsor claim' });
+    }
+
+    const { captcha_token, captcha_provider } = req.body;
+    
+    if (req.user.uid !== getAdminUid()) {
+      if (!captcha_token || !captcha_provider) {
+        return res.status(400).json({ success: false, error: 'Missing captcha verification data' });
+      }
+      const isCaptchaValid = await verifyCaptchaToken(captcha_token, captcha_provider);
+      if (!isCaptchaValid) {
+        return res.status(400).json({ success: false, error: 'Invalid captcha token' });
+      }
+    }
+
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    const rewardAmount = 0.0001;
+    const xpReward = 10;
+    const cooldownMs = 10 * 60 * 1000;
+    const now = admin.firestore.Timestamp.now();
+    let finalRewardAmount = rewardAmount;
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      let data = snapshot.data() || {};
+      let isNewUser = false;
+      if (!snapshot.exists) {
+        isNewUser = true;
+        data = {
+          email: req.user.email || 'unknown@example.com',
+          doge_balance: 0.0,
+          staked_balance: 0.0,
+          ads_balance: 0.0,
+          offerwall_balance: 0.0,
+          xp: 0,
+          streak_count: 0,
+          joined_date: new Date().toISOString()
+        };
+      }
+
+      const lastClaim = data.last_monetag_sponsor_claim;
+      if (lastClaim && Date.now() - lastClaim.toDate().getTime() < cooldownMs) {
+        const minutesLeft = Math.ceil((cooldownMs - (Date.now() - lastClaim.toDate().getTime())) / 60000);
+        const cooldownError = new Error(`Monetag sponsor cooldown active. Try again in ${minutesLeft} minutes.`);
+        cooldownError.statusCode = 429;
+        throw cooldownError;
+      }
+
+      const trickBonusPercent = calculateTrickBonusPercent(data);
+      finalRewardAmount = rewardAmount * (1 + (trickBonusPercent / 100));
+
+      const updates = {
+        doge_balance: Number(data.doge_balance || 0) + finalRewardAmount,
+        xp: Number(data.xp || 0) + xpReward,
+        last_monetag_sponsor_claim: now,
+        active_trick_buffs: [],
+      };
+
+      if (isNewUser) {
+        transaction.set(userRef, { ...data, ...updates });
+      } else {
+        transaction.update(userRef, updates);
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Monetag sponsor claim processed successfully',
+      rewardAmount: finalRewardAmount,
+      xpReward,
+    });
+  } catch (error) {
+    console.error('claim-monetag-sponsor error:', error.message || error);
+    res.status(error.statusCode || 500).json({
+      success: false,
+      error: error.message || 'Failed to process monetag sponsor claim',
     });
   }
 });

@@ -5,8 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../src/theme_provider.dart';
 import '../widgets/widgets.dart';
-
-
+import '../widgets/monetag_timer_dialog.dart';
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
 
@@ -99,17 +98,30 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
         stream: _userStream,
         builder: (context, userDocSnapshot) {
           bool canClaimBonus = true;
-          int minutesLeft = 0;
+          int minutesLeftBonus = 0;
+          bool canClaimMonetag = true;
+          int minutesLeftMonetag = 0;
+
           if (userDocSnapshot.hasData && userDocSnapshot.data!.exists) {
             var uData = userDocSnapshot.data!.data() as Map<String, dynamic>?;
-            Timestamp? lastClaim =
-                uData?['last_bonus_sponsor_claim'] as Timestamp?;
-            if (lastClaim != null) {
+            
+            Timestamp? lastClaimBonus = uData?['last_bonus_sponsor_claim'] as Timestamp?;
+            if (lastClaimBonus != null) {
               final now = DateTime.now();
-              final difference = now.difference(lastClaim.toDate());
-              if (difference.inHours < 3) {
+              final difference = now.difference(lastClaimBonus.toDate());
+              if (difference.inMinutes < 15) {
                 canClaimBonus = false;
-                minutesLeft = 180 - difference.inMinutes;
+                minutesLeftBonus = 15 - difference.inMinutes;
+              }
+            }
+
+            Timestamp? lastClaimMonetag = uData?['last_monetag_sponsor_claim'] as Timestamp?;
+            if (lastClaimMonetag != null) {
+              final now = DateTime.now();
+              final difference = now.difference(lastClaimMonetag.toDate());
+              if (difference.inMinutes < 10) {
+                canClaimMonetag = false;
+                minutesLeftMonetag = 10 - difference.inMinutes;
               }
             }
           }
@@ -248,7 +260,6 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                             width: double.infinity,
                             padding: const EdgeInsets.all(15),
                             decoration: BoxDecoration(
-                              // THEMED SUPPORT BOX
                               color: isDark
                                   ? themeProvider.darkGreyBoxColor
                                   : (canClaimBonus
@@ -276,7 +287,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                                 ),
                                 const SizedBox(height: 5),
                                 const Text(
-                                  "Stay on the page for 30 seconds to earn\n0.004 DOGE & 60 XP!",
+                                  "Stay on the page for 10 seconds to earn\n0.0002 DOGE & 15 XP!",
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: Colors.green,
@@ -306,7 +317,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                                     label: Text(
                                       canClaimBonus
                                           ? 'VIEW BONUS SPONSORS'
-                                          : 'COOLDOWN: $minutesLeft MIN',
+                                          : 'COOLDOWN: $minutesLeftBonus MIN',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w900,
                                         fontSize: 15,
@@ -324,6 +335,94 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                                               context: context,
                                               builder: (context) =>
                                                   const BonusTimerDialog(),
+                                            );
+                                          }
+                                        : null,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(15),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? themeProvider.darkGreyBoxColor
+                                  : (canClaimMonetag
+                                        ? Colors.amber.shade100
+                                        : Colors.grey.shade200),
+                              borderRadius: BorderRadius.circular(15),
+                              border: Border.all(
+                                color: isDark
+                                    ? themeProvider.darkGreyBorder
+                                    : (canClaimMonetag
+                                          ? Colors.amber.shade400
+                                          : Colors.grey.shade400),
+                                width: 2,
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  "✨ View Sponsor & Earn DOGE ✨",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white : Colors.black87,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                const Text(
+                                  "Stay on the page for 30 seconds to earn\n0.0001 DOGE & 10 XP!",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                const SizedBox(height: 15),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 50,
+                                  child: ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: canClaimMonetag
+                                          ? Colors.amber
+                                          : Colors.grey,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    icon: Icon(
+                                      canClaimMonetag
+                                          ? Icons.star
+                                          : Icons.lock_clock,
+                                    ),
+                                    label: Text(
+                                      canClaimMonetag
+                                          ? 'VIEW SPONSOR'
+                                          : 'COOLDOWN: $minutesLeftMonetag MIN',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 15,
+                                        letterSpacing: 1.1,
+                                      ),
+                                    ),
+                                    onPressed: canClaimMonetag
+                                        ? () {
+                                            web.window.open(
+                                              'https://omg10.com/4/11195831',
+                                              '_blank',
+                                            );
+                                            showDialog(
+                                              barrierDismissible: false,
+                                              context: context,
+                                              builder: (context) =>
+                                                  const MonetagTimerDialog(),
                                             );
                                           }
                                         : null,
