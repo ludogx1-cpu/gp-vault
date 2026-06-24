@@ -366,7 +366,7 @@ router.post('/pet-walk-sync', verifyFirebaseToken, async (req, res) => {
 router.post('/pet-clean-poo', verifyFirebaseToken, async (req, res) => {
   try {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    let reward = 0.0005;
+    let reward = 0.00025;
 
     await admin.firestore().runTransaction(async (transaction) => {
       const snapshot = await transaction.get(userRef);
