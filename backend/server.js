@@ -68,6 +68,42 @@ app.get('/get-updates', async (req, res) => {
   }
 });
 
+// --- AdCash Anti-Adblock Proxy ---
+let cachedAdCashScript = null;
+let lastAdCashFetch = 0;
+
+app.get('/api/ads/aclib.js', async (req, res) => {
+  try {
+    const now = Date.now();
+    // Cache for 5 minutes (300000 ms) as recommended
+    if (!cachedAdCashScript || now - lastAdCashFetch > 300000) {
+      // Use standard fetch (Node 18+) or axios
+      const axios = require('axios');
+      const response = await axios.get('https://adbpage.com/adblock?v=3&format=js');
+      if (response.status === 200) {
+        cachedAdCashScript = response.data;
+        lastAdCashFetch = now;
+      }
+    }
+    
+    if (cachedAdCashScript) {
+      res.setHeader('Content-Type', 'application/javascript');
+      res.send(cachedAdCashScript);
+    } else {
+      res.status(500).send('// AdCash load failed');
+    }
+  } catch (error) {
+    console.error("AdCash Proxy Error:", error.message);
+    if (cachedAdCashScript) {
+      // Serve stale cache if fetch fails
+      res.setHeader('Content-Type', 'application/javascript');
+      res.send(cachedAdCashScript);
+    } else {
+      res.status(500).send('// AdCash load failed');
+    }
+  }
+});
+
 // Register grouped routes
 app.use('/', faucetRoutes);
 app.use('/', ptcRoutes);
