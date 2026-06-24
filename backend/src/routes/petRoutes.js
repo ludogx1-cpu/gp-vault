@@ -135,9 +135,9 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
 
         let pendingPoos = 0;
         if (data.pet_last_poo_time) {
-          const currentHour = Math.floor(Date.now() / 3600000);
-          const lastPooHour = Math.floor(data.pet_last_poo_time.toDate().getTime() / 3600000);
-          pendingPoos = Math.max(0, Math.min(4, currentHour - lastPooHour)); // 1 poo on the hour, max 4
+          const currentInterval = Math.floor(Date.now() / 360000);
+          const lastPooInterval = Math.floor(data.pet_last_poo_time.toDate().getTime() / 360000);
+          pendingPoos = Math.max(0, Math.min(20, currentInterval - lastPooInterval)); // 1 poo every 6 mins, max 20
         } else {
           // If no last poo time, initialize it
           transaction.update(userRef, { pet_last_poo_time: admin.firestore.FieldValue.serverTimestamp() });
@@ -366,7 +366,7 @@ router.post('/pet-walk-sync', verifyFirebaseToken, async (req, res) => {
 router.post('/pet-clean-poo', verifyFirebaseToken, async (req, res) => {
   try {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    let reward = 0.00025;
+    let reward = 0.0001;
 
     await admin.firestore().runTransaction(async (transaction) => {
       const snapshot = await transaction.get(userRef);
@@ -377,22 +377,26 @@ router.post('/pet-clean-poo', verifyFirebaseToken, async (req, res) => {
       const lastPooTime = data.pet_last_poo_time;
       if (!lastPooTime) throw new Error('No poos to clean right now!');
 
-      const currentHour = Math.floor(Date.now() / 3600000);
-      const lastPooHour = Math.floor(lastPooTime.toDate().getTime() / 3600000);
-      let pendingPoos = currentHour - lastPooHour;
+      const currentInterval = Math.floor(Date.now() / 360000);
+      const lastPooInterval = Math.floor(lastPooTime.toDate().getTime() / 360000);
+      let pendingPoos = currentInterval - lastPooInterval;
       
       if (pendingPoos <= 0) {
         throw new Error('No poos to clean right now! Wait a bit.');
       }
 
-      pendingPoos = Math.min(4, pendingPoos);
-      let effectiveLastPooHour = pendingPoos === 4 ? (currentHour - 4) : lastPooHour;
+      pendingPoos = Math.min(20, pendingPoos);
+      let effectiveLastPooInterval = pendingPoos === 20 ? (currentInterval - 20) : lastPooInterval;
       
-      // Advance by 1 hour boundary
-      let newLastPooHour = effectiveLastPooHour + 1;
-      let newLastPooTimeMs = newLastPooHour * 3600000;
+      // Advance by 1 interval boundary (6 minutes)
+      let newLastPooInterval = effectiveLastPooInterval + 1;
+      let newLastPooTimeMs = newLastPooInterval * 360000;
 
       const newDogeBal = Number(data.doge_balance || 0) + reward;
+      
+      // Add XP and Happiness
+      let newXp = Number(data.xp || 0) + 5;
+      let newHappiness = Math.min(100, Number(data.pet_happiness || 50) + 5);
 
       let history = data.reward_history || [];
       history.unshift({ sector: 'Pet Care (Poo)', amount: reward, timestamp: Date.now() });
@@ -400,6 +404,8 @@ router.post('/pet-clean-poo', verifyFirebaseToken, async (req, res) => {
 
       transaction.update(userRef, {
         doge_balance: newDogeBal,
+        xp: newXp,
+        pet_happiness: newHappiness,
         pet_last_poo_time: admin.firestore.Timestamp.fromMillis(newLastPooTimeMs),
         reward_history: history
       });
