@@ -117,7 +117,7 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
         throw new Error('Cooldown active. You can view this ad again tomorrow.');
       }
 
-      const baseRewardAmount = Number(adData.reward || 0.001); 
+      const baseRewardAmount = Number(adData.reward || 0.0005); 
       const shopBonusPercent = calculateShopBonusPercent(userData);
       const finalRewardAmount = baseRewardAmount * (1 + (shopBonusPercent / 100));
 
