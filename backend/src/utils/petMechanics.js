@@ -33,18 +33,15 @@ function getGrowthStage(birthDate) {
 }
 
 function calculatePetBonusPercent(decayedStats, userData) {
+  // If stats average > 80%, give +10% bonus
+  // If average > 50%, give +5%
+  // If average < 20%, give 0%
   const avg = (decayedStats.hunger + decayedStats.happiness + decayedStats.energy) / 3;
   let baseBonus = 0;
   if (avg >= 80) baseBonus = 10;
   else if (avg >= 50) baseBonus = 5;
 
-  let happinessPenalty = 0;
-  if (decayedStats.happiness <= 0) happinessPenalty = -20;
-  else if (decayedStats.happiness <= 25) happinessPenalty = -15;
-  else if (decayedStats.happiness <= 50) happinessPenalty = -10;
-  else if (decayedStats.happiness <= 75) happinessPenalty = -5;
-
-  return baseBonus + happinessPenalty; // Penalty applied directly to total bonus
+  return baseBonus; // Only base stats apply to the faucet now
 }
 
 function calculateShopBonusPercent(userData) {
