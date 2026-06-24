@@ -93,8 +93,11 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
       const userSnapshot = await transaction.get(userRef);
       const adSnapshot = await transaction.get(adRef);
 
-      if (!userSnapshot.exists || !adSnapshot.exists) {
-        throw new Error('User or Ad not found');
+      if (!userSnapshot.exists) {
+        throw new Error('User not found in database');
+      }
+      if (!adSnapshot.exists) {
+        throw new Error('Ad not found in database (ID: ' + ad_id + ')');
       }
 
       const userData = userSnapshot.data() || {};
