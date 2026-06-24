@@ -835,7 +835,6 @@ class _FaucetPageState extends State<FaucetPage> {
                               Container(
                                 constraints: const BoxConstraints(maxHeight: 250),
                                 child: Scrollbar(
-                                  thumbVisibility: true,
                                   child: SingleChildScrollView(
                                     child: Column(
                                       children: snapshot.data!.docs.asMap().entries.map((entry) {
