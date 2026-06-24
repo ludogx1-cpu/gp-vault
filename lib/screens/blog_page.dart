@@ -87,15 +87,26 @@ class BlogPage extends StatelessWidget {
                   ],
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Text(
                       "Golden Paw Blog",
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                         color: Colors.amber,
                       ),
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 15,
+                      children: [
+                        TextButton(onPressed: () {}, child: const Text("All Posts", style: TextStyle(color: Colors.amber))),
+                        TextButton(onPressed: () {}, child: const Text("News", style: TextStyle(color: Colors.amber))),
+                        TextButton(onPressed: () {}, child: const Text("Updates", style: TextStyle(color: Colors.amber))),
+                      ],
                     ),
                     const SizedBox(height: 20),
                     
@@ -157,13 +168,14 @@ class BlogPage extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: isDark ? Colors.black26 : Colors.grey.shade100,
                                     borderRadius: BorderRadius.circular(15),
-                                    border: Border.all(color: Colors.amber, width: 2),
+                                    border: Border.all(color: Colors.amber, width: 0.5),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
                                       Text(
                                         topic,
+                                        textAlign: TextAlign.center,
                                         style: TextStyle(
                                           color: titleColor,
                                           fontSize: 18,
@@ -175,6 +187,7 @@ class BlogPage extends StatelessWidget {
                                       const Spacer(),
                                       if (dateStr.isNotEmpty)
                                         Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
                                             const Icon(Icons.calendar_today, size: 14, color: Colors.amber),
                                             const SizedBox(width: 5),
