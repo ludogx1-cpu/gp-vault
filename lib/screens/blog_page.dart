@@ -100,8 +100,7 @@ class BlogPage extends StatelessWidget {
                     const SizedBox(height: 20),
                     
                     // StreamBuilder to fetch posts from Firestore dynamically
-                    Expanded(
-                      child: StreamBuilder<QuerySnapshot>(
+                    StreamBuilder<QuerySnapshot>(
                         stream: FirebaseFirestore.instance
                             .collection('blog_posts')
                             .orderBy('created_at', descending: true)
@@ -129,6 +128,8 @@ class BlogPage extends StatelessWidget {
                           final posts = snapshot.data!.docs;
 
                           return GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
                             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                               maxCrossAxisExtent: 350,
                               childAspectRatio: 1.5,
@@ -194,7 +195,6 @@ class BlogPage extends StatelessWidget {
                           );
                         },
                       ),
-                    ),
                   ],
                 ),
               );
