@@ -36,7 +36,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
   final TextEditingController _urlCtrl = TextEditingController();
   final TextEditingController _durationCtrl = TextEditingController(text: "10");
   final TextEditingController _rewardCtrl = TextEditingController(
-    text: "0.001",
+    text: "0.0005",
   );
   final TextEditingController _clicksCtrl = TextEditingController(text: "1000");
 
@@ -85,7 +85,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
         'title': _titleCtrl.text.trim(),
         'target_url': _urlCtrl.text.trim(),
         'duration': int.tryParse(_durationCtrl.text) ?? 10,
-        'reward': double.tryParse(_rewardCtrl.text) ?? 0.002,
+        'reward': double.tryParse(_rewardCtrl.text) ?? 0.001,
         'clicks_remaining': int.tryParse(_clicksCtrl.text) ?? 1000,
         'created_at': FieldValue.serverTimestamp(),
       });
