@@ -134,32 +134,35 @@ class SmartFallbackAd extends StatelessWidget {
                       ? Border.all(color: themeProvider.darkGreyBorder)
                       : null,
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      displayIcon,
-                      color: iconColor,
-                      size: height > 100 ? 40 : 24,
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      data['title'] ?? '',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: height > 100 ? 14 : 12,
-                        color: isDark ? Colors.white : Colors.black87,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        displayIcon,
+                        color: iconColor,
+                        size: height > 100 ? 40 : 24,
                       ),
-                    ),
-                    Text(
-                      "Partner Promotion",
-                      style: TextStyle(
-                        fontSize: height > 100 ? 10 : 9,
-                        color: isDark ? Colors.white54 : Colors.grey,
+                      const SizedBox(height: 5),
+                      Text(
+                        data['title'] ?? '',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: height > 100 ? 14 : 12,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
                       ),
-                    ),
-                  ],
+                      Text(
+                        "Partner Promotion",
+                        style: TextStyle(
+                          fontSize: height > 100 ? 10 : 9,
+                          color: isDark ? Colors.white54 : Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );

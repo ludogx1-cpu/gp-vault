@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
 import '../src/theme_provider.dart';
 import '../widgets/widgets.dart';
 
@@ -24,7 +23,7 @@ class _SuggestionBoxPageState extends State<SuggestionBoxPage> {
 
     try {
       final user = FirebaseAuth.instance.currentUser;
-      
+
       await FirebaseFirestore.instance.collection('suggestions').add({
         'uid': user?.uid ?? 'anonymous',
         'email': user?.email ?? 'anonymous',
@@ -37,7 +36,9 @@ class _SuggestionBoxPageState extends State<SuggestionBoxPage> {
       _suggestionController.clear();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Thank you! Your suggestion has been submitted successfully."),
+          content: Text(
+            "Thank you! Your suggestion has been submitted successfully.",
+          ),
           backgroundColor: Colors.green,
         ),
       );
@@ -73,10 +74,14 @@ class _SuggestionBoxPageState extends State<SuggestionBoxPage> {
                 constraints: const BoxConstraints(maxWidth: 600),
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: isDark ? themeProvider.darkGreyBoxColor : Colors.blue.shade50,
+                  color: isDark
+                      ? themeProvider.darkGreyBoxColor
+                      : Colors.blue.shade50,
                   borderRadius: BorderRadius.circular(15),
                   border: Border.all(
-                    color: isDark ? themeProvider.darkGreyBorder : Colors.blue.shade200,
+                    color: isDark
+                        ? themeProvider.darkGreyBorder
+                        : Colors.blue.shade200,
                     width: 2,
                   ),
                 ),
@@ -94,7 +99,9 @@ class _SuggestionBoxPageState extends State<SuggestionBoxPage> {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.blueAccent : Colors.blue.shade900,
+                        color: isDark
+                            ? Colors.blueAccent
+                            : Colors.blue.shade900,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -123,13 +130,17 @@ class _SuggestionBoxPageState extends State<SuggestionBoxPage> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
-                            color: isDark ? Colors.white24 : Colors.blue.shade200,
+                            color: isDark
+                                ? Colors.white24
+                                : Colors.blue.shade200,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
-                            color: isDark ? Colors.white24 : Colors.blue.shade200,
+                            color: isDark
+                                ? Colors.white24
+                                : Colors.blue.shade200,
                           ),
                         ),
                       ),
@@ -141,13 +152,17 @@ class _SuggestionBoxPageState extends State<SuggestionBoxPage> {
                       child: ElevatedButton(
                         onPressed: _isSubmitting ? null : _submitSuggestion,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: isDark ? Colors.blueAccent : Colors.blue.shade700,
+                          backgroundColor: isDark
+                              ? Colors.blueAccent
+                              : Colors.blue.shade700,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
                         child: _isSubmitting
-                            ? const CircularProgressIndicator(color: Colors.white)
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
                             : const Text(
                                 "SUBMIT SUGGESTION",
                                 style: TextStyle(

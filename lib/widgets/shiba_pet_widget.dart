@@ -340,7 +340,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                                 _userWantsSleep = newValue;
                               });
                               PetEvents.toggleSleep(newValue);
-                              if (mounted) {
+                              if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text(newValue ? 'Dogeogotcha turned off! It will automatically wake up when it needs you.' : 'Dogeogotcha turned on!')),
                                 );

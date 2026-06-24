@@ -2,8 +2,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'dart:ui_web' as ui_web;
 import 'package:web/web.dart' as web;
-import 'dart:js_interop';
-import 'dart:js_interop_unsafe';
 import 'smart_fallback_ad.dart';
 
 class AdsenseSquareAd extends StatefulWidget {
