@@ -40,10 +40,10 @@ function getBannerCost(slot, pool) {
 
 function getPtcConfig(tier, clicks) {
   const tierConfigs = {
-    1: { reward: 0.001, duration: 10, pricePerClick: 0.0025 },
-    2: { reward: 0.002, duration: 20, pricePerClick: 0.0050 },
-    3: { reward: 0.003, duration: 30, pricePerClick: 0.0075 },
-    4: { reward: 0.006, duration: 60, pricePerClick: 0.0150 },
+    1: { reward: 0.0005, duration: 10, pricePerClick: 0.0025 },
+    2: { reward: 0.001, duration: 20, pricePerClick: 0.0050 },
+    3: { reward: 0.0015, duration: 30, pricePerClick: 0.0075 },
+    4: { reward: 0.003, duration: 60, pricePerClick: 0.0150 },
   };
 
   const parsedTier = Number(tier);

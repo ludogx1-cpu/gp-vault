@@ -340,7 +340,7 @@ router.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
     }
 
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    const rewardAmount = 0.0001;
+    const rewardAmount = 0.003;
     const xpReward = 15;
     const cooldownMs = 15 * 60 * 1000;
     const now = admin.firestore.Timestamp.now();
@@ -423,7 +423,7 @@ router.post('/claim-monetag-sponsor', verifyFirebaseToken, async (req, res) => {
     }
 
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    const rewardAmount = 0.00005;
+    const rewardAmount = 0.002;
     const xpReward = 10;
     const cooldownMs = 10 * 60 * 1000;
     const now = admin.firestore.Timestamp.now();
