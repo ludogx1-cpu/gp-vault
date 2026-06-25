@@ -287,7 +287,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                                 ),
                                 const SizedBox(height: 5),
                                 const Text(
-                                  "Stay on the page for 10 seconds to earn\n0.0002 DOGE & 15 XP!",
+                                  "Stay on the page for 10 seconds to earn\n0.0001 DOGE & 15 XP!",
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: Colors.green,
@@ -375,7 +375,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                                 ),
                                 const SizedBox(height: 5),
                                 const Text(
-                                  "Stay on the page for 30 seconds to earn\n0.0001 DOGE & 10 XP!",
+                                  "Stay on the page for 30 seconds to earn\n0.00005 DOGE & 10 XP!",
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: Colors.green,
