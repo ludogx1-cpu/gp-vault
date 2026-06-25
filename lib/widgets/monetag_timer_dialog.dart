@@ -10,15 +10,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
 
-
-
 // --- GLOBAL THEME CONSTANTS 🚀 ---
 
-
 // --- CAPTCHA JS BINDINGS ---
-
-
-
 
 // ==========================================
 // 1. THE SHELL
@@ -166,7 +160,9 @@ class _MonetagTimerDialogState extends State<MonetagTimerDialog> {
 
     try {
       final response = await http.post(
-        Uri.parse('https://golden-paw-vault.onrender.com/claim-monetag-sponsor'),
+        Uri.parse(
+          'https://golden-paw-vault.onrender.com/claim-monetag-sponsor',
+        ),
         headers: await getAuthHeaders(),
         body: jsonEncode({
           'captcha_token': _captchaToken,
@@ -382,4 +378,3 @@ class _MonetagTimerDialogState extends State<MonetagTimerDialog> {
 // ==========================================
 // 📋 SECURE DEDICATED OFFERWALL HUB
 // ==========================================
-
