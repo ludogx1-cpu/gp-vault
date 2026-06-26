@@ -377,7 +377,7 @@ class _FaucetPageState extends State<FaucetPage> {
         final response = await http
             .post(
               Uri.parse('${ApiConstants.baseUrl}/send-doge'),
-              headers: {"Content-Type": "application/json"},
+              headers: await getAuthHeaders(),
               body: jsonEncode({
                 "user_address": _addressController.text.trim(),
                 "captcha_token": _captchaToken,
