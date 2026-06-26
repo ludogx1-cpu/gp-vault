@@ -23,13 +23,28 @@ class _AdsenseSquareAdState extends State<AdsenseSquareAd> {
     _viewId = 'adsense-square-${Random().nextInt(100000)}';
 
     ui_web.platformViewRegistry.registerViewFactory(_viewId, (int viewId) {
-      final iframe = web.HTMLIFrameElement()
+      final div = web.HTMLDivElement()
         ..style.width = '100%'
-        ..style.height = '100%'
-        ..style.border = 'none'
-        ..src = '/ad.html?slot=${widget.adSlot}';
+        ..style.height = '100%';
 
-      return iframe;
+      final ins = web.HTMLElement.tag('ins') as web.HTMLElement
+        ..className = 'adsbygoogle'
+        ..style.display = 'block'
+        ..setAttribute('data-ad-client', 'ca-pub-2047805482197197')
+        ..setAttribute('data-ad-slot', widget.adSlot)
+        ..setAttribute('data-ad-format', 'auto')
+        ..setAttribute('data-full-width-responsive', 'true');
+
+      div.append(ins);
+
+      // Push the ad to the adsbygoogle array
+      final script = web.HTMLScriptElement()
+        ..type = 'text/javascript'
+        ..text = '(adsbygoogle = window.adsbygoogle || []).push({});';
+      
+      div.append(script);
+
+      return div;
     });
   }
 
