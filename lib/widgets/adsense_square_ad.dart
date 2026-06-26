@@ -27,7 +27,7 @@ class _AdsenseSquareAdState extends State<AdsenseSquareAd> {
         ..style.width = '100%'
         ..style.height = '100%';
 
-      final ins = web.HTMLElement.tag('ins') as web.HTMLElement
+      final ins = web.document.createElement('ins') as web.HTMLElement
         ..className = 'adsbygoogle'
         ..style.display = 'block'
         ..setAttribute('data-ad-client', 'ca-pub-2047805482197197')
