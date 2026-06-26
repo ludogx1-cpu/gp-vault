@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:web/web.dart' as web;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:flutter/services.dart';
 
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
@@ -68,7 +68,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
   @override
   void initState() {
     super.initState();
-    _adminTabController = TabController(length: 5, vsync: this);
+    _adminTabController = TabController(length: 6, vsync: this);
   }
 
   @override
@@ -267,6 +267,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
             Tab(icon: Icon(Icons.card_giftcard), text: "Bonus Sponsors"),
             Tab(icon: Icon(Icons.code), text: "HTML Snippets"),
             Tab(icon: Icon(Icons.campaign), text: "Update Board"),
+            Tab(icon: Icon(Icons.psychology), text: "AI Drafts"),
           ],
         ),
       ),
@@ -840,8 +841,143 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
               ],
             ),
           ),
+          _buildAIDraftsTab(),
         ],
       ),
+    );
+  }
+
+  Widget _buildAIDraftsTab() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('ai_drafts').orderBy('created_at', descending: true).snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+        if (snapshot.data!.docs.isEmpty) return const Center(child: Text("No AI drafts waiting."));
+        
+        return ListView.builder(
+          padding: const EdgeInsets.all(20),
+          itemCount: snapshot.data!.docs.length,
+          itemBuilder: (context, index) {
+            var doc = snapshot.data!.docs[index];
+            var data = doc.data() as Map<String, dynamic>;
+            var type = data['type'] ?? 'social_media';
+            
+            if (type == 'blog_post') {
+              return _buildBlogDraftCard(doc.id, data);
+            } else {
+              return _buildSocialDraftCard(doc.id, data);
+            }
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildSocialDraftCard(String docId, Map<String, dynamic> data) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 20),
+      child: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text("Social Media Campaign", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blue)),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => FirebaseFirestore.instance.collection('ai_drafts').doc(docId).delete(),
+                ),
+              ],
+            ),
+            const Divider(),
+            _buildDraftSection("Twitter Thread", data['twitter_draft'] ?? ''),
+            const Divider(),
+            _buildDraftSection("Reddit Post", data['reddit_draft'] ?? ''),
+            const Divider(),
+            _buildDraftSection("Substack Article", data['substack_draft'] ?? ''),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBlogDraftCard(String docId, Map<String, dynamic> data) {
+    String content = data['content'] ?? '';
+    String topic = data['topic'] ?? 'Unknown Topic';
+    return Card(
+      margin: const EdgeInsets.only(bottom: 20),
+      child: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(child: Text("SEO Blog: $topic", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.orange))),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => FirebaseFirestore.instance.collection('ai_drafts').doc(docId).delete(),
+                ),
+              ],
+            ),
+            const Divider(),
+            _buildDraftSection("Blog Content", content),
+            const SizedBox(height: 10),
+            ElevatedButton.icon(
+              onPressed: () async {
+                setState(() => _isLoading = true);
+                try {
+                  await FirebaseFirestore.instance.collection('blog_posts').add({
+                    'topic': topic,
+                    'content': content,
+                    'created_at': FieldValue.serverTimestamp(),
+                  });
+                  await FirebaseFirestore.instance.collection('ai_drafts').doc(docId).delete();
+                  if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Blog Post Published!"), backgroundColor: Colors.green));
+                } catch (e) {
+                  // ignore: empty_catches
+                }
+                setState(() => _isLoading = false);
+              },
+              icon: const Icon(Icons.publish),
+              label: const Text("Publish to Website"),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDraftSection(String title, String content) {
+    if (content.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            TextButton.icon(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: content));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$title copied to clipboard!")));
+              },
+              icon: const Icon(Icons.copy, size: 16),
+              label: const Text("Copy"),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(color: Colors.grey.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+          child: Text(content, style: const TextStyle(fontSize: 14)),
+        ),
+      ],
     );
   }
 }
