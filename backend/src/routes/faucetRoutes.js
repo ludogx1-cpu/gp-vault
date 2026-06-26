@@ -39,6 +39,8 @@ router.post('/send-doge', verifyFirebaseToken, async (req, res) => {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     const cooldownMs = 5 * 60 * 1000; 
 
+    let ageMult = 1.0;
+
     await admin.firestore().runTransaction(async (transaction) => {
       const snapshot = await transaction.get(userRef);
       if (!snapshot.exists) {
@@ -55,7 +57,6 @@ router.post('/send-doge', verifyFirebaseToken, async (req, res) => {
 
       const streakUpdates = getStreakUpdates(data);
 
-      let ageMult = 1.0;
       if (data.pet_birth_date) {
         const decayed = calculateDecay(data);
         ageMult = getAgeMultiplier(data.pet_birth_date);
