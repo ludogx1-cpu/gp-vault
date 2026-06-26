@@ -472,7 +472,7 @@ class _StakingPageState extends State<StakingPage> {
                             child: SizedBox(
                               height: 50,
                               child: ElevatedButton.icon(
-                                onPressed: () {
+                                onPressed: _isProcessing ? null : () {
                                   double amount =
                                       double.tryParse(
                                         _amountController.text.trim(),
@@ -491,7 +491,7 @@ class _StakingPageState extends State<StakingPage> {
                                       ),
                                     );
                                   }
-                                } : null,
+                                },
                                 icon: const Icon(
                                   Icons.lock,
                                   color: Colors.white,
