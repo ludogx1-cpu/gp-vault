@@ -35,6 +35,7 @@ class StakingPage extends StatefulWidget {
 
 class _StakingPageState extends State<StakingPage> {
   final TextEditingController _amountController = TextEditingController();
+  bool _isProcessing = false;
 
   Future<void> _harvestInterest() async {
     try {
@@ -72,6 +73,8 @@ class _StakingPageState extends State<StakingPage> {
   }
 
   Future<void> _stakeDoge(double amountToStake) async {
+    if (_isProcessing) return;
+    setState(() => _isProcessing = true);
     try {
       final response = await http.post(
         Uri.parse('${ApiConstants.baseUrl}/stake'),
@@ -105,10 +108,14 @@ class _StakingPageState extends State<StakingPage> {
           backgroundColor: Colors.red,
         ),
       );
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 
   Future<void> _unstakeDoge(double amountToUnstake) async {
+    if (_isProcessing) return;
+    setState(() => _isProcessing = true);
     try {
       final response = await http.post(
         Uri.parse('${ApiConstants.baseUrl}/unstake'),
@@ -142,6 +149,8 @@ class _StakingPageState extends State<StakingPage> {
           backgroundColor: Colors.red,
         ),
       );
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 
@@ -482,7 +491,7 @@ class _StakingPageState extends State<StakingPage> {
                                       ),
                                     );
                                   }
-                                },
+                                } : null,
                                 icon: const Icon(
                                   Icons.lock,
                                   color: Colors.white,
@@ -510,7 +519,7 @@ class _StakingPageState extends State<StakingPage> {
                             child: SizedBox(
                               height: 50,
                               child: ElevatedButton.icon(
-                                onPressed: () {
+                                onPressed: _isProcessing ? null : () {
                                   double amount =
                                       double.tryParse(
                                         _amountController.text.trim(),
@@ -530,11 +539,9 @@ class _StakingPageState extends State<StakingPage> {
                                     );
                                   }
                                 },
-                                icon: Icon(
+                                icon: const Icon(
                                   Icons.lock_open,
-                                  color: isDark
-                                      ? Colors.white
-                                      : Colors.black87,
+                                  color: Colors.white,
                                   size: 18,
                                 ),
                                 label: Text(

@@ -195,7 +195,7 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
           transaction.update(userRef, updates);
         }
       } else {
-        const totalBonusPercent = level + streak + petBonus;
+        const totalBonusPercent = level + streak;
         finalReward = baseReward * (1 + (totalBonusPercent / 100));
         finalReward = finalReward * ageMult;
         finalReward = Math.min(finalReward, 0.072);
