@@ -974,7 +974,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
         const SizedBox(height: 5),
         Container(
           padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: Colors.grey.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+          decoration: BoxDecoration(color: Colors.grey.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
           child: Text(content, style: const TextStyle(fontSize: 14)),
         ),
       ],
