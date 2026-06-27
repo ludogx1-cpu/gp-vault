@@ -35,7 +35,6 @@ class _MonetagTimerDialogState extends State<MonetagTimerDialog> {
   String _message = "Please wait...";
 
   bool _showCaptcha = false;
-  bool _timerStarted = false;
   String _selectedCaptcha = 'hCaptcha';
   bool _captchaLoading = false;
   String? _captchaToken;

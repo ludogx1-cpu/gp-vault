@@ -99,24 +99,12 @@ class BlogPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: 15,
-                      children: [
-                        TextButton(onPressed: () {}, child: const Text("All Posts", style: TextStyle(color: Colors.amber))),
-                        TextButton(onPressed: () {}, child: const Text("News", style: TextStyle(color: Colors.amber))),
-                        TextButton(onPressed: () {}, child: const Text("Updates", style: TextStyle(color: Colors.amber))),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    
                     // StreamBuilder to fetch posts from Firestore dynamically
                     StreamBuilder<QuerySnapshot>(
                         stream: FirebaseFirestore.instance
                             .collection('blog_posts')
                             .orderBy('created_at', descending: true)
-                            .limit(8)
-                            .snapshots(),
+                            .snapshots(), // Removed limit(8) so they can all load and scroll
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return const Center(child: CircularProgressIndicator(color: Colors.amber));
@@ -138,73 +126,72 @@ class BlogPage extends StatelessWidget {
 
                           final posts = snapshot.data!.docs;
 
-                          return GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 350,
-                              childAspectRatio: 1.5,
-                              crossAxisSpacing: 20,
-                              mainAxisSpacing: 20,
+                          return Container(
+                            height: 500, // Fixed height to allow scrolling within the box
+                            decoration: BoxDecoration(
+                              color: isDark ? Colors.black12 : Colors.grey.shade50,
+                              borderRadius: BorderRadius.circular(15),
+                              border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
                             ),
-                            itemCount: posts.length,
-                            itemBuilder: (context, index) {
-                              final post = posts[index].data() as Map<String, dynamic>;
-                              final content = post['content'] ?? '';
-                              final topic = post['topic'] ?? 'Untitled Article';
-                              final createdAt = post['created_at'];
-                              
-                              String dateStr = '';
-                              if (createdAt != null && createdAt is Timestamp) {
-                                final dt = createdAt.toDate();
-                                dateStr = '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
-                              }
+                            child: ListView.separated(
+                              padding: const EdgeInsets.all(15),
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: posts.length,
+                              separatorBuilder: (context, index) => const SizedBox(height: 10),
+                              itemBuilder: (context, index) {
+                                final post = posts[index].data() as Map<String, dynamic>;
+                                final content = post['content'] ?? '';
+                                final topic = post['topic'] ?? 'Untitled Article';
+                                final createdAt = post['created_at'];
+                                
+                                String dateStr = '';
+                                if (createdAt != null && createdAt is Timestamp) {
+                                  final dt = createdAt.toDate();
+                                  dateStr = '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
+                                }
 
-                              return InkWell(
-                                onTap: () => _showArticleDialog(context, content, isDark, titleColor),
-                                borderRadius: BorderRadius.circular(15),
-                                child: Container(
-                                  padding: const EdgeInsets.all(15),
-                                  decoration: BoxDecoration(
-                                    color: isDark ? Colors.black26 : Colors.grey.shade100,
-                                    borderRadius: BorderRadius.circular(15),
-                                    border: Border.all(color: Colors.amber, width: 0.5),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        topic,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: titleColor,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        maxLines: 3,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const Spacer(),
-                                      if (dateStr.isNotEmpty)
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            const Icon(Icons.calendar_today, size: 14, color: Colors.amber),
-                                            const SizedBox(width: 5),
-                                            Text(
-                                              dateStr,
-                                              style: TextStyle(
-                                                color: isDark ? Colors.white54 : Colors.black54,
-                                                fontSize: 14,
-                                              ),
+                                return InkWell(
+                                  onTap: () => _showArticleDialog(context, content, isDark, titleColor),
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                                    decoration: BoxDecoration(
+                                      color: isDark ? Colors.black26 : Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(color: Colors.amber, width: 0.5),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            topic,
+                                            style: TextStyle(
+                                              color: titleColor,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
                                             ),
-                                          ],
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                         ),
-                                    ],
+                                        if (dateStr.isNotEmpty) ...[
+                                          const SizedBox(width: 15),
+                                          const Icon(Icons.calendar_today, size: 14, color: Colors.amber),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            dateStr,
+                                            style: TextStyle(
+                                              color: isDark ? Colors.white54 : Colors.black54,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           );
                         },
                       ),

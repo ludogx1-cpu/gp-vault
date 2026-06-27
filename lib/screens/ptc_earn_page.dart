@@ -414,10 +414,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                                     ),
                                     onPressed: canClaimMonetag
                                         ? () {
-                                            web.window.open(
-                                              'https://omg10.com/4/11199816',
-                                              '_blank',
-                                            );
+
                                             showDialog(
                                               barrierDismissible: false,
                                               context: context,
