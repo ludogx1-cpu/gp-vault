@@ -51,9 +51,9 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
   void initState() {
     super.initState();
     _originalTitle = web.document.title;
-    _timeLeft = 10; // 10 seconds required
+    _timeLeft = 20; // 20 seconds required
     _updateBrowserTitle("Click an ad...");
-    _message = "Click an ad and stay on the page for 10 seconds to earn your reward!";
+    _message = "Click an ad and stay on the page for 20 seconds to earn your reward!";
 
     _messageSubscription = web.EventStreamProviders.messageEvent
         .forTarget(web.window)
@@ -124,7 +124,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
       }
 
       int elapsedSeconds = _stopwatch.elapsed.inSeconds;
-      int remaining = 10 - elapsedSeconds;
+      int remaining = 20 - elapsedSeconds;
 
       if (remaining <= 0) {
         timer.cancel();
