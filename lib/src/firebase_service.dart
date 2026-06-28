@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 
 class FirebaseService {
   static Future<void> initialize() async {
@@ -13,6 +14,10 @@ class FirebaseService {
         appId: "1:163858364889:web:12db63a67659cd094a01c8",
         measurementId: "G-H0R68LWSK6",
       ),
+    );
+
+    await FirebaseAppCheck.instance.activate(
+      webProvider: ReCaptchaV3Provider('6LeEKjotAAAAABBcMyZho_GL7pH7HW7YlQ_JowPy'),
     );
   }
 }
