@@ -17,6 +17,8 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   Future<void> init() async {
+    if (kIsWeb) return;
+
     tz.initializeTimeZones();
 
     const AndroidInitializationSettings initializationSettingsAndroid =
@@ -48,6 +50,8 @@ class NotificationService {
   }
 
   Future<void> scheduleHungerNotification(DateTime expectedHungryTime) async {
+    if (kIsWeb) return;
+    
     final title = 'Your Shiba is Hungry! 🦴';
     final body = 'Come back and feed your Shiba before it gets too sad.';
 
@@ -90,8 +94,10 @@ class NotificationService {
   }
 
   Future<void> scheduleBonusTimerNotification(Duration waitTime) async {
-    final title = 'Bonus Ready! 🎁';
-    final body = 'Your bonus timer has finished. Claim your rewards now!';
+    if (kIsWeb) return;
+    
+    final title = 'Your Bonus is Ready! 🎁';
+    final body = 'Claim your Golden Paw Faucet bonus now!';
     
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
       // Skip background scheduling for Windows as local_notifier only supports immediate.

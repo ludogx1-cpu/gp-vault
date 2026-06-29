@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
@@ -16,9 +17,13 @@ class FirebaseService {
       ),
     );
 
-    await FirebaseAppCheck.instance.activate(
-      providerWeb: ReCaptchaV3Provider('6LeEKjotAAAAABBcMyZho_GL7pH7HW7YlQ_JowPy'),
-    );
+    try {
+      await FirebaseAppCheck.instance.activate(
+        providerWeb: ReCaptchaV3Provider('6LeEKjotAAAAABBcMyZho_GL7pH7HW7YlQ_JowPy'),
+      );
+    } catch (e) {
+      debugPrint('FirebaseAppCheck error: $e');
+    }
   }
 }
 
