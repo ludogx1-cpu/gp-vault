@@ -10,7 +10,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'walk_treadmill_dialog.dart';
-import '../widgets/pet_overlay_widget.dart';
 import '../src/notification_service.dart';
 import '../utils/pet_events.dart';
 
