@@ -470,8 +470,7 @@ class _FaucetPageState extends State<FaucetPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const AdsterraBannerAd(),
-                const SizedBox(height: 15),
+
 
                 const SizedBox(
                   width: 120,
