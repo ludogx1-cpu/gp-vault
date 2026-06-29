@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:local_notifier/local_notifier.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'local_notifier_setup_web.dart' if (dart.library.io) 'local_notifier_setup.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -43,10 +43,7 @@ class NotificationService {
 
     // Initialize Windows local_notifier
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
-      await localNotifier.setup(
-        appName: 'Golden Paw Vault',
-        shortcutPolicy: ShortcutPolicy.requireCreate,
-      );
+      await setupLocalNotifier();
     }
   }
 
