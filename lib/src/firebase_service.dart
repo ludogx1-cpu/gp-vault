@@ -17,7 +17,7 @@ class FirebaseService {
     );
 
     await FirebaseAppCheck.instance.activate(
-      webProvider: ReCaptchaV3Provider('6LeEKjotAAAAABBcMyZho_GL7pH7HW7YlQ_JowPy'),
+      providerWeb: ReCaptchaV3Provider('6LeEKjotAAAAABBcMyZho_GL7pH7HW7YlQ_JowPy'),
     );
   }
 }
