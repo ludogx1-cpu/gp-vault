@@ -511,6 +511,18 @@ const ACCESSORY_PRICES_USDT = {
   'coat_luxury': 7.5
 };
 
+const ACCESSORY_PRICES_DOGE = {
+  'top_hat': 8.0,
+  'sunglasses': 16.0,
+  'gold_chain': 24.0,
+  'diamond_watch': 40.0,
+  'crown': 80.0,
+  'coat_basic': 12.0,
+  'coat_rain': 20.0,
+  'coat_winter': 32.0,
+  'coat_luxury': 60.0
+};
+
 const TRICK_PRICES_USDT = {
   'Spin': 1.0,
   'Jump': 2.0,
@@ -519,12 +531,22 @@ const TRICK_PRICES_USDT = {
   'Moonwalk': 10.0
 };
 
+const TRICK_PRICES_DOGE = {
+  'Spin': 8.0,
+  'Jump': 16.0,
+  'Roll Over': 24.0,
+  'Backflip': 40.0,
+  'Moonwalk': 80.0
+};
+
 router.post('/pet-buy-accessory', verifyFirebaseToken, async (req, res) => {
   try {
-    const { accessoryId } = req.body;
-    if (!ACCESSORY_PRICES_USDT[accessoryId]) throw new Error('Invalid accessory');
+    const { accessoryId, currency = 'usdt' } = req.body;
+    
+    if (currency === 'usdt' && !ACCESSORY_PRICES_USDT[accessoryId]) throw new Error('Invalid accessory');
+    if (currency === 'doge' && !ACCESSORY_PRICES_DOGE[accessoryId]) throw new Error('Invalid accessory');
 
-    const usdtCost = ACCESSORY_PRICES_USDT[accessoryId];
+    const cost = currency === 'usdt' ? ACCESSORY_PRICES_USDT[accessoryId] : ACCESSORY_PRICES_DOGE[accessoryId];
 
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     await admin.firestore().runTransaction(async (transaction) => {
@@ -533,22 +555,34 @@ router.post('/pet-buy-accessory', verifyFirebaseToken, async (req, res) => {
       if (!data.pet_birth_date) throw new Error('Pet not initialized');
       if (getGrowthStage(data.pet_birth_date) === 'egg') throw new Error('Pets in the egg stage cannot use the shop.');
 
-      const currentAdsBalance = Number(data.ads_balance || 0);
-
-      if (currentAdsBalance < usdtCost) throw new Error(`Insufficient Ad Credit. Costs $${usdtCost.toFixed(2)} USDT.`);
+      if (currency === 'usdt') {
+        const currentAdsBalance = Number(data.ads_balance || 0);
+        if (currentAdsBalance < cost) throw new Error(`Insufficient Ad Credit. Costs $${cost.toFixed(2)} USDT.`);
+      } else if (currency === 'doge') {
+        const currentDogeBalance = Number(data.doge_balance || 0);
+        if (currentDogeBalance < cost) throw new Error(`Insufficient Balance. Costs ${cost.toFixed(2)} DOGE.`);
+      }
 
       const owned = data.pet_owned_accessories || [];
       if (owned.includes(accessoryId)) throw new Error('You already own this accessory!');
 
       owned.push(accessoryId);
 
-      transaction.update(userRef, {
-        ads_balance: currentAdsBalance - usdtCost,
+      const updates = {
         pet_owned_accessories: owned
-      });
+      };
+
+      if (currency === 'usdt') {
+        updates.ads_balance = Number(data.ads_balance || 0) - cost;
+      } else {
+        updates.doge_balance = Number(data.doge_balance || 0) - cost;
+      }
+
+      transaction.update(userRef, updates);
     });
 
-    res.json({ success: true, message: `Accessory purchased for $${usdtCost.toFixed(2)} USDT!` });
+    const msg = currency === 'usdt' ? `Accessory purchased for $${cost.toFixed(2)} USDT!` : `Accessory purchased for ${cost.toFixed(2)} DOGE!`;
+    res.json({ success: true, message: msg });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
@@ -588,10 +622,12 @@ router.post('/pet-equip-accessory', verifyFirebaseToken, async (req, res) => {
 
 router.post('/pet-buy-trick', verifyFirebaseToken, async (req, res) => {
   try {
-    const { trickName } = req.body;
-    if (!TRICK_PRICES_USDT[trickName]) throw new Error('Invalid trick');
+    const { trickName, currency = 'usdt' } = req.body;
+    
+    if (currency === 'usdt' && !TRICK_PRICES_USDT[trickName]) throw new Error('Invalid trick');
+    if (currency === 'doge' && !TRICK_PRICES_DOGE[trickName]) throw new Error('Invalid trick');
 
-    const usdtCost = TRICK_PRICES_USDT[trickName];
+    const cost = currency === 'usdt' ? TRICK_PRICES_USDT[trickName] : TRICK_PRICES_DOGE[trickName];
 
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     await admin.firestore().runTransaction(async (transaction) => {
@@ -600,22 +636,34 @@ router.post('/pet-buy-trick', verifyFirebaseToken, async (req, res) => {
       if (!data.pet_birth_date) throw new Error('Pet not initialized');
       if (getGrowthStage(data.pet_birth_date) === 'egg') throw new Error('Pets in the egg stage cannot learn tricks.');
 
-      const currentAdsBalance = Number(data.ads_balance || 0);
-
-      if (currentAdsBalance < usdtCost) throw new Error(`Insufficient Ad Credit. Costs $${usdtCost.toFixed(2)} USDT.`);
+      if (currency === 'usdt') {
+        const currentAdsBalance = Number(data.ads_balance || 0);
+        if (currentAdsBalance < cost) throw new Error(`Insufficient Ad Credit. Costs $${cost.toFixed(2)} USDT.`);
+      } else if (currency === 'doge') {
+        const currentDogeBalance = Number(data.doge_balance || 0);
+        if (currentDogeBalance < cost) throw new Error(`Insufficient Balance. Costs ${cost.toFixed(2)} DOGE.`);
+      }
 
       const owned = data.pet_owned_tricks || [];
       if (owned.includes(trickName)) throw new Error('You already own this trick!');
 
       owned.push(trickName);
 
-      transaction.update(userRef, {
-        ads_balance: currentAdsBalance - usdtCost,
+      const updates = {
         pet_owned_tricks: owned
-      });
+      };
+
+      if (currency === 'usdt') {
+        updates.ads_balance = Number(data.ads_balance || 0) - cost;
+      } else {
+        updates.doge_balance = Number(data.doge_balance || 0) - cost;
+      }
+
+      transaction.update(userRef, updates);
     });
 
-    res.json({ success: true, message: `Trick purchased for $${usdtCost.toFixed(2)} USDT!` });
+    const msg = currency === 'usdt' ? `Trick purchased for $${cost.toFixed(2)} USDT!` : `Trick purchased for ${cost.toFixed(2)} DOGE!`;
+    res.json({ success: true, message: msg });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }

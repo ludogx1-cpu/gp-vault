@@ -294,11 +294,7 @@ class _FaucetPageState extends State<FaucetPage> {
       _status = "Waking up server...";
     });
 
-    bool? proceedToClaim = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const InterstitialAdDialog(),
-    );
+    bool? proceedToClaim = await InterstitialAdDialog.showIfReady(context);
 
     if (proceedToClaim != true) {
       if (mounted) {
