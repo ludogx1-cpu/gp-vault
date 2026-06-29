@@ -8,6 +8,29 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class InterstitialAdDialog extends StatefulWidget {
   const InterstitialAdDialog({super.key});
+
+  static DateTime? _lastShownTime;
+  // 3-minute cool-down to prevent ad fatigue
+  static const Duration _cooldown = Duration(minutes: 3);
+
+  /// Shows the dialog if the cooldown has passed. Returns true if the user
+  /// should proceed (either skipped due to cooldown, or watched and continued).
+  static Future<bool?> showIfReady(BuildContext context) async {
+    final now = DateTime.now();
+    if (_lastShownTime != null) {
+      if (now.difference(_lastShownTime!) < _cooldown) {
+        // Cooldown active. Skip ad.
+        return true;
+      }
+    }
+    _lastShownTime = now;
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const InterstitialAdDialog(),
+    );
+  }
+
   @override
   State<InterstitialAdDialog> createState() => _InterstitialAdDialogState();
 }

@@ -526,6 +526,36 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
     );
   }
 
+  void _showPurchaseDialog(String title, double usdtPrice, Function(String) onConfirm) {
+    final dogePrice = usdtPrice * 8.0; // Static rate matching backend
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Buy $title", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        content: const Text("Choose your payment method:"),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
+            onPressed: () {
+              Navigator.pop(context);
+              onConfirm('usdt');
+            },
+            child: Text("\$${usdtPrice.toStringAsFixed(2)} USDT", style: const TextStyle(color: Colors.black)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+            onPressed: () {
+              Navigator.pop(context);
+              onConfirm('doge');
+            },
+            child: Text("${dogePrice.toStringAsFixed(2)} DOGE", style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildShopItem(String id, String name, double price, String bonus) {
     final isOwned = _ownedAccessories.contains(id);
     final isEquipped = _equippedAccessories.contains(id);
@@ -546,7 +576,9 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
               child: Text(isEquipped ? "Unequip" : "Equip", style: const TextStyle(fontSize: 10, color: Colors.white)),
             )
           : ElevatedButton(
-              onPressed: () => _buyAccessory(id),
+              onPressed: () {
+                _showPurchaseDialog(name, price, (currency) => _buyAccessory(id, currency));
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.amber,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -560,11 +592,17 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   Widget _buildTrickButton(String name, IconData icon, double price, String bonus) {
     final isOwned = _ownedTricks.contains(name);
     return Tooltip(
-      message: isOwned ? 'Perform $name' : 'Buy $name for \$$price USDT ($bonus)',
+      message: isOwned ? 'Perform $name' : 'Buy $name for \$$price USDT / ${price * 8.0} DOGE ($bonus)',
       child: ElevatedButton.icon(
-        onPressed: () => isOwned ? _performTrick(name) : _buyTrick(name),
+        onPressed: () {
+          if (isOwned) {
+            _performTrick(name);
+          } else {
+            _showPurchaseDialog(name, price, (currency) => _buyTrick(name, currency));
+          }
+        },
         icon: Icon(isOwned ? icon : Icons.lock, size: 16),
-        label: Text(isOwned ? name : '\$$price'),
+        label: Text(isOwned ? name : 'Buy'),
         style: ElevatedButton.styleFrom(
           backgroundColor: isOwned ? Colors.purple.shade400 : Colors.grey.shade700,
           foregroundColor: Colors.white,
@@ -573,14 +611,14 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
     );
   }
 
-  Future<void> _buyTrick(String name) async {
+  Future<void> _buyTrick(String name, String currency) async {
     setState(() => _isLoading = true);
     try {
       final headers = await getAuthHeaders();
       final response = await http.post(
         Uri.parse('${ApiConstants.baseUrl}/pet-buy-trick'),
         headers: headers,
-        body: jsonEncode({'trickName': name}),
+        body: jsonEncode({'trickName': name, 'currency': currency}),
       );
       final data = jsonDecode(response.body);
       if (data['success'] && mounted) {
@@ -600,14 +638,14 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
     }
   }
 
-  Future<void> _buyAccessory(String id) async {
+  Future<void> _buyAccessory(String id, String currency) async {
     setState(() => _isLoading = true);
     try {
       final headers = await getAuthHeaders();
       final response = await http.post(
         Uri.parse('${ApiConstants.baseUrl}/pet-buy-accessory'),
         headers: headers,
-        body: jsonEncode({'accessoryId': id}),
+        body: jsonEncode({'accessoryId': id, 'currency': currency}),
       );
       final data = jsonDecode(response.body);
       if (data['success'] && mounted) {
