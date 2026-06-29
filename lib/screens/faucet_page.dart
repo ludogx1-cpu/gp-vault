@@ -1162,7 +1162,7 @@ class _FaucetPageState extends State<FaucetPage> {
                   spacing: 20,
                   runSpacing: 30,
                   children: [
-                    const AdsenseSquareAd(adSlot: '6054324338'),
+
                     SizedBox(
                       width: 160,
                       height: 60,
@@ -1202,7 +1202,7 @@ class _FaucetPageState extends State<FaucetPage> {
                               ),
                       ),
                     ),
-                    const AdsenseSquareAd(adSlot: '5587420478'),
+
                   ],
                 ),
 
