@@ -414,7 +414,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                                     ),
                                     onPressed: canClaimMonetag
                                         ? () {
-
+                                            web.window.open('https://spendsdetachment.com/830v5p7e2g?key=eab1b89eade1ee06e1636b924ec6b681', '_blank');
                                             showDialog(
                                               barrierDismissible: false,
                                               context: context,
