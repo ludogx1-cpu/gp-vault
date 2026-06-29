@@ -609,7 +609,20 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
                           );
                         },
                         child: GestureDetector(
-                          onTap: _isCloseUp ? _boopPet : null,
+                          onTapDown: (_) {
+                            if (_stage != 'egg') _boopController.forward();
+                          },
+                          onTapUp: (_) {
+                            if (_stage != 'egg') _boopController.reverse();
+                            if (_isCloseUp) {
+                              _boopPet();
+                            } else if (_stage != 'egg') {
+                              _startChasingMouse();
+                            }
+                          },
+                          onTapCancel: () {
+                            if (_stage != 'egg') _boopController.reverse();
+                          },
                           child: Stack(
                             clipBehavior: Clip.none,
                             alignment: Alignment.center,

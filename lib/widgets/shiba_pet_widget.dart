@@ -10,6 +10,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'walk_treadmill_dialog.dart';
+import '../widgets/pet_overlay_widget.dart';
+import '../src/notification_service.dart';
 import '../utils/pet_events.dart';
 
 class ShibaPetWidget extends StatefulWidget {
@@ -95,6 +97,12 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('+${matured.toStringAsFixed(4)} DOGE Investment Matured!'), backgroundColor: Colors.green),
               );
+            }
+
+            // Schedule Hunger Notification 5 hours from last feed time
+            if (_lastFeedTime > 0) {
+              final expectedHungryTime = DateTime.fromMillisecondsSinceEpoch(_lastFeedTime).add(const Duration(hours: 5));
+              NotificationService().scheduleHungerNotification(expectedHungryTime);
             }
 
             _isLoading = false;

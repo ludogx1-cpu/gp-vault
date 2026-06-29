@@ -182,8 +182,22 @@ class AppDrawer extends StatelessWidget {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const PtcEarnPage(),
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) => const PtcEarnPage(),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(0.0, 0.05); // slight slide up
+                        const end = Offset.zero;
+                        const curve = Curves.easeOutCubic;
+                        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                        return FadeTransition(
+                          opacity: animation,
+                          child: SlideTransition(
+                            position: animation.drive(tween),
+                            child: child,
+                          ),
+                        );
+                      },
+                      transitionDuration: const Duration(milliseconds: 400),
                     ),
                   );
                 },
