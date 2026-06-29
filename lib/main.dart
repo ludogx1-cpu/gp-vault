@@ -11,7 +11,7 @@ import 'screens/faucet_page.dart';
 import 'screens/staking_page.dart';
 import 'screens/account_page.dart';
 import 'screens/walk_pet_page.dart';
-
+import 'src/notification_service.dart';
 // Router configuration
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
@@ -142,6 +142,7 @@ void main() async {
   }
 
   await FirebaseService.initialize();
+  await NotificationService().init();
 
   runApp(
     MultiProvider(

@@ -19,6 +19,7 @@ import '../widgets/monetag_timer_dialog.dart';
 import '../widgets/pet_overlay_widget.dart';
 import '../widgets/chat_box_widget.dart';
 import '../api_constants.dart';
+import '../src/notification_service.dart';
 
 
 
@@ -314,6 +315,7 @@ class _FaucetPageState extends State<FaucetPage> {
         _status = "Verifying & Sending...";
       });
       _resumeTimer();
+      NotificationService().scheduleBonusTimerNotification(const Duration(seconds: 300));
     }
 
     try {
