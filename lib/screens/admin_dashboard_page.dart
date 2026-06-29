@@ -677,7 +677,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
                     child: Column(
                       children: [
                         const Text(
-                          "Inject Raw HTML (A-Ads / iFrames)",
+                          "Inject Raw HTML (iFrames)",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         const Divider(),

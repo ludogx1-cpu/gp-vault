@@ -17,13 +17,13 @@ class FirebaseService {
       ),
     );
 
-    try {
-      await FirebaseAppCheck.instance.activate(
-        providerWeb: ReCaptchaV3Provider('6LeEKjotAAAAABBcMyZho_GL7pH7HW7YlQ_JowPy'),
-      );
-    } catch (e) {
-      debugPrint('FirebaseAppCheck error: $e');
-    }
+    // try {
+    //   await FirebaseAppCheck.instance.activate(
+    //     providerWeb: ReCaptchaV3Provider('6LeEKjotAAAAABBcMyZho_GL7pH7HW7YlQ_JowPy'),
+    //   );
+    // } catch (e) {
+    //   debugPrint('FirebaseAppCheck error: $e');
+    // }
   }
 }
 
