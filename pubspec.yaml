@@ -40,8 +40,8 @@ flutter:
   # 🚀 THIS IS YOUR NEW ASSETS FOLDER
   assets:
     - assets/bg.png
-    - assets/logo2.png
     - assets/logo_landing.png
+    - assets/Golen Paw Title.png
     - assets/shiba_puppy.png
     - assets/shiba_teen.png
     - assets/shiba_adult.png

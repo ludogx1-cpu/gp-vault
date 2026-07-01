@@ -44,12 +44,20 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
                 onTap: () => context.go('/'),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Image.asset(
                       'assets/logo_landing.png',
                       height: isMobile ? 36 : 42,
                       fit: BoxFit.contain,
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Image.asset(
+                        'assets/Golen Paw Title.png',
+                        height: isMobile ? 44 : 52,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ],
                 ),

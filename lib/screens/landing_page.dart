@@ -127,7 +127,6 @@ class _LandingPageState extends State<LandingPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const AdsterraLandingAd(),
                   const SizedBox(height: 20),
                   Image.asset(
                     'assets/logo_landing.png',

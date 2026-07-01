@@ -46,6 +46,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
   bool _captchaLoading = false;
   String? _captchaToken;
   StreamSubscription? _messageSubscription;
+  StreamSubscription? _storageSubscription;
 
   @override
   void initState() {
@@ -54,6 +55,28 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
     _timeLeft = 20; // 20 seconds required
     _updateBrowserTitle("Click an ad...");
     _message = "Click an ad and stay on the page for 20 seconds to earn your reward!";
+
+    _storageSubscription = web.EventStreamProviders.storageEvent
+        .forTarget(web.window)
+        .listen((web.Event event) {
+      try {
+        final storageEvent = event as web.StorageEvent;
+        if (storageEvent.key == 'bonus_timer_trigger') {
+          if (!_timerStarted) {
+            _timerStarted = true;
+            _stopwatch.start();
+            _startTimer();
+            if (mounted) {
+              setState(() {
+                _message = "Watching Sponsor... $_timeLeft seconds left";
+              });
+            }
+          }
+        }
+      } catch (e) {
+        /* ignore */
+      }
+    });
 
     _messageSubscription = web.EventStreamProviders.messageEvent
         .forTarget(web.window)
@@ -220,6 +243,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
     _timer?.cancel();
     _stopwatch.stop();
     _messageSubscription?.cancel();
+    _storageSubscription?.cancel();
     web.document.title = _originalTitle;
     super.dispose();
   }
