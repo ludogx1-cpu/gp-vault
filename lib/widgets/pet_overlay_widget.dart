@@ -339,7 +339,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Cleaned up! +${data['reward']} DOGE'),
+              content: Text('Cleaned up! +${data['reward']} DOGE', style: const TextStyle(color: Colors.white)),
               backgroundColor: Colors.green,
             ),
           );
@@ -393,7 +393,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Boop! +${data['reward']} DOGE ❤️'),
+              content: Text('Boop! +${data['reward']} DOGE ❤️', style: const TextStyle(color: Colors.white)),
               backgroundColor: Colors.green,
             ),
           );
