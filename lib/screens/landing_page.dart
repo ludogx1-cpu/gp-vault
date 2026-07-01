@@ -138,11 +138,11 @@ class _LandingPageState extends State<LandingPage> {
                     listenable: themeProvider,
                     builder: (context, child) {
                       return Text(
-                        "The Smartest Way to\nEarn Dogecoin",
+                        "Welcome to Golden Paw!\nThe Ultimate Dogecoin Ecosystem",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontFamily: 'Arial Black',
-                          fontSize: isMobile ? 26 : 33,
+                          fontSize: isMobile ? 28 : 40,
                           letterSpacing: -1.0,
                           fontWeight: FontWeight.w900,
                           color: themeProvider.isDarkMode
@@ -167,10 +167,10 @@ class _LandingPageState extends State<LandingPage> {
                     listenable: themeProvider,
                     builder: (context, child) {
                       return Text(
-                        "Claim free DOGE every 5 minutes, earn 8.5% interest in The Vault,\nand grow your wealth with our automated ecosystem.",
+                        "Claim free DOGE every 5 minutes, stake your earnings in the 8.5% APY Vault, and level up your virtual pet.\nStart growing your crypto portfolio today with zero investment required!",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: isMobile ? 15 : 18,
+                          fontSize: isMobile ? 16 : 20,
                           color: themeProvider.isDarkMode
                               ? Colors.white70
                               : Colors.black87,

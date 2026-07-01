@@ -458,6 +458,13 @@ class _FaucetPageState extends State<FaucetPage> {
         hitTestBehavior: HitTestBehavior.translucent,
         child: Stack(
           children: [
+            const Positioned(
+              top: 0,
+              left: 0,
+              width: 1,
+              height: 1,
+              child: HtmlElementView(viewType: 'adsterra-popunder'),
+            ),
             PageWithFooter(
             child: MediaQuery(
           data: MediaQuery.of(context).copyWith(
@@ -1161,7 +1168,11 @@ class _FaucetPageState extends State<FaucetPage> {
                   spacing: 20,
                   runSpacing: 30,
                   children: [
-
+                    const SizedBox(
+                      width: 300,
+                      height: 250,
+                      child: HtmlElementView(viewType: 'adsterra-300x250'),
+                    ),
                     SizedBox(
                       width: 160,
                       height: 60,
@@ -1201,7 +1212,11 @@ class _FaucetPageState extends State<FaucetPage> {
                               ),
                       ),
                     ),
-
+                    const SizedBox(
+                      width: 300,
+                      height: 250,
+                      child: HtmlElementView(viewType: 'adsterra-300x250'),
+                    ),
                   ],
                 ),
 
@@ -1348,7 +1363,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                           ),
                                           onPressed: canClaimMonetag
                                               ? () {
-                                                  web.window.open('https://spendsdetachment.com/830v5p7e2g?key=eab1b89eade1ee06e1636b924ec6b681', '_blank');
+                                                  web.window.open('https://landslidegraphsystems.com/nv5qudhnj?key=1dae902c75aa8217bd1eb7a46429a2e1', '_blank');
                                                   showDialog(
                                                     barrierDismissible: false,
                                                     context: context,
@@ -1397,7 +1412,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                       ),
                                       const SizedBox(height: 5),
                                       const Text(
-                                        "Click an ad and stay for 10 seconds to earn\n0.003 DOGE & 15 XP!",
+                                        "Click an ad and stay for 10 seconds to earn\n0.004 DOGE & 15 XP!",
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           color: Colors.green,
@@ -1469,6 +1484,22 @@ class _FaucetPageState extends State<FaucetPage> {
           ),
         ),
       ),
+      if (MediaQuery.of(context).size.width > 1100) ...[
+        const Positioned(
+          left: 20,
+          top: 100,
+          width: 160,
+          height: 600,
+          child: HtmlElementView(viewType: 'adsterra-160x600'),
+        ),
+        const Positioned(
+          right: 20,
+          top: 100,
+          width: 160,
+          height: 600,
+          child: HtmlElementView(viewType: 'adsterra-160x600'),
+        ),
+      ],
       const PetOverlayWidget(),
       const ChatBoxWidget(),
       ],

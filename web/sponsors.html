@@ -22,14 +22,30 @@
       .header { background-color: #ffb300; color: #121212; }
       .sponsor-card { background: #1e1e1e; color: white; }
       .welcome-text { color: #eeeeee; }
+      .ref-square { background-color: #2c2c2c; color: #ffffff; }
     }
+    .ref-square {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 250px;
+      height: 250px;
+      border-radius: 15px;
+      text-decoration: none;
+      color: #e0e0e0;
+      background-color: #2c2c2c;
+      border: 3px solid;
+      font-size: 24px;
+      font-weight: 900;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      transition: transform 0.2s;
+    }
+    .ref-square:hover { transform: scale(1.05); }
+    .ref-square-sub { font-size: 14px; font-weight: normal; margin-top: 10px; opacity: 0.9; text-align: center; padding: 0 10px; line-height: 1.2; }
   </style>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-  <!-- Additional Monetag Ad -->
-  <script>(function(s){s.dataset.zone='11199885',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-  <script>(function(s){s.dataset.zone='11200158',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 </head>
 <body>
 
@@ -39,15 +55,38 @@
 
   <div class="container">
     <p class="welcome-text">Please click on an ad below and stay on the page for 20 seconds to earn your reward. Thank you for supporting the Golden Paw ecosystem!</p>
+
+    <!-- Top Referral Square Ads -->
+    <div class="sponsor-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); justify-items: center; margin-bottom: 40px; gap: 20px;">
+      <a href="https://faucetpay.io/?r=5173106" target="_blank" onclick="notifyParentTimer()" rel="nofollow" class="ref-square" style="border-color: #2196F3;">
+        FaucetPay
+        <span class="ref-square-sub">Best Micro-Wallet</span>
+      </a>
+      <a href="https://cointiply.mobi/W6PYqv" target="_blank" onclick="notifyParentTimer()" rel="nofollow" class="ref-square" style="border-color: #f44336;">
+        Cointiply
+        <span class="ref-square-sub">Huge Survey Payouts</span>
+      </a>
+      <a href="https://www.coinpayu.com/?r=ludogx1" target="_blank" onclick="notifyParentTimer()" rel="nofollow" class="ref-square" style="border-color: #ff9800;">
+        CoinPayU
+        <span class="ref-square-sub">Best for Offers</span>
+      </a>
+      <a href="https://r.adbtc.top/2107663" target="_blank" onclick="notifyParentTimer()" rel="nofollow" class="ref-square" style="border-color: #ffc107;">
+        AdBTC
+        <span class="ref-square-sub">Bitcoin Web Surfing</span>
+      </a>
+      <a href="https://autofaucet.dutchycorp.space/?r=woo270" target="_blank" onclick="notifyParentTimer()" rel="nofollow" class="ref-square" style="border-color: #009688;">
+        DutchyCorp
+        <span class="ref-square-sub">Automated Claims</span>
+      </a>
+      <a href="https://coinadster.com/?ref=186362" target="_blank" onclick="notifyParentTimer()" rel="nofollow" class="ref-square" style="border-color: #00BCD4;">
+        CoinAdster
+        <span class="ref-square-sub">Claim Every 5 Minutes</span>
+      </a>
+    </div>
     
     <!-- Adsterra Referral Banner 728x90 -->
     <div class="ad-zone">
       <a href="https://beta.publishers.adsterra.com/referral/51jeDXg7xT" target="_blank" onclick="notifyParentTimer()" rel="nofollow"><img alt="banner" src="https://landings-cdn.adsterratech.com/referralBanners/png/728%20x%2090%20px.png" style="max-width: 100%; height: auto;" /></a>
-    </div>
-
-    <!-- Adsterra Referral Banner 300x250 -->
-    <div class="ad-zone">
-      <a href="https://beta.publishers.adsterra.com/referral/51jeDXg7xT" target="_blank" onclick="notifyParentTimer()" rel="nofollow"><img alt="banner" src="https://landings-cdn.adsterratech.com/referralBanners/png/300%20x%20250%20px.png" style="max-width: 100%; height: auto;" /></a>
     </div>
 
     <!-- Adsterra 468x60 Ad -->
@@ -64,29 +103,6 @@
       <script type="text/javascript" src="https://landslidegraphsystems.com/81487b0cf69981d5b93588025428264e/invoke.js"></script>
     </div>
 
-    <!-- Adsterra 468x60 Ad iframe (moved from landing page) -->
-    <div class="ad-zone" onmouseenter="mouseOverAd = true" onmouseleave="mouseOverAd = false">
-      <iframe src="/adsterra_468x60.html" width="468" height="60" style="border:none; overflow:hidden;" scrolling="no"></iframe>
-    </div>
-
-    <!-- Adsterra Referral Banner 320x50 -->
-    <div class="ad-zone">
-      <a href="https://beta.publishers.adsterra.com/referral/51jeDXg7xT" target="_blank" onclick="notifyParentTimer()" rel="nofollow"><img alt="banner" src="https://landings-cdn.adsterratech.com/referralBanners/png/320%20x%2050%20px.png" style="max-width: 100%; height: auto;" /></a>
-    </div>
-
-    <!-- Extra Adsterra 468x60 Ad -->
-    <div class="ad-zone" onmouseenter="mouseOverAd = true" onmouseleave="mouseOverAd = false">
-      <script type="text/javascript">
-        atOptions = {
-          'key' : '81487b0cf69981d5b93588025428264e',
-          'format' : 'iframe',
-          'height' : 60,
-          'width' : 468,
-          'params' : {}
-        };
-      </script>
-      <script type="text/javascript" src="https://landslidegraphsystems.com/81487b0cf69981d5b93588025428264e/invoke.js"></script>
-    </div>
     <!-- 🚀 9 AD ZONES -->
     <div id="top-1" class="ad-zone"></div>
     <div id="top-2" class="ad-zone"></div>
@@ -144,12 +160,10 @@
       }
     }
 
-    // Track mouse over ads to detect iframe clicks
-    let mouseOverAd = false;
+    // Simply trigger the timer whenever the window loses focus (e.g., opening a new tab).
+    // This perfectly captures clicks on all dynamic/iframe ads like Monetag without relying on mouse events.
     window.addEventListener('blur', () => {
-      if (mouseOverAd) {
-        notifyParentTimer();
-      }
+      notifyParentTimer();
     });
 
     // Fetch Ad Placeholders
@@ -187,5 +201,9 @@
       });
     });
   </script>
+
+  <!-- Adsterra Social Bar -->
+  <script type="text/javascript" src="https://landslidegraphsystems.com/4c/45/e5/4c45e528bc3d4938c2c8ca2f36cfdbce.js"></script>
+
 </body>
 </html>
