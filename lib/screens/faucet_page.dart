@@ -1484,16 +1484,16 @@ class _FaucetPageState extends State<FaucetPage> {
           ),
         ),
       ),
-      if (MediaQuery.of(context).size.width > 1100) ...[
+      if (MediaQuery.of(context).size.width > 1200) ...[
         const Positioned(
-          left: 20,
+          left: 120,
           top: 100,
           width: 160,
           height: 600,
           child: HtmlElementView(viewType: 'adsterra-160x600'),
         ),
         const Positioned(
-          right: 20,
+          right: 120,
           top: 100,
           width: 160,
           height: 600,
