@@ -1484,20 +1484,20 @@ class _FaucetPageState extends State<FaucetPage> {
           ),
         ),
       ),
-      if (MediaQuery.of(context).size.width > 1200) ...[
-        const Positioned(
-          left: 120,
+      if (MediaQuery.of(context).size.width >= 1000) ...[
+        Positioned(
+          left: ((MediaQuery.of(context).size.width - 600) / 2 - 160) / 2,
           top: 100,
           width: 160,
           height: 600,
-          child: HtmlElementView(viewType: 'adsterra-160x600'),
+          child: const HtmlElementView(viewType: 'adsterra-160x600'),
         ),
-        const Positioned(
-          right: 120,
+        Positioned(
+          right: ((MediaQuery.of(context).size.width - 600) / 2 - 160) / 2,
           top: 100,
           width: 160,
           height: 600,
-          child: HtmlElementView(viewType: 'adsterra-160x600'),
+          child: const HtmlElementView(viewType: 'adsterra-160x600'),
         ),
       ],
       const PetOverlayWidget(),
