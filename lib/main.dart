@@ -137,6 +137,36 @@ void main() async {
       iframe.setAttribute('scrolling', 'no');
       return iframe;
     });
+
+    // 6. Adsterra Popunder (Faucet Page Only)
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('adsterra-popunder', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('src', '/faucet_popunder.html');
+      iframe.setAttribute('style', 'border:none; width:1px; height:1px;');
+      return iframe;
+    });
+
+    // 7. Adsterra 160x600 Skyscraper
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('adsterra-160x600', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('src', '/adsterra_160x600.html');
+      iframe.setAttribute('style', 'border:none; width:160px; height:600px; overflow:hidden;');
+      iframe.setAttribute('scrolling', 'no');
+      return iframe;
+    });
+
+    // 8. Adsterra 300x250
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('adsterra-300x250', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('src', '/adsterra_300x250.html');
+      iframe.setAttribute('style', 'border:none; width:300px; height:250px; overflow:hidden;');
+      iframe.setAttribute('scrolling', 'no');
+      return iframe;
+    });
+
   } catch (e) {
     // ignore: empty_catches
   }
