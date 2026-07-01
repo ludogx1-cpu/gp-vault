@@ -40,9 +40,14 @@
   <div class="container">
     <p class="welcome-text">Please click on an ad below and stay on the page for 20 seconds to earn your reward. Thank you for supporting the Golden Paw ecosystem!</p>
     
-    <!-- Adsterra Referral Banner -->
+    <!-- Adsterra Referral Banner 728x90 -->
     <div class="ad-zone">
-      <a href="https://beta.publishers.adsterra.com/referral/51jeDXg7xT" target="_blank" onclick="notifyParentTimer()" rel="nofollow"><img alt="banner" src="https://landings-cdn.adsterratech.com/referralBanners/png/250%20x%20250%20px.png" /></a>
+      <a href="https://beta.publishers.adsterra.com/referral/51jeDXg7xT" target="_blank" onclick="notifyParentTimer()" rel="nofollow"><img alt="banner" src="https://landings-cdn.adsterratech.com/referralBanners/png/728%20x%2090%20px.png" style="max-width: 100%; height: auto;" /></a>
+    </div>
+
+    <!-- Adsterra Referral Banner 300x250 -->
+    <div class="ad-zone">
+      <a href="https://beta.publishers.adsterra.com/referral/51jeDXg7xT" target="_blank" onclick="notifyParentTimer()" rel="nofollow"><img alt="banner" src="https://landings-cdn.adsterratech.com/referralBanners/png/300%20x%20250%20px.png" style="max-width: 100%; height: auto;" /></a>
     </div>
 
     <!-- Adsterra 468x60 Ad -->
@@ -59,9 +64,29 @@
       <script type="text/javascript" src="https://landslidegraphsystems.com/81487b0cf69981d5b93588025428264e/invoke.js"></script>
     </div>
 
+    <!-- Adsterra 468x60 Ad iframe (moved from landing page) -->
+    <div class="ad-zone" onmouseenter="mouseOverAd = true" onmouseleave="mouseOverAd = false">
+      <iframe src="/adsterra_468x60.html" width="468" height="60" style="border:none; overflow:hidden;" scrolling="no"></iframe>
+    </div>
 
+    <!-- Adsterra Referral Banner 320x50 -->
+    <div class="ad-zone">
+      <a href="https://beta.publishers.adsterra.com/referral/51jeDXg7xT" target="_blank" onclick="notifyParentTimer()" rel="nofollow"><img alt="banner" src="https://landings-cdn.adsterratech.com/referralBanners/png/320%20x%2050%20px.png" style="max-width: 100%; height: auto;" /></a>
+    </div>
 
-
+    <!-- Extra Adsterra 468x60 Ad -->
+    <div class="ad-zone" onmouseenter="mouseOverAd = true" onmouseleave="mouseOverAd = false">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : '81487b0cf69981d5b93588025428264e',
+          'format' : 'iframe',
+          'height' : 60,
+          'width' : 468,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="https://landslidegraphsystems.com/81487b0cf69981d5b93588025428264e/invoke.js"></script>
+    </div>
     <!-- 🚀 9 AD ZONES -->
     <div id="top-1" class="ad-zone"></div>
     <div id="top-2" class="ad-zone"></div>
@@ -108,8 +133,14 @@
     };
 
     function notifyParentTimer() {
-      if (window.opener) {
-        window.opener.postMessage(JSON.stringify({ type: 'start_bonus_timer' }), '*');
+      try {
+        if (window.opener) {
+          window.opener.postMessage(JSON.stringify({ type: 'start_bonus_timer' }), '*');
+        }
+        // Fallback: use localStorage to trigger storage event in Flutter app
+        localStorage.setItem('bonus_timer_trigger', Date.now().toString());
+      } catch (e) {
+        // Ignore cross-origin frame access errors
       }
     }
 
