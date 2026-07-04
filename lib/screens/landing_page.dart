@@ -4,7 +4,6 @@ import '../widgets/feature_card.dart';
 import '../src/theme_provider.dart';
 import 'package:flutter/material.dart';
 import '../widgets/trustpilot_widget.dart';
-import '../widgets/adsterra_landing_ad.dart';
 import 'blog_page.dart';
 
 class LandingPage extends StatefulWidget {

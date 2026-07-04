@@ -142,6 +142,7 @@ class BlogPage extends StatelessWidget {
                                 final post = posts[index].data() as Map<String, dynamic>;
                                 final content = post['content'] ?? '';
                                 final topic = post['topic'] ?? 'Untitled Article';
+                                final externalUrl = post['external_url'];
                                 final createdAt = post['created_at'];
                                 
                                 String dateStr = '';
@@ -151,7 +152,13 @@ class BlogPage extends StatelessWidget {
                                 }
 
                                 return InkWell(
-                                  onTap: () => _showArticleDialog(context, content, isDark, titleColor),
+                                  onTap: () {
+                                    if (externalUrl != null && externalUrl.toString().isNotEmpty) {
+                                      launchUrl(Uri.parse(externalUrl.toString()));
+                                    } else {
+                                      _showArticleDialog(context, content, isDark, titleColor);
+                                    }
+                                  },
                                   borderRadius: BorderRadius.circular(10),
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
