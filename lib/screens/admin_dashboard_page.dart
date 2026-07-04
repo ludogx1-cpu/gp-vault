@@ -63,6 +63,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
   final TextEditingController _noticeTitleCtrl = TextEditingController();
   final TextEditingController _noticeMessageCtrl = TextEditingController();
 
+  // Tab 6: Manual Blog Post
+  final TextEditingController _blogTopicCtrl = TextEditingController();
+  final TextEditingController _blogExtUrlCtrl = TextEditingController();
+  final TextEditingController _blogContentCtrl = TextEditingController();
+
   bool _isLoading = false;
 
   @override
@@ -211,6 +216,27 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Notice Posted!"), backgroundColor: Colors.green),
+      );
+    } catch (_) {}
+    if (mounted) setState(() => _isLoading = false);
+  }
+
+  Future<void> _injectManualBlog() async {
+    if (_blogTopicCtrl.text.trim().isEmpty) return;
+    setState(() => _isLoading = true);
+    try {
+      await FirebaseFirestore.instance.collection('blog_posts').add({
+        'topic': _blogTopicCtrl.text.trim(),
+        'external_url': _blogExtUrlCtrl.text.trim(),
+        'content': _blogContentCtrl.text.trim(),
+        'created_at': FieldValue.serverTimestamp(),
+      });
+      _blogTopicCtrl.clear();
+      _blogExtUrlCtrl.clear();
+      _blogContentCtrl.clear();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Blog Post Published!"), backgroundColor: Colors.green),
       );
     } catch (_) {}
     if (mounted) setState(() => _isLoading = false);
@@ -848,28 +874,62 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
   }
 
   Widget _buildAIDraftsTab() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('ai_drafts').orderBy('created_at', descending: true).snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-        if (snapshot.data!.docs.isEmpty) return const Center(child: Text("No AI drafts waiting."));
-        
-        return ListView.builder(
+    return Column(
+      children: [
+        // --- MANUAL BLOG POST FORM ---
+        Padding(
           padding: const EdgeInsets.all(20),
-          itemCount: snapshot.data!.docs.length,
-          itemBuilder: (context, index) {
-            var doc = snapshot.data!.docs[index];
-            var data = doc.data() as Map<String, dynamic>;
-            var type = data['type'] ?? 'social_media';
-            
-            if (type == 'blog_post') {
-              return _buildBlogDraftCard(doc.id, data);
-            } else {
-              return _buildSocialDraftCard(doc.id, data);
-            }
-          },
-        );
-      },
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Column(
+                children: [
+                  const Text("Manually Add Blog Post", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const Divider(),
+                  TextField(controller: _blogTopicCtrl, decoration: const InputDecoration(labelText: "Blog Title")),
+                  TextField(controller: _blogExtUrlCtrl, decoration: const InputDecoration(labelText: "External URL (Substack/Medium) (Optional)")),
+                  TextField(controller: _blogContentCtrl, decoration: const InputDecoration(labelText: "Markdown Content (Optional if URL provided)"), maxLines: 3),
+                  const SizedBox(height: 15),
+                  SizedBox(
+                    width: double.infinity, height: 45,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _injectManualBlog,
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                      child: const Text("PUBLISH MANUAL POST", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        // --- AI DRAFTS LIST ---
+        Expanded(
+          child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance.collection('ai_drafts').orderBy('created_at', descending: true).snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+              if (snapshot.data!.docs.isEmpty) return const Center(child: Text("No AI drafts waiting."));
+              
+              return ListView.builder(
+                padding: const EdgeInsets.all(20),
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  var doc = snapshot.data!.docs[index];
+                  var data = doc.data() as Map<String, dynamic>;
+                  var type = data['type'] ?? 'social_media';
+                  
+                  if (type == 'blog_post') {
+                    return _buildBlogDraftCard(doc.id, data);
+                  } else {
+                    return _buildSocialDraftCard(doc.id, data);
+                  }
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 

@@ -31,13 +31,21 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   double _lockedReturns = 0.0;
   String _petName = 'Golden Paw Shiba';
   String _stage = 'egg'; // Track stage to lock features
+  int _xp = 0;
+  int _nextStageXp = 100;
   
   int _lastFeedTime = 0;
   int _lastPlayTime = 0;
   int _lastSleepTime = 0;
+  int _lastWalkTime = 0;
   List<String> _ownedAccessories = [];
   List<String> _equippedAccessories = [];
   List<String> _ownedTricks = [];
+  Map<String, int> _ownedConsumables = {};
+  List<String> _ownedBalls = [];
+  String _equippedBall = 'white';
+  bool _isSick = false;
+  bool _xpBoostActive = false;
   bool _userWantsSleep = false;
 
   Timer? _refreshTimer;
@@ -84,12 +92,20 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
             _lockedReturns = (data['pet']['locked_returns'] as num?)?.toDouble() ?? 0.0;
             _petName = data['pet']['name'] ?? 'Golden Paw Shiba';
             _stage = data['pet']['stage'] ?? 'egg'; // Get stage from backend
+            _xp = (data['pet']['xp'] as num?)?.toInt() ?? 0;
+            _nextStageXp = (data['pet']['next_stage_xp'] as num?)?.toInt() ?? 100;
             _lastFeedTime = (data['pet']['last_feed_time'] as num?)?.toInt() ?? 0;
             _lastPlayTime = (data['pet']['last_play_time'] as num?)?.toInt() ?? 0;
             _lastSleepTime = (data['pet']['last_sleep_time'] as num?)?.toInt() ?? 0;
+            _lastWalkTime = (data['pet']['last_walk_time'] as num?)?.toInt() ?? 0;
             _ownedAccessories = List<String>.from(data['pet']['owned_accessories'] ?? []);
             _equippedAccessories = List<String>.from(data['pet']['equipped_accessories'] ?? []);
             _ownedTricks = List<String>.from(data['pet']['owned_tricks'] ?? []);
+            _ownedConsumables = Map<String, int>.from(data['pet']['owned_consumables'] ?? {});
+            _ownedBalls = List<String>.from(data['pet']['owned_balls'] ?? ['white']);
+            _equippedBall = data['pet']['equipped_ball'] ?? 'white';
+            _isSick = data['pet']['sick'] ?? false;
+            _xpBoostActive = data['pet']['xp_boost_active'] ?? false;
             
             final matured = (data['pet']['matured_returns'] as num?)?.toDouble() ?? 0.0;
             if (matured > 0) {
@@ -131,6 +147,9 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
             _hunger = (data['stats']['hunger'] as num).toDouble();
             _happiness = (data['stats']['happiness'] as num).toDouble();
             _energy = (data['stats']['energy'] as num).toDouble();
+            if (data['stats']['xp'] != null) {
+              _xp = (data['stats']['xp'] as num).toInt();
+            }
             _isLoading = false;
           });
           ScaffoldMessenger.of(context).showSnackBar(
@@ -174,6 +193,34 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
           value: value / 100,
           backgroundColor: color.withValues(alpha: 0.2),
           valueColor: AlwaysStoppedAnimation<Color>(color),
+          minHeight: 8,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+
+  Widget _buildXPBar() {
+    double progress = _nextStageXp > 0 ? (_xp / _nextStageXp) * 100 : 100;
+    if (progress > 100) progress = 100;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.star, size: 14, color: Colors.purple),
+            const SizedBox(width: 4),
+            const Text("XP (Next Stage)", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+            const Spacer(),
+            Text('$_xp / $_nextStageXp', style: const TextStyle(fontSize: 10)),
+          ],
+        ),
+        const SizedBox(height: 4),
+        LinearProgressIndicator(
+          value: progress / 100,
+          backgroundColor: Colors.purple.withValues(alpha: 0.2),
+          valueColor: const AlwaysStoppedAnimation<Color>(Colors.purple),
           minHeight: 8,
           borderRadius: BorderRadius.circular(4),
         ),
@@ -369,6 +416,17 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                     _buildStatBar("Hunger", _hunger, Colors.orange, Icons.restaurant),
                     _buildStatBar("Happiness", _happiness, Colors.pink, Icons.favorite),
                     _buildStatBar("Energy", _energy, Colors.blue, Icons.bolt),
+                    _buildXPBar(),
+                    if (_isSick)
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 8.0),
+                        child: Text("SICK! Interactions disabled. Buy Medicine from Consumables.", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12)),
+                      ),
+                    if (_xpBoostActive)
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 8.0),
+                        child: Text("XP BOOST ACTIVE (1.5x)", style: TextStyle(color: Colors.purple, fontWeight: FontWeight.bold, fontSize: 12)),
+                      ),
                     const SizedBox(height: 10),
                     // Action Buttons
                     Wrap(
@@ -426,7 +484,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                     
                     // Tabbed Area (Info, Shop, Tricks)
                     DefaultTabController(
-                      length: 3,
+                      length: 5,
                       child: Container(
                         height: 180,
                         margin: const EdgeInsets.only(top: 15),
@@ -441,9 +499,12 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                               labelColor: isDark ? Colors.amber : Colors.blue.shade800,
                               unselectedLabelColor: isDark ? Colors.white54 : Colors.black54,
                               indicatorColor: Colors.amber,
+                              isScrollable: true,
                               tabs: const [
                                 Tab(icon: Icon(Icons.info, size: 20), text: "Info"),
                                 Tab(icon: Icon(Icons.shopping_cart, size: 20), text: "Shop"),
+                                Tab(icon: Icon(Icons.fastfood, size: 20), text: "Items"),
+                                Tab(icon: Icon(Icons.sports_baseball, size: 20), text: "Balls"),
                                 Tab(icon: Icon(Icons.star, size: 20), text: "Tricks"),
                               ],
                             ),
@@ -455,10 +516,11 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                                     padding: const EdgeInsets.all(12),
                                     child: SingleChildScrollView(
                                       child: Text(
-                                        "• Your pet wanders around the screen!\n"
-                                        "• Every 15 mins, it walks to the camera. Boop its nose for 0.002 DOGE!\n"
-                                        "• Watch thought bubbles (💤, 🍖, ❤️).\n"
-                                        "• Buy items and perform tricks!",
+                                        "• Boop: Every 30 mins, it walks to the camera. Boop its nose for 0.002 DOGE!\n"
+                                        "• Walk: Walk your pet every 3 hours for up to 0.005 DOGE.\n"
+                                        "• Tricks: Tricks give Faucet bonuses for 5 minutes. Use before claiming!\n"
+                                        "• Sickness: Keep stats above 0! Sick pets can't walk and lose faucet bonuses.\n"
+                                        "• Items: Buy Medicine (cures sickness), Premium Steak (1.5x XP), or Energy Drinks (resets walk cooldown).",
                                         style: TextStyle(fontSize: 12, height: 1.4, color: isDark ? Colors.white70 : Colors.black87),
                                       ),
                                     ),
@@ -478,6 +540,33 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                                         _buildShopItem('coat_rain', 'Rain Coat', 2.5, '+25% PTC Bonus'),
                                         _buildShopItem('coat_winter', 'Winter Coat', 4.0, '+40% PTC Bonus'),
                                         _buildShopItem('coat_luxury', 'Luxury Coat', 7.5, '+75% PTC Bonus'),
+                                      ],
+                                    ),
+                                  // Consumables Tab
+                                  _stage == 'egg' 
+                                  ? const Center(child: Text("Items unlock at Baby stage!\n(Wait 2 days or use Admin controls)", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)))
+                                  : ListView(
+                                      padding: const EdgeInsets.all(8),
+                                      children: [
+                                        _buildConsumableItem('medicine', 'Medicine', 0.5, 'Cures Sickness', Icons.local_hospital),
+                                        _buildConsumableItem('premium_steak', 'Premium Steak', 1.0, '1.5x XP Boost for 1 Hour', Icons.restaurant_menu),
+                                        _buildConsumableItem('energy_drink', 'Energy Drink', 0.5, 'Resets Walk Cooldown', Icons.bolt),
+                                      ],
+                                    ),
+                                  // Balls Tab
+                                  _stage == 'egg' 
+                                  ? const Center(child: Text("Balls unlock at Baby stage!", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)))
+                                  : ListView(
+                                      padding: const EdgeInsets.all(8),
+                                      children: [
+                                        _buildBallItem('white', 'Classic White', 0.5, 'Standard Ball'),
+                                        _buildBallItem('red', 'Red Ball', 1.0, 'Red Texture'),
+                                        _buildBallItem('orange', 'Orange Ball', 1.0, 'Orange Texture'),
+                                        _buildBallItem('yellow', 'Yellow Ball', 1.0, 'Yellow Texture'),
+                                        _buildBallItem('green', 'Green Ball', 1.0, 'Green Texture'),
+                                        _buildBallItem('blue', 'Blue Ball', 1.0, 'Blue Texture'),
+                                        _buildBallItem('indigo', 'Indigo Ball', 1.0, 'Indigo Texture'),
+                                        _buildBallItem('violet', 'Violet Ball', 1.0, 'Violet Texture'),
                                       ],
                                     ),
                                   // Tricks Tab
@@ -514,19 +603,34 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
           const SizedBox(height: 15),
           Divider(color: isDark ? Colors.white24 : Colors.black12),
           const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _isLoading ? null : () => _showWalkDialog(),
-              icon: const Icon(Icons.directions_walk),
-              label: const Text("Take for a Walk", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-            ),
+          Builder(
+            builder: (context) {
+              final walkCooldown = 3 * 60 * 60 * 1000;
+              final timeSinceWalk = now - _lastWalkTime;
+              final canWalk = timeSinceWalk >= walkCooldown;
+              final remainingWalkMs = walkCooldown - timeSinceWalk;
+              String walkText = "Take for a Walk";
+              if (!canWalk) {
+                final hours = remainingWalkMs ~/ (60 * 60 * 1000);
+                final minutes = (remainingWalkMs % (60 * 60 * 1000)) ~/ (60 * 1000);
+                walkText = "Walk Cooldown: ${hours}h ${minutes}m";
+              }
+
+              return SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: (_isLoading || !canWalk) ? null : () => _showWalkDialog(),
+                  icon: const Icon(Icons.directions_walk),
+                  label: Text(walkText, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: canWalk ? Colors.green : Colors.grey,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              );
+            }
           )
         ],
       ),
@@ -596,6 +700,87 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
     );
   }
 
+  Widget _buildConsumableItem(String id, String name, double price, String desc, IconData icon) {
+    final count = _ownedConsumables[id] ?? 0;
+    
+    return ListTile(
+      visualDensity: VisualDensity.compact,
+      leading: Icon(icon, size: 30, color: Colors.amber),
+      title: Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+      subtitle: Text('Owned: $count\n$desc', style: const TextStyle(fontSize: 10, color: Colors.grey)),
+      trailing: Wrap(
+        spacing: 4,
+        children: [
+          if (count > 0)
+            ElevatedButton(
+              onPressed: () => _useConsumable(id),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                minimumSize: const Size(50, 30),
+              ),
+              child: const Text("Use", style: TextStyle(fontSize: 10, color: Colors.white)),
+            ),
+          ElevatedButton(
+            onPressed: () {
+              _showPurchaseDialog(name, price, (currency) => _buyConsumable(id, currency));
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.amber,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: const Size(50, 30),
+            ),
+            child: Text("\$$price", style: const TextStyle(fontSize: 10, color: Colors.black)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBallItem(String color, String name, double price, String bonus) {
+    final isOwned = _ownedBalls.contains(color);
+    final isEquipped = _equippedBall == color;
+    
+    Color ballColor = Colors.white;
+    switch(color) {
+      case 'red': ballColor = Colors.red; break;
+      case 'orange': ballColor = Colors.orange; break;
+      case 'yellow': ballColor = Colors.yellow; break;
+      case 'green': ballColor = Colors.green; break;
+      case 'blue': ballColor = Colors.blue; break;
+      case 'indigo': ballColor = Colors.indigo; break;
+      case 'violet': ballColor = Colors.purple; break;
+    }
+
+    return ListTile(
+      visualDensity: VisualDensity.compact,
+      leading: Container(width: 20, height: 20, decoration: BoxDecoration(color: ballColor, shape: BoxShape.circle, border: Border.all(color: Colors.black))),
+      title: Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+      subtitle: isOwned ? Text(bonus, style: const TextStyle(fontSize: 10, color: Colors.green)) : Text('\$$price USDT (Ad Credit)\n$bonus', style: const TextStyle(fontSize: 10, color: Colors.amber)),
+      trailing: isOwned
+          ? ElevatedButton(
+              onPressed: isEquipped ? null : () => _equipBall(color),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isEquipped ? Colors.grey : Colors.blue,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                minimumSize: const Size(60, 30),
+              ),
+              child: Text(isEquipped ? "Equipped" : "Equip", style: const TextStyle(fontSize: 10, color: Colors.white)),
+            )
+          : ElevatedButton(
+              onPressed: () {
+                _showPurchaseDialog(name, price, (currency) => _buyBall(color, currency));
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amber,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                minimumSize: const Size(60, 30),
+              ),
+              child: const Text("Buy", style: TextStyle(fontSize: 10, color: Colors.black)),
+            ),
+    );
+  }
+
   Widget _buildTrickButton(String name, IconData icon, double price, String bonus) {
     final isOwned = _ownedTricks.contains(name);
     return Tooltip(
@@ -616,6 +801,50 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
         ),
       ),
     );
+  }
+
+  Future<void> _buyBall(String color, String currency) async {
+    setState(() => _isLoading = true);
+    try {
+      final headers = await getAuthHeaders();
+      final response = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/pet-buy-ball'),
+        headers: headers,
+        body: jsonEncode({'color': color, 'currency': currency}),
+      );
+      final data = jsonDecode(response.body);
+      if (data['success'] && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ball purchased!'), backgroundColor: Colors.green));
+        _fetchPetStatus();
+      } else if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['error'] ?? 'Error'), backgroundColor: Colors.red));
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _equipBall(String color) async {
+    setState(() => _isLoading = true);
+    try {
+      final headers = await getAuthHeaders();
+      final response = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/pet-equip-ball'),
+        headers: headers,
+        body: jsonEncode({'color': color}),
+      );
+      final data = jsonDecode(response.body);
+      if (data['success'] && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ball equipped!'), backgroundColor: Colors.green));
+        PetEvents.equipBall(color);
+        _fetchPetStatus();
+      } else if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _buyTrick(String name, String currency) async {
@@ -665,6 +894,54 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
         if (mounted) {
           setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['error'] ?? 'Failed to buy'), backgroundColor: Colors.red));
+        }
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _buyConsumable(String id, String currency) async {
+    setState(() => _isLoading = true);
+    try {
+      final headers = await getAuthHeaders();
+      final response = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/pet-buy-consumable'),
+        headers: headers,
+        body: jsonEncode({'itemId': id, 'currency': currency}),
+      );
+      final data = jsonDecode(response.body);
+      if (data['success'] && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['message'] ?? 'Purchased!'), backgroundColor: Colors.green));
+        _fetchPetStatus();
+      } else {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['error'] ?? 'Failed to buy'), backgroundColor: Colors.red));
+        }
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _useConsumable(String id) async {
+    setState(() => _isLoading = true);
+    try {
+      final headers = await getAuthHeaders();
+      final response = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/pet-use-consumable'),
+        headers: headers,
+        body: jsonEncode({'itemId': id}),
+      );
+      final data = jsonDecode(response.body);
+      if (data['success'] && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['message'] ?? 'Item used!'), backgroundColor: Colors.green));
+        _fetchPetStatus();
+      } else {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['error'] ?? 'Failed to use'), backgroundColor: Colors.red));
         }
       }
     } catch (e) {

@@ -7,11 +7,18 @@ class PetEvents {
   static final StreamController<bool> _sleepController = StreamController<bool>.broadcast();
   static Stream<bool> get sleepStream => _sleepController.stream;
 
+  static final StreamController<String> _equipBallController = StreamController<String>.broadcast();
+  static Stream<String> get equipBallStream => _equipBallController.stream;
+
   static void performTrick(String trickName) {
     _trickController.add(trickName);
   }
 
   static void toggleSleep(bool sleep) {
     _sleepController.add(sleep);
+  }
+
+  static void equipBall(String color) {
+    _equipBallController.add(color);
   }
 }

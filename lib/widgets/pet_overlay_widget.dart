@@ -7,6 +7,7 @@ import '../api_constants.dart';
 import '../src/firebase_service.dart';
 import '../utils/pet_events.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PooData {
   final String id;
@@ -60,6 +61,13 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   String _currentTrick = '';
   StreamSubscription? _trickSubscription;
   StreamSubscription? _sleepSubscription;
+  StreamSubscription? _ballSubscription;
+
+  // Fetch Mechanics
+  String _equippedBall = 'white';
+  bool _isFetching = false;
+  double _ballX = 200;
+  double _ballY = 200;
 
   // Poos
   final List<PooData> _poos = [];
@@ -116,6 +124,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     _chaseTimer?.cancel();
     _trickSubscription?.cancel();
     _sleepSubscription?.cancel();
+    _ballSubscription?.cancel();
     _shakeController.dispose();
     _walkController.dispose();
     _boopController.dispose();
@@ -141,6 +150,10 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
           }
         });
       }
+    });
+
+    _ballSubscription = PetEvents.equipBallStream.listen((color) {
+      if (mounted) setState(() => _equippedBall = color);
     });
   }
 
@@ -170,6 +183,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
             _energy = (data['pet']['energy'] as num).toDouble();
             _lastBoopTime = data['pet']['last_boop_time'] ?? 0;
             _petName = data['pet']['name'] ?? 'Golden Paw Shiba';
+            _equippedBall = data['pet']['equipped_ball'] ?? 'white';
             _equippedAccessories = List<String>.from(
               data['pet']['equipped_accessories'] ?? [],
             );
@@ -459,6 +473,87 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     }
   }
 
+  void _onBallPanUpdate(DragUpdateDetails details) {
+    if (_isFetching || _stage == 'egg') return;
+    setState(() {
+      _ballX += details.delta.dx;
+      _ballY += details.delta.dy;
+    });
+  }
+
+  void _onBallPanEnd(DragEndDetails details) {
+    if (_isFetching || _stage == 'egg') return;
+    
+    if (details.velocity.pixelsPerSecond.distance > 500) {
+      _startFetchSequence(details.velocity.pixelsPerSecond);
+    } else {
+      setState(() {
+        _ballX = MediaQuery.of(context).size.width / 2;
+        _ballY = MediaQuery.of(context).size.height / 2;
+      });
+    }
+  }
+
+  Future<void> _startFetchSequence(Offset velocity) async {
+    if (!mounted) return;
+    setState(() => _isFetching = true);
+
+    final size = MediaQuery.of(context).size;
+    setState(() {
+      _ballX += velocity.dx * 0.5;
+      _ballY += velocity.dy * 0.5;
+    });
+
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (!mounted) return;
+    setState(() {
+      _petX = _ballX;
+      _petY = _ballY;
+      _isChasing = true;
+    });
+
+    await Future.delayed(const Duration(seconds: 4));
+    if (!mounted) return;
+
+    setState(() {
+      _ballX = size.width / 2;
+      _ballY = size.height / 2 + 50;
+      _petX = size.width / 2 - 50;
+      _petY = size.height / 2;
+      _isChasing = false;
+      _isFetching = false;
+    });
+
+    _recordFetchResult();
+  }
+
+  Future<void> _recordFetchResult() async {
+    try {
+      final headers = await getAuthHeaders();
+      final response = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/pet-fetch'),
+        headers: headers,
+      );
+      final data = jsonDecode(response.body);
+      if (data['success']) {
+        int clicks = data['clicks'] ?? 0;
+        if (clicks % 5 == 0) {
+          _launchSmartlink();
+        }
+        _fetchPetStatus(); 
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  Future<void> _launchSmartlink() async {
+    final url = Uri.parse('https://landslidegraphsystems.com/yb0uurni?key=a7a2f7a7dae98e1083902b1e7285bdad');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     String emotion = '';
@@ -477,22 +572,22 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
 
     if (_isSleepingOverlay && _stage != 'egg') {
       return Stack(
-        children: _poos
-            .map(
-              (poo) => Positioned(
-                left: poo.x,
-                top: poo.y,
-                child: GestureDetector(
-                  onTap: () => _cleanPoo(poo.id),
-                  child: SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: Image.asset('assets/shiba_poo.png'),
-                  ),
+        children: [
+          ..._poos.map(
+            (poo) => Positioned(
+              left: poo.x,
+              top: poo.y,
+              child: GestureDetector(
+                onTap: () => _cleanPoo(poo.id),
+                child: SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Image.asset('assets/shiba_poo.png'),
                 ),
               ),
-            )
-            .toList(),
+            ),
+          ),
+        ],
       );
     }
 
@@ -831,7 +926,49 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
               },
             ), // closes AnimatedBuilder (shake/walk)
           ), // closes AnimatedPositioned
+          
+        // Fetch Ball
+        if (_stage != 'egg')
+          AnimatedPositioned(
+            duration: _isFetching ? const Duration(milliseconds: 300) : Duration.zero,
+            curve: Curves.easeOut,
+            left: _ballX,
+            top: _ballY,
+            child: GestureDetector(
+              onPanUpdate: _onBallPanUpdate,
+              onPanEnd: _onBallPanEnd,
+              child: Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: _getBallColor(_equippedBall),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 4,
+                      offset: const Offset(2, 2),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
       ],
     );
+  }
+
+  Color _getBallColor(String colorString) {
+    switch(colorString) {
+      case 'red': return Colors.red;
+      case 'orange': return Colors.orange;
+      case 'yellow': return Colors.yellow;
+      case 'green': return Colors.green;
+      case 'blue': return Colors.blue;
+      case 'indigo': return Colors.indigo;
+      case 'violet': return Colors.purple;
+      default: return Colors.white;
+    }
   }
 }
