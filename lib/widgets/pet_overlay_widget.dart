@@ -534,9 +534,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
       
       // Place ball near pet, but not directly behind it
       _ballX = size.width / 2 + 60;
-      _ballY = size.height - 100;
+      _ballY = size.height / 2 + 80;
       _petX = size.width / 2 - 50;
-      _petY = size.height - 150;
+      _petY = size.height / 2 + 30;
     });
 
     // Wait for the return journey to finish
@@ -585,7 +585,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     if (!_ballInitialized && size.width > 0) {
       // Place the ball to the right of the pet so it is visible and not hidden behind the pet image
       _ballX = size.width / 2 + 60;
-      _ballY = size.height - 100;
+      _ballY = size.height / 2 + 80;
       _ballInitialized = true;
     } else if (_ballInitialized) {
       // Clamp to screen bounds to ensure it never gets lost
@@ -978,7 +978,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
         // Fetch Ball
         if (_stage != 'egg')
           AnimatedPositioned(
-            duration: _isFetching ? const Duration(milliseconds: 300) : (_isReturning ? const Duration(seconds: 4) : Duration.zero),
+            duration: _isFetching ? const Duration(milliseconds: 300) : (_isReturning ? const Duration(seconds: 4) : const Duration(milliseconds: 1)),
             curve: _isReturning ? Curves.easeInOut : Curves.easeOut,
             left: _ballX,
             top: _ballY,
@@ -994,7 +994,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
                   border: Border.all(color: Colors.black, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
+                      color: Colors.black.withOpacity(0.3),
                       blurRadius: 4,
                       offset: const Offset(2, 2),
                     ),
