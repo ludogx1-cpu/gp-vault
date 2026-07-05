@@ -568,11 +568,26 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
 
   @override
   Widget build(BuildContext context) {
-    if (!_ballInitialized) {
-      final size = MediaQuery.of(context).size;
+    final size = MediaQuery.of(context).size;
+    if (!_ballInitialized && size.width > 0) {
       _ballX = size.width / 2;
-      _ballY = size.height - 100;
+      _ballY = size.height - 150;
       _ballInitialized = true;
+    } else if (_ballInitialized) {
+      // Clamp to screen bounds to ensure it never gets lost
+      if (_ballX < 0) _ballX = 20;
+      if (_ballX > size.width - 30) _ballX = size.width - 30;
+      if (_ballY < 0) _ballY = 20;
+      if (_ballY > size.height - 30) _ballY = size.height - 30;
+
+      // Prevent ball from getting stuck under the Adsterra ads on wide screens
+      if (size.width >= 1000) {
+        double leftAdEnd = ((size.width - 600) / 2 - 160) / 2 + 160;
+        double rightAdStart = size.width - (((size.width - 600) / 2 - 160) / 2) - 160;
+        
+        if (_ballX < leftAdEnd + 10) _ballX = leftAdEnd + 10;
+        if (_ballX > rightAdStart - 40) _ballX = rightAdStart - 40;
+      }
     }
 
     String emotion = '';
