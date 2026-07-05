@@ -66,8 +66,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   // Fetch Mechanics
   String _equippedBall = 'white';
   bool _isFetching = false;
-  double _ballX = 200;
-  double _ballY = 200;
+  double _ballX = 0;
+  double _ballY = 0;
+  bool _ballInitialized = false;
 
   // Poos
   final List<PooData> _poos = [];
@@ -499,27 +500,38 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     setState(() => _isFetching = true);
 
     final size = MediaQuery.of(context).size;
+    final distance = velocity.distance;
+    
     setState(() {
-      _ballX += velocity.dx * 0.5;
-      _ballY += velocity.dy * 0.5;
+      if (distance > 0) {
+        final dirX = velocity.dx / distance;
+        final dirY = velocity.dy / distance;
+        // Throw far off screen in the direction of the swipe
+        _ballX += dirX * 1500;
+        _ballY += dirY * 1500;
+      }
     });
 
     await Future.delayed(const Duration(milliseconds: 500));
     if (!mounted) return;
+    
+    // Pet chases the ball
     setState(() {
       _petX = _ballX;
       _petY = _ballY;
       _isChasing = true;
     });
 
-    await Future.delayed(const Duration(seconds: 4));
+    // Pet is away for 5 seconds total (500ms delay above + 4500ms here = 5s)
+    await Future.delayed(const Duration(milliseconds: 4500));
     if (!mounted) return;
 
+    // Return to screen
     setState(() {
       _ballX = size.width / 2;
-      _ballY = size.height / 2 + 50;
+      _ballY = size.height - 100;
       _petX = size.width / 2 - 50;
-      _petY = size.height / 2;
+      _petY = size.height - 150;
       _isChasing = false;
       _isFetching = false;
     });
@@ -556,6 +568,13 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
 
   @override
   Widget build(BuildContext context) {
+    if (!_ballInitialized) {
+      final size = MediaQuery.of(context).size;
+      _ballX = size.width / 2;
+      _ballY = size.height - 100;
+      _ballInitialized = true;
+    }
+
     String emotion = '';
     if (!_walkController.isAnimating &&
         !_isCloseUp &&
