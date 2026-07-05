@@ -66,6 +66,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   // Fetch Mechanics
   String _equippedBall = 'white';
   bool _isFetching = false;
+  bool _isReturning = false;
   double _ballX = 0;
   double _ballY = 0;
   bool _ballInitialized = false;
@@ -522,18 +523,28 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
       _isChasing = true;
     });
 
-    // Pet is away for 5 seconds total (500ms delay above + 4500ms here = 5s)
-    await Future.delayed(const Duration(milliseconds: 4500));
+    // Pet is away for 2 seconds
+    await Future.delayed(const Duration(milliseconds: 2000));
     if (!mounted) return;
 
-    // Return to screen
+    // Return to screen (pet brings ball back)
     setState(() {
+      _isChasing = false; // Pet will take 4 seconds to return
+      _isReturning = true; // Ball will take 4 seconds to return
+      
       _ballX = size.width / 2;
       _ballY = size.height - 100;
       _petX = size.width / 2 - 50;
       _petY = size.height - 150;
-      _isChasing = false;
+    });
+
+    // Wait for the return journey to finish
+    await Future.delayed(const Duration(seconds: 4));
+    if (!mounted) return;
+
+    setState(() {
       _isFetching = false;
+      _isReturning = false;
     });
 
     _recordFetchResult();
@@ -964,8 +975,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
         // Fetch Ball
         if (_stage != 'egg')
           AnimatedPositioned(
-            duration: _isFetching ? const Duration(milliseconds: 300) : Duration.zero,
-            curve: Curves.easeOut,
+            duration: _isFetching ? const Duration(milliseconds: 300) : (_isReturning ? const Duration(seconds: 4) : Duration.zero),
+            curve: _isReturning ? Curves.easeInOut : Curves.easeOut,
             left: _ballX,
             top: _ballY,
             child: GestureDetector(
