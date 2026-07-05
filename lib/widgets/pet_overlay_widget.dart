@@ -545,6 +545,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     setState(() {
       _isFetching = false;
       _isReturning = false;
+      _isWandering = true; // Resume wandering
     });
 
     _recordFetchResult();
