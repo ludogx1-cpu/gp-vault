@@ -532,7 +532,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
       _isChasing = false; // Pet will take 4 seconds to return
       _isReturning = true; // Ball will take 4 seconds to return
       
-      _ballX = size.width / 2;
+      // Place ball near pet, but not directly behind it
+      _ballX = size.width / 2 + 60;
       _ballY = size.height - 100;
       _petX = size.width / 2 - 50;
       _petY = size.height - 150;
@@ -582,8 +583,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     if (!_ballInitialized && size.width > 0) {
-      _ballX = size.width / 2;
-      _ballY = size.height - 150;
+      // Place the ball to the right of the pet so it is visible and not hidden behind the pet image
+      _ballX = size.width / 2 + 60;
+      _ballY = size.height - 100;
       _ballInitialized = true;
     } else if (_ballInitialized) {
       // Clamp to screen bounds to ensure it never gets lost
