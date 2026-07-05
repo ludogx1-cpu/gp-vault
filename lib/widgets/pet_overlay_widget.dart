@@ -1002,6 +1002,20 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
               ),
             ),
           ),
+          
+        // Debug Text
+        Positioned(
+          top: 10,
+          left: 10,
+          child: Container(
+            color: Colors.black,
+            padding: const EdgeInsets.all(8),
+            child: Text(
+              'DEBUG: Ball is at $_ballX, $_ballY | Stage: $_stage | Sleep: $_isSleepingOverlay | Equipped: $_equippedBall',
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ),
+        ),
       ],
     );
   }
