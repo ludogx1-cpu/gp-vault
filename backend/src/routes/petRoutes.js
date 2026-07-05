@@ -968,8 +968,8 @@ router.post('/pet-buy-ball', verifyFirebaseToken, async (req, res) => {
     if (!color || !currency) return res.status(400).json({ success: false, error: 'Missing parameters' });
 
     const prices = {
-      'red': 0.25, 'orange': 0.50, 'yellow': 0.75,
-      'green': 1.00, 'blue': 1.25, 'indigo': 1.50, 'violet': 1.75
+      'red': 0.50, 'orange': 1.00, 'yellow': 1.50,
+      'green': 2.00, 'blue': 2.50, 'indigo': 3.00, 'violet': 3.50
     };
     if (!prices[color]) return res.status(400).json({ success: false, error: 'Invalid ball color' });
 
@@ -1056,22 +1056,29 @@ router.post('/pet-fetch', verifyFirebaseToken, async (req, res) => {
 
       const ballColor = data.pet_equipped_ball || 'white';
       const rewards = {
-        'white': 0, 'red': 0.00001, 'orange': 0.00002, 'yellow': 0.00003,
-        'green': 0.00004, 'blue': 0.00005, 'indigo': 0.00006, 'violet': 0.00007
+        'white': 0, 'red': 0.0001, 'orange': 0.0002, 'yellow': 0.0003,
+        'green': 0.0004, 'blue': 0.0005, 'indigo': 0.0006, 'violet': 0.0007
+      };
+      
+      const xpRewards = {
+        'white': 1, 'red': 1, 'orange': 2, 'yellow': 3,
+        'green': 4, 'blue': 5, 'indigo': 6, 'violet': 7
       };
       
       const dogeReward = rewards[ballColor] || 0;
-      const xpReward = calculateXPGain(data, 1);
+      const baseXP = xpRewards[ballColor] || 0;
+      const xpReward = calculateXPGain(data, baseXP);
 
       const decayed = calculateDecay(data);
       let newEnergy = Math.max(0, decayed.energy - 2); // Fetch costs 2 energy
+      let newHappiness = Math.min(MAX_STAT, decayed.happiness + 10); // Fetch gives +10 happiness
       
       currentClicks = (data.fetch_click_count || 0) + 1;
 
       let updates = {
         pet_energy: newEnergy,
         pet_hunger: decayed.hunger,
-        pet_happiness: decayed.happiness,
+        pet_happiness: newHappiness,
         pet_xp: (data.pet_xp || 0) + xpReward,
         pet_last_fetch_time: admin.firestore.FieldValue.serverTimestamp(),
         fetch_click_count: currentClicks,
@@ -1083,7 +1090,7 @@ router.post('/pet-fetch', verifyFirebaseToken, async (req, res) => {
       }
 
       transaction.update(userRef, updates);
-      newStats = { hunger: decayed.hunger, happiness: decayed.happiness, energy: newEnergy };
+      newStats = { hunger: decayed.hunger, happiness: newHappiness, energy: newEnergy };
     });
 
     res.json({ 
