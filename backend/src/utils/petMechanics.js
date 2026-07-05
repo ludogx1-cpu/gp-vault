@@ -14,15 +14,15 @@ function calculateDecay(userData) {
 
   if (stage === 'baby' || stage === 'toddler' || stage === 'puppy') {
     energyDecayRate = 8.0;
-    happinessDecayRate = 8.0;
+    happinessDecayRate = 20.0;
     hungerDecayRate = 3.0;
   } else if (stage === 'child' || stage === 'teen') {
     energyDecayRate = 6.0;
-    happinessDecayRate = 6.0;
+    happinessDecayRate = 20.0;
     hungerDecayRate = 5.0;
   } else if (stage === 'young_adult' || stage === 'adult') {
     energyDecayRate = 4.0;
-    happinessDecayRate = 4.0;
+    happinessDecayRate = 20.0;
     hungerDecayRate = 8.0;
   }
 

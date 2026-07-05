@@ -559,14 +559,14 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                                   : ListView(
                                       padding: const EdgeInsets.all(8),
                                       children: [
-                                        _buildBallItem('white', 'Classic White', 0.5, 'Standard Ball'),
-                                        _buildBallItem('red', 'Red Ball', 1.0, 'Red Texture'),
-                                        _buildBallItem('orange', 'Orange Ball', 1.0, 'Orange Texture'),
-                                        _buildBallItem('yellow', 'Yellow Ball', 1.0, 'Yellow Texture'),
-                                        _buildBallItem('green', 'Green Ball', 1.0, 'Green Texture'),
-                                        _buildBallItem('blue', 'Blue Ball', 1.0, 'Blue Texture'),
-                                        _buildBallItem('indigo', 'Indigo Ball', 1.0, 'Indigo Texture'),
-                                        _buildBallItem('violet', 'Violet Ball', 1.0, 'Violet Texture'),
+                                        _buildBallItem('white', 'Classic White', 0.5, '0.0 DOGE | 1 XP'),
+                                        _buildBallItem('red', 'Red Ball', 0.5, '0.0001 DOGE | 1 XP'),
+                                        _buildBallItem('orange', 'Orange Ball', 1.0, '0.0002 DOGE | 2 XP'),
+                                        _buildBallItem('yellow', 'Yellow Ball', 1.5, '0.0003 DOGE | 3 XP'),
+                                        _buildBallItem('green', 'Green Ball', 2.0, '0.0004 DOGE | 4 XP'),
+                                        _buildBallItem('blue', 'Blue Ball', 2.5, '0.0005 DOGE | 5 XP'),
+                                        _buildBallItem('indigo', 'Indigo Ball', 3.0, '0.0006 DOGE | 6 XP'),
+                                        _buildBallItem('violet', 'Violet Ball', 3.5, '0.0007 DOGE | 7 XP'),
                                       ],
                                     ),
                                   // Tricks Tab
