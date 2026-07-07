@@ -15,7 +15,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
 import '../widgets/widgets.dart';
-import '../widgets/monetag_timer_dialog.dart';
+
 import '../widgets/pet_overlay_widget.dart';
 import '../widgets/chat_box_widget.dart';
 import '../api_constants.dart';
@@ -1248,39 +1248,7 @@ class _FaucetPageState extends State<FaucetPage> {
                       builder: (context, userProvider, _) {
                         bool canClaimBonus = true;
                         int minutesLeftBonus = 0;
-                        bool canClaimMonetag = true;
-                        int minutesLeftMonetag = 0;
-                        
-                        final userData = userProvider.userData;
-                        if (userData != null) {
-                          final Timestamp? lastClaimBonus =
-                              userData['last_bonus_sponsor_claim'];
 
-                          if (lastClaimBonus != null) {
-                            final now = DateTime.now();
-                            final difference = now.difference(
-                              lastClaimBonus.toDate(),
-                            );
-                            if (difference.inMinutes < 15) {
-                              canClaimBonus = false;
-                              minutesLeftBonus = 15 - difference.inMinutes;
-                            }
-                          }
-
-                          final Timestamp? lastClaimMonetag =
-                              userData['last_monetag_sponsor_claim'];
-
-                          if (lastClaimMonetag != null) {
-                            final now = DateTime.now();
-                            final difference = now.difference(
-                              lastClaimMonetag.toDate(),
-                            );
-                            if (difference.inMinutes < 10) {
-                              canClaimMonetag = false;
-                              minutesLeftMonetag = 10 - difference.inMinutes;
-                            }
-                          }
-                        }
 
                         return ListenableBuilder(
                           listenable: themeProvider,
@@ -1288,96 +1256,6 @@ class _FaucetPageState extends State<FaucetPage> {
                             final isDark = themeProvider.isDarkMode;
                             return Column(
                               children: [
-                                Container(
-                                  width: double.infinity,
-                                  constraints: const BoxConstraints(maxWidth: 600),
-                                  padding: const EdgeInsets.all(20),
-                                  decoration: BoxDecoration(
-                                    color: isDark
-                                        ? themeProvider.darkGreyBoxColor
-                                        : (canClaimMonetag
-                                              ? Colors.amber.shade100
-                                              : Colors.grey.shade200),
-                                    borderRadius: BorderRadius.circular(15),
-                                    border: Border.all(
-                                      color: isDark
-                                          ? themeProvider.darkGreyBorder
-                                          : (canClaimMonetag
-                                                ? Colors.amber.shade400
-                                                : Colors.grey.shade400),
-                                      width: 2,
-                                    ),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        "✨ View Sponsor & Earn DOGE ✨",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: isDark
-                                              ? Colors.white
-                                              : Colors.black87,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      const Text(
-                                        "Stay on the page for 30 seconds to earn\n0.002 DOGE & 10 XP!",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: Colors.green,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 15),
-                                      SizedBox(
-                                        width: double.infinity,
-                                        height: 50,
-                                        child: ElevatedButton.icon(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: canClaimMonetag
-                                                ? Colors.amber
-                                                : Colors.grey,
-                                            foregroundColor: Colors.white,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(
-                                                10,
-                                              ),
-                                            ),
-                                          ),
-                                          icon: Icon(
-                                            canClaimMonetag
-                                                ? Icons.star
-                                                : Icons.lock_clock,
-                                          ),
-                                          label: Text(
-                                            canClaimMonetag
-                                                ? 'VIEW SPONSOR'
-                                                : 'COOLDOWN: $minutesLeftMonetag MIN',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w900,
-                                              fontSize: 15,
-                                              letterSpacing: 1.1,
-                                            ),
-                                          ),
-                                          onPressed: canClaimMonetag
-                                              ? () {
-                                                  web.window.open('https://landslidegraphsystems.com/nv5qudhnj?key=1dae902c75aa8217bd1eb7a46429a2e1', '_blank');
-                                                  showDialog(
-                                                    barrierDismissible: false,
-                                                    context: context,
-                                                    builder: (context) =>
-                                                        const MonetagTimerDialog(),
-                                                  );
-                                                }
-                                              : null,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
                                 Container(
                                   width: double.infinity,
                                   constraints: const BoxConstraints(maxWidth: 600),
