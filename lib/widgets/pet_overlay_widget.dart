@@ -74,6 +74,10 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   double _ballY = 400;
   bool _ballInitialized = false;
 
+  // Speech Bubble
+  String _currentSpeech = '';
+  Timer? _speechTimer;
+
   // Poos
   final List<PooData> _poos = [];
   final Random _random = Random();
@@ -113,6 +117,12 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
       (_) => _movePetRandomly(),
     );
 
+    // Start speech loop
+    _speechTimer = Timer.periodic(
+      const Duration(seconds: 25), 
+      (_) => _updateSpeech(),
+    );
+
     // Load saved sleep state
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
@@ -127,6 +137,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     _statusTimer?.cancel();
     _moveTimer?.cancel();
     _chaseTimer?.cancel();
+    _speechTimer?.cancel();
     _trickSubscription?.cancel();
     _sleepSubscription?.cancel();
     _ballSubscription?.cancel();
@@ -264,6 +275,62 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     } catch (e) {
       // ignore
     }
+  }
+
+  void _updateSpeech() {
+    if (!mounted || _isSleepingOverlay || _stage == 'egg') return;
+    
+    // 50% chance to say nothing this cycle to prevent it from being too spammy
+    if (_random.nextDouble() > 0.5) {
+      setState(() => _currentSpeech = '');
+      return;
+    }
+
+    String text = '';
+    // Determine tier based on stats
+    double avgStats = (_hunger + _happiness + _energy) / 3;
+    
+    if (_isSick || avgStats < 30) {
+      // Tier 1: Needy
+      const needy = [
+        "I'm hungry! Please feed me.",
+        "I need a nap... zZz",
+        "Can we play fetch?",
+        "I'm feeling a bit neglected..."
+      ];
+      text = needy[_random.nextInt(needy.length)];
+    } else if (avgStats >= 30 && avgStats < 75) {
+      // Tier 2: Golden Paw info
+      const gpInfo = [
+        "Did you know? You get 20% of your friends' claims for life!",
+        "Boop my nose every 30 mins for free DOGE!",
+        "Check the Updates Board to stay informed.",
+        "You can stake DOGE in The Vault for 8.5% APY!",
+        "Don't forget to walk me every 3 hours."
+      ];
+      text = gpInfo[_random.nextInt(gpInfo.length)];
+    } else {
+      // Tier 3: Financial/Crypto advice
+      const cryptoInfo = [
+        "Crypto Tip: Diversify your portfolio!",
+        "Remember to do your own research (DYOR) before investing.",
+        "Dogecoin was created in 2013 as a joke!",
+        "Never invest more than you can afford to lose.",
+        "Golden Paw is the best place to earn crypto in 2026!",
+        "Keep holding! Diamond hands 💎🐾",
+        "Market moving? Stay calm and earn passive income."
+      ];
+      text = cryptoInfo[_random.nextInt(cryptoInfo.length)];
+    }
+    
+    setState(() => _currentSpeech = text);
+    
+    // Clear after 8 seconds
+    Future.delayed(const Duration(seconds: 8), () {
+      if (mounted && _currentSpeech == text) {
+        setState(() => _currentSpeech = '');
+      }
+    });
   }
 
   void _movePetRandomly() {
@@ -685,6 +752,37 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
             ),
           ),
         ),
+
+        // Speech Bubble
+        if (_currentSpeech.isNotEmpty && !_isSleepingOverlay && _stage != 'egg')
+          AnimatedPositioned(
+            duration: Duration(seconds: _isChasing ? 1 : (_isReturning ? 2 : 4)),
+            curve: Curves.easeInOut,
+            left: _petX - 80, // Offset to center bubble over pet
+            top: _petY - 80, // Above the pet
+            child: IgnorePointer(
+              child: Container(
+                width: 160,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.95),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(15),
+                    topRight: Radius.circular(15),
+                    bottomLeft: Radius.circular(15),
+                    bottomRight: Radius.circular(0), // Points to pet
+                  ),
+                  border: Border.all(color: Colors.amber, width: 2),
+                  boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(2, 2))],
+                ),
+                child: Text(
+                  _currentSpeech,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 12, color: Colors.black87, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ),
 
         // Pet
         if (_isSleepingOverlay && _stage != 'egg')

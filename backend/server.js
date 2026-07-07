@@ -10,6 +10,7 @@ const stakingRoutes = require('./src/routes/stakingRoutes');
 const petRoutes = require('./src/routes/petRoutes');
 const offerwallRoutes = require('./src/routes/offerwallRoutes');
 const chatRoutes = require('./src/routes/chatRoutes');
+const { startAiChatService } = require('./src/services/aiChatService');
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
@@ -82,6 +83,9 @@ app.use('/admin', adminRoutes);
 
 if (require.main === module) {
   const port = process.env.PORT || 3000;
+  
+  startAiChatService(); // Start the AI Chat bots
+
   app.listen(port, '0.0.0.0', () => {
     console.log(`GoldenPaw faucet backend listening on port ${port}`);
   });
