@@ -418,7 +418,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                       ],
                     ),
                   const SizedBox(height: 4),
-                    _buildStatBar("Attention", _attention, Colors.purple, Icons.waving_hand),
+                    _buildStatBar("Attention", _attention, Colors.green, Icons.waving_hand),
                     _buildStatBar("Hunger", _hunger, Colors.orange, Icons.restaurant),
                     _buildStatBar("Happiness", _happiness, Colors.pink, Icons.favorite),
                     _buildStatBar("Energy", _energy, Colors.blue, Icons.bolt),
@@ -527,7 +527,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                                         "• Boop: Every 30 mins, it walks to the camera. Boop its nose for 0.002 DOGE!\n"
                                         "• Walk: Walk your pet every 3 hours for up to 0.005 DOGE.\n"
                                         "• Sickness: Keep stats above 0! Sick pets can't walk and lose faucet bonuses.\n"
-                                        "• Items: Buy Medicine (cures sickness for FREE) or Basic Kibble.",
+                                        "• Items: Buy Medicine to cure sickness for FREE.",
                                         style: TextStyle(fontSize: 12, height: 1.4, color: isDark ? Colors.white70 : Colors.black87),
                                       ),
                                     ),
@@ -556,7 +556,6 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                                       padding: const EdgeInsets.all(8),
                                       children: [
                                         _buildConsumableItem('medicine', 'Medicine', 0.0, 'Cures Sickness (FREE)', Icons.local_hospital),
-                                        _buildConsumableItem('basic_kibble', 'Basic Kibble', 0.01, 'Restores 30 Hunger', Icons.food_bank),
                                       ],
                                     ),
                                   // Balls Tab
