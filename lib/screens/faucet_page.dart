@@ -1472,6 +1472,24 @@ class _FaucetPageState extends State<FaucetPage> {
                   },
                 ),
                 const SizedBox(height: 30),
+                Wrap(
+                  spacing: 20,
+                  runSpacing: 20,
+                  alignment: WrapAlignment.center,
+                  children: const [
+                    SizedBox(
+                      width: 300,
+                      height: 250,
+                      child: HtmlElementView(viewType: 'adsterra-300x250'),
+                    ),
+                    SizedBox(
+                      width: 300,
+                      height: 250,
+                      child: HtmlElementView(viewType: 'adsterra-300x250'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30),
                 const NewsletterSubscribeWidget(),
                 const SizedBox(height: 60),
               ],
