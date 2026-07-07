@@ -57,7 +57,25 @@ function startAiChatService() {
   };
 
   // Start the first cycle
-  scheduleNextMessage();
+  setTimeout(async () => {
+    try {
+      const username = AI_USERNAMES[getRandomInt(0, AI_USERNAMES.length - 1)];
+      const message = AI_MESSAGES[getRandomInt(0, AI_MESSAGES.length - 1)];
+
+      await admin.firestore().collection('chat_messages').add({
+        chat_username: username,
+        message: message,
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        is_ai: true
+      });
+      console.log(`[AI Chat] Posted initial boot message as ${username}`);
+    } catch (error) {
+      console.error("Error posting AI chat message:", error);
+    }
+    
+    // Begin the regular loop
+    scheduleNextMessage();
+  }, 10000); // 10 seconds after boot
 }
 
 module.exports = { startAiChatService };
