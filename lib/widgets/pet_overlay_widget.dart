@@ -977,7 +977,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
         // Fetch Ball
         if (_stage != 'egg')
           AnimatedPositioned(
-            duration: _isFetching ? const Duration(milliseconds: 300) : (_isReturning ? const Duration(seconds: 4) : const Duration(milliseconds: 1)),
+            duration: _isReturning ? const Duration(seconds: 4) : (_isFetching ? const Duration(milliseconds: 300) : const Duration(milliseconds: 1)),
             curve: _isReturning ? Curves.easeInOut : Curves.easeOut,
             left: _ballX,
             top: _ballY,
@@ -1004,18 +1004,6 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
           ),
           
         // Debug Text
-        Positioned(
-          top: 10,
-          left: 10,
-          child: Container(
-            color: Colors.black,
-            padding: const EdgeInsets.all(8),
-            child: Text(
-              'DEBUG: Ball is at $_ballX, $_ballY | Stage: $_stage | Sleep: $_isSleepingOverlay | Equipped: $_equippedBall',
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-            ),
-          ),
-        ),
       ],
     );
   }
