@@ -37,7 +37,17 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
             _buildSection(
               context,
               '❤️ Happiness, 🍗 Hunger, ⚡ Energy',
-              'Keep your pet happy and fed! Feeding costs 0.0001 DOGE, fully restores Hunger to 100%, and places a 24-hour investment that returns double (plus bonuses)! You can stroke your pet for Attention, and play Fetch with your ball for Happiness (which costs Energy and Hunger).\n\nIf your pet gets too tired, click Sleep! It takes a 10-minute nap for FREE, recovers 50% Energy, and rewards you with 0.0001 DOGE when it wakes up. Sickness happens if any stat hits 0 for 3 days. Buy FREE medicine in the shop to cure it!',
+              'Keep your pet happy and fed! Feeding costs 0.0001 DOGE, fully restores Hunger to 100%, and places a 24-hour investment that returns double (plus bonuses)!\n\nIf your pet gets too tired, click Sleep! It takes a 10-minute nap for FREE, recovers 50% Energy, and rewards you with 0.0001 DOGE when it wakes up. Sickness happens if any stat hits 0 for 3 days. Buy FREE medicine in the shop to cure it!',
+            ),
+            _buildSection(
+              context,
+              '🎾 Playing Fetch',
+              'You can play fetch with your pet to increase its Happiness! Just click, hold, and drag the ball on the screen, then let go to throw it! Your pet will physically chase after the ball and bring it back to you. Playing fetch increases Happiness but costs 5% Hunger and 5% Energy.',
+            ),
+            _buildSection(
+              context,
+              '✋ Stroking Your Pet',
+              'Give your pet some love! Just click on your pet and quickly wiggle your mouse pointer (or swipe your finger) back and forth over it to stroke it. Keep going until the green Attention bar completely fills up to increase its Attention stat!',
             ),
             _buildSection(
               context,
