@@ -497,11 +497,6 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     
     if (details.velocity.pixelsPerSecond.distance > 500) {
       _startFetchSequence(details.velocity.pixelsPerSecond);
-    } else {
-      setState(() {
-        _ballX = MediaQuery.of(context).size.width / 2;
-        _ballY = MediaQuery.of(context).size.height / 2;
-      });
     }
   }
 
@@ -510,16 +505,16 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     setState(() => _isFetching = true);
 
     final size = MediaQuery.of(context).size;
-    final distance = velocity.distance;
     
     setState(() {
-      if (distance > 0) {
-        final dirX = velocity.dx / distance;
-        final dirY = velocity.dy / distance;
-        // Throw far off screen in the direction of the swipe
-        _ballX += dirX * 1500;
-        _ballY += dirY * 1500;
-      }
+      double projectedX = _ballX + (velocity.dx * 0.4);
+      double projectedY = _ballY + (velocity.dy * 0.4);
+
+      projectedX = projectedX.clamp(30.0, size.width - 30.0);
+      projectedY = projectedY.clamp(30.0, size.height - 30.0);
+
+      _ballX = projectedX;
+      _ballY = projectedY;
     });
 
     await Future.delayed(const Duration(milliseconds: 500));
@@ -527,29 +522,33 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     
     // Pet chases the ball
     setState(() {
+      _facingRight = _ballX > _petX;
       _petX = _ballX;
       _petY = _ballY;
       _isChasing = true;
     });
 
-    // Pet is away for 2 seconds
-    await Future.delayed(const Duration(milliseconds: 2000));
+    // Pet is away for 1 second
+    await Future.delayed(const Duration(milliseconds: 1000));
     if (!mounted) return;
 
-    // Return to screen (pet brings ball back)
+    // Pause to pick up
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (!mounted) return;
+
+    // Return to screen center (pet brings ball back)
     setState(() {
-      _isChasing = false; // Pet will take 4 seconds to return
-      _isReturning = true; // Ball will take 4 seconds to return
-      
-      // Place ball near pet, but not directly behind it
-      _ballX = size.width / 2 + 60;
-      _ballY = size.height / 2 + 80;
-      _petX = size.width / 2 - 50;
-      _petY = size.height / 2 + 30;
+      _isChasing = false;
+      _isReturning = true;
+      _facingRight = (size.width / 2) > _petX;
+      _petX = size.width / 2;
+      _petY = size.height / 2;
+      _ballX = _petX;
+      _ballY = _petY;
     });
 
     // Wait for the return journey to finish
-    await Future.delayed(const Duration(seconds: 4));
+    await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
 
     setState(() {
@@ -691,7 +690,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
           const SizedBox.shrink()
         else
           AnimatedPositioned(
-            duration: Duration(seconds: _isChasing ? 1 : 4),
+            duration: Duration(seconds: _isChasing ? 1 : (_isReturning ? 2 : 4)),
             curve: Curves.easeInOut,
             left: _petX,
             top: _petY,
@@ -1022,7 +1021,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
         // Fetch Ball
         if (_stage != 'egg')
           AnimatedPositioned(
-            duration: _isReturning ? const Duration(seconds: 4) : (_isFetching ? const Duration(milliseconds: 300) : const Duration(milliseconds: 1)),
+            duration: _isReturning ? const Duration(seconds: 2) : (_isFetching ? const Duration(milliseconds: 500) : const Duration(milliseconds: 1)),
             curve: _isReturning ? Curves.easeInOut : Curves.easeOut,
             left: _ballX,
             top: _ballY,
