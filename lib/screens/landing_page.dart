@@ -4,6 +4,7 @@ import '../widgets/feature_card.dart';
 import '../src/theme_provider.dart';
 import 'package:flutter/material.dart';
 import '../widgets/trustpilot_widget.dart';
+import '../widgets/newsletter_subscribe_widget.dart';
 import 'blog_page.dart';
 
 class LandingPage extends StatefulWidget {
@@ -296,6 +297,8 @@ class _LandingPageState extends State<LandingPage> {
               ),
             ),
 
+            const SizedBox(height: 80),
+            const NewsletterSubscribeWidget(),
             const SizedBox(height: 100),
           ],
         ),

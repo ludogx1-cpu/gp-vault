@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../src/theme_provider.dart';
 import '../widgets/global_app_bar.dart';
 import '../widgets/page_with_footer.dart';
+import '../widgets/newsletter_subscribe_widget.dart';
 
 class BlogPage extends StatelessWidget {
   const BlogPage({super.key});
@@ -98,7 +99,9 @@ class BlogPage extends StatelessWidget {
                         color: Colors.amber,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
+                    const NewsletterSubscribeWidget(),
+                    const SizedBox(height: 30),
                     // StreamBuilder to fetch posts from Firestore dynamically
                     StreamBuilder<QuerySnapshot>(
                         stream: FirebaseFirestore.instance
