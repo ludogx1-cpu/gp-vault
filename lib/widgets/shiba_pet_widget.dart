@@ -574,9 +574,8 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                                   : ListView(
                                       padding: const EdgeInsets.all(8),
                                       children: [
-                                        _buildConsumableItem('medicine', 'Medicine', 0.05, 'Cures Sickness', Icons.local_hospital),
-                                        _buildConsumableItem('premium_steak', 'Premium Steak', 0.1, '1.5x XP Boost for 1 Hour', Icons.restaurant_menu),
-                                        _buildConsumableItem('energy_drink', 'Energy Drink', 0.05, 'Resets Walk Cooldown', Icons.bolt),
+                                        _buildConsumableItem('medicine', 'Medicine', 0.0, 'Cures Sickness (FREE)', Icons.local_hospital),
+                                        _buildConsumableItem('basic_kibble', 'Basic Kibble', 0.01, 'Restores 30 Hunger', Icons.food_bank),
                                       ],
                                     ),
                                   // Balls Tab
@@ -756,7 +755,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
               padding: const EdgeInsets.symmetric(horizontal: 8),
               minimumSize: const Size(50, 30),
             ),
-            child: Text("\$$price", style: const TextStyle(fontSize: 10, color: Colors.black)),
+            child: Text(price == 0.0 ? "FREE" : "\$$price", style: const TextStyle(fontSize: 10, color: Colors.black)),
           ),
         ],
       ),
