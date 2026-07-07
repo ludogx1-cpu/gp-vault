@@ -9,8 +9,6 @@ import 'dart:math';
 import 'package:web/web.dart' as web;
 import 'dart:js_interop';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../widgets/monetag_timer_dialog.dart';
 import '../widgets/newsletter_subscribe_widget.dart';
