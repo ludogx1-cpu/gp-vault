@@ -207,6 +207,11 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
            updatePayload.pet_sick = isSick;
         }
 
+        if (data.pending_sleep_reward && data.pet_sleeping_until && data.pet_sleeping_until.toDate().getTime() <= now) {
+          updatePayload.pending_sleep_reward = admin.firestore.FieldValue.delete();
+          updatePayload.doge_balance = Number(data.doge_balance || 0) + 0.0001;
+        }
+
         // Update DB with decayed stats and clean buffs
         transaction.update(userRef, updatePayload);
 
@@ -379,26 +384,23 @@ router.post('/pet-sleep', verifyFirebaseToken, async (req, res) => {
       const { matured, remainingInvestments } = processInvestments(userRef, data, transaction);
       const currentDoge = Number(data.doge_balance || 0) + matured;
 
-      if (currentDoge < SLEEP_COST_DOGE) throw new Error(`Insufficient DOGE. Costs ${SLEEP_COST_DOGE} DOGE to sleep.`);
-
-      const petBonus = calculatePetBonusPercent(decayed, data);
-      const investmentAmount = (SLEEP_COST_DOGE * 2) * (1 + (petBonus / 100));
       const newEnergy = Math.min(MAX_STAT, decayed.energy + 25);
-      remainingInvestments.push({ amount: investmentAmount, unlock_time: Date.now() + 24 * 60 * 60 * 1000 });
 
       const currentXP = ensureXP(data);
       const newXP = currentXP + calculateXPGain(data, 20);
 
       transaction.update(userRef, {
-        doge_balance: currentDoge - SLEEP_COST_DOGE,
+        doge_balance: currentDoge,
         pet_xp: newXP,
         pet_hunger: decayed.hunger,
         pet_happiness: decayed.happiness,
+        pet_attention: decayed.attention,
         pet_energy: newEnergy,
         pet_investments: remainingInvestments,
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
         pet_last_sleep_time: admin.firestore.FieldValue.serverTimestamp(),
-        pet_sleeping_until: admin.firestore.Timestamp.fromMillis(Date.now() + 10 * 60 * 1000)
+        pet_sleeping_until: admin.firestore.Timestamp.fromMillis(Date.now() + 10 * 60 * 1000),
+        pending_sleep_reward: true
       });
 
       newStats = { hunger: decayed.hunger, happiness: decayed.happiness, attention: decayed.attention, energy: newEnergy, xp: newXP };
@@ -706,12 +708,12 @@ const TRICK_PRICES_DOGE = {
 };
 
 const CONSUMABLE_PRICES_USDT = {
-  'medicine': 0.02,
+  'medicine': 0.0,
   'basic_kibble': 0.01
 };
 
 const CONSUMABLE_PRICES_DOGE = {
-  'medicine': 0.16,
+  'medicine': 0.0,
   'basic_kibble': 0.08
 };
 
@@ -897,8 +899,8 @@ router.post('/pet-buy-consumable', verifyFirebaseToken, async (req, res) => {
   try {
     const { itemId, currency = 'usdt' } = req.body;
     
-    if (currency === 'usdt' && !CONSUMABLE_PRICES_USDT[itemId]) throw new Error('Invalid consumable');
-    if (currency === 'doge' && !CONSUMABLE_PRICES_DOGE[itemId]) throw new Error('Invalid consumable');
+    if (currency === 'usdt' && CONSUMABLE_PRICES_USDT[itemId] === undefined) throw new Error('Invalid consumable');
+    if (currency === 'doge' && CONSUMABLE_PRICES_DOGE[itemId] === undefined) throw new Error('Invalid consumable');
 
     const cost = currency === 'usdt' ? CONSUMABLE_PRICES_USDT[itemId] : CONSUMABLE_PRICES_DOGE[itemId];
 
@@ -969,7 +971,8 @@ router.post('/pet-use-consumable', verifyFirebaseToken, async (req, res) => {
         if (!data.pet_sick) throw new Error('Your pet is not sick!');
         updates.pet_sick = false;
         updates.pet_sick_since = null;
-        message = 'Your pet is cured!';
+        updates.doge_balance = Number(data.doge_balance || 0) + 0.0001;
+        message = 'Your pet is cured! You earned 0.0001 DOGE.';
       } else if (itemId === 'basic_kibble') {
         if (decayed.hunger >= MAX_STAT) throw new Error('Pet is already full!');
         updates.pet_hunger = Math.min(MAX_STAT, decayed.hunger + 30);
