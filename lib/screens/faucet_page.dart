@@ -1356,7 +1356,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                           ),
                                           onPressed: canClaimMonetag
                                               ? () {
-                                                  web.window.open('https://landslidegraphsystems.com/nv5qudhnj?key=1dae902c75aa8217bd1eb7a46429a2e1', '_blank');
+                                                  web.window.open('https://landslidegraphsystems.com/vack7q0q?key=ba612eb924bb9f66ae90fb74d2018c07', '_blank');
                                                   showDialog(
                                                     barrierDismissible: false,
                                                     context: context,
