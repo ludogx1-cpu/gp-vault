@@ -1412,7 +1412,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                       ),
                                       const SizedBox(height: 5),
                                       const Text(
-                                        "Click an ad and stay for 10 seconds to earn\n0.004 DOGE & 15 XP!",
+                                        "Click an ad and stay for 20 seconds to earn\n0.004 DOGE & 15 XP!",
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           color: Colors.green,

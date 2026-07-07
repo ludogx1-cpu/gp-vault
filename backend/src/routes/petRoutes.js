@@ -384,7 +384,7 @@ router.post('/pet-sleep', verifyFirebaseToken, async (req, res) => {
       const { matured, remainingInvestments } = processInvestments(userRef, data, transaction);
       const currentDoge = Number(data.doge_balance || 0) + matured;
 
-      const newEnergy = Math.min(MAX_STAT, decayed.energy + 25);
+      const newEnergy = Math.min(MAX_STAT, decayed.energy + 50);
 
       const currentXP = ensureXP(data);
       const newXP = currentXP + calculateXPGain(data, 20);

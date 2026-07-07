@@ -207,11 +207,14 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
       );
 
       if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
         if (mounted) {
           setState(() {
             _claimed = true;
             _showCaptcha = false;
-            _message = "Success! 0.004 DOGE & +60 XP added!";
+            final rwd = responseData['rewardAmount']?.toString() ?? '0.004';
+            final xpRwd = responseData['xpReward']?.toString() ?? '15';
+            _message = "Success! $rwd DOGE & +$xpRwd XP added!";
           });
           _updateBrowserTitle("Claim complete");
         }
