@@ -511,11 +511,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     final size = MediaQuery.of(context).size;
     
     setState(() {
-      double projectedX = _ballX + (velocity.dx * 0.8);
-      double projectedY = _ballY + (velocity.dy * 0.8);
-
-      projectedX = projectedX.clamp(20.0, size.width - 50.0);
-      projectedY = projectedY.clamp(20.0, size.height - 50.0);
+      double projectedX = _ballX + (velocity.dx * 1.5);
+      double projectedY = _ballY + (velocity.dy * 1.5);
 
       _ballX = projectedX;
       _ballY = projectedY;
