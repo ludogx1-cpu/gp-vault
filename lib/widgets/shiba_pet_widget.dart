@@ -440,12 +440,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                           label: const Text("Feed (0.0001)", style: TextStyle(fontSize: 11)),
                           style: ElevatedButton.styleFrom(backgroundColor: canFeed ? Colors.orange : Colors.grey, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
                         ),
-                        ElevatedButton.icon(
-                          onPressed: (_isLoading || !canPlay) ? null : () => _performAction('play'),
-                          icon: const Icon(Icons.sports_baseball, size: 16),
-                          label: const Text("Play (0.0001)", style: TextStyle(fontSize: 11)),
-                          style: ElevatedButton.styleFrom(backgroundColor: canPlay ? Colors.pink : Colors.grey, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
-                        ),
+
                         ElevatedButton.icon(
                           onPressed: (_isLoading || !canSleep) ? null : () => _performAction('sleep'),
                           icon: const Icon(Icons.bedtime, size: 16),
@@ -548,9 +543,9 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                                   : ListView(
                                       padding: const EdgeInsets.all(8),
                                       children: [
-                                        _buildConsumableItem('medicine', 'Medicine', 0.5, 'Cures Sickness', Icons.local_hospital),
-                                        _buildConsumableItem('premium_steak', 'Premium Steak', 1.0, '1.5x XP Boost for 1 Hour', Icons.restaurant_menu),
-                                        _buildConsumableItem('energy_drink', 'Energy Drink', 0.5, 'Resets Walk Cooldown', Icons.bolt),
+                                        _buildConsumableItem('medicine', 'Medicine', 0.05, 'Cures Sickness', Icons.local_hospital),
+                                        _buildConsumableItem('premium_steak', 'Premium Steak', 0.1, '1.5x XP Boost for 1 Hour', Icons.restaurant_menu),
+                                        _buildConsumableItem('energy_drink', 'Energy Drink', 0.05, 'Resets Walk Cooldown', Icons.bolt),
                                       ],
                                     ),
                                   // Balls Tab
