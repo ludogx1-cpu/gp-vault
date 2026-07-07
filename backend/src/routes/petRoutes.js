@@ -968,8 +968,8 @@ router.post('/pet-buy-ball', verifyFirebaseToken, async (req, res) => {
     if (!color || !currency) return res.status(400).json({ success: false, error: 'Missing parameters' });
 
     const prices = {
-      'red': 0.50, 'orange': 1.00, 'yellow': 1.50,
-      'green': 2.00, 'blue': 2.50, 'indigo': 3.00, 'violet': 3.50
+      'red': 0.25, 'orange': 0.75, 'yellow': 1.25,
+      'green': 1.75, 'blue': 2.25, 'indigo': 2.75, 'violet': 3.25
     };
     if (!prices[color]) return res.status(400).json({ success: false, error: 'Invalid ball color' });
 
