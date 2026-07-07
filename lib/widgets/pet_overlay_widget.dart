@@ -583,8 +583,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     if (!_ballInitialized && size.width > 0) {
-      _ballX = 400;
-      _ballY = 400;
+      _ballX = size.width / 2 + 60;
+      _ballY = size.height / 2 + 80;
       _ballInitialized = true;
     } else if (_ballInitialized) {
       // Clamp to screen bounds to ensure it never gets lost
@@ -984,20 +984,20 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
             child: GestureDetector(
               onPanUpdate: _onBallPanUpdate,
               onPanEnd: _onBallPanEnd,
-              child: Material(
-                elevation: 10,
-                color: Colors.red,
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.yellow, width: 4),
-                  ),
-                  child: const Text(
-                    'BALL',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+              child: Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: _getBallColor(_equippedBall),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 4,
+                      offset: const Offset(2, 2),
+                    ),
+                  ],
                 ),
               ),
             ),
