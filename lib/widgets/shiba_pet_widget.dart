@@ -26,6 +26,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   double _hunger = 50;
   double _happiness = 50;
   double _energy = 100;
+  double _attention = 50;
   double _totalDistance = 0.0;
   double _ageMultiplier = 1.0;
   double _lockedReturns = 0.0;
@@ -45,6 +46,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   List<String> _ownedBalls = [];
   String _equippedBall = 'white';
   bool _isSick = false;
+  int _sleepingUntil = 0;
   bool _xpBoostActive = false;
   bool _userWantsSleep = false;
 
@@ -87,6 +89,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
             _hunger = (data['pet']['hunger'] as num).toDouble();
             _happiness = (data['pet']['happiness'] as num).toDouble();
             _energy = (data['pet']['energy'] as num).toDouble();
+            _attention = (data['pet']['attention'] as num?)?.toDouble() ?? 50.0;
             _ageMultiplier = (data['pet']['age_multiplier'] as num?)?.toDouble() ?? 1.0;
             _totalDistance = (data['pet']['total_distance'] as num).toDouble();
             _lockedReturns = (data['pet']['locked_returns'] as num?)?.toDouble() ?? 0.0;
@@ -98,6 +101,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
             _lastPlayTime = (data['pet']['last_play_time'] as num?)?.toInt() ?? 0;
             _lastSleepTime = (data['pet']['last_sleep_time'] as num?)?.toInt() ?? 0;
             _lastWalkTime = (data['pet']['last_walk_time'] as num?)?.toInt() ?? 0;
+            _sleepingUntil = (data['pet']['sleeping_until'] as num?)?.toInt() ?? 0;
             _ownedAccessories = List<String>.from(data['pet']['owned_accessories'] ?? []);
             _equippedAccessories = List<String>.from(data['pet']['equipped_accessories'] ?? []);
             _ownedTricks = List<String>.from(data['pet']['owned_tricks'] ?? []);
@@ -146,6 +150,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
           setState(() {
             _hunger = (data['stats']['hunger'] as num).toDouble();
             _happiness = (data['stats']['happiness'] as num).toDouble();
+            _attention = (data['stats']['attention'] as num?)?.toDouble() ?? 50.0;
             _energy = (data['stats']['energy'] as num).toDouble();
             if (data['stats']['xp'] != null) {
               _xp = (data['stats']['xp'] as num).toInt();
@@ -342,9 +347,9 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
     final isDark = theme.isDarkMode;
 
     final now = DateTime.now().millisecondsSinceEpoch;
-    final bool canFeed = now - _lastFeedTime >= 5 * 60 * 60 * 1000;
-    final bool canPlay = now - _lastPlayTime >= 5 * 60 * 60 * 1000;
-    final bool canSleep = now - _lastSleepTime >= 5 * 60 * 60 * 1000;
+    final bool isSleeping = _sleepingUntil > DateTime.now().millisecondsSinceEpoch;
+    final bool canFeed = !_isSick && !isSleeping && _hunger < 100 && (DateTime.now().millisecondsSinceEpoch - _lastFeedTime) >= (5 * 60 * 60 * 1000);
+    final bool canSleep = !_isSick && !isSleeping && _energy < 100;
 
     if (_isLoading && _hunger == 50 && _energy == 100) {
       return const Center(child: CircularProgressIndicator());
@@ -412,7 +417,28 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.favorite_border, color: Colors.purple, size: 16),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: _attention / 100,
+                            backgroundColor: Colors.purple.withOpacity(0.2),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              _attention > 50 ? Colors.purple : (_attention > 20 ? Colors.orange : Colors.red),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text("${_attention.toInt()}%", style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
                     _buildStatBar("Hunger", _hunger, Colors.orange, Icons.restaurant),
                     _buildStatBar("Happiness", _happiness, Colors.pink, Icons.favorite),
                     _buildStatBar("Energy", _energy, Colors.blue, Icons.bolt),
@@ -421,6 +447,11 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                       const Padding(
                         padding: EdgeInsets.only(bottom: 8.0),
                         child: Text("SICK! Interactions disabled. Buy Medicine from Consumables.", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12)),
+                      ),
+                    if (isSleeping)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Text("SLEEPING Zzz... Wakes up in ${((_sleepingUntil - DateTime.now().millisecondsSinceEpoch) / 60000).ceil()} mins", style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 12)),
                       ),
                     if (_xpBoostActive)
                       const Padding(
