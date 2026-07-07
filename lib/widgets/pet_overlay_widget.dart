@@ -507,11 +507,11 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     final size = MediaQuery.of(context).size;
     
     setState(() {
-      double projectedX = _ballX + (velocity.dx * 0.4);
-      double projectedY = _ballY + (velocity.dy * 0.4);
+      double projectedX = _ballX + (velocity.dx * 0.8);
+      double projectedY = _ballY + (velocity.dy * 0.8);
 
-      projectedX = projectedX.clamp(30.0, size.width - 30.0);
-      projectedY = projectedY.clamp(30.0, size.height - 30.0);
+      projectedX = projectedX.clamp(20.0, size.width - 50.0);
+      projectedY = projectedY.clamp(20.0, size.height - 50.0);
 
       _ballX = projectedX;
       _ballY = projectedY;
@@ -1021,7 +1021,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
         // Fetch Ball
         if (_stage != 'egg')
           AnimatedPositioned(
-            duration: _isReturning ? const Duration(seconds: 2) : (_isFetching ? const Duration(milliseconds: 500) : const Duration(milliseconds: 1)),
+            duration: _isReturning ? const Duration(seconds: 2) : (_isFetching ? const Duration(milliseconds: 500) : Duration.zero),
             curve: _isReturning ? Curves.easeInOut : Curves.easeOut,
             left: _ballX,
             top: _ballY,

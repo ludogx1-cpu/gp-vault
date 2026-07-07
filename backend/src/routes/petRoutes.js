@@ -1119,14 +1119,15 @@ router.post('/pet-fetch', verifyFirebaseToken, async (req, res) => {
       const xpReward = calculateXPGain(data, baseXP);
 
       const decayed = calculateDecay(data);
-      let newEnergy = Math.max(0, decayed.energy - 2); // Fetch costs 2 energy
+      let newEnergy = Math.max(0, decayed.energy - 5); // Fetch costs 5 energy
+      let newHunger = Math.max(0, decayed.hunger - 5); // Fetch costs 5 hunger
       let newHappiness = Math.min(MAX_STAT, decayed.happiness + 10); // Fetch gives +10 happiness
       
       currentClicks = (data.fetch_click_count || 0) + 1;
 
       let updates = {
         pet_energy: newEnergy,
-        pet_hunger: decayed.hunger,
+        pet_hunger: newHunger,
         pet_happiness: newHappiness,
         pet_xp: (data.pet_xp || 0) + xpReward,
         pet_last_fetch_time: admin.firestore.FieldValue.serverTimestamp(),
