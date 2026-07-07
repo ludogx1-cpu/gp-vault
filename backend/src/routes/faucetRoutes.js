@@ -376,11 +376,16 @@ router.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
       const trickBonusPercent = calculateTrickBonusPercent(data);
       finalRewardAmount = rewardAmount * (1 + (trickBonusPercent / 100));
 
+      let history = data.reward_history || [];
+      history.unshift({ sector: 'Bonus Sponsor', amount: finalRewardAmount, timestamp: Date.now() });
+      if (history.length > 15) history = history.slice(0, 15);
+
       const updates = {
         doge_balance: Number(data.doge_balance || 0) + finalRewardAmount,
         xp: Number(data.xp || 0) + xpReward,
         last_bonus_sponsor_claim: now,
         active_trick_buffs: [],
+        reward_history: history,
       };
 
       if (isNewUser) {
@@ -459,11 +464,16 @@ router.post('/claim-monetag-sponsor', verifyFirebaseToken, async (req, res) => {
       const trickBonusPercent = calculateTrickBonusPercent(data);
       finalRewardAmount = rewardAmount * (1 + (trickBonusPercent / 100));
 
+      let history = data.reward_history || [];
+      history.unshift({ sector: 'Sponsor Ad', amount: finalRewardAmount, timestamp: Date.now() });
+      if (history.length > 15) history = history.slice(0, 15);
+
       const updates = {
         doge_balance: Number(data.doge_balance || 0) + finalRewardAmount,
         xp: Number(data.xp || 0) + xpReward,
         last_monetag_sponsor_claim: now,
         active_trick_buffs: [],
+        reward_history: history,
       };
 
       if (isNewUser) {

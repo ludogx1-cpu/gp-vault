@@ -196,7 +196,19 @@ router.post('/send', verifyFirebaseToken, async (req, res) => {
               
               for (const uid of activeUids) {
                 const uRef = admin.firestore().collection('users').doc(uid);
-                batch.update(uRef, { doge_balance: admin.firestore.FieldValue.increment(payoutPerUser) });
+                await admin.firestore().runTransaction(async (tx) => {
+                  const uDoc = await tx.get(uRef);
+                  if (uDoc.exists) {
+                    const data = uDoc.data();
+                    let history = data.reward_history || [];
+                    history.unshift({ sector: 'Chat Rain', amount: payoutPerUser, timestamp: Date.now() });
+                    if (history.length > 15) history = history.slice(0, 15);
+                    tx.update(uRef, {
+                      doge_balance: Number(data.doge_balance || 0) + payoutPerUser,
+                      reward_history: history
+                    });
+                  }
+                });
               }
 
               const msgRef = admin.firestore().collection('chat_messages').doc();
@@ -270,9 +282,16 @@ router.post('/payout-jar', verifyFirebaseToken, async (req, res) => {
         const userRef = admin.firestore().collection('users').doc(uid);
         const userDoc = await transaction.get(userRef);
         if (userDoc.exists) {
-          const currentBal = Number(userDoc.data().doge_balance || 0);
+          const data = userDoc.data();
+          const currentBal = Number(data.doge_balance || 0);
+          
+          let history = data.reward_history || [];
+          history.unshift({ sector: 'Chat Rain', amount: payoutPerUser, timestamp: Date.now() });
+          if (history.length > 15) history = history.slice(0, 15);
+
           transaction.update(userRef, {
-            doge_balance: currentBal + payoutPerUser
+            doge_balance: currentBal + payoutPerUser,
+            reward_history: history
           });
         }
       }
