@@ -37,7 +37,7 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
             _buildSection(
               context,
               '❤️ Happiness, 🍗 Hunger, ⚡ Energy',
-              'Keep your pet happy and fed! Feeding, Playing, or Sleeping costs 0.0001 DOGE, but fully restores that stat to 100% and places a 24-hour investment that returns double (plus bonuses)! You can only perform each action once every 5 hours. Stats decay by 25% every 5 hours, so keep them above 80% to ensure you get the maximum possible bonus on your investments.',
+              'Keep your pet happy and fed! Feeding costs 0.0001 DOGE, fully restores Hunger to 100%, and places a 24-hour investment that returns double (plus bonuses)! You can stroke your pet for Attention, and play Fetch with your ball for Happiness (which costs Energy and Hunger).\n\nIf your pet gets too tired, click Sleep! It takes a 10-minute nap for FREE, recovers 50% Energy, and rewards you with 0.0001 DOGE when it wakes up. Sickness happens if any stat hits 0 for 3 days. Buy FREE medicine in the shop to cure it!',
             ),
             _buildSection(
               context,

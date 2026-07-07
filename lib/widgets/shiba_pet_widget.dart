@@ -468,14 +468,14 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                         ElevatedButton.icon(
                           onPressed: (_isLoading || !canFeed) ? null : () => _performAction('feed'),
                           icon: const Icon(Icons.restaurant, size: 16),
-                          label: const Text("Feed (0.0001)", style: TextStyle(fontSize: 11)),
+                          label: const Text("Feed", style: TextStyle(fontSize: 11)),
                           style: ElevatedButton.styleFrom(backgroundColor: canFeed ? Colors.orange : Colors.grey, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
                         ),
 
                         ElevatedButton.icon(
                           onPressed: (_isLoading || !canSleep) ? null : () => _performAction('sleep'),
                           icon: const Icon(Icons.bedtime, size: 16),
-                          label: const Text("Sleep (0.0001)", style: TextStyle(fontSize: 11)),
+                          label: const Text("Sleep", style: TextStyle(fontSize: 11)),
                           style: ElevatedButton.styleFrom(backgroundColor: canSleep ? Colors.blue : Colors.grey, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
                         ),
                         if (FirebaseAuth.instance.currentUser?.email == 'ludogx1@gmail.com') ...[
@@ -544,9 +544,9 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                                       child: Text(
                                         "• Boop: Every 30 mins, it walks to the camera. Boop its nose for 0.002 DOGE!\n"
                                         "• Walk: Walk your pet every 3 hours for up to 0.005 DOGE.\n"
-                                        "• Tricks: Tricks give Faucet bonuses for 5 minutes. Use before claiming!\n"
+                                        "• Fetch: Swipe the ball! Costs Energy & Hunger but boosts Happiness.\n"
                                         "• Sickness: Keep stats above 0! Sick pets can't walk and lose faucet bonuses.\n"
-                                        "• Items: Buy Medicine (cures sickness), Premium Steak (1.5x XP), or Energy Drinks (resets walk cooldown).",
+                                        "• Items: Buy Medicine (cures sickness for FREE) or Basic Kibble.",
                                         style: TextStyle(fontSize: 12, height: 1.4, color: isDark ? Colors.white70 : Colors.black87),
                                       ),
                                     ),
@@ -748,7 +748,11 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
             ),
           ElevatedButton(
             onPressed: () {
-              _showPurchaseDialog(name, price, (currency) => _buyConsumable(id, currency));
+              if (price == 0.0) {
+                _buyConsumable(id, 'doge');
+              } else {
+                _showPurchaseDialog(name, price, (currency) => _buyConsumable(id, currency));
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber,
