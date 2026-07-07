@@ -124,9 +124,14 @@ router.post('/harvest', verifyFirebaseToken, async (req, res) => {
         throw new Error('No interest to harvest yet!');
       }
 
+      let history = data.reward_history || [];
+      history.unshift({ sector: 'Staking Harvest', amount: harvested, timestamp: Date.now() });
+      if (history.length > 15) history = history.slice(0, 15);
+
       transaction.update(userRef, {
         doge_balance: currentBalance + harvested,
-        stake_timestamp: admin.firestore.FieldValue.serverTimestamp()
+        stake_timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        reward_history: history
       });
     });
 
