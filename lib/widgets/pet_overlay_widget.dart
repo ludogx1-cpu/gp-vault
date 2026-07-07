@@ -148,8 +148,12 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
           _userWantsSleep = sleep;
 
           bool boopReady = (DateTime.now().millisecondsSinceEpoch - _lastBoopTime) >= 1800000;
-          if (_poos.isNotEmpty || boopReady) {
+          bool isNapping = _sleepingUntil > DateTime.now().millisecondsSinceEpoch;
+
+          if (_poos.isNotEmpty || boopReady || _isSick) {
             _isSleepingOverlay = false;
+          } else if (isNapping) {
+            _isSleepingOverlay = true;
           } else {
             _isSleepingOverlay = sleep;
           }

@@ -170,11 +170,14 @@ class _MonetagTimerDialogState extends State<MonetagTimerDialog> {
       );
 
       if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
         if (mounted) {
           setState(() {
             _claimed = true;
             _showCaptcha = false;
-            _message = "Success! 0.0001 DOGE & +10 XP added!";
+            final rwd = responseData['rewardAmount']?.toString() ?? '0.002';
+            final xpRwd = responseData['xpReward']?.toString() ?? '10';
+            _message = "Success! $rwd DOGE & +$xpRwd XP added!";
           });
           _updateBrowserTitle("Claim complete");
         }
