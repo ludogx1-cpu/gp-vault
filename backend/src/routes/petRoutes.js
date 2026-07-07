@@ -656,17 +656,17 @@ const TRICK_PRICES_DOGE = {
 };
 
 const CONSUMABLE_PRICES_USDT = {
-  'medicine': 0.5,
-  'basic_kibble': 0.1,
-  'premium_steak': 1.0,
-  'energy_drink': 0.5
+  'medicine': 0.05,
+  'basic_kibble': 0.01,
+  'premium_steak': 0.1,
+  'energy_drink': 0.05
 };
 
 const CONSUMABLE_PRICES_DOGE = {
-  'medicine': 4.0,
-  'basic_kibble': 0.8,
-  'premium_steak': 8.0,
-  'energy_drink': 4.0
+  'medicine': 0.4,
+  'basic_kibble': 0.08,
+  'premium_steak': 0.8,
+  'energy_drink': 0.4
 };
 
 router.post('/pet-buy-accessory', verifyFirebaseToken, async (req, res) => {
