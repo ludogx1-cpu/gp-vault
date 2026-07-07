@@ -93,6 +93,7 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
           pet_xp: 0,
           pet_hunger: 50,
           pet_happiness: 50,
+          pet_attention: 50,
           pet_energy: 100,
           pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
           pet_total_distance_walked: 0,
@@ -102,13 +103,15 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
         petStats = {
           hunger: 50,
           happiness: 50,
+          attention: 50,
           energy: 100,
           stage: 'puppy',
           xp: 0,
           next_stage_xp: getNextStageXP('puppy'),
           total_distance: 0,
           locked_returns: 0,
-          matured_returns: 0
+          matured_returns: 0,
+          sleeping_until: 0
         };
       } else {
         const decayed = calculateDecay(data);
@@ -119,6 +122,7 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
             pet_birth_date: admin.firestore.FieldValue.serverTimestamp(),
             pet_hunger: 50,
             pet_happiness: 50,
+            pet_attention: 50,
             pet_energy: 100,
             pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
             pet_total_distance_walked: 0,
@@ -135,6 +139,7 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
           petStats = {
             hunger: 50,
             happiness: 50,
+            attention: 50,
             energy: 100,
             stage: 'puppy',
             total_distance: 0,
@@ -151,7 +156,8 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
             xp_boost_active: false,
             owned_balls: ['white'],
             equipped_ball: 'white',
-            fetch_click_count: 0
+            fetch_click_count: 0,
+            sleeping_until: 0
           };
           // Return immediately with new stats
           return;
@@ -172,7 +178,7 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
         if (decayed.hunger === 0 || decayed.happiness === 0 || decayed.energy === 0) {
           if (!sickSince) {
             sickSince = now;
-          } else if (!isSick && (now - sickSince >= 24 * 60 * 60 * 1000)) {
+          } else if (!isSick && (now - sickSince >= 72 * 60 * 60 * 1000)) {
             isSick = true;
           }
         } else {
@@ -186,6 +192,7 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
           pet_xp: currentXP,
           pet_hunger: decayed.hunger,
           pet_happiness: decayed.happiness,
+          pet_attention: decayed.attention,
           pet_energy: decayed.energy,
           active_trick_buffs: validBuffs,
           pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
@@ -216,6 +223,7 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
         petStats = {
           hunger: decayed.hunger,
           happiness: decayed.happiness,
+          attention: decayed.attention,
           energy: decayed.energy,
           stage: stage,
           xp: currentXP,
@@ -239,7 +247,8 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
           xp_boost_active: data.xp_boost_expires_at ? data.xp_boost_expires_at.toDate().getTime() > Date.now() : false,
           owned_balls: data.pet_owned_balls || ['white'],
           equipped_ball: data.pet_equipped_ball || 'white',
-          fetch_click_count: data.fetch_click_count || 0
+          fetch_click_count: data.fetch_click_count || 0,
+          sleeping_until: data.pet_sleeping_until ? data.pet_sleeping_until.toDate().getTime() : 0
         };
       }
     });
@@ -363,8 +372,8 @@ router.post('/pet-sleep', verifyFirebaseToken, async (req, res) => {
 
       const decayed = calculateDecay(data);
       if (decayed.energy >= MAX_STAT) throw new Error('Pet is not tired.');
-      if (data.pet_last_sleep_time && (Date.now() - data.pet_last_sleep_time.toDate().getTime()) < 5 * 60 * 60 * 1000) {
-        throw new Error('Your pet can only sleep once every 5 hours!');
+      if (data.pet_sleeping_until && data.pet_sleeping_until.toDate().getTime() > Date.now()) {
+        throw new Error('Pet is already sleeping!');
       }
 
       const { matured, remainingInvestments } = processInvestments(userRef, data, transaction);
@@ -374,7 +383,7 @@ router.post('/pet-sleep', verifyFirebaseToken, async (req, res) => {
 
       const petBonus = calculatePetBonusPercent(decayed, data);
       const investmentAmount = (SLEEP_COST_DOGE * 2) * (1 + (petBonus / 100));
-      const newEnergy = MAX_STAT;
+      const newEnergy = Math.min(MAX_STAT, decayed.energy + 25);
       remainingInvestments.push({ amount: investmentAmount, unlock_time: Date.now() + 24 * 60 * 60 * 1000 });
 
       const currentXP = ensureXP(data);
@@ -388,13 +397,54 @@ router.post('/pet-sleep', verifyFirebaseToken, async (req, res) => {
         pet_energy: newEnergy,
         pet_investments: remainingInvestments,
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
-        pet_last_sleep_time: admin.firestore.FieldValue.serverTimestamp()
+        pet_last_sleep_time: admin.firestore.FieldValue.serverTimestamp(),
+        pet_sleeping_until: admin.firestore.Timestamp.fromMillis(Date.now() + 10 * 60 * 1000)
       });
 
-      newStats = { hunger: decayed.hunger, happiness: decayed.happiness, energy: newEnergy, xp: newXP };
+      newStats = { hunger: decayed.hunger, happiness: decayed.happiness, attention: decayed.attention, energy: newEnergy, xp: newXP };
     });
 
-    res.json({ success: true, message: 'Pet took a nap!', stats: newStats });
+    res.json({ success: true, message: 'Pet took a nap! Zzz...', stats: newStats });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/pet-stroke', verifyFirebaseToken, async (req, res) => {
+  try {
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    let newStats = null;
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      const data = snapshot.data() || {};
+
+      if (!data.pet_birth_date) throw new Error('Pet not initialized');
+
+      if (data.pet_sleeping_until && data.pet_sleeping_until.toDate().getTime() > Date.now()) {
+        throw new Error('Shh... The pet is sleeping!');
+      }
+
+      const decayed = calculateDecay(data);
+      if (decayed.attention >= MAX_STAT) throw new Error('Pet has full attention already!');
+
+      const newAttention = Math.min(MAX_STAT, decayed.attention + 20);
+      const currentXP = ensureXP(data);
+      const newXP = currentXP + calculateXPGain(data, 5);
+
+      transaction.update(userRef, {
+        pet_xp: newXP,
+        pet_hunger: decayed.hunger,
+        pet_happiness: decayed.happiness,
+        pet_attention: newAttention,
+        pet_energy: decayed.energy,
+        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
+      });
+
+      newStats = { hunger: decayed.hunger, happiness: decayed.happiness, attention: newAttention, energy: decayed.energy, xp: newXP };
+    });
+
+    res.json({ success: true, message: 'You stroked the pet!', stats: newStats });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
@@ -656,17 +706,13 @@ const TRICK_PRICES_DOGE = {
 };
 
 const CONSUMABLE_PRICES_USDT = {
-  'medicine': 0.05,
-  'basic_kibble': 0.01,
-  'premium_steak': 0.1,
-  'energy_drink': 0.05
+  'medicine': 0.02,
+  'basic_kibble': 0.01
 };
 
 const CONSUMABLE_PRICES_DOGE = {
-  'medicine': 0.4,
-  'basic_kibble': 0.08,
-  'premium_steak': 0.8,
-  'energy_drink': 0.4
+  'medicine': 0.16,
+  'basic_kibble': 0.08
 };
 
 router.post('/pet-buy-accessory', verifyFirebaseToken, async (req, res) => {

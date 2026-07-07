@@ -50,7 +50,10 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   bool _isCloseUp = false;
   bool _isChasing = false;
   bool _isSleepingOverlay = false;
+  bool _isSick = false;
+  int _sleepingUntil = 0;
   bool _userWantsSleep = false;
+  int _lastStrokeTime = 0;
 
   // Animations
   late AnimationController _shakeController;
@@ -200,18 +203,24 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
               }
             }
 
+            _isSick = data['pet']['sick'] ?? false;
+            _sleepingUntil = data['pet']['sleeping_until'] ?? 0;
+
             int pendingPoos = data['pet']['pending_poos'] ?? 0;
 
             final now = DateTime.now().millisecondsSinceEpoch;
             bool boopReady = (now - _lastBoopTime) >= 1800000;
+            bool isSleeping = _sleepingUntil > now;
 
             SharedPreferences.getInstance().then((prefs) {
               bool userWantsSleep = prefs.getBool('pet_sleeping') ?? false;
               if (mounted) {
                 setState(() {
                   _userWantsSleep = userWantsSleep;
-                  if (pendingPoos > 0 || boopReady) {
+                  if (pendingPoos > 0 || boopReady || _isSick) {
                     _isSleepingOverlay = false;
+                  } else if (isSleeping) {
+                    _isSleepingOverlay = true;
                   } else {
                     _isSleepingOverlay = userWantsSleep;
                   }
@@ -579,6 +588,27 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     }
   }
 
+  Future<void> _strokePet() async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (now - _lastStrokeTime < 2000) return; // throttle locally 
+    if (_isSleepingOverlay || _isSick) return;
+    
+    _lastStrokeTime = now;
+    // Play animation
+    _shakeController.forward(from: 0.0);
+
+    try {
+      final headers = await getAuthHeaders();
+      await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/pet-stroke'),
+        headers: headers,
+      );
+      _fetchPetStatus(); // get new attention
+    } catch (e) {
+      // ignore
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -752,9 +782,11 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
                         },
                         child: GestureDetector(
                           onTapDown: (_) {
+                            if (_isSleepingOverlay || _isSick) return;
                             if (_stage != 'egg') _boopController.forward();
                           },
                           onTapUp: (_) {
+                            if (_isSleepingOverlay || _isSick) return;
                             if (_stage != 'egg') _boopController.reverse();
                             if (_isCloseUp) {
                               _boopPet();
@@ -763,7 +795,14 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
                             }
                           },
                           onTapCancel: () {
+                            if (_isSleepingOverlay || _isSick) return;
                             if (_stage != 'egg') _boopController.reverse();
+                          },
+                          onPanUpdate: (details) {
+                            if (_isSleepingOverlay || _isSick) return;
+                            if (_stage != 'egg') {
+                              _strokePet();
+                            }
                           },
                           child: Stack(
                             clipBehavior: Clip.none,
@@ -781,6 +820,12 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
                                       height: 100,
                                       child: Image.asset(_getImageAsset()),
                                     ),
+                                    if (_isSick)
+                                      const Positioned(
+                                        top: -20,
+                                        right: -20,
+                                        child: Text("🤢", style: TextStyle(fontSize: 32)),
+                                      ),
                                     // Render equipped accessories
                                     if (_equippedAccessories.contains(
                                       'top_hat',

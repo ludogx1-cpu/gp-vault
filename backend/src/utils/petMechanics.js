@@ -10,35 +10,42 @@ function calculateDecay(userData) {
 
   let hungerDecayRate = DECAY_RATE_PER_HOUR;
   let happinessDecayRate = DECAY_RATE_PER_HOUR;
+  let attentionDecayRate = DECAY_RATE_PER_HOUR;
   let energyDecayRate = DECAY_RATE_PER_HOUR;
 
   if (stage === 'baby' || stage === 'toddler' || stage === 'puppy') {
     energyDecayRate = 8.0;
     happinessDecayRate = 20.0;
+    attentionDecayRate = 20.0;
     hungerDecayRate = 3.0;
   } else if (stage === 'child' || stage === 'teen') {
     energyDecayRate = 6.0;
     happinessDecayRate = 20.0;
+    attentionDecayRate = 20.0;
     hungerDecayRate = 5.0;
   } else if (stage === 'young_adult' || stage === 'adult') {
     energyDecayRate = 4.0;
     happinessDecayRate = 20.0;
+    attentionDecayRate = 20.0;
     hungerDecayRate = 8.0;
   }
 
   const hungerDecay = hoursPassed * hungerDecayRate;
   const happinessDecay = hoursPassed * happinessDecayRate;
+  const attentionDecay = hoursPassed * attentionDecayRate;
   const energyDecay = hoursPassed * energyDecayRate;
 
   let hunger = Number(userData.pet_hunger ?? 50);
   let happiness = Number(userData.pet_happiness ?? 50);
+  let attention = Number(userData.pet_attention ?? 50);
   let energy = Number(userData.pet_energy ?? 50);
 
   hunger = Math.max(0, hunger - hungerDecay);
   happiness = Math.max(0, happiness - happinessDecay);
+  attention = Math.max(0, attention - attentionDecay);
   energy = Math.max(0, energy - energyDecay);
 
-  return { hunger, happiness, energy, hoursPassed };
+  return { hunger, happiness, attention, energy, hoursPassed };
 }
 
 function getGrowthStage(birthDate) {
