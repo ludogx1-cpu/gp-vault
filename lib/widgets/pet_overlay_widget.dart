@@ -586,7 +586,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
       _ballX = size.width / 2 + 60;
       _ballY = size.height / 2 + 80;
       _ballInitialized = true;
-    } else if (_ballInitialized) {
+    } else if (_ballInitialized && !_isFetching && !_isReturning) {
       // Clamp to screen bounds to ensure it never gets lost
       if (_ballX < 0) _ballX = 20;
       if (_ballX > size.width - 30) _ballX = size.width - 30;
