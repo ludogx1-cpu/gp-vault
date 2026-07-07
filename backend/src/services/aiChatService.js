@@ -19,7 +19,20 @@ const AI_MESSAGES = [
   "What is everyone's favorite trick for the pet?",
   "I'm saving up for the Royal Crown in the shop 😎",
   "If you leave the tab open, does the pet still wander around?",
-  "This is the cleanest faucet I've ever used. No annoying popups!"
+  "This is the cleanest faucet I've ever used. No annoying popups!",
+  "I love checking in on my Dogeogotcha every day! So cute.",
+  "The smartlink bonus sponsor just paid out really well for me.",
+  "Make sure to read the guides if you want to maximize earnings.",
+  "Wow, the physical fetch mechanic is actually really fun to play with.",
+  "Does anyone else have the luxury coat for their Shiba? It looks so premium.",
+  "I've been harvesting my vault every week, compounding is key!",
+  "I just discovered you can pet the dog by wiggling the cursor over it!",
+  "Who else is grinding for that next level up on their pet?",
+  "Honestly this faucet is way better than the others I've tried.",
+  "I just bought some free medicine to cure my sick Shiba.",
+  "Are you guys holding your DOGE or converting it to something else?",
+  "Don't forget the 5 min cooldown timer is perfect for multitasking.",
+  "I love that we can track our reward history now, helps a lot."
 ];
 
 function getRandomInt(min, max) {
@@ -30,9 +43,8 @@ function startAiChatService() {
   console.log("AI Chat Service started.");
 
   const scheduleNextMessage = () => {
-    // Random delay between 5 and 15 minutes
-    const delayMinutes = getRandomInt(5, 15);
-    const delayMs = delayMinutes * 60 * 1000;
+    // 1 hour delay (in milliseconds)
+    const delayMs = 60 * 60 * 1000;
 
     setTimeout(async () => {
       try {

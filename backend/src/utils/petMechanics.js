@@ -17,17 +17,17 @@ function calculateDecay(userData) {
     energyDecayRate = 8.0;
     happinessDecayRate = 20.0;
     attentionDecayRate = 20.0;
-    hungerDecayRate = 3.0;
+    hungerDecayRate = 4.166;
   } else if (stage === 'child' || stage === 'teen') {
     energyDecayRate = 6.0;
     happinessDecayRate = 20.0;
     attentionDecayRate = 20.0;
-    hungerDecayRate = 5.0;
+    hungerDecayRate = 4.166;
   } else if (stage === 'young_adult' || stage === 'adult') {
     energyDecayRate = 4.0;
     happinessDecayRate = 20.0;
     attentionDecayRate = 20.0;
-    hungerDecayRate = 8.0;
+    hungerDecayRate = 4.166;
   }
 
   const hungerDecay = hoursPassed * hungerDecayRate;

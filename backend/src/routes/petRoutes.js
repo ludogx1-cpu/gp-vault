@@ -277,8 +277,8 @@ router.post('/pet-feed', verifyFirebaseToken, async (req, res) => {
 
       const decayed = calculateDecay(data);
       if (decayed.hunger >= MAX_STAT) throw new Error('Pet is already full!');
-      if (data.pet_last_feed_time && (Date.now() - data.pet_last_feed_time.toDate().getTime()) < 5 * 60 * 60 * 1000) {
-        throw new Error('You can only feed your pet once every 5 hours!');
+      if (data.pet_last_feed_time && (Date.now() - data.pet_last_feed_time.toDate().getTime()) < 1 * 60 * 60 * 1000) {
+        throw new Error('You can only feed your pet once every 1 hour!');
       }
 
       const { matured, remainingInvestments } = processInvestments(userRef, data, transaction);

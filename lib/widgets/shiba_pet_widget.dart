@@ -118,9 +118,9 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
               );
             }
 
-            // Schedule Hunger Notification 5 hours from last feed time
+            // Schedule Hunger Notification 1 hour from last feed time
             if (_lastFeedTime > 0) {
-              final expectedHungryTime = DateTime.fromMillisecondsSinceEpoch(_lastFeedTime).add(const Duration(hours: 5));
+              final expectedHungryTime = DateTime.fromMillisecondsSinceEpoch(_lastFeedTime).add(const Duration(hours: 1));
               NotificationService().scheduleHungerNotification(expectedHungryTime);
             }
 
@@ -348,7 +348,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
 
     final now = DateTime.now().millisecondsSinceEpoch;
     final bool isSleeping = _sleepingUntil > DateTime.now().millisecondsSinceEpoch;
-    final bool canFeed = !_isSick && !isSleeping && _hunger < 100 && (DateTime.now().millisecondsSinceEpoch - _lastFeedTime) >= (5 * 60 * 60 * 1000);
+    final bool canFeed = !_isSick && !isSleeping && _hunger < 100 && (DateTime.now().millisecondsSinceEpoch - _lastFeedTime) >= (1 * 60 * 60 * 1000);
     final bool canSleep = !_isSick && !isSleeping && _energy < 100;
 
     if (_isLoading && _hunger == 50 && _energy == 100) {
