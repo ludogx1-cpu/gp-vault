@@ -418,27 +418,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                       ],
                     ),
                   const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.favorite_border, color: Colors.purple, size: 16),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: LinearProgressIndicator(
-                            value: _attention / 100,
-                            backgroundColor: Colors.purple.withOpacity(0.2),
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              _attention > 50 ? Colors.purple : (_attention > 20 ? Colors.orange : Colors.red),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Text("${_attention.toInt()}%", style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
+                    _buildStatBar("Attention", _attention, Colors.purple, Icons.waving_hand),
                     _buildStatBar("Hunger", _hunger, Colors.orange, Icons.restaurant),
                     _buildStatBar("Happiness", _happiness, Colors.pink, Icons.favorite),
                     _buildStatBar("Energy", _energy, Colors.blue, Icons.bolt),
@@ -542,9 +522,10 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                                     padding: const EdgeInsets.all(12),
                                     child: SingleChildScrollView(
                                       child: Text(
+                                        "• Stroke: Stroke your pet to raise Attention & get 5 XP!\n"
+                                        "• Fetch: Swipe the ball! Costs Energy & Hunger but boosts Happiness.\n"
                                         "• Boop: Every 30 mins, it walks to the camera. Boop its nose for 0.002 DOGE!\n"
                                         "• Walk: Walk your pet every 3 hours for up to 0.005 DOGE.\n"
-                                        "• Fetch: Swipe the ball! Costs Energy & Hunger but boosts Happiness.\n"
                                         "• Sickness: Keep stats above 0! Sick pets can't walk and lose faucet bonuses.\n"
                                         "• Items: Buy Medicine (cures sickness for FREE) or Basic Kibble.",
                                         style: TextStyle(fontSize: 12, height: 1.4, color: isDark ? Colors.white70 : Colors.black87),
