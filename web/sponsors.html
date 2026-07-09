@@ -91,16 +91,28 @@
 
     <!-- Adsterra 468x60 Ad -->
     <div class="ad-zone" onmouseenter="mouseOverAd = true" onmouseleave="mouseOverAd = false">
-      <script type="text/javascript">
-        atOptions = {
-          'key' : '81487b0cf69981d5b93588025428264e',
-          'format' : 'iframe',
-          'height' : 60,
-          'width' : 468,
-          'params' : {}
-        };
+      <script>
+        if (typeof atAsyncOptions !== 'object') var atAsyncOptions = [];
+        atAsyncOptions.push({
+          key: '81487b0cf69981d5b93588025428264e',
+          format: 'js',
+          async: true,
+          container: 'atContainer-81487b0cf69981d5b93588025428264e',
+          params: {}
+        });
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.async = true;
+        script.src = 'https://landslidegraphsystems.com/81487b0cf69981d5b93588025428264e/invoke.js';
+        document.getElementsByTagName('head')[0].appendChild(script);
       </script>
-      <script type="text/javascript" src="https://landslidegraphsystems.com/81487b0cf69981d5b93588025428264e/invoke.js"></script>
+      <div id="atContainer-81487b0cf69981d5b93588025428264e"></div>
+    </div>
+
+    <!-- New Adsterra Ad -->
+    <div class="ad-zone" onmouseenter="mouseOverAd = true" onmouseleave="mouseOverAd = false">
+      <script async="async" data-cfasync="false" src="https://landslidegraphsystems.com/5a1631fd346668d84ae6824804be13b4/invoke.js"></script>
+      <div id="container-5a1631fd346668d84ae6824804be13b4"></div>
     </div>
 
     <!-- 🚀 9 AD ZONES -->

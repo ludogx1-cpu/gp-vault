@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:web/web.dart' as web;
 
 
 
@@ -42,6 +43,9 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
     }
     if (provider == "BITCOTASKS") {
       return "https://bitcotasks.com/offerwall/6xwmdur28o2s2jx3y4nj4ldt6jx5u9/$uid";
+    }
+    if (provider == "TIMEWALL") {
+      return "https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=$uid";
     }
     return "https://google.com"; // Fallback placeholder
   }
@@ -282,8 +286,68 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                             setState(() => selectedNetwork = "BITCOTASKS"),
                       ),
                     ),
+                    const SizedBox(width: 15),
+                    // TimeWall Selection Button
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: selectedNetwork == "TIMEWALL"
+                              ? Colors.green
+                              : Colors.grey.shade200,
+                          foregroundColor: selectedNetwork == "TIMEWALL"
+                              ? Colors.white
+                              : Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                        ),
+                        icon: const Icon(Icons.timelapse),
+                        label: const Text(
+                          "TimeWall",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: () =>
+                            setState(() => selectedNetwork = "TIMEWALL"),
+                      ),
+                    ),
                   ],
                 ),
+                
+                // 🚀 TIMEWALL QUICK LINKS 🚀
+                if (selectedNetwork == "TIMEWALL") ...[
+                  const SizedBox(height: 15),
+                  const Text(
+                    "TimeWall Direct Links (Opens in new tab):",
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      ActionChip(
+                        backgroundColor: Colors.green.shade100,
+                        label: const Text("📝 Tasks", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+                        onPressed: () => web.window.open('https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=${user.uid}&tab=tasks', '_blank'),
+                      ),
+                      ActionChip(
+                        backgroundColor: Colors.blue.shade100,
+                        label: const Text("🖱️ Clicks", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
+                        onPressed: () => web.window.open('https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=${user.uid}&tab=clicks', '_blank'),
+                      ),
+                      ActionChip(
+                        backgroundColor: Colors.purple.shade100,
+                        label: const Text("🎮 Games", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.purple)),
+                        onPressed: () => web.window.open('https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=${user.uid}&tab=games', '_blank'),
+                      ),
+                      ActionChip(
+                        backgroundColor: Colors.orange.shade100,
+                        label: const Text("💎 BuyPoints", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepOrange)),
+                        onPressed: () => web.window.open('https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=${user.uid}&tab=buypoints', '_blank'),
+                      ),
+                    ],
+                  ),
+                ],
+
                 const SizedBox(height: 30),
 
                 // 🖼️ DYNAMIC RAW HTML IFRAME CONTAINER CONTEXT

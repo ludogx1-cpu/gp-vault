@@ -10,7 +10,6 @@ import 'package:web/web.dart' as web;
 import 'dart:js_interop';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../widgets/monetag_timer_dialog.dart';
 import '../widgets/newsletter_subscribe_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -68,6 +67,13 @@ class _FaucetPageState extends State<FaucetPage> {
     _fetchDogePrice();
     _syncCheckLock();
 
+    // Inject Adsterra Popunder Script directly into the main DOM
+    final script = web.HTMLScriptElement();
+    script.type = 'text/javascript';
+    script.src = 'https://landslidegraphsystems.com/95/df/01/95df01543f4314cfaeaa9181f0b6ba8f.js';
+    script.id = 'faucet-popunder-script';
+    web.document.head!.appendChild(script);
+
     _captchaPoller = Timer.periodic(const Duration(milliseconds: 500), (timer) {
       try {
         final div =
@@ -117,6 +123,21 @@ class _FaucetPageState extends State<FaucetPage> {
         // ignore: empty_catches
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer?.cancel();
+    _captchaPoller?.cancel();
+    _addressController.dispose();
+
+    // Clean up popunder script
+    final script = web.document.getElementById('faucet-popunder-script');
+    if (script != null) {
+      script.remove();
+    }
+    
+    super.dispose();
   }
 
   Future<void> _fetchDogePrice() async {
@@ -420,13 +441,6 @@ class _FaucetPageState extends State<FaucetPage> {
     }
   }
 
-  @override
-  void dispose() {
-    _countdownTimer?.cancel();
-    _captchaPoller?.cancel();
-    _addressController.dispose();
-    super.dispose();
-  }
 
   void _openFaucetPayLink() {
     web.window.open('https://faucetpay.io/?r=5173106', '_blank');
@@ -461,13 +475,6 @@ class _FaucetPageState extends State<FaucetPage> {
         hitTestBehavior: HitTestBehavior.translucent,
         child: Stack(
           children: [
-            const Positioned(
-              top: 0,
-              left: 0,
-              width: 1,
-              height: 1,
-              child: HtmlElementView(viewType: 'adsterra-popunder'),
-            ),
             PageWithFooter(
             child: MediaQuery(
           data: MediaQuery.of(context).copyWith(
@@ -481,6 +488,14 @@ class _FaucetPageState extends State<FaucetPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
 
+                if (MediaQuery.of(context).size.width >= 750) ...[
+                  const SizedBox(
+                    width: 728,
+                    height: 90,
+                    child: HtmlElementView(viewType: 'adsterra-728x90'),
+                  ),
+                  const SizedBox(height: 15),
+                ],
 
                 const SizedBox(
                   width: 120,
@@ -1165,17 +1180,8 @@ class _FaucetPageState extends State<FaucetPage> {
                   ),
                 ),
                 const SizedBox(height: 25),
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 20,
-                  runSpacing: 30,
+                Column(
                   children: [
-                    const SizedBox(
-                      width: 300,
-                      height: 250,
-                      child: HtmlElementView(viewType: 'adsterra-300x250'),
-                    ),
                     SizedBox(
                       width: 160,
                       height: 60,
@@ -1203,7 +1209,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                 child: CircularProgressIndicator(
                                   color: Colors.white,
                                   strokeWidth: 2,
-                                ),
+                                )
                               )
                             : Text(
                                 _getClaimButtonText(),
@@ -1215,6 +1221,7 @@ class _FaucetPageState extends State<FaucetPage> {
                               ),
                       ),
                     ),
+                    const SizedBox(height: 30),
                     const SizedBox(
                       width: 300,
                       height: 250,
@@ -1251,20 +1258,10 @@ class _FaucetPageState extends State<FaucetPage> {
                       builder: (context, userProvider, _) {
                         bool canClaimBonus = true;
                         int minutesLeftBonus = 0;
-                        bool canClaimMonetag = true;
-                        int minutesLeftMonetag = 0;
 
                         final userData = userProvider.userData;
                         if (userData != null) {
-                          final Timestamp? lastClaimMonetag = userData['last_monetag_sponsor_claim'];
-                          if (lastClaimMonetag != null) {
-                            final difference = DateTime.now().difference(lastClaimMonetag.toDate());
-                            if (difference.inMinutes < 10) {
-                              canClaimMonetag = false;
-                              minutesLeftMonetag = 10 - difference.inMinutes;
-                            }
-                          }
-                          final Timestamp? lastClaimBonus = userData['last_sponsor_claim'];
+                          final Timestamp? lastClaimBonus = userData['last_bonus_sponsor_claim'];
                           if (lastClaimBonus != null) {
                             final difference = DateTime.now().difference(lastClaimBonus.toDate());
                             if (difference.inMinutes < 10) {
@@ -1279,96 +1276,6 @@ class _FaucetPageState extends State<FaucetPage> {
                             final isDark = themeProvider.isDarkMode;
                             return Column(
                               children: [
-                                Container(
-                                  width: double.infinity,
-                                  constraints: const BoxConstraints(maxWidth: 600),
-                                  padding: const EdgeInsets.all(20),
-                                  decoration: BoxDecoration(
-                                    color: isDark
-                                        ? themeProvider.darkGreyBoxColor
-                                        : (canClaimMonetag
-                                              ? Colors.amber.shade100
-                                              : Colors.grey.shade200),
-                                    borderRadius: BorderRadius.circular(15),
-                                    border: Border.all(
-                                      color: isDark
-                                          ? themeProvider.darkGreyBorder
-                                          : (canClaimMonetag
-                                                ? Colors.amber.shade400
-                                                : Colors.grey.shade400),
-                                      width: 2,
-                                    ),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        "✨ View Sponsor & Earn DOGE ✨",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: isDark
-                                              ? Colors.white
-                                              : Colors.black87,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      const Text(
-                                        "Stay on the page for 30 seconds to earn\n0.002 DOGE & 10 XP!",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: Colors.green,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 15),
-                                      SizedBox(
-                                        width: double.infinity,
-                                        height: 50,
-                                        child: ElevatedButton.icon(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: canClaimMonetag
-                                                ? Colors.amber
-                                                : Colors.grey,
-                                            foregroundColor: Colors.white,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(
-                                                10,
-                                              ),
-                                            ),
-                                          ),
-                                          icon: Icon(
-                                            canClaimMonetag
-                                                ? Icons.star
-                                                : Icons.lock_clock,
-                                          ),
-                                          label: Text(
-                                            canClaimMonetag
-                                                ? 'VIEW SPONSOR'
-                                                : 'COOLDOWN: $minutesLeftMonetag MIN',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w900,
-                                              fontSize: 15,
-                                              letterSpacing: 1.1,
-                                            ),
-                                          ),
-                                          onPressed: canClaimMonetag
-                                              ? () {
-                                                  web.window.open('https://landslidegraphsystems.com/vack7q0q?key=ba612eb924bb9f66ae90fb74d2018c07', '_blank');
-                                                  showDialog(
-                                                    barrierDismissible: false,
-                                                    context: context,
-                                                    builder: (context) =>
-                                                        const MonetagTimerDialog(),
-                                                  );
-                                                }
-                                              : null,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
                                 Container(
                                   width: double.infinity,
                                   constraints: const BoxConstraints(maxWidth: 600),
@@ -1489,8 +1396,8 @@ class _FaucetPageState extends State<FaucetPage> {
           right: ((MediaQuery.of(context).size.width - 600) / 2 - 160) / 2,
           top: 100,
           width: 160,
-          height: 600,
-          child: const HtmlElementView(viewType: 'adsterra-160x600'),
+          height: 300,
+          child: const HtmlElementView(viewType: 'adsterra-160x300'),
         ),
       ],
       const PetOverlayWidget(),

@@ -244,14 +244,14 @@ class AppFooter extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.close, color: Colors.white70),
                 onPressed: () {
-                  web.window.open('https://twitter.com', '_blank');
+                  web.window.open('https://x.com/ludogx101', '_blank');
                 },
                 tooltip: 'Follow us on X',
               ),
               IconButton(
                 icon: const Icon(Icons.facebook, color: Colors.blue),
                 onPressed: () {
-                  web.window.open('https://facebook.com', '_blank');
+                  web.window.open('https://www.facebook.com/GoldenPawDogeHub', '_blank');
                 },
                 tooltip: 'Follow us on Facebook',
               ),
