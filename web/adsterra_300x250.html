@@ -13,15 +13,21 @@
   </style>
 </head>
 <body>
-  <script type="text/javascript">
-    atOptions = {
-      'key' : 'db55b2e461e7dcfb40070e78dd094ac9',
-      'format' : 'iframe',
-      'height' : 250,
-      'width' : 300,
-      'params' : {}
-    };
+  <script>
+  if (typeof atAsyncOptions !== 'object') var atAsyncOptions = [];
+  atAsyncOptions.push({
+  key: 'db55b2e461e7dcfb40070e78dd094ac9',
+  format: 'js',
+  async: true,
+  container: 'atContainer-db55b2e461e7dcfb40070e78dd094ac9',
+  params: {},
+  });
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.async = true;
+  script.src = 'https://landslidegraphsystems.com/db55b2e461e7dcfb40070e78dd094ac9/invoke.js';
+  document.getElementsByTagName('head')[0].appendChild(script);
   </script>
-  <script type="text/javascript" src="https://landslidegraphsystems.com/db55b2e461e7dcfb40070e78dd094ac9/invoke.js"></script>
+  <div id="atContainer-db55b2e461e7dcfb40070e78dd094ac9"></div>
 </body>
 </html>

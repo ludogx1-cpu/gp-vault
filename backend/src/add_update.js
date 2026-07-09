@@ -4,8 +4,8 @@ async function run() {
   try {
     const newUpdateRef = admin.firestore().collection('updates').doc();
     await newUpdateRef.set({
-      title: 'v1.6 - Massive Dogeogotcha Update!',
-      message: '🎾 Physics-based Fetch: Throw the ball by dragging it! Costs 5% Hunger & Energy.\n✋ Stroking: Wiggle your cursor over your pet to fill its Attention bar!\n💤 Sleep Update: 10-minute nap gives +50% Energy and rewards 0.0001 DOGE.\n💊 Medicine is now FREE.\n🛒 Shop items are permanently cheaper!\n📜 Reward History now tracks Faucet Bonus, Staking, and Chat Rain!',
+      title: 'TimeWall Integration is LIVE! 🚀',
+      message: 'Huge news! We have successfully integrated TimeWall into the Offerwall Hub. You can now earn DOGE faster than ever by completing tasks, clicking PTC ads, and playing games through the TimeWall network. Plus, we added quick links for instant access!',
       timestamp: admin.firestore.FieldValue.serverTimestamp()
     });
     console.log("Added new update successfully!");

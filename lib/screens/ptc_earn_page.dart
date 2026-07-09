@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../src/theme_provider.dart';
 import '../widgets/widgets.dart';
-import '../widgets/monetag_timer_dialog.dart';
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
 
@@ -99,9 +98,6 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
         builder: (context, userDocSnapshot) {
           bool canClaimBonus = true;
           int minutesLeftBonus = 0;
-          bool canClaimMonetag = true;
-          int minutesLeftMonetag = 0;
-
           if (userDocSnapshot.hasData && userDocSnapshot.data!.exists) {
             var uData = userDocSnapshot.data!.data() as Map<String, dynamic>?;
             
@@ -112,16 +108,6 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
               if (difference.inMinutes < 15) {
                 canClaimBonus = false;
                 minutesLeftBonus = 15 - difference.inMinutes;
-              }
-            }
-
-            Timestamp? lastClaimMonetag = uData?['last_monetag_sponsor_claim'] as Timestamp?;
-            if (lastClaimMonetag != null) {
-              final now = DateTime.now();
-              final difference = now.difference(lastClaimMonetag.toDate());
-              if (difference.inMinutes < 10) {
-                canClaimMonetag = false;
-                minutesLeftMonetag = 10 - difference.inMinutes;
               }
             }
           }
@@ -344,91 +330,37 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          Container(
+                          // 🚀 TIMEWALL CLICKS BUTTON 🚀
+                          SizedBox(
                             width: double.infinity,
-                            padding: const EdgeInsets.all(15),
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? themeProvider.darkGreyBoxColor
-                                  : (canClaimMonetag
-                                        ? Colors.amber.shade100
-                                        : Colors.grey.shade200),
-                              borderRadius: BorderRadius.circular(15),
-                              border: Border.all(
-                                color: isDark
-                                    ? themeProvider.darkGreyBorder
-                                    : (canClaimMonetag
-                                          ? Colors.amber.shade400
-                                          : Colors.grey.shade400),
-                                width: 2,
+                            height: 60,
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                elevation: 4,
                               ),
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  "✨ View Sponsor & Earn DOGE ✨",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark ? Colors.white : Colors.black87,
-                                    fontSize: 16,
-                                  ),
+                              icon: const Icon(Icons.touch_app, size: 28),
+                              label: const Text(
+                                "EARN MORE WITH TIMEWALL CLICKS",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 16,
+                                  letterSpacing: 1.2,
                                 ),
-                                const SizedBox(height: 5),
-                                const Text(
-                                  "Stay on the page for 30 seconds to earn\n0.002 DOGE & 10 XP!",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                const SizedBox(height: 15),
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: 50,
-                                  child: ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: canClaimMonetag
-                                          ? Colors.amber
-                                          : Colors.grey,
-                                      foregroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                    icon: Icon(
-                                      canClaimMonetag
-                                          ? Icons.star
-                                          : Icons.lock_clock,
-                                    ),
-                                    label: Text(
-                                      canClaimMonetag
-                                          ? 'VIEW SPONSOR'
-                                          : 'COOLDOWN: $minutesLeftMonetag MIN',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w900,
-                                        fontSize: 15,
-                                        letterSpacing: 1.1,
-                                      ),
-                                    ),
-                                    onPressed: canClaimMonetag
-                                        ? () {
-                                            web.window.open('https://spendsdetachment.com/830v5p7e2g?key=eab1b89eade1ee06e1636b924ec6b681', '_blank');
-                                            showDialog(
-                                              barrierDismissible: false,
-                                              context: context,
-                                              builder: (context) =>
-                                                  const MonetagTimerDialog(),
-                                            );
-                                          }
-                                        : null,
-                                  ),
-                                ),
-                              ],
+                              ),
+                              onPressed: () {
+                                web.window.open(
+                                  'https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=${user?.uid}&tab=clicks',
+                                  '_blank',
+                                );
+                              },
                             ),
                           ),
-                          const SizedBox(height: 30),
+                          const SizedBox(height: 25),
                           adContent,
                         ],
                       );
