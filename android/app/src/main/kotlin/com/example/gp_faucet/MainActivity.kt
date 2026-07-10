@@ -1,4 +1,4 @@
-package com.example.gp_faucet
+package com.goldenpaw.app
 
 import io.flutter.embedding.android.FlutterActivity
 

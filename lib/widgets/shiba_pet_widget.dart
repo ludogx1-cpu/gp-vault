@@ -36,8 +36,6 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   int _nextStageXp = 100;
   
   int _lastFeedTime = 0;
-  int _lastPlayTime = 0;
-  int _lastSleepTime = 0;
   int _lastWalkTime = 0;
   List<String> _ownedAccessories = [];
   List<String> _equippedAccessories = [];
@@ -98,8 +96,6 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
             _xp = (data['pet']['xp'] as num?)?.toInt() ?? 0;
             _nextStageXp = (data['pet']['next_stage_xp'] as num?)?.toInt() ?? 100;
             _lastFeedTime = (data['pet']['last_feed_time'] as num?)?.toInt() ?? 0;
-            _lastPlayTime = (data['pet']['last_play_time'] as num?)?.toInt() ?? 0;
-            _lastSleepTime = (data['pet']['last_sleep_time'] as num?)?.toInt() ?? 0;
             _lastWalkTime = (data['pet']['last_walk_time'] as num?)?.toInt() ?? 0;
             _sleepingUntil = (data['pet']['sleeping_until'] as num?)?.toInt() ?? 0;
             _ownedAccessories = List<String>.from(data['pet']['owned_accessories'] ?? []);

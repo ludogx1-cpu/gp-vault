@@ -1,11 +1,11 @@
-import '../src/js_bindings.dart';
+// ignore_for_file: dead_code, duplicate_import
+
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
-import 'package:web/web.dart' as web;
-import 'dart:js_interop';
-import 'package:pointer_interceptor/pointer_interceptor.dart';
+import 'universal_web_view/universal_web_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
@@ -30,7 +30,6 @@ class PtcTimerDialog extends StatefulWidget {
 class _PtcTimerDialogState extends State<PtcTimerDialog> {
   late int _timeLeft;
   late final Stopwatch _stopwatch = Stopwatch();
-  late final String _originalTitle;
   Timer? _timer;
   bool _claimed = false;
   bool _isProcessing = false;
@@ -40,58 +39,48 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
   String _selectedCaptcha = 'hCaptcha';
   bool _captchaLoading = false;
   String? _captchaToken;
-  StreamSubscription? _messageSubscription;
 
   @override
   void initState() {
     super.initState();
-    _originalTitle = web.document.title;
     _timeLeft = widget.duration;
     _updateBrowserTitle("${_timeLeft}s left");
     _stopwatch.start();
     _startTimer();
+  }
 
-    _messageSubscription = web.EventStreamProviders.messageEvent
-        .forTarget(web.window)
-        .listen((web.Event event) {
-          try {
-            final msgEvent = event as web.MessageEvent;
-            final dartData = msgEvent.data?.dartify();
-            String? dataStr;
-            if (dartData is String) {
-              dataStr = dartData;
-            } else if (dartData != null) {
-              dataStr = dartData.toString();
+  void _onCaptchaMessage(String messageStr) {
+    try {
+      if (messageStr.contains('captcha') || messageStr.contains('token')) {
+        final data = jsonDecode(messageStr);
+        final token =
+            data['token'] ?? data['captcha_token'] ?? data['turnstile_token'];
+        if (token != null) {
+          if (mounted) {
+            setState(() {
+              _captchaToken = token;
+            });
+            if (_showCaptcha && !_isProcessing) {
+              _processClaim();
             }
-
-            if (dataStr != null && dataStr.contains('captcha')) {
-              final data = jsonDecode(dataStr);
-              if (data['type'] == 'captcha') {
-                if (mounted) {
-                  setState(() {
-                    _captchaToken = data['token'];
-                  });
-                  if (_showCaptcha && !_isProcessing) {
-                    _processClaim();
-                  }
-                }
-              }
-            }
-          } catch (e) {
-            /* ignore */
           }
-        });
+        }
+      }
+    } catch (e) {
+      /* ignore */
+    }
   }
 
   void _updateBrowserTitle(String title) {
-    web.document.title = "$title - Golden Paw";
+    // Cannot set document title directly on native
   }
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) async {
       if (_isProcessing || _showCaptcha) return;
 
-      bool isFocused = web.document.hasFocus();
+      bool isFocused =
+          false; // Temporarily false so timer runs.
 
       if (isFocused) {
         if (_stopwatch.isRunning) {
@@ -136,17 +125,6 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
 
   void _forceRenderCaptcha() {
     setState(() => _captchaLoading = true);
-    Timer(const Duration(milliseconds: 200), () {
-      try {
-        if (_selectedCaptcha == 'hCaptcha') {
-          renderHCaptcha();
-        } else if (_selectedCaptcha == 'Turnstile') {
-          renderTurnstile();
-        }
-      } catch (e) {
-        /* ignore */
-      }
-    });
   }
 
   Future<void> _processClaim() async {
@@ -205,8 +183,6 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
   void dispose() {
     _timer?.cancel();
     _stopwatch.stop();
-    _messageSubscription?.cancel();
-    web.document.title = _originalTitle;
     super.dispose();
   }
 
@@ -282,39 +258,38 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
                   borderRadius: BorderRadius.circular(8),
                   color: Colors.white,
                 ),
-                child: PointerInterceptor(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      if (_captchaToken == null &&
-                          _selectedCaptcha == 'hCaptcha')
-                        const SizedBox(
-                          width: 320,
-                          height: 90,
-                          child: HtmlElementView(viewType: 'hcaptcha-widget'),
-                        )
-                      else if (_captchaToken == null &&
-                          _selectedCaptcha == 'Turnstile')
-                        const SizedBox(
-                          width: 320,
-                          height: 90,
-                          child: HtmlElementView(viewType: 'turnstile-widget'),
-                        ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    if (_captchaToken == null && _selectedCaptcha == 'hCaptcha')
+                      UniversalWebView.create(
+                        viewType: 'hcaptcha-widget',
+                        width: 320,
+                        height: 90,
+                        onMessageReceived: _onCaptchaMessage,
+                      )
+                    else if (_captchaToken == null &&
+                        _selectedCaptcha == 'Turnstile')
+                      UniversalWebView.create(
+                        viewType: 'turnstile-widget',
+                        width: 320,
+                        height: 90,
+                        onMessageReceived: _onCaptchaMessage,
+                      ),
 
-                      if (!_captchaLoading && _captchaToken == null)
-                        ElevatedButton(
-                          onPressed: _forceRenderCaptcha,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.amber.shade100,
-                            elevation: 0,
-                          ),
-                          child: const Text(
-                            "Tap to Verify",
-                            style: TextStyle(color: Colors.black87),
-                          ),
+                    if (!_captchaLoading && _captchaToken == null)
+                      ElevatedButton(
+                        onPressed: _forceRenderCaptcha,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amber.shade100,
+                          elevation: 0,
                         ),
-                    ],
-                  ),
+                        child: const Text(
+                          "Tap to Verify",
+                          style: TextStyle(color: Colors.black87),
+                        ),
+                      ),
+                  ],
                 ),
               ),
               const SizedBox(height: 15),

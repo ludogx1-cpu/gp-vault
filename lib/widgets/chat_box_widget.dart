@@ -543,7 +543,7 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
                           Row(
                             children: [
                               Text(
-                                data['display_name'] ?? 'User',
+                                data['display_name'] ?? data['chat_username'] ?? 'User',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,

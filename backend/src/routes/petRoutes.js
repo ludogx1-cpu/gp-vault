@@ -1121,7 +1121,7 @@ router.post('/pet-fetch', verifyFirebaseToken, async (req, res) => {
       const decayed = calculateDecay(data);
       let newEnergy = Math.max(0, decayed.energy - 5); // Fetch costs 5 energy
       let newHunger = Math.max(0, decayed.hunger - 5); // Fetch costs 5 hunger
-      let newHappiness = Math.min(MAX_STAT, decayed.happiness + 10); // Fetch gives +10 happiness
+      let newHappiness = Math.min(MAX_STAT, decayed.happiness + 20); // Fetch gives +20 happiness
       
       currentClicks = (data.fetch_click_count || 0) + 1;
 

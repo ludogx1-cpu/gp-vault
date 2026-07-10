@@ -322,6 +322,153 @@ router.post('/withdraw', verifyFirebaseToken, async (req, res) => {
   }
 });
 
+router.post('/bank/withdraw', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required for bank withdrawal' });
+    }
+
+    if (!req.user.email_verified) {
+      return res.status(403).json({ success: false, error: 'Email verification required to withdraw.' });
+    }
+
+    const { user_address, amount } = req.body;
+    if (!user_address) {
+      return res.status(400).json({ success: false, error: 'Missing destination address' });
+    }
+
+    const sendAmount = Number(amount);
+    
+    const MIN_WITHDRAWAL = 1; 
+    if (!Number.isFinite(sendAmount) || sendAmount < MIN_WITHDRAWAL) {
+      return res.status(400).json({ success: false, error: `Minimum bank withdrawal is ${MIN_WITHDRAWAL} DOGE` });
+    }
+
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    const cooldownMs = 60 * 1000; 
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      if (!snapshot.exists) {
+        throw new Error('User profile not found');
+      }
+
+      const data = snapshot.data();
+      const currentBankBalance = Number(data.bank_balance || 0);
+      const lastWithdrawal = data.last_withdrawal;
+
+      if (lastWithdrawal && Date.now() - lastWithdrawal.toDate().getTime() < cooldownMs) {
+        throw new Error('Please wait a minute between withdrawals.');
+      }
+
+      if (currentBankBalance < sendAmount) {
+        throw new Error('Insufficient Bank balance for this withdrawal.');
+      }
+
+      transaction.update(userRef, {
+        bank_balance: currentBankBalance - sendAmount,
+        last_withdrawal: admin.firestore.Timestamp.now()
+      });
+    });
+
+    let faucetPayResponse;
+    try {
+      const formattedAmount = formatAmount(sendAmount);
+      faucetPayResponse = await faucetPaySend(user_address, formattedAmount);
+    } catch (faucetError) {
+      await admin.firestore().runTransaction(async (refundTx) => {
+        const snapshot = await refundTx.get(userRef);
+        if (snapshot.exists) {
+          const data = snapshot.data();
+          refundTx.update(userRef, {
+            bank_balance: Number(data.bank_balance || 0) + sendAmount,
+          });
+        }
+      });
+      console.error('FaucetPay send failed, user refunded:', faucetError.message || faucetError);
+      throw new Error('Payment processor is temporarily down. Your funds have been securely refunded. Please try again later.');
+    }
+
+    const resultPayload = {
+      success: true,
+      address: user_address,
+      amount: formatAmount(sendAmount),
+      faucetPayResponse,
+      authUser: req.user,
+    };
+
+    console.log('Bank withdraw request:', JSON.stringify(resultPayload));
+    res.json(resultPayload);
+  } catch (error) {
+    console.error('bank withdraw error:', error.response?.data || error.message || error);
+    res.status(500).json({
+      success: false,
+      error: error.message || error.response?.data || 'Failed to process bank withdrawal',
+    });
+  }
+});
+
+router.post('/bank/transfer', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+
+    const { source, amount } = req.body;
+    
+    if (!source || !['vault', 'offerwall'].includes(source)) {
+      return res.status(400).json({ success: false, error: 'Invalid transfer source' });
+    }
+
+    const transferAmount = Number(amount);
+    if (!Number.isFinite(transferAmount) || transferAmount <= 0) {
+      return res.status(400).json({ success: false, error: 'Invalid transfer amount' });
+    }
+
+    const userRef = admin.firestore().collection('users').doc(req.user.uid);
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      if (!snapshot.exists) {
+        throw new Error('User profile not found');
+      }
+
+      const data = snapshot.data();
+      const currentBankBalance = Number(data.bank_balance || 0);
+
+      if (source === 'vault') {
+        const vaultBalance = Number(data.doge_balance || 0);
+        if (vaultBalance < transferAmount) {
+          throw new Error('Insufficient Vault balance for this transfer.');
+        }
+        transaction.update(userRef, {
+          doge_balance: vaultBalance - transferAmount,
+          bank_balance: currentBankBalance + transferAmount
+        });
+      } else if (source === 'offerwall') {
+        const offerwallBalance = Number(data.offerwall_balance || 0);
+        if (offerwallBalance < transferAmount) {
+          throw new Error('Insufficient Offerwall balance for this transfer.');
+        }
+        transaction.update(userRef, {
+          offerwall_balance: offerwallBalance - transferAmount,
+          bank_balance: currentBankBalance + transferAmount
+        });
+      }
+    });
+
+    console.log(`Internal Transfer: User ${req.user.uid} transferred ${transferAmount} from ${source} to bank.`);
+    res.json({ success: true, message: 'Transfer successful' });
+  } catch (error) {
+    console.error('bank transfer error:', error.message || error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to process internal transfer',
+    });
+  }
+});
+
+
 router.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
   try {
     if (!req.user) {

@@ -22,6 +22,7 @@ class WalletDropdownButton extends StatelessWidget {
         final data = userProvider.userData;
         final double mainBal = (data?['doge_balance'] ?? 0.0).toDouble();
         final double offerwallBal = (data?['offerwall_balance'] ?? 0.0).toDouble();
+        final double bankBal = (data?['bank_balance'] ?? 0.0).toDouble();
 
         return Padding(
           padding: const EdgeInsets.only(right: 12.0),
@@ -119,6 +120,53 @@ class WalletDropdownButton extends StatelessWidget {
                         const SizedBox(width: 12),
                         Text(
                           "${offerwallBal.toStringAsFixed(6)} DOGE",
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              PopupMenuItem<String>(
+                enabled: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Doge Bank Wallet",
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Text(
+                      "Storage only — no staking",
+                      style: TextStyle(fontSize: 10, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.account_balance,
+                            color: Colors.blue.shade800,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          "${bankBal.toStringAsFixed(6)} DOGE",
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,

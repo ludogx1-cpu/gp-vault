@@ -6,10 +6,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'dart:math';
-import 'package:web/web.dart' as web;
-import 'dart:js_interop';
-import 'package:pointer_interceptor/pointer_interceptor.dart';
+
 import 'package:url_launcher/url_launcher.dart';
+import '../widgets/universal_web_view/universal_web_view.dart';
 import '../widgets/newsletter_subscribe_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -66,63 +65,25 @@ class _FaucetPageState extends State<FaucetPage> {
     _loadSavedAddress();
     _fetchDogePrice();
     _syncCheckLock();
+  }
 
-    // Inject Adsterra Popunder Script directly into the main DOM
-    final script = web.HTMLScriptElement();
-    script.type = 'text/javascript';
-    script.src = 'https://landslidegraphsystems.com/95/df/01/95df01543f4314cfaeaa9181f0b6ba8f.js';
-    script.id = 'faucet-popunder-script';
-    web.document.head!.appendChild(script);
-
-    _captchaPoller = Timer.periodic(const Duration(milliseconds: 500), (timer) {
-      try {
-        final div =
-            web.document.getElementById('gp-captcha-token') as web.HTMLElement?;
-        if (div != null) {
-          final token = div.innerText;
-          if (token.isNotEmpty && _captchaToken != token) {
-            if (mounted) {
-              setState(() {
-                _captchaToken = token;
-                _status = "Dog Verified! 🐾";
-              });
-            }
-            div.innerText = "";
+  void _onCaptchaMessage(String messageStr) {
+    try {
+      if (messageStr.contains('captcha') || messageStr.contains('token')) {
+        final data = jsonDecode(messageStr);
+        final token = data['token'] ?? data['captcha_token'] ?? data['turnstile_token'];
+        if (token != null) {
+          if (mounted) {
+            setState(() {
+              _captchaToken = token;
+              _status = "Dog Verified! 🐾";
+            });
           }
         }
-      } catch (e) {
-        // ignore: empty_catches
       }
-    });
-
-    web.EventStreamProviders.messageEvent.forTarget(web.window).listen((
-      web.Event event,
-    ) {
-      try {
-        final msgEvent = event as web.MessageEvent;
-        final dartData = msgEvent.data?.dartify();
-        String? dataStr;
-        if (dartData is String) {
-          dataStr = dartData;
-        } else if (dartData != null) {
-          dataStr = dartData.toString();
-        }
-
-        if (dataStr != null && dataStr.contains('captcha')) {
-          final data = jsonDecode(dataStr);
-          if (data['type'] == 'captcha') {
-            if (mounted) {
-              setState(() {
-                _captchaToken = data['token'];
-                _status = "Dog Verified! 🐾";
-              });
-            }
-          }
-        }
-      } catch (e) {
-        // ignore: empty_catches
-      }
-    });
+    } catch (e) {
+      /* ignore */
+    }
   }
 
   @override
@@ -130,13 +91,6 @@ class _FaucetPageState extends State<FaucetPage> {
     _countdownTimer?.cancel();
     _captchaPoller?.cancel();
     _addressController.dispose();
-
-    // Clean up popunder script
-    final script = web.document.getElementById('faucet-popunder-script');
-    if (script != null) {
-      script.remove();
-    }
-    
     super.dispose();
   }
 
@@ -184,9 +138,10 @@ class _FaucetPageState extends State<FaucetPage> {
     await prefs.setString('doge_address', address.trim());
   }
 
-  void _syncCheckLock() {
+  Future<void> _syncCheckLock() async {
     try {
-      String? lock = web.window.localStorage.getItem('gp_lock_time');
+      final prefs = await SharedPreferences.getInstance();
+      String? lock = prefs.getString('gp_lock_time');
       if (lock != null) {
         int ms = int.tryParse(lock) ?? 0;
         if (ms > 0) {
@@ -202,7 +157,7 @@ class _FaucetPageState extends State<FaucetPage> {
             _resumeTimer();
             return;
           } else {
-            web.window.localStorage.removeItem('gp_lock_time');
+            await prefs.remove('gp_lock_time');
           }
         }
       }
@@ -214,9 +169,10 @@ class _FaucetPageState extends State<FaucetPage> {
     }
   }
 
-  void _syncSaveLock() {
+  Future<void> _syncSaveLock() async {
     try {
-      web.window.localStorage.setItem(
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
         'gp_lock_time',
         DateTime.now().millisecondsSinceEpoch.toString(),
       );
@@ -225,9 +181,10 @@ class _FaucetPageState extends State<FaucetPage> {
     }
   }
 
-  void _syncRemoveLock() {
+  Future<void> _syncRemoveLock() async {
     try {
-      web.window.localStorage.removeItem('gp_lock_time');
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('gp_lock_time');
     } catch (e) {
       // ignore: empty_catches
     }
@@ -239,13 +196,14 @@ class _FaucetPageState extends State<FaucetPage> {
     }
   }
 
-  void _resumeTimer() {
+  Future<void> _resumeTimer() async {
     if (mounted) {
       setState(() => _isCheckingCooldown = false);
     }
     _countdownTimer?.cancel();
 
-    String? lock = web.window.localStorage.getItem('gp_lock_time');
+    final prefs = await SharedPreferences.getInstance();
+    String? lock = prefs.getString('gp_lock_time');
     DateTime unlockTime;
     if (lock != null) {
       unlockTime = DateTime.fromMillisecondsSinceEpoch(
@@ -443,7 +401,7 @@ class _FaucetPageState extends State<FaucetPage> {
 
 
   void _openFaucetPayLink() {
-    web.window.open('https://faucetpay.io/?r=5173106', '_blank');
+    launchUrl(Uri.parse('https://faucetpay.io/?r=5173106'));
   }
 
   String _getClaimButtonText() {
@@ -489,10 +447,10 @@ class _FaucetPageState extends State<FaucetPage> {
               children: [
 
                 if (MediaQuery.of(context).size.width >= 750) ...[
-                  const SizedBox(
+                  SizedBox(
                     width: 728,
                     height: 90,
-                    child: HtmlElementView(viewType: 'adsterra-728x90'),
+                    child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
                   ),
                   const SizedBox(height: 15),
                 ],
@@ -1001,35 +959,33 @@ class _FaucetPageState extends State<FaucetPage> {
 
                 const SizedBox(height: 10),
                 if (!_saveToVault)
-                  PointerInterceptor(
-                    child: TextField(
-                      controller: _addressController,
-                      enabled: _secondsRemaining == 0,
-                      onChanged: (value) => _saveAddress(value),
-                      style: TextStyle(
-                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
+                  TextField(
+                    controller: _addressController,
+                    enabled: _secondsRemaining == 0,
+                    onChanged: (value) => _saveAddress(value),
+                    style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
+                    ),
+                    decoration: InputDecoration(
+                      labelText: 'FaucetPay Dogecoin Address',
+                      prefixIcon: const Icon(
+                        Icons.account_balance_wallet,
+                        color: Colors.amber,
                       ),
-                      decoration: InputDecoration(
-                        labelText: 'FaucetPay Dogecoin Address',
-                        prefixIcon: const Icon(
-                          Icons.account_balance_wallet,
-                          color: Colors.amber,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).brightness == Brightness.dark ? Colors.amber : Colors.grey.shade400,
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).brightness == Brightness.dark ? Colors.amber : Colors.grey.shade400,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).brightness == Brightness.dark ? Colors.amber : Colors.blue,
-                            width: 2.0,
-                          ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).brightness == Brightness.dark ? Colors.amber : Colors.blue,
+                          width: 2.0,
                         ),
                       ),
                     ),
@@ -1120,7 +1076,6 @@ class _FaucetPageState extends State<FaucetPage> {
                     borderRadius: BorderRadius.circular(12),
                     color: Colors.white,
                   ),
-                  child: PointerInterceptor(
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
@@ -1136,19 +1091,19 @@ class _FaucetPageState extends State<FaucetPage> {
                           )
                         else if (_selectedCaptcha == 'hCaptcha' &&
                             _secondsRemaining == 0)
-                          const SizedBox(
+                          UniversalWebView.create(
+                            viewType: 'hcaptcha-widget',
                             width: 320,
                             height: 90,
-                            child: HtmlElementView(viewType: 'hcaptcha-widget'),
+                            onMessageReceived: _onCaptchaMessage,
                           )
                         else if (_selectedCaptcha == 'Turnstile' &&
                             _secondsRemaining == 0)
-                          const SizedBox(
+                          UniversalWebView.create(
+                            viewType: 'turnstile-widget',
                             width: 320,
                             height: 90,
-                            child: HtmlElementView(
-                              viewType: 'turnstile-widget',
-                            ),
+                            onMessageReceived: _onCaptchaMessage,
                           ),
 
                         if (!_isCheckingCooldown &&
@@ -1178,7 +1133,6 @@ class _FaucetPageState extends State<FaucetPage> {
                       ],
                     ),
                   ),
-                ),
                 const SizedBox(height: 25),
                 Column(
                   children: [
@@ -1222,10 +1176,10 @@ class _FaucetPageState extends State<FaucetPage> {
                       ),
                     ),
                     const SizedBox(height: 30),
-                    const SizedBox(
+                    SizedBox(
                       width: 300,
                       height: 250,
-                      child: HtmlElementView(viewType: 'adsterra-300x250'),
+                      child: UniversalWebView.create(viewType: 'adsterra-300x250', width: 300, height: 250),
                     ),
                   ],
                 ),
@@ -1351,10 +1305,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                           ),
                                           onPressed: canClaimBonus
                                               ? () {
-                                                  web.window.open(
-                                                    '/sponsors.html',
-                                                    '_blank',
-                                                  );
+                                                  launchUrl(Uri.parse('https://golden-paw.web.app/sponsors.html'));
                                                   showDialog(
                                                     barrierDismissible: false,
                                                     context: context,
@@ -1390,14 +1341,14 @@ class _FaucetPageState extends State<FaucetPage> {
           top: 100,
           width: 160,
           height: 600,
-          child: const HtmlElementView(viewType: 'adsterra-160x600'),
+          child: UniversalWebView.create(viewType: 'adsterra-160x600', width: 160, height: 600),
         ),
         Positioned(
           right: ((MediaQuery.of(context).size.width - 600) / 2 - 160) / 2,
           top: 100,
           width: 160,
           height: 300,
-          child: const HtmlElementView(viewType: 'adsterra-160x300'),
+          child: UniversalWebView.create(viewType: 'adsterra-160x300', width: 160, height: 300),
         ),
       ],
       const PetOverlayWidget(),

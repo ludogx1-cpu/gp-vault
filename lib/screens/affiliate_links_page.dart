@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web/web.dart' as web;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../widgets/widgets.dart';
 
@@ -427,7 +427,7 @@ class _AffiliateLinksPageState extends State<AffiliateLinksPage>
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              onPressed: () => web.window.open(url, '_blank'),
+              onPressed: () => launchUrl(Uri.parse(url)),
               child: const Text(
                 "JOIN",
                 style: TextStyle(

@@ -1,5 +1,5 @@
 import '../screens/affiliate_links_page.dart';
-import 'package:web/web.dart' as web;
+import 'package:url_launcher/url_launcher.dart';
 import '../screens/ad_hub_page.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -122,7 +122,7 @@ class SmartFallbackAd extends StatelessWidget {
                 : _getAdminIcon(data['iconName'] ?? '');
 
             return InkWell(
-              onTap: () => web.window.open(data['url'] ?? '', '_blank'),
+              onTap: () => launchUrl(Uri.parse(data['url'] ?? '')),
               child: Container(
                 width: width,
                 height: height,
