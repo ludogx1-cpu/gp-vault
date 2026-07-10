@@ -4,7 +4,7 @@ import '../screens/cookie_policy_page.dart';
 import '../screens/privacy_policy_page.dart';
 import '../screens/terms_of_service_page.dart';
 import '../screens/blog_page.dart';
-import 'package:web/web.dart' as web;
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../src/theme_provider.dart';
@@ -237,28 +237,28 @@ class AppFooter extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.discord, color: Colors.indigo),
                 onPressed: () {
-                  web.window.open('https://discord.com', '_blank');
+                  launchUrl(Uri.parse('https://discord.com'));
                 },
                 tooltip: 'Join our Discord',
               ),
               IconButton(
                 icon: const Icon(Icons.close, color: Colors.white70),
                 onPressed: () {
-                  web.window.open('https://x.com/ludogx101', '_blank');
+                  launchUrl(Uri.parse('https://x.com/ludogx101'));
                 },
                 tooltip: 'Follow us on X',
               ),
               IconButton(
                 icon: const Icon(Icons.facebook, color: Colors.blue),
                 onPressed: () {
-                  web.window.open('https://www.facebook.com/GoldenPawDogeHub', '_blank');
+                  launchUrl(Uri.parse('https://www.facebook.com/GoldenPawDogeHub'));
                 },
                 tooltip: 'Follow us on Facebook',
               ),
               IconButton(
                 icon: const Icon(Icons.tiktok, color: Colors.white),
                 onPressed: () {
-                  web.window.open('https://www.tiktok.com/@ludogx1', '_blank');
+                  launchUrl(Uri.parse('https://www.tiktok.com/@ludogx1'));
                 },
                 tooltip: 'Follow us on TikTok',
               ),

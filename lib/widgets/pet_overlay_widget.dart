@@ -1136,7 +1136,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
                   border: Border.all(color: Colors.black, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.1),
                       blurRadius: 4,
                       offset: const Offset(2, 2),
                     ),

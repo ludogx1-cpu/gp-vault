@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:web/web.dart' as web;
+import 'package:url_launcher/url_launcher.dart';
 
 
 
@@ -169,7 +169,7 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Colors.orange,
+                            color: Colors.blue,
                           ),
                         ),
                       ],
@@ -327,22 +327,22 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                       ActionChip(
                         backgroundColor: Colors.green.shade100,
                         label: const Text("📝 Tasks", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
-                        onPressed: () => web.window.open('https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=${user.uid}&tab=tasks', '_blank'),
+                        onPressed: () => launchUrl(Uri.parse('https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=${user.uid}&tab=tasks')),
                       ),
                       ActionChip(
                         backgroundColor: Colors.blue.shade100,
                         label: const Text("🖱️ Clicks", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
-                        onPressed: () => web.window.open('https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=${user.uid}&tab=clicks', '_blank'),
+                        onPressed: () => launchUrl(Uri.parse('https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=${user.uid}&tab=clicks')),
                       ),
                       ActionChip(
                         backgroundColor: Colors.purple.shade100,
                         label: const Text("🎮 Games", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.purple)),
-                        onPressed: () => web.window.open('https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=${user.uid}&tab=games', '_blank'),
+                        onPressed: () => launchUrl(Uri.parse('https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=${user.uid}&tab=games')),
                       ),
                       ActionChip(
                         backgroundColor: Colors.orange.shade100,
                         label: const Text("💎 BuyPoints", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepOrange)),
-                        onPressed: () => web.window.open('https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=${user.uid}&tab=buypoints', '_blank'),
+                        onPressed: () => launchUrl(Uri.parse('https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=${user.uid}&tab=buypoints')),
                       ),
                     ],
                   ),

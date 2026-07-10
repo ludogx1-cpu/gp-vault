@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import 'dart:async';
-import 'package:web/web.dart' as web;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import '../src/theme_provider.dart';
@@ -41,14 +41,6 @@ class _AdHubPageState extends State<AdHubPage> {
       TextEditingController();
   final TextEditingController _swapAmountController = TextEditingController();
   bool _isSwapping = false;
-
-  web.HTMLInputElement _createHiddenInput(String name, String value) {
-    final input = web.HTMLInputElement();
-    input.setAttribute('type', 'hidden');
-    input.setAttribute('name', name);
-    input.setAttribute('value', value);
-    return input;
-  }
 
   Future<void> _swapDogeToUsdt() async {
     double? amount = double.tryParse(_swapAmountController.text);
@@ -145,33 +137,16 @@ class _AdHubPageState extends State<AdHubPage> {
                 String amount = _depositAmountController.text.trim();
 
                 if (user != null && amount.isNotEmpty) {
-                  final htmlForm = web.HTMLFormElement()
-                    ..method = 'POST'
-                    ..action = 'https://faucetpay.io/merchant/webscr'
-                    ..target = '_blank';
-
-                  htmlForm.append(
-                    _createHiddenInput('merchant_username', 'ludogx1'),
+                  final uri = Uri.parse(
+                    'https://faucetpay.io/merchant/webscr'
+                    '?merchant_username=ludogx1'
+                    '&item_description=Golden+Paw+Ad+Balance'
+                    '&amount1=$amount'
+                    '&currency1=USDT'
+                    '&custom=${user.uid}'
+                    '&callback_url=${Uri.encodeComponent('${ApiConstants.baseUrl}/ipn')}'
                   );
-                  htmlForm.append(
-                    _createHiddenInput(
-                      'item_description',
-                      'Golden Paw Ad Balance',
-                    ),
-                  );
-                  htmlForm.append(_createHiddenInput('amount1', amount));
-                  htmlForm.append(_createHiddenInput('currency1', 'USDT'));
-                  htmlForm.append(_createHiddenInput('custom', user.uid));
-                  htmlForm.append(
-                    _createHiddenInput(
-                      'callback_url',
-                      '${ApiConstants.baseUrl}/ipn',
-                    ),
-                  );
-
-                  web.document.body!.append(htmlForm);
-                  htmlForm.submit();
-                  htmlForm.remove();
+                  launchUrl(uri, mode: LaunchMode.externalApplication);
 
                   if (dContext.mounted) {
                     Navigator.pop(dContext);

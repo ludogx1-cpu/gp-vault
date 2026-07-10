@@ -1,4 +1,4 @@
-import 'package:web/web.dart' as web;
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:async';
@@ -49,10 +49,7 @@ class _LiveReferralTrackerState extends State<LiveReferralTracker> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => web.window.open(
-        'https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00SAJGMUIA',
-        '_blank',
-      ),
+      onTap: () => launchUrl(Uri.parse('https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00SAJGMUIA')),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 8),

@@ -1,4 +1,4 @@
-import 'package:web/web.dart' as web;
+import 'package:url_launcher/url_launcher.dart';
 import 'smart_fallback_ad.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -41,7 +41,7 @@ class _SquareAdPlaceholderState extends State<SquareAdPlaceholder> {
               content = InkWell(
                 onTap: () {
                   if ((adData['target_url'] ?? '').isNotEmpty) {
-                    web.window.open(adData['target_url'], '_blank');
+                    launchUrl(Uri.parse(adData['target_url']));
                   }
                 },
                 child: Image.network(

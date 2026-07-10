@@ -1,5 +1,5 @@
 import 'smart_fallback_ad.dart';
-import 'package:web/web.dart' as web;
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -45,7 +45,7 @@ class _BannerAdPlaceholderState extends State<BannerAdPlaceholder> {
               content = InkWell(
                 onTap: () {
                   if ((adData['target_url'] ?? '').isNotEmpty) {
-                    web.window.open(adData['target_url'], '_blank');
+                    launchUrl(Uri.parse(adData['target_url']));
                   }
                 },
                 child: Image.network(

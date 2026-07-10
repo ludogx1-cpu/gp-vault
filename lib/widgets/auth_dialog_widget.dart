@@ -1,7 +1,5 @@
 import '../src/js_bindings.dart';
-import 'dart:js_interop';
-import 'package:web/web.dart' as web;
-import 'package:pointer_interceptor/pointer_interceptor.dart';
+import 'universal_web_view/universal_web_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -27,61 +25,31 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
   String _selectedCaptcha = 'hCaptcha';
   bool _captchaLoading = false;
   String? _captchaToken;
-  Timer? _captchaPoller;
-  StreamSubscription? _messageSubscription;
+
+
 
   @override
   void initState() {
     super.initState();
     _loadPrefs();
+  }
 
-    _captchaPoller = Timer.periodic(const Duration(milliseconds: 500), (timer) {
-      try {
-        final div =
-            web.document.getElementById('gp-captcha-token') as web.HTMLElement?;
-        if (div != null) {
-          final token = div.innerText;
-          if (token.isNotEmpty && _captchaToken != token) {
-            if (mounted) {
-              setState(() {
-                _captchaToken = token;
-              });
-            }
-            div.innerText = "";
+  void _onCaptchaMessage(String messageStr) {
+    try {
+      if (messageStr.contains('captcha') || messageStr.contains('token')) {
+        final data = jsonDecode(messageStr);
+        final token = data['token'] ?? data['captcha_token'] ?? data['turnstile_token'];
+        if (token != null) {
+          if (mounted) {
+            setState(() {
+              _captchaToken = token;
+            });
           }
         }
-      } catch (e) {
-        // ignore: empty_catches
       }
-    });
-
-    _messageSubscription = web.EventStreamProviders.messageEvent
-        .forTarget(web.window)
-        .listen((web.Event event) {
-          try {
-            final msgEvent = event as web.MessageEvent;
-            final dartData = msgEvent.data?.dartify();
-            String? dataStr;
-            if (dartData is String) {
-              dataStr = dartData;
-            } else if (dartData != null) {
-              dataStr = dartData.toString();
-            }
-
-            if (dataStr != null && dataStr.contains('captcha')) {
-              final data = jsonDecode(dataStr);
-              if (data['type'] == 'captcha') {
-                if (mounted) {
-                  setState(() {
-                    _captchaToken = data['token'];
-                  });
-                }
-              }
-            }
-          } catch (e) {
-            // ignore: empty_catches
-          }
-        });
+    } catch (e) {
+      /* ignore */
+    }
   }
 
   Future<void> _loadPrefs() async {
@@ -99,8 +67,6 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
   void dispose() {
     emailCtrl.dispose();
     passCtrl.dispose();
-    _captchaPoller?.cancel();
-    _messageSubscription?.cancel();
     super.dispose();
   }
 
@@ -309,64 +275,59 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                       borderRadius: BorderRadius.circular(8),
                       color: Colors.white,
                     ),
-                    child: PointerInterceptor(
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // 🔑 FIXED: Removed illegal 'const' keyword that breaks HtmlElementView builds
-                          if (_captchaToken == null &&
-                              _selectedCaptcha == 'hCaptcha')
-                            SizedBox(
-                              width: 320,
-                              height: 90,
-                              child: HtmlElementView(
-                                viewType: 'hcaptcha-widget',
-                              ),
-                            )
-                          else if (_captchaToken == null &&
-                              _selectedCaptcha == 'Turnstile')
-                            SizedBox(
-                              width: 320,
-                              height: 90,
-                              child: HtmlElementView(
-                                viewType: 'turnstile-widget',
-                              ),
-                            ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        if (_captchaToken == null &&
+                            _selectedCaptcha == 'hCaptcha')
+                          UniversalWebView.create(
+                            viewType: 'hcaptcha-widget',
+                            width: 320,
+                            height: 90,
+                            onMessageReceived: _onCaptchaMessage,
+                          )
+                        else if (_captchaToken == null &&
+                            _selectedCaptcha == 'Turnstile')
+                          UniversalWebView.create(
+                            viewType: 'turnstile-widget',
+                            width: 320,
+                            height: 90,
+                            onMessageReceived: _onCaptchaMessage,
+                          ),
 
-                          if (!_captchaLoading && _captchaToken == null)
-                            ElevatedButton(
-                              onPressed: _forceRenderCaptcha,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.amber.shade100,
-                                elevation: 0,
-                              ),
-                              child: const Text(
-                                "Tap to Verify",
-                                style: TextStyle(color: Colors.black87),
-                              ),
+                        if (!_captchaLoading && _captchaToken == null)
+                          ElevatedButton(
+                            onPressed: _forceRenderCaptcha,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.amber.shade100,
+                              elevation: 0,
                             ),
-                          if (_captchaToken != null)
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.check_circle,
+                            child: const Text(
+                              "Tap to Verify",
+                              style: TextStyle(color: Colors.black87),
+                            ),
+                          ),
+                        if (_captchaToken != null)
+                          const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                                size: 30,
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                "Verified Human!",
+                                style: TextStyle(
                                   color: Colors.green,
-                                  size: 30,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
                                 ),
-                                SizedBox(width: 10),
-                                Text(
-                                  "Verified Human!",
-                                  style: TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                        ],
-                      ),
+                              ),
+                            ],
+                          ),
+                      ],
                     ),
                   ),
                 ],
@@ -440,6 +401,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                   'email': userCred.user!.email,
                                   'doge_balance': 0.0,
                                   'staked_balance': 0.0,
+                                  'bank_balance': 0.0,
                                   'ads_balance': 0.0,
                                   'offerwall_balance':
                                       0.0, // 🔑 FIXED: Added missing init to prevent null errors in Wallet
@@ -558,6 +520,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                   'email': userCred.user!.email,
                                   'doge_balance': 0.0,
                                   'staked_balance': 0.0,
+                                  'bank_balance': 0.0,
                                   'ads_balance': 0.0,
                                   'offerwall_balance': 0.0,
                                   'xp': 0,

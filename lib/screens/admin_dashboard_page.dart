@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:web/web.dart' as web;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
@@ -278,7 +278,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
               "Preview Sponsors",
               style: TextStyle(color: Colors.white),
             ),
-            onPressed: () => web.window.open('/sponsors.html', '_blank'),
+            onPressed: () => launchUrl(Uri.parse('https://golden-paw.web.app/sponsors.html')),
           ),
         ],
         bottom: TabBar(

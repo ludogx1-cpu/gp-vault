@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'dart:ui_web' as ui_web;
-import 'package:web/web.dart' as web;
+import 'universal_web_view/universal_web_view.dart';
 import 'smart_fallback_ad.dart';
 
 class AdsterraLandingAd extends StatefulWidget {
@@ -19,16 +18,6 @@ class _AdsterraLandingAdState extends State<AdsterraLandingAd> {
     super.initState();
     // Unique ID for each ad unit on the page
     _viewId = 'adsterra-landing-${Random().nextInt(100000)}';
-
-    ui_web.platformViewRegistry.registerViewFactory(_viewId, (int viewId) {
-      final iframe = web.HTMLIFrameElement()
-        ..style.width = '100%'
-        ..style.height = '100%'
-        ..style.border = 'none'
-        ..src = '/adsterra_468x60.html';
-
-      return iframe;
-    });
   }
 
   @override
@@ -47,7 +36,7 @@ class _AdsterraLandingAdState extends State<AdsterraLandingAd> {
             child: Stack(
               children: [
                 const SmartFallbackAd(width: 468, height: 60),
-                HtmlElementView(viewType: _viewId),
+                UniversalWebView.create(viewType: _viewId),
               ],
             ),
           ),

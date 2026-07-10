@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:web/web.dart' as web;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../src/theme_provider.dart';
@@ -54,7 +54,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
     String targetUrl,
     int duration,
   ) {
-    web.window.open(targetUrl, '_blank');
+    launchUrl(Uri.parse(targetUrl));
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -312,10 +312,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                                     ),
                                     onPressed: canClaimBonus
                                         ? () {
-                                            web.window.open(
-                                              '/sponsors.html',
-                                              '_blank',
-                                            );
+                                              launchUrl(Uri.parse('https://golden-paw.web.app/sponsors.html'));
                                             showDialog(
                                               barrierDismissible: false,
                                               context: context,
@@ -353,10 +350,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                                 ),
                               ),
                               onPressed: () {
-                                web.window.open(
-                                  'https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=${user?.uid}&tab=clicks',
-                                  '_blank',
-                                );
+                                  launchUrl(Uri.parse('https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=${user.uid}&tab=clicks'));
                               },
                             ),
                           ),
