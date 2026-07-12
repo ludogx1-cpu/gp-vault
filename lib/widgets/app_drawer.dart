@@ -7,6 +7,7 @@ import '../screens/ad_hub_page.dart';
 import '../screens/referral_page.dart';
 import '../screens/ptc_earn_page.dart';
 import '../screens/dogeogotcha_instructions_page.dart';
+import '../screens/leaderboard_page.dart';
 import '../screens/suggestion_box_page.dart';
 import '../screens/blog_page.dart';
 import 'platform_indicator_level_text.dart';
@@ -222,6 +223,30 @@ class AppDrawer extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => const DogeogotchaInstructionsPage(),
+                    ),
+                  );
+                },
+              ),
+              Divider(color: dividerColor),
+              ListTile(
+                leading: const Icon(Icons.leaderboard, color: Colors.blue),
+                title: Text(
+                  'Weekly Leaderboard',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: titleColor,
+                  ),
+                ),
+                subtitle: Text(
+                  'Top 5 pets win DOGE',
+                  style: TextStyle(fontSize: 12, color: subColor),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LeaderboardPage(),
                     ),
                   );
                 },

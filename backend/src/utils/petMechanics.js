@@ -40,12 +40,19 @@ function calculateDecay(userData) {
   let attention = Number(userData.pet_attention ?? 50);
   let energy = Number(userData.pet_energy ?? 50);
 
+  const timeHunger = hunger <= 40 ? 0 : (hunger - 40) / hungerDecayRate;
+  const timeHappiness = happiness <= 40 ? 0 : (happiness - 40) / happinessDecayRate;
+  const timeAttention = attention <= 40 ? 0 : (attention - 40) / attentionDecayRate;
+  const timeEnergy = energy <= 40 ? 0 : (energy - 40) / energyDecayRate;
+  const maxHoursAbove40 = Math.min(timeHunger, timeHappiness, timeAttention, timeEnergy);
+  const hoursAbove40 = Math.min(hoursPassed, maxHoursAbove40);
+
   hunger = Math.max(0, hunger - hungerDecay);
   happiness = Math.max(0, happiness - happinessDecay);
   attention = Math.max(0, attention - attentionDecay);
   energy = Math.max(0, energy - energyDecay);
 
-  return { hunger, happiness, attention, energy, hoursPassed };
+  return { hunger, happiness, attention, energy, hoursPassed, hoursAbove40 };
 }
 
 function getGrowthStage(birthDate) {

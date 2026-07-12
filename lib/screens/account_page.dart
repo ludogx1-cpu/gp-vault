@@ -514,18 +514,11 @@ class _AccountPageState extends State<AccountPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircleAvatar(
-                    radius: 70,
-                    backgroundColor: isDark
-                        ? Colors.amber.shade700.withValues(alpha: 0.22)
-                        : Colors.amber.shade100,
-                    child: Icon(
-                      Icons.pets,
-                      size: 70,
-                      color: isDark
-                          ? Colors.amber.shade300
-                          : Colors.amber.shade700,
-                    ),
+                  Image.asset(
+                    'assets/Goldenpawicon.png',
+                    width: 130,
+                    height: 130,
+                    fit: BoxFit.contain,
                   ),
                   const SizedBox(height: 20),
 
@@ -954,9 +947,7 @@ class _AccountPageState extends State<AccountPage> {
                                                 : Text(
                                                     "WITHDRAW NOW",
                                                     style: TextStyle(
-                                                      color: isDark
-                                                          ? Colors.white
-                                                          : Colors.black87,
+                                                      color: Colors.white,
                                                       fontWeight:
                                                           FontWeight.bold,
                                                     ),
@@ -1162,6 +1153,10 @@ class _AccountPageState extends State<AccountPage> {
                                                       )
                                                     : const Text(
                                                         "WITHDRAW",
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
                                                       ),
                                               ),
                                             ),
@@ -1249,6 +1244,15 @@ class _AccountPageState extends State<AccountPage> {
                                               ),
                                             ),
                                           ],
+                                        ),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          "Note: This transfers your available earnings FROM your Vault or Offerwall INTO your Bank Wallet.",
+                                          style: TextStyle(
+                                            color: Colors.grey.shade400,
+                                            fontSize: 12,
+                                            fontStyle: FontStyle.italic,
+                                          ),
                                         ),
                                         if (_bankMessage.isNotEmpty) ...[
                                           const SizedBox(height: 15),
