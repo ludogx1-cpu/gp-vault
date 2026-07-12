@@ -95,7 +95,8 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
           pet_happiness: 50,
           pet_attention: 50,
           pet_energy: 100,
-          pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
+          weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
+        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
           pet_total_distance_walked: 0,
           pet_investments: []
         };
@@ -124,7 +125,8 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
             pet_happiness: 50,
             pet_attention: 50,
             pet_energy: 100,
-            pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
+            weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
+        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
             pet_total_distance_walked: 0,
             pet_investments: [],
             pet_owned_accessories: [],
@@ -195,7 +197,8 @@ router.post('/pet-status', verifyFirebaseToken, async (req, res) => {
           pet_attention: decayed.attention,
           pet_energy: decayed.energy,
           active_trick_buffs: validBuffs,
-          pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
+          weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
+        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
         };
 
         if (sickSince !== null && !data.pet_sick_since) {
@@ -292,7 +295,8 @@ router.post('/pet-feed', verifyFirebaseToken, async (req, res) => {
       remainingInvestments.push({ amount: investmentAmount, unlock_time: Date.now() + 24 * 60 * 60 * 1000 });
 
       const currentXP = ensureXP(data);
-      const newXP = currentXP + calculateXPGain(data, 20);
+      const xpGained = calculateXPGain(data, 20);
+      const newXP = currentXP + xpGained;
 
       transaction.update(userRef, {
         doge_balance: currentDoge - FEED_COST_DOGE,
@@ -301,6 +305,7 @@ router.post('/pet-feed', verifyFirebaseToken, async (req, res) => {
         pet_happiness: decayed.happiness,
         pet_energy: decayed.energy,
         pet_investments: remainingInvestments,
+        weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
         pet_last_feed_time: admin.firestore.FieldValue.serverTimestamp()
       });
@@ -342,7 +347,8 @@ router.post('/pet-play', verifyFirebaseToken, async (req, res) => {
       remainingInvestments.push({ amount: investmentAmount, unlock_time: Date.now() + 24 * 60 * 60 * 1000 });
 
       const currentXP = ensureXP(data);
-      const newXP = currentXP + calculateXPGain(data, 20);
+      const xpGained = calculateXPGain(data, 20);
+      const newXP = currentXP + xpGained;
 
       transaction.update(userRef, {
         doge_balance: currentDoge - PLAY_COST_DOGE,
@@ -351,6 +357,7 @@ router.post('/pet-play', verifyFirebaseToken, async (req, res) => {
         pet_happiness: newHappiness,
         pet_energy: decayed.energy,
         pet_investments: remainingInvestments,
+        weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
         pet_last_play_time: admin.firestore.FieldValue.serverTimestamp()
       });
@@ -387,7 +394,8 @@ router.post('/pet-sleep', verifyFirebaseToken, async (req, res) => {
       const newEnergy = Math.min(MAX_STAT, decayed.energy + 50);
 
       const currentXP = ensureXP(data);
-      const newXP = currentXP + calculateXPGain(data, 20);
+      const xpGained = calculateXPGain(data, 20);
+      const newXP = currentXP + xpGained;
 
       transaction.update(userRef, {
         doge_balance: currentDoge,
@@ -397,6 +405,7 @@ router.post('/pet-sleep', verifyFirebaseToken, async (req, res) => {
         pet_attention: decayed.attention,
         pet_energy: newEnergy,
         pet_investments: remainingInvestments,
+        weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
         pet_last_sleep_time: admin.firestore.FieldValue.serverTimestamp(),
         pet_sleeping_until: admin.firestore.Timestamp.fromMillis(Date.now() + 10 * 60 * 1000),
@@ -432,7 +441,8 @@ router.post('/pet-stroke', verifyFirebaseToken, async (req, res) => {
 
       const newAttention = Math.min(MAX_STAT, decayed.attention + 20);
       const currentXP = ensureXP(data);
-      const newXP = currentXP + calculateXPGain(data, 5);
+      const xpGained = calculateXPGain(data, 5);
+      const newXP = currentXP + xpGained;
 
       transaction.update(userRef, {
         pet_xp: newXP,
@@ -440,6 +450,7 @@ router.post('/pet-stroke', verifyFirebaseToken, async (req, res) => {
         pet_happiness: decayed.happiness,
         pet_attention: newAttention,
         pet_energy: decayed.energy,
+        weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
       });
 
@@ -511,6 +522,7 @@ router.post('/pet-walk-sync', verifyFirebaseToken, async (req, res) => {
         pet_happiness: decayed.happiness,
         pet_total_distance_walked: newTotalDist,
         pet_last_walk_sync: admin.firestore.FieldValue.serverTimestamp(),
+        weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
       });
 
@@ -559,7 +571,8 @@ router.post('/pet-clean-poo', verifyFirebaseToken, async (req, res) => {
       if (history.length > 15) history = history.slice(0, 15);
 
       const currentXP = ensureXP(data);
-      const newXP = currentXP + calculateXPGain(data, 10);
+      const xpGained = calculateXPGain(data, 10);
+      const newXP = currentXP + xpGained;
 
       transaction.update(userRef, {
         doge_balance: newDogeBal,
@@ -601,7 +614,8 @@ router.post('/pet-boop', verifyFirebaseToken, async (req, res) => {
       if (history.length > 15) history = history.slice(0, 15);
 
       const currentXP = ensureXP(data);
-      const newXP = currentXP + calculateXPGain(data, 5);
+      const xpGained = calculateXPGain(data, 5);
+      const newXP = currentXP + xpGained;
 
       transaction.update(userRef, {
         doge_balance: newDogeBal,
@@ -882,6 +896,7 @@ router.post('/pet-trick', verifyFirebaseToken, async (req, res) => {
       transaction.update(userRef, {
         pet_happiness: newHappiness,
         pet_energy: newEnergy,
+        weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
         active_trick_buffs: activeBuffs
       });
@@ -962,6 +977,7 @@ router.post('/pet-use-consumable', verifyFirebaseToken, async (req, res) => {
         pet_hunger: decayed.hunger,
         pet_happiness: decayed.happiness,
         pet_energy: decayed.energy,
+        weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
       };
 
@@ -1132,6 +1148,7 @@ router.post('/pet-fetch', verifyFirebaseToken, async (req, res) => {
         pet_xp: (data.pet_xp || 0) + xpReward,
         pet_last_fetch_time: admin.firestore.FieldValue.serverTimestamp(),
         fetch_click_count: currentClicks,
+        weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
       };
 

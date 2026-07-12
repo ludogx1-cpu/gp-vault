@@ -32,7 +32,25 @@ const AI_MESSAGES = [
   "I just bought some free medicine to cure my sick Shiba.",
   "Are you guys holding your DOGE or converting it to something else?",
   "Don't forget the 5 min cooldown timer is perfect for multitasking.",
-  "I love that we can track our reward history now, helps a lot."
+  "I love that we can track our reward history now, helps a lot.",
+  "The new Timewall integration is awesome, so many tasks to do!",
+  "Just transferred some DOGE from my Offerwall balance to the Bank. Smooth.",
+  "Has anyone tried the Timewall surveys yet? They pay pretty well.",
+  "Love the new Bank update! Much easier to track my earnings.",
+  "I'm checking Timewall every day now, the rewards are piling up.",
+  "Did anyone catch that Chat Rain earlier? Thanks Admin! 🌧️",
+  "I've been grinding PTC ads all morning. It really adds up.",
+  "Is the Swear Jar shared randomly or equally? I got some DOGE from it today.",
+  "Just reached my first withdrawal! So happy.",
+  "The Dogeogotcha is literally the best part of this faucet.",
+  "Make sure to do your PTC ads every day for the streak bonus!",
+  "I almost forgot to boop the nose today, thanks for the reminder chat!",
+  "Anyone else addicted to watching their Bank balance grow?",
+  "I'm totally going to win the weekly leaderboard this time!",
+  "Who else is trying to get top 5 on the leaderboard?",
+  "I need that 50 DOGE from the leaderboard prize, I'm feeding my pet constantly.",
+  "DogeLover99 is always so high on the leaderboard, how do they do it?",
+  "Just checked the leaderboard, it's getting competitive!"
 ];
 
 function getRandomInt(min, max) {
@@ -43,8 +61,8 @@ function startAiChatService() {
   console.log("AI Chat Service started.");
 
   const scheduleNextMessage = () => {
-    // 1 hour delay (in milliseconds)
-    const delayMs = 60 * 60 * 1000;
+    // Random delay between 15 and 90 minutes (in milliseconds)
+    const delayMs = getRandomInt(15 * 60 * 1000, 90 * 60 * 1000);
 
     setTimeout(async () => {
       try {
