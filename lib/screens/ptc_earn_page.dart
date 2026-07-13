@@ -312,7 +312,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                                     ),
                                     onPressed: canClaimBonus
                                         ? () {
-                                              launchUrl(Uri.parse('https://golden-paw.web.app/sponsors.html'));
+                                              launchUrl(Uri.parse('https://golden-paw-database.web.app/sponsors.html'));
                                             showDialog(
                                               barrierDismissible: false,
                                               context: context,
