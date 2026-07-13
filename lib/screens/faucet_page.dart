@@ -1512,7 +1512,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                           ),
                                           onPressed: canClaimBonus
                                               ? () {
-                                                  launchUrl(Uri.parse('https://golden-paw-database.web.app/sponsors.html'));
+                                                  launchUrl(Uri.base.resolve('sponsors.html'));
                                                   showDialog(
                                                     barrierDismissible: false,
                                                     context: context,

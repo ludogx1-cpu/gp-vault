@@ -128,6 +128,13 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
 
   void _forceRenderCaptcha() {
     setState(() => _captchaLoading = true);
+    Timer(const Duration(milliseconds: 200), () {
+      if (_selectedCaptcha == 'hCaptcha') {
+        _crossTabListener?.renderHCaptcha();
+      } else if (_selectedCaptcha == 'Turnstile') {
+        _crossTabListener?.renderTurnstile();
+      }
+    });
   }
 
   Future<void> _processClaim() async {
