@@ -95,7 +95,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
     _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) async {
       if (_isProcessing || _showCaptcha) return;
 
-      bool isFocused = false; // Temporarily false so timer runs.
+      bool isFocused = _crossTabListener?.hasFocus() ?? true;
 
       if (isFocused) {
         if (_stopwatch.isRunning) {

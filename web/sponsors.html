@@ -165,10 +165,14 @@
         if (window.opener) {
           window.opener.postMessage(JSON.stringify({ type: 'start_bonus_timer' }), '*');
         }
-        // Fallback: use localStorage to trigger storage event in Flutter app
-        localStorage.setItem('bonus_timer_trigger', Date.now().toString());
       } catch (e) {
-        // Ignore cross-origin frame access errors
+        console.warn("postMessage failed:", e);
+      }
+      
+      try {
+        localStorage.setItem('flutter.bonus_timer_trigger', Date.now().toString());
+      } catch (e) {
+        console.warn("localStorage failed:", e);
       }
     }
 

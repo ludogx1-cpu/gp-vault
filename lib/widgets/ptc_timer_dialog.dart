@@ -4,11 +4,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:async';
 import 'universal_web_view/universal_web_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
+import '../src/cross_tab_listener/cross_tab_listener.dart';
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
 
@@ -39,10 +39,16 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
   String _selectedCaptcha = 'hCaptcha';
   bool _captchaLoading = false;
   String? _captchaToken;
+  CrossTabListener? _crossTabListener;
 
   @override
   void initState() {
     super.initState();
+    try {
+      _crossTabListener = getCrossTabListener();
+    } catch (e) {
+      // ignore
+    }
     _timeLeft = widget.duration;
     _updateBrowserTitle("${_timeLeft}s left");
     _stopwatch.start();
@@ -70,15 +76,14 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
   }
 
   void _updateBrowserTitle(String title) {
-    // Cannot set document title directly on native
+    _crossTabListener?.setBrowserTitle("$title - Golden Paw");
   }
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) async {
       if (_isProcessing || _showCaptcha) return;
 
-      bool isFocused =
-          false; // Temporarily false so timer runs.
+      bool isFocused = _crossTabListener?.hasFocus() ?? true;
 
       if (isFocused) {
         if (_stopwatch.isRunning) {

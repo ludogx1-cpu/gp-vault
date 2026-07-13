@@ -9,6 +9,11 @@ void registerWebViews() {
   try {
     // 1. hCaptcha
     // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('empty-view', (int viewId) {
+      return web.HTMLDivElement();
+    });
+
+    // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory('hcaptcha-widget', (
       int viewId,
     ) {
