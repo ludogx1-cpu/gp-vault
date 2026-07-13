@@ -509,7 +509,7 @@ class _FaucetPageState extends State<FaucetPage> {
                     height: 90,
                     child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 20),
                 ],
 
                 const SizedBox(
@@ -520,7 +520,7 @@ class _FaucetPageState extends State<FaucetPage> {
                     fit: BoxFit.contain,
                   ),
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 20),
 
                 ListenableBuilder(
                   listenable: themeProvider,
@@ -647,7 +647,7 @@ class _FaucetPageState extends State<FaucetPage> {
                   },
                 ),
 
-                const SizedBox(height: 25),
+                const SizedBox(height: 20),
 
                 StreamBuilder<User?>(
                   stream: FirebaseAuth.instance.authStateChanges(),
@@ -671,7 +671,7 @@ class _FaucetPageState extends State<FaucetPage> {
                           return Column(
                             children: [
                               const ShibaPetWidget(),
-                              const SizedBox(height: 15),
+                              const SizedBox(height: 20),
                               ListenableBuilder(
                                 listenable: themeProvider,
                                 builder: (context, _) {
@@ -818,7 +818,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                   );
                                 },
                               ),
-                              const SizedBox(height: 15),
+                              const SizedBox(height: 20),
                               ListenableBuilder(
                                 listenable: themeProvider,
                                 builder: (context, _) {
@@ -969,157 +969,12 @@ class _FaucetPageState extends State<FaucetPage> {
                   },
                 ),
 
-                const SizedBox(height: 25),
-                ListenableBuilder(
-                  listenable: themeProvider,
-                  builder: (context, _) {
-                    final isDark = themeProvider.isDarkMode;
-                    return Container(
-                      width: double.infinity,
-                      constraints: const BoxConstraints(maxWidth: 600),
-                      decoration: BoxDecoration(
-                        color: isDark ? themeProvider.darkGreyBoxColor : Colors.green.shade100,
-                        borderRadius: BorderRadius.circular(10),
-                        border: isDark
-                            ? Border.all(color: themeProvider.darkGreyBorder, width: 1)
-                            : null,
-                      ),
-                      child: ExpansionTile(
-                        title: const Text(
-                          '🏆 Weekly Pet Leaderboard (Top 10)',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                  subtitle: const Text(
-                    'Take the best care of your pet to win free DOGE every Sunday at midnight!',
-                    style: TextStyle(fontSize: 13),
-                  ),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                      child: Column(
-                        children: [
-                          Card(
-                            elevation: 2,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            color: themeProvider.isDarkMode ? Colors.grey.shade800 : Colors.amber.shade50,
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Column(
-                                children: [
-                                  const Text(
-                                    'Top 5 Prizes',
-                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      _buildPrizeTier('1st', '3 DOGE', Colors.amber),
-                                      _buildPrizeTier('2nd', '2 DOGE', Colors.grey.shade400),
-                                      _buildPrizeTier('3rd', '1 DOGE', Colors.orange.shade300),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      _buildPrizeTier('4th', '0.5 DOGE', Colors.blueGrey),
-                                      _buildPrizeTier('5th', '0.25 DOGE', Colors.blueGrey),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          if (_isLoadingLeaderboard)
-                            const Padding(
-                              padding: EdgeInsets.all(20.0),
-                              child: CircularProgressIndicator(),
-                            )
-                          else if (_leaderboardError.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              child: Text(_leaderboardError, style: const TextStyle(color: Colors.red)),
-                            )
-                          else if (_leaderboard.isEmpty)
-                            const Padding(
-                              padding: EdgeInsets.all(20.0),
-                              child: Text('No scores yet! Feed your pet to get on the board.'),
-                            )
-                          else
-                            Container(
-                              constraints: const BoxConstraints(maxHeight: 350),
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: _leaderboard.length > 10 ? 10 : _leaderboard.length,
-                                itemBuilder: (context, index) {
-                                  final item = _leaderboard[index];
-                                  final rank = index + 1;
-                                  final username = item['username'] ?? 'Anonymous';
-                                  final score = item['weekly_time_above_40'] ?? 0;
-                                  final petName = item['pet_name'] ?? 'Golden Paw Shiba';
-                                  final isAi = item['is_ai'] == true;
+                const SizedBox(height: 20),
 
-                                  Color rankColor;
-                                  if (rank == 1) { rankColor = Colors.amber; }
-                                  else if (rank == 2) { rankColor = Colors.grey.shade400; }
-                                  else if (rank == 3) { rankColor = Colors.orange.shade300; }
-                                  else { rankColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black; }
 
-                                  return Card(
-                                    margin: const EdgeInsets.symmetric(vertical: 4),
-                                    child: ListTile(
-                                      leading: CircleAvatar(
-                                        backgroundColor: rankColor.withValues(alpha: 0.2),
-                                        child: Text(
-                                          '#$rank',
-                                          style: TextStyle(color: rankColor, fontWeight: FontWeight.bold),
-                                        ),
-                                      ),
-                                      title: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Text(
-                                                username,
-                                                style: const TextStyle(fontWeight: FontWeight.bold),
-                                              ),
-                                              if (isAi)
-                                                const Padding(
-                                                  padding: EdgeInsets.only(left: 4.0),
-                                                  child: Icon(Icons.verified, size: 14, color: Colors.blue),
-                                                ),
-                                            ],
-                                          ),
-                                          Text(
-                                            'Pet: $petName',
-                                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                                          ),
-                                        ],
-                                      ),
-                                      trailing: Text(
-                                        '$score Hours >40% Stats',
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+          const SizedBox(height: 20),
 
-          const SizedBox(height: 25),
-
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
                       .collection('updates')
@@ -1164,7 +1019,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 15),
+                              const SizedBox(height: 20),
                               Container(
                                 constraints: const BoxConstraints(maxHeight: 250),
                                 child: Scrollbar(
@@ -1205,7 +1060,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 15),
+                              const SizedBox(height: 20),
                               Text(
                                 "For support, contact: ludogx1@gmail.com",
                                 textAlign: TextAlign.center,
@@ -1343,7 +1198,7 @@ class _FaucetPageState extends State<FaucetPage> {
                     ),
                   ),
 
-                const SizedBox(height: 15),
+                const SizedBox(height: 20),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1419,7 +1274,7 @@ class _FaucetPageState extends State<FaucetPage> {
                   ],
                 ),
 
-                const SizedBox(height: 15),
+                const SizedBox(height: 20),
                 Container(
                   height: 120,
                   width: 340,
@@ -1485,7 +1340,7 @@ class _FaucetPageState extends State<FaucetPage> {
                       ],
                     ),
                   ),
-                const SizedBox(height: 25),
+                const SizedBox(height: 20),
                 Column(
                   children: [
                     SizedBox(
@@ -1527,7 +1382,7 @@ class _FaucetPageState extends State<FaucetPage> {
                               ),
                       ),
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 20),
                     SizedBox(
                       width: 300,
                       height: 250,
@@ -1624,7 +1479,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                           fontSize: 13,
                                         ),
                                       ),
-                                      const SizedBox(height: 15),
+                                      const SizedBox(height: 20),
                                       SizedBox(
                                         width: double.infinity,
                                         height: 50,
@@ -1679,7 +1534,7 @@ class _FaucetPageState extends State<FaucetPage> {
                     );
                   },
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 const NewsletterSubscribeWidget(),
                 const SizedBox(height: 60),
               ],
