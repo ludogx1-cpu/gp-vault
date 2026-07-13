@@ -4,11 +4,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'universal_web_view/universal_web_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
+import '../src/cross_tab_listener/cross_tab_listener.dart';
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
 
@@ -29,6 +30,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
   late int _timeLeft;
   late final Stopwatch _stopwatch = Stopwatch();
   Timer? _timer;
+  CrossTabListener? _crossTabListener;
   bool _claimed = false;
   bool _isProcessing = false;
   String _message = "Please wait...";
@@ -47,46 +49,46 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
     _message =
         "Click an ad and stay on the page for 20 seconds to earn your reward!";
 
-    // Note: storageEvent listener for bonus_timer_trigger cannot be fully ported using UniversalWebView natively without an overarching mechanism.
-    // For now, we will rely on UI-based trigger or stub it. We'll start the timer immediately to keep it functional, or the user clicks a button.
-    // Ideally, the ad click starts the timer.
+    try {
+      _crossTabListener = getCrossTabListener();
+      _crossTabListener?.setup((messageStr) {
+        _onCaptchaMessage(messageStr);
+      });
+    } catch (e) {
+      // ignore on unsupported platforms
+    }
   }
 
-  void _onCaptchaMessage(String messageStr) {
+    void _onCaptchaMessage(String messageStr) {
+    if (!mounted) return;
     try {
-      if (messageStr.contains('captcha') || messageStr.contains('token')) {
-        final data = jsonDecode(messageStr);
-        final token =
-            data['token'] ?? data['captcha_token'] ?? data['turnstile_token'];
-        if (token != null) {
-          if (mounted) {
-            setState(() {
-              _captchaToken = token;
-            });
-            if (_showCaptcha && !_isProcessing) {
-              _processBonusClaim();
-            }
-          }
-        }
-      } else if (messageStr.contains('start_bonus_timer')) {
+      if (messageStr.contains("start_bonus_timer")) {
         if (!_timerStarted) {
-          _timerStarted = true;
+          setState(() {
+            _timerStarted = true;
+          });
           _stopwatch.start();
           _startTimer();
-          if (mounted) {
-            setState(() {
-              _message = "Watching Sponsor... $_timeLeft seconds left";
-            });
+        }
+      } else if (messageStr.contains("captcha") || messageStr.contains("token")) {
+        final data = jsonDecode(messageStr) as Map<String, dynamic>;
+        final token = data["token"] ?? data["captcha_token"] ?? data["turnstile_token"];
+        if (token != null) {
+          setState(() {
+            _captchaToken = token;
+          });
+          if (_showCaptcha && !_isProcessing) {
+            _processBonusClaim();
           }
         }
       }
     } catch (e) {
-      /* ignore */
+      // ignore
     }
   }
 
   void _updateBrowserTitle(String title) {
-    // web.document.title = "$title - Golden Paw";
+    _crossTabListener?.setBrowserTitle("$title - Golden Paw");
   }
 
   void _startTimer() {
@@ -197,7 +199,10 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
   @override
   void dispose() {
     _timer?.cancel();
+    _crossTabListener?.cancel();
     _stopwatch.stop();
+    // Revert title
+    _updateBrowserTitle("Golden Paw");
     super.dispose();
   }
 
@@ -215,6 +220,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (_showCaptcha && !_claimed) ...[
+              const SizedBox(height: 15),
               Text(
                 "Almost done! Verify you are human.",
                 style: TextStyle(

@@ -49,25 +49,23 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
     _startTimer();
   }
 
-  void _onCaptchaMessage(String messageStr) {
+    void _onCaptchaMessage(String messageStr) {
+    if (!mounted) return;
     try {
-      if (messageStr.contains('captcha') || messageStr.contains('token')) {
-        final data = jsonDecode(messageStr);
-        final token =
-            data['token'] ?? data['captcha_token'] ?? data['turnstile_token'];
+      if (messageStr.contains("captcha") || messageStr.contains("token")) {
+        final data = jsonDecode(messageStr) as Map<String, dynamic>;
+        final token = data["token"] ?? data["captcha_token"] ?? data["turnstile_token"];
         if (token != null) {
-          if (mounted) {
-            setState(() {
-              _captchaToken = token;
-            });
-            if (_showCaptcha && !_isProcessing) {
-              _processClaim();
-            }
+          setState(() {
+            _captchaToken = token;
+          });
+          if (_showCaptcha && !_isProcessing) {
+            _processClaim();
           }
         }
       }
     } catch (e) {
-      /* ignore */
+      // ignore
     }
   }
 
