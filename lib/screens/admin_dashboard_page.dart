@@ -278,7 +278,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
               "Preview Sponsors",
               style: TextStyle(color: Colors.white),
             ),
-            onPressed: () => launchUrl(Uri.parse('https://golden-paw.web.app/sponsors.html')),
+            onPressed: () => launchUrl(Uri.parse('https://golden-paw-database.web.app/sponsors.html')),
           ),
         ],
         bottom: TabBar(
