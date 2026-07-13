@@ -77,18 +77,18 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'Your pet grows older over time! As it grows from an Egg to an Adult, it provides a passive aging multiplier that scales up your rewards for being a long-term owner.',
+              'Your pet grows older over time! As it grows from a Baby to an Old Dog, it provides a passive aging multiplier that scales up your rewards for being a long-term owner.',
               style: TextStyle(fontSize: 14, height: 1.5, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87)
             ),
             const SizedBox(height: 15),
-            _buildStageItem(context, 'Egg', '0 - 2 days', '+0% Bonus', 'assets/shiba_egg.png'),
-            _buildStageItem(context, 'Baby', '2 - 7 days', '+5% Bonus', 'assets/shiba_baby.png'),
-            _buildStageItem(context, 'Toddler', '7 - 14 days', '+10% Bonus', 'assets/shiba_baby.png'),
-            _buildStageItem(context, 'Puppy', '14 - 30 days', '+30% Bonus', 'assets/shiba_teen.png'),
-            _buildStageItem(context, 'Child', '1 - 3 months', '+40% Bonus', 'assets/shiba_child.png'),
-            _buildStageItem(context, 'Teen', '3 - 6 months', '+50% Bonus', 'assets/shiba_puppy.png'),
-            _buildStageItem(context, 'Young Adult', '6 - 12 months', '+75% Bonus', 'assets/shiba_young_adult.png'),
-            _buildStageItem(context, 'Adult', '1 year+', '+100% Bonus (Max)', 'assets/shiba_adult.png'),
+            _buildStageItem(context, 'Baby', '0 - 2 days', '+0% Bonus', 'assets/shiba_baby.png'),
+            _buildStageItem(context, 'Toddler', '2 - 7 days', '+5% Bonus', 'assets/shiba_baby.png'),
+            _buildStageItem(context, 'Puppy', '7 - 14 days', '+10% Bonus', 'assets/shiba_teen.png'),
+            _buildStageItem(context, 'Child', '14 - 30 days', '+30% Bonus', 'assets/shiba_child.png'),
+            _buildStageItem(context, 'Teen', '1 - 3 months', '+40% Bonus', 'assets/shiba_puppy.png'),
+            _buildStageItem(context, 'Young Adult', '3 - 6 months', '+50% Bonus', 'assets/shiba_young_adult.png'),
+            _buildStageItem(context, 'Adult', '6 - 12 months', '+75% Bonus', 'assets/shiba_adult.png'),
+            _buildStageItem(context, 'Old Dog', '1 year+', '+100% Bonus (Max)', 'assets/old_dog.png'),
             const SizedBox(height: 30),
             Center(
               child: ElevatedButton(

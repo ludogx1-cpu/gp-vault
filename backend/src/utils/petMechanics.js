@@ -23,7 +23,7 @@ function calculateDecay(userData) {
     happinessDecayRate = 20.0;
     attentionDecayRate = 20.0;
     hungerDecayRate = 4.166;
-  } else if (stage === 'young_adult' || stage === 'adult') {
+  } else if (stage === 'young_adult' || stage === 'adult' || stage === 'old_dog') {
     energyDecayRate = 4.0;
     happinessDecayRate = 20.0;
     attentionDecayRate = 20.0;
@@ -56,16 +56,16 @@ function calculateDecay(userData) {
 }
 
 function getGrowthStage(birthDate) {
-  if (!birthDate) return 'egg';
+  if (!birthDate) return 'baby';
   const daysOld = (Date.now() - birthDate.toDate().getTime()) / (1000 * 60 * 60 * 24);
-  if (daysOld < 2) return 'egg';
-  if (daysOld < 7) return 'baby';
-  if (daysOld < 14) return 'toddler';
-  if (daysOld < 30) return 'puppy';
-  if (daysOld < 90) return 'child';
-  if (daysOld < 180) return 'teen';
-  if (daysOld < 365) return 'young_adult';
-  return 'adult';
+  if (daysOld < 2) return 'baby';
+  if (daysOld < 7) return 'toddler';
+  if (daysOld < 14) return 'puppy';
+  if (daysOld < 30) return 'child';
+  if (daysOld < 90) return 'teen';
+  if (daysOld < 180) return 'young_adult';
+  if (daysOld < 365) return 'adult';
+  return 'old_dog';
 }
 
 function calculatePetBonusPercent(decayedStats, userData) {
@@ -125,41 +125,41 @@ function calculateTrickBonusPercent(userData) {
 }
 
 const XP_THRESHOLDS = {
-  egg: 0,
-  baby: 100,
-  toddler: 300,
-  puppy: 700,
-  child: 1500,
-  teen: 3000,
-  young_adult: 6000,
-  adult: 10000
+  baby: 0,
+  toddler: 100,
+  puppy: 300,
+  child: 700,
+  teen: 1500,
+  young_adult: 3000,
+  adult: 6000,
+  old_dog: 10000
 };
 
 // Legacy fallback logic
 function getGrowthStageByDate(birthDate) {
-  if (!birthDate) return 'egg';
+  if (!birthDate) return 'baby';
   const daysOld = (Date.now() - birthDate.toDate().getTime()) / (1000 * 60 * 60 * 24);
-  if (daysOld < 2) return 'egg';
-  if (daysOld < 7) return 'baby';
-  if (daysOld < 14) return 'toddler';
-  if (daysOld < 30) return 'puppy';
-  if (daysOld < 90) return 'child';
-  if (daysOld < 180) return 'teen';
-  if (daysOld < 365) return 'young_adult';
-  return 'adult';
+  if (daysOld < 2) return 'baby';
+  if (daysOld < 7) return 'toddler';
+  if (daysOld < 14) return 'puppy';
+  if (daysOld < 30) return 'child';
+  if (daysOld < 90) return 'teen';
+  if (daysOld < 180) return 'young_adult';
+  if (daysOld < 365) return 'adult';
+  return 'old_dog';
 }
 
 function getGrowthStage(userData) {
   if (userData.pet_xp !== undefined) {
     const xp = userData.pet_xp;
+    if (xp >= XP_THRESHOLDS.old_dog) return 'old_dog';
     if (xp >= XP_THRESHOLDS.adult) return 'adult';
     if (xp >= XP_THRESHOLDS.young_adult) return 'young_adult';
     if (xp >= XP_THRESHOLDS.teen) return 'teen';
     if (xp >= XP_THRESHOLDS.child) return 'child';
     if (xp >= XP_THRESHOLDS.puppy) return 'puppy';
     if (xp >= XP_THRESHOLDS.toddler) return 'toddler';
-    if (xp >= XP_THRESHOLDS.baby) return 'baby';
-    return 'egg';
+    return 'baby';
   } else {
     return getGrowthStageByDate(userData.pet_birth_date);
   }
@@ -167,29 +167,29 @@ function getGrowthStage(userData) {
 
 function getNextStageXP(currentStage) {
   switch(currentStage) {
-    case 'egg': return XP_THRESHOLDS.baby;
     case 'baby': return XP_THRESHOLDS.toddler;
     case 'toddler': return XP_THRESHOLDS.puppy;
     case 'puppy': return XP_THRESHOLDS.child;
     case 'child': return XP_THRESHOLDS.teen;
     case 'teen': return XP_THRESHOLDS.young_adult;
     case 'young_adult': return XP_THRESHOLDS.adult;
-    case 'adult': return XP_THRESHOLDS.adult;
-    default: return XP_THRESHOLDS.baby;
+    case 'adult': return XP_THRESHOLDS.old_dog;
+    case 'old_dog': return XP_THRESHOLDS.old_dog;
+    default: return XP_THRESHOLDS.toddler;
   }
 }
 
 function getAgeMultiplier(userData) {
   const stage = getGrowthStage(userData);
   switch (stage) {
-    case 'egg': return 1.0;
-    case 'baby': return 1.05;
-    case 'toddler': return 1.10;
-    case 'puppy': return 1.30;
-    case 'child': return 1.40;
-    case 'teen': return 1.50;
-    case 'young_adult': return 1.75;
-    case 'adult': return 2.0;
+    case 'baby': return 1.0;
+    case 'toddler': return 1.05;
+    case 'puppy': return 1.10;
+    case 'child': return 1.30;
+    case 'teen': return 1.40;
+    case 'young_adult': return 1.50;
+    case 'adult': return 1.75;
+    case 'old_dog': return 2.0;
     default: return 1.0;
   }
 }

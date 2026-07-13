@@ -745,7 +745,7 @@ router.post('/pet-buy-accessory', verifyFirebaseToken, async (req, res) => {
       const snapshot = await transaction.get(userRef);
       const data = snapshot.data() || {};
       if (!data.pet_birth_date) throw new Error('Pet not initialized');
-      if (getGrowthStage(data) === 'egg') throw new Error('Pets in the egg stage cannot use the shop.');
+      if (getGrowthStage(data) === 'baby') throw new Error('Pets in the baby stage cannot use the shop.');
 
       if (currency === 'usdt') {
         const currentAdsBalance = Number(data.ads_balance || 0);
@@ -789,7 +789,7 @@ router.post('/pet-equip-accessory', verifyFirebaseToken, async (req, res) => {
       const snapshot = await transaction.get(userRef);
       const data = snapshot.data() || {};
       if (!data.pet_birth_date) throw new Error('Pet not initialized');
-      if (getGrowthStage(data) === 'egg') throw new Error('Pets in the egg stage cannot use the shop.');
+      if (getGrowthStage(data) === 'baby') throw new Error('Pets in the baby stage cannot use the shop.');
 
       const owned = data.pet_owned_accessories || [];
       if (equip && !owned.includes(accessoryId)) throw new Error('You do not own this accessory.');
@@ -826,7 +826,7 @@ router.post('/pet-buy-trick', verifyFirebaseToken, async (req, res) => {
       const snapshot = await transaction.get(userRef);
       const data = snapshot.data() || {};
       if (!data.pet_birth_date) throw new Error('Pet not initialized');
-      if (getGrowthStage(data) === 'egg') throw new Error('Pets in the egg stage cannot learn tricks.');
+      if (getGrowthStage(data) === 'baby') throw new Error('Pets in the baby stage cannot learn tricks.');
 
       if (currency === 'usdt') {
         const currentAdsBalance = Number(data.ads_balance || 0);
@@ -872,7 +872,7 @@ router.post('/pet-trick', verifyFirebaseToken, async (req, res) => {
       const data = snapshot.data() || {};
 
       if (!data.pet_birth_date) throw new Error('Pet not initialized');
-      if (getGrowthStage(data) === 'egg') throw new Error('Pets in the egg stage cannot perform tricks.');
+      if (getGrowthStage(data) === 'baby') throw new Error('Pets in the baby stage cannot perform tricks.');
 
       const owned = data.pet_owned_tricks || [];
       if (!owned.includes(trickName)) throw new Error('You do not own this trick!');

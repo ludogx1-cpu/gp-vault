@@ -511,8 +511,6 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
 
   String _getImageAsset() {
     switch (_stage) {
-      case 'egg':
-        return 'assets/shiba_egg.png';
       case 'baby':
         return 'assets/shiba_baby.png';
       case 'toddler':
@@ -527,6 +525,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
         return 'assets/shiba_young_adult.png';
       case 'adult':
         return 'assets/shiba_adult.png';
+      case 'old_dog':
+        return 'assets/old_dog.png';
       default:
         return 'assets/shiba_toddler.png';
     }
@@ -534,8 +534,6 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
 
   double _getScaleForStage() {
     switch (_stage) {
-      case 'egg':
-        return 0.65; // Increased from 0.4
       case 'baby':
         return 0.75; // Increased from 0.5
       case 'toddler':
@@ -550,13 +548,15 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
         return 1.2; // Increased from 1.0
       case 'adult':
         return 1.4; // Increased from 1.2
+      case 'old_dog':
+        return 1.5;
       default:
         return 0.7;
     }
   }
 
   void _onBallPanUpdate(DragUpdateDetails details) {
-    if (_isFetching || _stage == 'egg') return;
+    if (_isFetching || _stage == 'baby') return;
     setState(() {
       _ballX += details.delta.dx;
       _ballY += details.delta.dy;
@@ -564,7 +564,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   }
 
   void _onBallPanEnd(DragEndDetails details) {
-    if (_isFetching || _stage == 'egg') return;
+    if (_isFetching || _stage == 'baby') return;
     
     if (details.velocity.pixelsPerSecond.distance > 500) {
       _startFetchSequence(details.velocity.pixelsPerSecond);
@@ -803,7 +803,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
                 double eggOffset = 0;
                 double walkOffset = 0;
 
-                if (_stage == 'egg') {
+                if (_stage == 'baby') {
                   eggOffset = sin(_shakeController.value * pi * 4) * 10;
                 } else if (_walkController.isAnimating) {
                   // Bob up and down while walking
