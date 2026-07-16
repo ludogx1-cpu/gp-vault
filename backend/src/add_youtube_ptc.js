@@ -5,7 +5,7 @@ async function run() {
     const newAdRef = admin.firestore().collection('ptc_ads').doc('youtube_promo_1');
     await newAdRef.set({
       title: '🎥 WATCH: Golden Paw Ecosystem!',
-      target_url: 'https://www.youtube.com/watch?v=cwhkG65J79s',
+      target_url: 'https://www.youtube.com/watch?v=_P9YSHwbcC0',
       tier: 'high',
       reward: 0.010,
       duration: 15,

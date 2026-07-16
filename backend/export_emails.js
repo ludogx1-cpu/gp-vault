@@ -11,11 +11,15 @@ async function exportEmails() {
     do {
       // Fetch users in batches of 1000
       const listUsersResult = await admin.auth().listUsers(1000, nextPageToken);
-      listUsersResult.users.forEach((userRecord) => {
+      for (const userRecord of listUsersResult.users) {
         if (userRecord.email) {
-          emails.push(userRecord.email);
+          // Check Firestore to make sure they haven't opted out via our custom Firebase endpoint
+          const userDoc = await admin.firestore().collection('users').doc(userRecord.uid).get();
+          if (!userDoc.exists || userDoc.data().emailOptOut !== true) {
+            emails.push(userRecord.email);
+          }
         }
-      });
+      }
       nextPageToken = listUsersResult.pageToken;
     } while (nextPageToken);
 
