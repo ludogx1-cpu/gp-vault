@@ -11,6 +11,7 @@ const petRoutes = require('./src/routes/petRoutes');
 const offerwallRoutes = require('./src/routes/offerwallRoutes');
 const chatRoutes = require('./src/routes/chatRoutes');
 const leaderboardRoutes = require('./src/routes/leaderboardRoutes');
+const emailRoutes = require('./src/routes/emailRoutes');
 const { startAiChatService } = require('./src/services/aiChatService');
 const { startWeeklyResetService } = require('./src/services/weeklyResetService');
 const app = express();
@@ -81,6 +82,7 @@ app.use('/', petRoutes);
 app.use('/api/offerwall', offerwallRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/chat', chatRoutes);
+app.use('/', emailRoutes);
 app.use('/admin', adminRoutes);
 
 if (require.main === module) {
