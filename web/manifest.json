@@ -1,6 +1,6 @@
 {
-    "name": "gp_faucet",
-    "short_name": "gp_faucet",
+    "name": "Golden Paw",
+    "short_name": "Golden Paw",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
