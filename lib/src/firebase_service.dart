@@ -32,16 +32,17 @@ class FirebaseService {
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       String? token = await messaging.getToken(
-        vapidKey: "YOUR_VAPID_KEY_HERE" // Need to put the real one here later
+        vapidKey:
+            "BNNSLNFl4zpOEubsCdhqQC2b5jTkpKV_qLoe6QtKM-fGQ6wqJ06pGhN2snwodgDKgrbF9rhelYMe2sV6mIxwdeU",
       );
       if (token != null) {
-        // We need to save this to the user doc when they log in. 
+        // We need to save this to the user doc when they log in.
         // We'll hook into Auth state changes.
         FirebaseAuth.instance.authStateChanges().listen((User? user) {
           if (user != null) {
-             FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-               'fcm_token': token,
-             }, SetOptions(merge: true));
+            FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+              'fcm_token': token,
+            }, SetOptions(merge: true));
           }
         });
       }
