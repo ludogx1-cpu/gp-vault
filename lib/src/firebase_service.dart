@@ -23,28 +23,34 @@ class FirebaseService {
     }
 
     // Push Notifications setup
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    NotificationSettings settings = await messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      String? token = await messaging.getToken(
-        vapidKey:
-            "BNNSLNFl4zpOEubsCdhqQC2b5jTkpKV_qLoe6QtKM-fGQ6wqJ06pGhN2snwodgDKgrbF9rhelYMe2sV6mIxwdeU",
+    try {
+      FirebaseMessaging messaging = FirebaseMessaging.instance;
+      NotificationSettings settings = await messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
       );
-      if (token != null) {
-        // We need to save this to the user doc when they log in.
-        // We'll hook into Auth state changes.
-        FirebaseAuth.instance.authStateChanges().listen((User? user) {
-          if (user != null) {
-            FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-              'fcm_token': token,
-            }, SetOptions(merge: true));
-          }
-        });
+
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        String? token = await messaging.getToken(
+          vapidKey:
+              "BNNSLNFl4zpOEubsCdhqQC2b5jTkpKV_qLoe6QtKM-fGQ6wqJ06pGhN2snwodgDKgrbF9rhelYMe2sV6mIxwdeU",
+        );
+        if (token != null) {
+          // We need to save this to the user doc when they log in.
+          // We'll hook into Auth state changes.
+          FirebaseAuth.instance.authStateChanges().listen((User? user) {
+            if (user != null) {
+              FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+                'fcm_token': token,
+              }, SetOptions(merge: true));
+            }
+          });
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Firebase Messaging setup failed: $e');
       }
     }
   }
