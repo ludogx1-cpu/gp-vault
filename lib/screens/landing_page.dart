@@ -8,6 +8,7 @@ import '../widgets/newsletter_subscribe_widget.dart';
 import '../widgets/widgets.dart';
 import 'blog_page.dart';
 import '../widgets/universal_web_view/universal_web_view.dart';
+import '../widgets/enable_notifications_widget.dart';
 
 class LandingPage extends StatefulWidget {
   final void Function(BuildContext, bool) onAuthTrigger;
@@ -132,6 +133,7 @@ class _LandingPageState extends State<LandingPage> {
                 child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
               ),
             ),
+            const EnableNotificationsWidget(),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),

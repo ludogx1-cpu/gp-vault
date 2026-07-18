@@ -12,6 +12,7 @@ import '../widgets/widgets.dart';
 import '../api_constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../widgets/universal_web_view/universal_web_view.dart';
+import '../widgets/enable_notifications_widget.dart';
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
 
@@ -523,6 +524,8 @@ class _AccountPageState extends State<AccountPage> {
                       child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  const EnableNotificationsWidget(),
                   const SizedBox(height: 20),
                   Image.asset(
                     'assets/Goldenpawicon.png',

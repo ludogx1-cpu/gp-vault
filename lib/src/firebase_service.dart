@@ -25,6 +25,21 @@ class FirebaseService {
     // Push Notifications setup
     try {
       FirebaseMessaging messaging = FirebaseMessaging.instance;
+      NotificationSettings settings = await messaging.getNotificationSettings();
+
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        _setupFCMToken(messaging);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Firebase Messaging setup failed: $e');
+      }
+    }
+  }
+
+  static Future<void> requestPushPermissions() async {
+    try {
+      FirebaseMessaging messaging = FirebaseMessaging.instance;
       NotificationSettings settings = await messaging.requestPermission(
         alert: true,
         badge: true,
@@ -32,25 +47,35 @@ class FirebaseService {
       );
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        String? token = await messaging.getToken(
-          vapidKey:
-              "BNNSLNFl4zpOEubsCdhqQC2b5jTkpKV_qLoe6QtKM-fGQ6wqJ06pGhN2snwodgDKgrbF9rhelYMe2sV6mIxwdeU",
-        );
-        if (token != null) {
-          // We need to save this to the user doc when they log in.
-          // We'll hook into Auth state changes.
-          FirebaseAuth.instance.authStateChanges().listen((User? user) {
-            if (user != null) {
-              FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-                'fcm_token': token,
-              }, SetOptions(merge: true));
-            }
-          });
-        }
+        _setupFCMToken(messaging);
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Firebase Messaging setup failed: $e');
+        print('Failed to request push permissions: $e');
+      }
+    }
+  }
+
+  static Future<void> _setupFCMToken(FirebaseMessaging messaging) async {
+    try {
+      String? token = await messaging.getToken(
+        vapidKey:
+            "BNNSLNFl4zpOEubsCdhqQC2b5jTkpKV_qLoe6QtKM-fGQ6wqJ06pGhN2snwodgDKgrbF9rhelYMe2sV6mIxwdeU",
+      );
+      if (token != null) {
+        // We need to save this to the user doc when they log in.
+        // We'll hook into Auth state changes.
+        FirebaseAuth.instance.authStateChanges().listen((User? user) {
+          if (user != null) {
+            FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+              'fcm_token': token,
+            }, SetOptions(merge: true));
+          }
+        });
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to get FCM token: $e');
       }
     }
   }
