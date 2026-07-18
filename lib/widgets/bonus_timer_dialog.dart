@@ -222,7 +222,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
         padding: const EdgeInsets.all(25),
-        height: _showCaptcha ? 350 : 250,
+        height: _showCaptcha ? 350 : 300,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -344,6 +344,18 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
                   fontSize: 16,
                 ),
               ),
+              if (!_timerStarted) ...[
+                const SizedBox(height: 15),
+                TextButton(
+                  onPressed: () {
+                    _onCaptchaMessage('{"type":"start_bonus_timer"}');
+                  },
+                  child: const Text(
+                    "Timer didn't start? Click here",
+                    style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+                  ),
+                ),
+              ],
             ] else ...[
               const Icon(Icons.check_circle, color: Colors.green, size: 60),
               const SizedBox(height: 15),
