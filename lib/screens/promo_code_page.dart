@@ -178,6 +178,7 @@ class _PromoCodePageState extends State<PromoCodePage> {
                     // Input Field
                     TextField(
                       controller: _codeController,
+                      textAlign: TextAlign.center,
                       style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                       decoration: InputDecoration(
                         hintText: "Enter secret word...",
