@@ -165,12 +165,23 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
       if (level > 100) level = 100;
       
       let ageMult = 1.0;
+      
+      // Streak Multiplier Math
+      // Day 1: 1.0, Day 2: 1.1, Day 3: 1.2 ... Day 7: 1.6
+      // It stays at 1.6 until they miss a day.
+      let streakMultiplier = 1.0;
+      if (streak == 2) streakMultiplier = 1.1;
+      else if (streak == 3) streakMultiplier = 1.2;
+      else if (streak == 4) streakMultiplier = 1.3;
+      else if (streak == 5) streakMultiplier = 1.4;
+      else if (streak == 6) streakMultiplier = 1.5;
+      else if (streak >= 7) streakMultiplier = 1.6;
+
       if (data.pet_birth_date) {
         const decayed = calculateDecay(data);
         ageMult = getAgeMultiplier(data.pet_birth_date);
         
-        const totalBonusPercent = level + streak;
-        finalReward = baseReward * (1 + (totalBonusPercent / 100));
+        finalReward = baseReward * (1 + (level / 100)) * streakMultiplier;
         finalReward = finalReward * ageMult;
         finalReward = Math.min(finalReward, 0.072);
 
@@ -195,9 +206,7 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
           transaction.update(userRef, updates);
         }
       } else {
-        const totalBonusPercent = level + streak;
-        finalReward = baseReward * (1 + (totalBonusPercent / 100));
-        finalReward = finalReward * ageMult;
+        finalReward = baseReward * (1 + (level / 100)) * streakMultiplier;
         finalReward = Math.min(finalReward, 0.072);
 
         let history = data.reward_history || [];
