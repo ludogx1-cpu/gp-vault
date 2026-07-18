@@ -20,7 +20,7 @@ messaging.onBackgroundMessage((payload) => {
   const notificationTitle = payload.notification.title || 'Golden Paw';
   const notificationOptions = {
     body: payload.notification.body,
-    icon: '/icons/Icon-192.png'
+    icon: '/favicon.png'
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);

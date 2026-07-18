@@ -67,25 +67,28 @@ class FirebaseService {
       if (token != null) {
         print("FCM Token: $token");
         
-        // Subscribe to promo updates via backend
-        try {
-          final headers = await getAuthHeaders();
-          await http.post(
-            Uri.parse('https://golden-paw-vault.onrender.com/subscribe-promo-topic'),
-            headers: headers,
-            body: jsonEncode({'token': token}),
-          );
-        } catch (e) {
-          print("Failed to subscribe to topic: $e");
-        }
-
         // We need to save this to the user doc when they log in.
-        // We'll hook into Auth state changes.
-        FirebaseAuth.instance.authStateChanges().listen((User? user) {
+        // We'll hook into Auth state changes so we are guaranteed to have a valid user.
+        FirebaseAuth.instance.authStateChanges().listen((User? user) async {
           if (user != null) {
             FirebaseFirestore.instance.collection('users').doc(user.uid).set({
               'fcm_token': token,
             }, SetOptions(merge: true));
+
+            // Subscribe to promo updates via backend
+            try {
+              final tokenStr = await user.getIdToken();
+              await http.post(
+                Uri.parse('https://golden-paw-vault.onrender.com/subscribe-promo-topic'),
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer $tokenStr',
+                },
+                body: jsonEncode({'token': token}),
+              );
+            } catch (e) {
+              print("Failed to subscribe to topic: $e");
+            }
           }
         });
       }
