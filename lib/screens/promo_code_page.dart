@@ -102,7 +102,7 @@ class _PromoCodePageState extends State<PromoCodePage> {
     final isDark = themeProvider.isDarkMode;
 
     return Scaffold(
-      backgroundColor: isDark ? themeProvider.darkBackground : Colors.grey[100],
+      backgroundColor: isDark ? Colors.black87 : Colors.grey[100],
       appBar: AppBar(
         title: const Text("Daily Promo Code", style: TextStyle(fontWeight: FontWeight.w900)),
         backgroundColor: Colors.amber,
