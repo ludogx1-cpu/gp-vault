@@ -514,6 +514,15 @@ class _AccountPageState extends State<AccountPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: SizedBox(
+                      width: 728,
+                      height: 90,
+                      child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                   Image.asset(
                     'assets/Goldenpawicon.png',
                     width: 130,

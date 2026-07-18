@@ -503,14 +503,15 @@ class _FaucetPageState extends State<FaucetPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
 
-                if (MediaQuery.of(context).size.width >= 750) ...[
-                  SizedBox(
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: SizedBox(
                     width: 728,
                     height: 90,
                     child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
                   ),
-                  const SizedBox(height: 20),
-                ],
+                ),
+                const SizedBox(height: 20),
 
                 const SizedBox(
                   width: 120,

@@ -5,6 +5,7 @@ import '../src/theme_provider.dart';
 import 'package:flutter/material.dart';
 import '../widgets/trustpilot_widget.dart';
 import '../widgets/newsletter_subscribe_widget.dart';
+import '../widgets/widgets.dart';
 import 'blog_page.dart';
 
 class LandingPage extends StatefulWidget {
@@ -121,13 +122,21 @@ class _LandingPageState extends State<LandingPage> {
       body: PageWithFooter(
         child: Column(
           children: [
+            const SizedBox(height: 20),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: SizedBox(
+                width: 728,
+                height: 90,
+                child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
+              ),
+            ),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 20),
                   Image.asset(
                     'assets/logo_landing.png',
                     height: 120,
