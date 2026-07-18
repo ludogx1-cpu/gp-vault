@@ -10,6 +10,7 @@ import '../screens/dogeogotcha_instructions_page.dart';
 import '../screens/leaderboard_page.dart';
 import '../screens/suggestion_box_page.dart';
 import '../screens/blog_page.dart';
+import '../screens/promo_code_page.dart';
 import 'platform_indicator_level_text.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -319,6 +320,22 @@ class AppDrawer extends StatelessWidget {
                       builder: (context) => const AffiliateLinksPage(),
                     ),
                   );
+                },
+              ),
+              Divider(color: dividerColor),
+              ListTile(
+                leading: Icon(Icons.stars_rounded, color: Colors.amber),
+                title: Text('Daily Promo',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: titleColor)),
+                subtitle: Text('Spin the wheel',
+                    style: TextStyle(color: subColor, fontSize: 12)),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const PromoCodePage()));
                 },
               ),
               Divider(color: dividerColor),

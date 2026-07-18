@@ -63,6 +63,20 @@ class FirebaseService {
             "BNNSLNFl4zpOEubsCdhqQC2b5jTkpKV_qLoe6QtKM-fGQ6wqJ06pGhN2snwodgDKgrbF9rhelYMe2sV6mIxwdeU",
       );
       if (token != null) {
+        print("FCM Token: $token");
+        
+        // Subscribe to promo updates via backend
+        try {
+          final headers = await getAuthHeaders();
+          await http.post(
+            Uri.parse('https://golden-paw-vault.onrender.com/subscribe-promo-topic'),
+            headers: headers,
+            body: jsonEncode({'token': token}),
+          );
+        } catch (e) {
+          print("Failed to subscribe to topic: $e");
+        }
+
         // We need to save this to the user doc when they log in.
         // We'll hook into Auth state changes.
         FirebaseAuth.instance.authStateChanges().listen((User? user) {
