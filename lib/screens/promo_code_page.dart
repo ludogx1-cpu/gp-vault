@@ -183,7 +183,6 @@ class _PromoCodePageState extends State<PromoCodePage> {
                       decoration: InputDecoration(
                         hintText: "Enter secret word...",
                         hintStyle: TextStyle(color: isDark ? Colors.grey[500] : Colors.grey[400]),
-                        prefixIcon: const Icon(Icons.vpn_key, color: Colors.amber),
                         filled: true,
                         fillColor: isDark ? themeProvider.darkGreyBorder : Colors.grey[50],
                         border: OutlineInputBorder(

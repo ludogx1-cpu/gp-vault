@@ -324,7 +324,7 @@ class AppDrawer extends StatelessWidget {
               ),
               Divider(color: dividerColor),
               ListTile(
-                leading: Icon(Icons.stars_rounded, color: Colors.amber),
+                leading: Icon(Icons.star, color: Colors.amber),
                 title: Text('Daily Promo',
                     style: TextStyle(
                         fontWeight: FontWeight.bold, color: titleColor)),
