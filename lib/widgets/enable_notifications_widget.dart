@@ -23,6 +23,16 @@ class _EnableNotificationsWidgetState extends State<EnableNotificationsWidget> {
 
   Future<void> _checkPermissions() async {
     try {
+      bool isSupported = await FirebaseMessaging.instance.isSupported();
+      if (!isSupported) {
+        setState(() {
+          _isVisible = true;
+          _statusMessage = "Push notifications are not supported by this browser. (If on iPhone, you must be on iOS 16.4+ and open the app from your Home Screen).";
+          _isButtonEnabled = false;
+        });
+        return;
+      }
+
       FirebaseMessaging messaging = FirebaseMessaging.instance;
       NotificationSettings settings = await messaging.getNotificationSettings();
       
@@ -34,7 +44,7 @@ class _EnableNotificationsWidgetState extends State<EnableNotificationsWidget> {
       } else if (settings.authorizationStatus == AuthorizationStatus.denied) {
         setState(() {
           _isVisible = true;
-          _statusMessage = "Notifications are blocked by your browser settings.";
+          _statusMessage = "Notifications are blocked by your browser settings. Please allow them in your browser preferences.";
           _isButtonEnabled = false;
         });
       } else {
@@ -48,7 +58,7 @@ class _EnableNotificationsWidgetState extends State<EnableNotificationsWidget> {
     } catch (e) {
       setState(() {
         _isVisible = true;
-        _statusMessage = "Notifications are not supported on this device/browser. (Must be installed to Home Screen on iOS)";
+        _statusMessage = "Error checking notifications: $e";
         _isButtonEnabled = false;
       });
     } finally {

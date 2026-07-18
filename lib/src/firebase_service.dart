@@ -26,11 +26,14 @@ class FirebaseService {
 
     // Push Notifications setup
     try {
-      FirebaseMessaging messaging = FirebaseMessaging.instance;
-      NotificationSettings settings = await messaging.getNotificationSettings();
+      bool isSupported = await FirebaseMessaging.instance.isSupported();
+      if (isSupported) {
+        FirebaseMessaging messaging = FirebaseMessaging.instance;
+        NotificationSettings settings = await messaging.getNotificationSettings();
 
-      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        _setupFCMToken(messaging);
+        if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+          _setupFCMToken(messaging);
+        }
       }
     } catch (e) {
       if (kDebugMode) {
@@ -41,6 +44,9 @@ class FirebaseService {
 
   static Future<void> requestPushPermissions() async {
     try {
+      bool isSupported = await FirebaseMessaging.instance.isSupported();
+      if (!isSupported) return;
+
       FirebaseMessaging messaging = FirebaseMessaging.instance;
       NotificationSettings settings = await messaging.requestPermission(
         alert: true,
