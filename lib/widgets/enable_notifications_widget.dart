@@ -12,6 +12,8 @@ class EnableNotificationsWidget extends StatefulWidget {
 class _EnableNotificationsWidgetState extends State<EnableNotificationsWidget> {
   bool _isVisible = false;
   bool _isLoading = true;
+  String _statusMessage = "";
+  bool _isButtonEnabled = true;
 
   @override
   void initState() {
@@ -24,15 +26,31 @@ class _EnableNotificationsWidgetState extends State<EnableNotificationsWidget> {
       FirebaseMessaging messaging = FirebaseMessaging.instance;
       NotificationSettings settings = await messaging.getNotificationSettings();
       
-      // If the user hasn't been asked yet, show the button.
-      // If they authorized or denied, we hide the button forever.
-      if (settings.authorizationStatus == AuthorizationStatus.notDetermined) {
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        // If authorized, hide it entirely as requested
+        setState(() {
+          _isVisible = false;
+        });
+      } else if (settings.authorizationStatus == AuthorizationStatus.denied) {
         setState(() {
           _isVisible = true;
+          _statusMessage = "Notifications are blocked by your browser settings.";
+          _isButtonEnabled = false;
+        });
+      } else {
+        // notDetermined
+        setState(() {
+          _isVisible = true;
+          _statusMessage = "Enable notifications to keep your streak alive.";
+          _isButtonEnabled = true;
         });
       }
     } catch (e) {
-      // Ignore errors (e.g., unsupported platform) and keep it hidden.
+      setState(() {
+        _isVisible = true;
+        _statusMessage = "Notifications are not supported on this device/browser. (Must be installed to Home Screen on iOS)";
+        _isButtonEnabled = false;
+      });
     } finally {
       if (mounted) {
         setState(() {
@@ -44,12 +62,7 @@ class _EnableNotificationsWidgetState extends State<EnableNotificationsWidget> {
 
   Future<void> _requestPermissions() async {
     await FirebaseService.requestPushPermissions();
-    // After requesting, hide the button regardless of outcome (accept or reject)
-    if (mounted) {
-      setState(() {
-        _isVisible = false;
-      });
-    }
+    _checkPermissions(); // Re-check to update UI state
   }
 
   @override
@@ -77,23 +90,28 @@ class _EnableNotificationsWidgetState extends State<EnableNotificationsWidget> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 5),
-          const Text(
-            "Enable notifications to keep your streak alive.",
-            style: TextStyle(fontSize: 14),
+          Text(
+            _statusMessage,
+            style: TextStyle(
+              fontSize: 14, 
+              color: _isButtonEnabled ? null : Colors.redAccent,
+              fontWeight: _isButtonEnabled ? FontWeight.normal : FontWeight.bold,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 15),
           ElevatedButton(
-            onPressed: _requestPermissions,
+            onPressed: _isButtonEnabled ? _requestPermissions : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blueAccent,
+              disabledBackgroundColor: Colors.grey,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
-            child: const Text(
-              "Enable Notifications",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            child: Text(
+              _isButtonEnabled ? "Enable Notifications" : "Unavailable",
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
         ],
