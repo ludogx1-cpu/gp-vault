@@ -209,6 +209,15 @@ class _StakingPageState extends State<StakingPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: SizedBox(
+                          width: 728,
+                          height: 90,
+                          child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                       const Text('🏦', style: TextStyle(fontSize: 80)),
                       const SizedBox(height: 15),
                       Text(
