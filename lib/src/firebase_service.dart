@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 class FirebaseService {
@@ -18,6 +20,31 @@ class FirebaseService {
       );
     } else {
       await Firebase.initializeApp();
+    }
+
+    // Push Notifications setup
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      String? token = await messaging.getToken(
+        vapidKey: "YOUR_VAPID_KEY_HERE" // Need to put the real one here later
+      );
+      if (token != null) {
+        // We need to save this to the user doc when they log in. 
+        // We'll hook into Auth state changes.
+        FirebaseAuth.instance.authStateChanges().listen((User? user) {
+          if (user != null) {
+             FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+               'fcm_token': token,
+             }, SetOptions(merge: true));
+          }
+        });
+      }
     }
   }
 }
