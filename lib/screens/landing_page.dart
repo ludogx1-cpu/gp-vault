@@ -7,6 +7,7 @@ import '../widgets/trustpilot_widget.dart';
 import '../widgets/newsletter_subscribe_widget.dart';
 import '../widgets/widgets.dart';
 import 'blog_page.dart';
+import '../widgets/universal_web_view/universal_web_view.dart';
 
 class LandingPage extends StatefulWidget {
   final void Function(BuildContext, bool) onAuthTrigger;

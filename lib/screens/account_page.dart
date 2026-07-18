@@ -11,6 +11,7 @@ import '../src/firebase_service.dart';
 import '../widgets/widgets.dart';
 import '../api_constants.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../widgets/universal_web_view/universal_web_view.dart';
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
 
