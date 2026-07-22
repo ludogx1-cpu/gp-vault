@@ -8,65 +8,10 @@ import '../screens/blog_page.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../src/theme_provider.dart';
+import 'universal_web_view/universal_web_view.dart';
 
 class AppFooter extends StatelessWidget {
   const AppFooter({super.key});
-
-  void _showDonateDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
-          "Support Golden Paw 🐾",
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              "Your donations help keep the faucet filled and rewards high for the whole community!",
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              "Our Dogecoin (DOGE) Address:",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.blue.shade50,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.blue.shade200),
-              ),
-              child: const SelectableText(
-                "DDcrrGX7SzzdExq3pFo7fayrWfuvrPgX9d",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'monospace',
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              "(Long press to copy address)",
-              style: TextStyle(fontSize: 10, color: Colors.grey),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("CLOSE"),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -267,50 +212,12 @@ class AppFooter extends StatelessWidget {
           const SizedBox(height: 10),
           LayoutBuilder(
             builder: (context, constraints) {
-              final buttonWidth = constraints.maxWidth > 300
-                  ? 280.0
-                  : constraints.maxWidth * 0.92;
-              final fontSize = buttonWidth < 200 ? 12.0 : 13.0;
+
               return Center(
                 child: SizedBox(
-                  width: buttonWidth,
-                  child: ElevatedButton.icon(
-                    onPressed: () => _showDonateDialog(context),
-                    icon: const Icon(
-                      Icons.favorite,
-                      color: Colors.red,
-                      size: 18,
-                    ),
-                    label: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            "SUPPORT THE PROJECT (DONATE)",
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: fontSize,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black87,
-                      side: const BorderSide(color: Colors.black87, width: 1.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 14,
-                      ),
-                    ),
-                  ),
+                  width: 114,
+                  height: 32,
+                  child: UniversalWebView.create(viewType: 'github-sponsors-iframe', width: 114, height: 32),
                 ),
               );
             },
