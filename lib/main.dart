@@ -50,6 +50,8 @@ final _router = GoRouter(
   ],
 );
 
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -66,6 +68,7 @@ void main() async {
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, theme, child) => MaterialApp.router(
+          scaffoldMessengerKey: scaffoldMessengerKey,
           title: 'Golden Paw',
           routerConfig: _router,
           debugShowCheckedModeBanner: false,
