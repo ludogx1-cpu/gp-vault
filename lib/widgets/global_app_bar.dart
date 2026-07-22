@@ -3,7 +3,7 @@ import 'live_referral_tracker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../src/theme_provider.dart';
-
+import 'persistent_sidebar.dart';
 class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackArrow;
   final List<Widget>? actions;
@@ -67,7 +67,12 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
                       icon: const Icon(Icons.arrow_back),
                       onPressed: () => Navigator.pop(context),
                     )
-                  : null,
+                  : IconButton(
+                      icon: const Icon(Icons.menu),
+                      onPressed: () {
+                        sidebarExpandedNotifier.value = !sidebarExpandedNotifier.value;
+                      },
+                    ),
               actions: [
                 if (actions != null) ...actions!,
                 if (showWallet)
