@@ -20,3 +20,5 @@ export 'square_ad_placeholder.dart';
 export 'wallet_dropdown_button.dart';
 export 'shiba_pet_widget.dart';
 export 'adsterra_landing_ad.dart';
+export 'pwa_install_widget.dart';
+export 'enable_notifications_widget.dart';
