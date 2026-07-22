@@ -701,10 +701,12 @@ class _FaucetPageState extends State<FaucetPage> {
                                       title: const Text(
                                         '🏆 Weekly Pet Leaderboard (Top 10)',
                                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                        textAlign: TextAlign.center,
                                       ),
                                       subtitle: const Text(
                                         'Take the best care of your pet to win free DOGE every Sunday at midnight!',
                                         style: TextStyle(fontSize: 13),
+                                        textAlign: TextAlign.center,
                                       ),
                                       children: [
                                         Padding(

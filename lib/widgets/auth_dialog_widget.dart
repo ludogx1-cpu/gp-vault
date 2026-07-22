@@ -222,20 +222,21 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                         height: 30,
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark ? themeProvider.darkGreyBoxColor : Colors.white,
                           borderRadius: BorderRadius.circular(5),
                           border: Border.all(color: Colors.amber.shade200),
                         ),
                         child: DropdownButton<String>(
                           value: _selectedCaptcha,
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.arrow_drop_down,
-                            color: Colors.black87,
+                            color: isDark ? Colors.grey.shade400 : Colors.black87,
                             size: 16,
                           ),
                           elevation: 16,
-                          style: const TextStyle(
-                            color: Colors.black87,
+                          dropdownColor: isDark ? Colors.grey.shade900 : Colors.white,
+                          style: TextStyle(
+                            color: isDark ? Colors.grey.shade300 : Colors.black87,
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
                           ),
