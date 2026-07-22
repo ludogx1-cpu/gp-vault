@@ -71,7 +71,7 @@ class _SuggestionBoxPageState extends State<SuggestionBoxPage> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20.0),
               child: Container(
-                constraints: const BoxConstraints(maxWidth: 700),
+                constraints: const BoxConstraints(maxWidth: 800),
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: isDark

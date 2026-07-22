@@ -514,7 +514,7 @@ class _AccountPageState extends State<AccountPage> {
               PageWithFooter(
                 child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 700),
+                constraints: const BoxConstraints(maxWidth: 800),
                 child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
@@ -529,7 +529,6 @@ class _AccountPageState extends State<AccountPage> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  const PwaInstallWidget(),
                   const EnableNotificationsWidget(),
                   const SizedBox(height: 20),
                   Image.asset(
@@ -1329,6 +1328,8 @@ class _AccountPageState extends State<AccountPage> {
                       },
                     ),
                   ],
+                  const SizedBox(height: 30),
+                  const PwaInstallWidget(),
                 ],
               ),
             ),
@@ -1337,14 +1338,14 @@ class _AccountPageState extends State<AccountPage> {
           ),
           if (MediaQuery.of(context).size.width >= 1000) ...[
             Positioned(
-              left: ((MediaQuery.of(context).size.width - 700) / 2 - 160) / 2,
+              left: ((MediaQuery.of(context).size.width - 800) / 2 - 160) / 2,
               top: 100,
               width: 160,
               height: 600,
               child: UniversalWebView.create(viewType: 'adsterra-160x600', width: 160, height: 600),
             ),
             Positioned(
-              right: ((MediaQuery.of(context).size.width - 700) / 2 - 160) / 2,
+              right: ((MediaQuery.of(context).size.width - 800) / 2 - 160) / 2,
               top: 100,
               width: 160,
               height: 300,

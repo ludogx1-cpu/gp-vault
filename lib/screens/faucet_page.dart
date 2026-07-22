@@ -689,7 +689,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                   final isDark = themeProvider.isDarkMode;
                                   return Container(
                                     width: double.infinity,
-                                    constraints: const BoxConstraints(maxWidth: 700),
+                                    constraints: const BoxConstraints(maxWidth: 800),
                                     decoration: BoxDecoration(
                                       color: isDark ? themeProvider.darkGreyBoxColor : Colors.green.shade100,
                                       borderRadius: BorderRadius.circular(10),
@@ -839,7 +839,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                   return Container(
                                 width: double.infinity,
                                 constraints: const BoxConstraints(
-                                  maxWidth: 700,
+                                  maxWidth: 800,
                                 ),
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
@@ -933,7 +933,7 @@ class _FaucetPageState extends State<FaucetPage> {
                           final isDark = themeProvider.isDarkMode;
                           return Container(
                             width: double.infinity,
-                            constraints: const BoxConstraints(maxWidth: 700),
+                            constraints: const BoxConstraints(maxWidth: 800),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: isDark
@@ -1004,7 +1004,7 @@ class _FaucetPageState extends State<FaucetPage> {
                         final isDark = themeProvider.isDarkMode;
                         return Container(
                           width: double.infinity,
-                          constraints: const BoxConstraints(maxWidth: 700),
+                          constraints: const BoxConstraints(maxWidth: 800),
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             color: isDark ? themeProvider.darkGreyBoxColor : Colors.blue.shade50,
@@ -1452,7 +1452,7 @@ class _FaucetPageState extends State<FaucetPage> {
                               children: [
                                 Container(
                                   width: double.infinity,
-                                  constraints: const BoxConstraints(maxWidth: 700),
+                                  constraints: const BoxConstraints(maxWidth: 800),
                                   padding: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
                                     color: isDark
