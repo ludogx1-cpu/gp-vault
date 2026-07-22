@@ -512,6 +512,8 @@ class _FaucetPageState extends State<FaucetPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
+                const BitcotasksAdWidget(),
+                const SizedBox(height: 20),
 
                 const SizedBox(
                   width: 120,
@@ -1547,6 +1549,8 @@ class _FaucetPageState extends State<FaucetPage> {
                     );
                   },
                 ),
+                const SizedBox(height: 20),
+                const Bitcotasks160x600AdWidget(),
                 const SizedBox(height: 20),
                 const NewsletterSubscribeWidget(),
                 const SizedBox(height: 60),

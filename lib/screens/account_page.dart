@@ -379,8 +379,19 @@ class _AccountPageState extends State<AccountPage> {
                   return Column(
                     children: [
                       ...currentHistory.map((item) {
-                        final sector = item['sector'] ?? 'Unknown';
-                        final amount = item['amount']?.toString() ?? '0.0';
+                        final sectorRaw = item['sector']?.toString() ?? 'Unknown';
+                        final sector = sectorRaw.replaceAll('\n', ' ');
+                        
+                        String amountStr = '0.0';
+                        final amt = item['amount'];
+                        if (amt != null) {
+                          final doubleVal = double.tryParse(amt.toString());
+                          if (doubleVal != null) {
+                            amountStr = doubleVal.toStringAsFixed(8).replaceAll(RegExp(r'0*$'), '').replaceAll(RegExp(r'\.$'), '');
+                          } else {
+                            amountStr = amt.toString();
+                          }
+                        }
                         final ts = item['timestamp'] as int?;
                         String timeStr = 'Unknown Date';
                         if (ts != null) {
@@ -441,7 +452,7 @@ class _AccountPageState extends State<AccountPage> {
                                 ),
                               ),
                               Text(
-                                '+$amount DOGE',
+                                '+$amountStr DOGE',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.green,
@@ -528,6 +539,8 @@ class _AccountPageState extends State<AccountPage> {
                       child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  const BitcotasksAdWidget(),
                   const SizedBox(height: 10),
                   const EnableNotificationsWidget(),
                   const SizedBox(height: 20),

@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:math';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
+import '../widgets/widgets.dart';
 
 class PromoCodePage extends StatefulWidget {
   const PromoCodePage({super.key});
@@ -18,7 +19,7 @@ class _PromoCodePageState extends State<PromoCodePage> {
   final TextEditingController _codeController = TextEditingController();
   bool _isClaiming = false;
   String _message = "";
-  
+
   // Spinner state
   bool _isSpinning = false;
   int _currentDisplayNumber = 0;
@@ -37,7 +38,8 @@ class _PromoCodePageState extends State<PromoCodePage> {
         if (data['success'] && data['code'] != null) {
           setState(() {
             _codeController.text = data['code'];
-            _message = "Today's secret word filled in! Click SPIN & CLAIM below.";
+            _message =
+                "Today's secret word filled in! Click SPIN & CLAIM below.";
           });
         }
       }
@@ -128,7 +130,10 @@ class _PromoCodePageState extends State<PromoCodePage> {
     return AppScaffold(
       backgroundColor: isDark ? Colors.black87 : Colors.grey[100],
       appBar: AppBar(
-        title: const Text("Daily Promo Code", style: TextStyle(fontWeight: FontWeight.w900)),
+        title: const Text(
+          "Daily Promo Code",
+          style: TextStyle(fontWeight: FontWeight.w900),
+        ),
         backgroundColor: Colors.amber,
         foregroundColor: Colors.white,
         centerTitle: true,
@@ -136,155 +141,208 @@ class _PromoCodePageState extends State<PromoCodePage> {
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 500),
-            child: Card(
-              color: isDark ? themeProvider.darkGreyBoxColor : Colors.white,
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              child: Padding(
-                padding: const EdgeInsets.all(30.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.stars_rounded, color: Colors.amber, size: 80),
-                    const SizedBox(height: 20),
-                    Text(
-                      "Daily Promo Spinner!",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                        color: isDark ? Colors.white : Colors.black87,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 15),
-                    Text(
-                      "Enable Push Notifications to receive a new secret word every day at 6:00 AM UK time! Enter the code below or click the code generator to spin the wheel for up to 0.10 DOGE.",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: isDark ? Colors.grey[400] : Colors.grey[700],
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 25),
-                    
-                    // Code Generator Quick Button
-                    OutlinedButton.icon(
-                      onPressed: _isFetchingCode ? null : _fetchTodayCode,
-                      icon: _isFetchingCode
-                          ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.amber))
-                          : const Icon(Icons.auto_awesome, size: 18, color: Colors.amber),
-                      label: const Text(
-                        "GET TODAY'S CODE",
-                        style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 13),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.amber, width: 1.5),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    
-                    // The Spinner
-                    Container(
-                      width: 150,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        color: Colors.black87,
-                        borderRadius: BorderRadius.circular(15),
-                        border: Border.all(color: Colors.amber, width: 4),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.amber.withOpacity(0.5),
-                            blurRadius: 10,
-                            spreadRadius: 2,
-                          )
-                        ]
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        _currentDisplayNumber.toString().padLeft(3, '0'),
-                        style: const TextStyle(
-                          fontFamily: 'Courier',
-                          fontSize: 50,
-                          fontWeight: FontWeight.w900,
+          child: Column(
+            children: [
+              const Bitcotasks728x90AdWidget(),
+              const SizedBox(height: 20),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 500),
+                child: Card(
+                  color: isDark ? themeProvider.darkGreyBoxColor : Colors.white,
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.stars_rounded,
                           color: Colors.amber,
-                          letterSpacing: 8,
+                          size: 80,
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-
-                    // Input Field
-                    TextField(
-                      controller: _codeController,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-                      decoration: InputDecoration(
-                        hintText: "Enter secret word...",
-                        hintStyle: TextStyle(color: isDark ? Colors.grey[500] : Colors.grey[400]),
-                        filled: true,
-                        fillColor: isDark ? themeProvider.darkGreyBorder : Colors.grey[50],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Colors.amber, width: 2),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Claim Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: _isClaiming || _isSpinning ? null : _claimPromoCode,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.amber,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                        const SizedBox(height: 20),
+                        Text(
+                          "Daily Promo Spinner!",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w900,
+                            color: isDark ? Colors.white : Colors.black87,
                           ),
-                          elevation: 3,
+                          textAlign: TextAlign.center,
                         ),
-                        child: _isClaiming
-                            ? const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
-                              )
-                            : const Text(
-                                "SPIN & CLAIM",
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+                        const SizedBox(height: 15),
+                        Text(
+                          "Enable Push Notifications to receive a new secret word every day at 6:00 AM UK time! Enter the code below or click the code generator to spin the wheel for up to 0.10 DOGE.",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: isDark ? Colors.grey[400] : Colors.grey[700],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 25),
+
+                        // Code Generator Quick Button
+                        OutlinedButton.icon(
+                          onPressed: _isFetchingCode ? null : _fetchTodayCode,
+                          icon: _isFetchingCode
+                              ? const SizedBox(
+                                  width: 14,
+                                  height: 14,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.amber,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.auto_awesome,
+                                  size: 18,
+                                  color: Colors.amber,
+                                ),
+                          label: const Text(
+                            "GET TODAY'S CODE",
+                            style: TextStyle(
+                              color: Colors.amber,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(
+                              color: Colors.amber,
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // The Spinner
+                        Container(
+                          width: 150,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.black87,
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(color: Colors.amber, width: 4),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.amber.withOpacity(0.5),
+                                blurRadius: 10,
+                                spreadRadius: 2,
                               ),
-                      ),
-                    ),
-                    
-                    if (_message.isNotEmpty) ...[
-                      const SizedBox(height: 20),
-                      Text(
-                        _message,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: _message.contains("Congratulations") ? Colors.green : Colors.redAccent,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                            ],
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            _currentDisplayNumber.toString().padLeft(3, '0'),
+                            style: const TextStyle(
+                              fontFamily: 'Courier',
+                              fontSize: 50,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.amber,
+                              letterSpacing: 8,
+                            ),
+                          ),
                         ),
-                      ),
-                    ]
-                  ],
+                        const SizedBox(height: 30),
+
+                        // Input Field
+                        TextField(
+                          controller: _codeController,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: "Enter secret word...",
+                            hintStyle: TextStyle(
+                              color: isDark
+                                  ? Colors.grey[500]
+                                  : Colors.grey[400],
+                            ),
+                            filled: true,
+                            fillColor: isDark
+                                ? themeProvider.darkGreyBorder
+                                : Colors.grey[50],
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: Colors.amber,
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Claim Button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: _isClaiming || _isSpinning
+                                ? null
+                                : _claimPromoCode,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.amber,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 3,
+                            ),
+                            child: _isClaiming
+                                ? const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 3,
+                                    ),
+                                  )
+                                : const Text(
+                                    "SPIN & CLAIM",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.2,
+                                    ),
+                                  ),
+                          ),
+                        ),
+
+                        if (_message.isNotEmpty) ...[
+                          const SizedBox(height: 20),
+                          Text(
+                            _message,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: _message.contains("Congratulations")
+                                  ? Colors.green
+                                  : Colors.redAccent,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ),
     );
   }
 }
-

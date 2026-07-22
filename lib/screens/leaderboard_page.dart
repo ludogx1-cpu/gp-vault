@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import '../api_constants.dart';
 import '../widgets/global_app_bar.dart';
 import '../widgets/page_with_footer.dart';
+import '../widgets/widgets.dart';
 
 class LeaderboardPage extends StatefulWidget {
   const LeaderboardPage({super.key});
@@ -137,6 +138,8 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                 ),
                 const SizedBox(height: 24),
                 _buildPrizeCard(),
+                const SizedBox(height: 24),
+                const Center(child: Bitcotasks300x100AdWidget()),
                 const SizedBox(height: 24),
                 
                 if (_isLoading)
