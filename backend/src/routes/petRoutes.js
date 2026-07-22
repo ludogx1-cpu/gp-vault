@@ -514,6 +514,10 @@ router.post('/pet-walk-sync', verifyFirebaseToken, async (req, res) => {
       const xpGained = calculateXPGain(data, Math.floor(validMeters / 10));
       const newXP = currentXP + xpGained;
 
+      let history = data.reward_history || [];
+      history.unshift({ sector: 'Pet Care (Walk)', amount: dogeReward, timestamp: Date.now() });
+      if (history.length > 15) history = history.slice(0, 15);
+
       transaction.update(userRef, {
         doge_balance: newDogeBal,
         pet_xp: newXP,
@@ -523,8 +527,10 @@ router.post('/pet-walk-sync', verifyFirebaseToken, async (req, res) => {
         pet_total_distance_walked: newTotalDist,
         pet_last_walk_sync: admin.firestore.FieldValue.serverTimestamp(),
         weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
-        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
+        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
+        reward_history: history
       });
+
 
       result = { reward: dogeReward, distance: validMeters, total_distance: newTotalDist, energy: newEnergy, xp: newXP, xp_gained: xpGained };
     });
