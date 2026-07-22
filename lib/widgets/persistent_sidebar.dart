@@ -106,6 +106,9 @@ class PersistentSidebar extends StatelessWidget {
   const PersistentSidebar({super.key});
 
   void _navigateTo(BuildContext context, Widget page) {
+    if (MediaQuery.of(context).size.width < 600) {
+      sidebarExpandedNotifier.value = false;
+    }
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => page),
@@ -124,9 +127,12 @@ class PersistentSidebar extends StatelessWidget {
     return ValueListenableBuilder<bool>(
       valueListenable: sidebarExpandedNotifier,
       builder: (context, isExpanded, child) {
+        final isMobile = MediaQuery.of(context).size.width < 600;
+        final targetWidth = isMobile ? (isExpanded ? 242.0 : 0.0) : (isExpanded ? 242.0 : 62.0);
+
         return AnimatedContainer(
           duration: const Duration(milliseconds: 250),
-          width: isExpanded ? 242 : 62,
+          width: targetWidth,
           decoration: BoxDecoration(
             color: sidebarColor,
             border: Border(
@@ -136,8 +142,15 @@ class PersistentSidebar extends StatelessWidget {
               ),
             ),
           ),
-          child: Column(
-            children: [
+          child: ClipRect(
+            child: OverflowBox(
+              minWidth: 0,
+              maxWidth: 242,
+              alignment: Alignment.topLeft,
+              child: SizedBox(
+                width: isExpanded ? 242 : 62,
+                child: Column(
+                  children: [
               // Scrollable Nav Items
               Expanded(
                 child: ListView(
@@ -149,6 +162,9 @@ class PersistentSidebar extends StatelessWidget {
                       isDark: isDark,
                       isExpanded: isExpanded,
                       onTap: () {
+                        if (MediaQuery.of(context).size.width < 600) {
+                          sidebarExpandedNotifier.value = false;
+                        }
                         Navigator.push(
                           context,
                           PageRouteBuilder(
@@ -177,6 +193,9 @@ class PersistentSidebar extends StatelessWidget {
                       isDark: isDark,
                       isExpanded: isExpanded,
                       onTap: () {
+                        if (MediaQuery.of(context).size.width < 600) {
+                          sidebarExpandedNotifier.value = false;
+                        }
                         if (kIsWeb) {
                           try {
                             bool canPrompt = _canInstallPwaJS().toDart;
@@ -281,6 +300,9 @@ class PersistentSidebar extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+              ),
+            ),
           ),
         );
       },
