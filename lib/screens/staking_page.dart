@@ -224,7 +224,7 @@ class _StakingPageState extends State<StakingPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      const Text('🏦', style: TextStyle(fontSize: 80)),
+                      Image.asset('assets/Bank.png', height: 100, width: 100),
                       const SizedBox(height: 15),
                       Text(
                         "Earn 8.5% APY on your DOGE",

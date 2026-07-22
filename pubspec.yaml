@@ -42,6 +42,7 @@ flutter:
   # 🚀 THIS IS YOUR NEW ASSETS FOLDER
   assets:
     - assets/bg.png
+    - assets/Bank.png
     - assets/Goldenpawicon.png
     - assets/logo_landing.png
     - assets/Golen Paw Title.png
