@@ -23,6 +23,85 @@ external void _triggerPwaInstallJS();
 
 final ValueNotifier<bool> sidebarExpandedNotifier = ValueNotifier(false);
 
+class SidebarNavItem extends StatefulWidget {
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+  final bool isDark;
+  final bool isExpanded;
+  
+  const SidebarNavItem({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    required this.isDark,
+    required this.isExpanded,
+  });
+
+  @override
+  State<SidebarNavItem> createState() => _SidebarNavItemState();
+}
+
+class _SidebarNavItemState extends State<SidebarNavItem> {
+  bool _isHovered = false;
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color defaultIconColor = widget.isDark ? Colors.grey.shade400 : Colors.grey.shade600;
+    final Color activeIconColor = Colors.amber;
+    final Color titleColor = widget.isDark ? Colors.white : Colors.black87;
+    
+    final bool isActive = _isHovered || _isPressed;
+    final Color currentIconColor = isActive ? activeIconColor : defaultIconColor;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 3.0),
+      child: InkWell(
+        onTap: widget.onTap,
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapUp: (_) => setState(() => _isPressed = false),
+        onTapCancel: () => setState(() => _isPressed = false),
+        onHover: (hovering) => setState(() => _isHovered = hovering),
+        splashColor: Colors.amber.withValues(alpha: 0.2),
+        highlightColor: Colors.amber.withValues(alpha: 0.1),
+        hoverColor: Colors.transparent, // Let the icon color change handle hover
+        child: Container(
+          height: 55, // Increased size
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 150),
+                child: Icon(
+                  widget.icon, 
+                  key: ValueKey(isActive),
+                  color: currentIconColor, 
+                  size: 31, // Increased size
+                ),
+              ),
+              if (widget.isExpanded) ...[
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    widget.title,
+                    style: TextStyle(
+                      color: titleColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ]
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class PersistentSidebar extends StatelessWidget {
   const PersistentSidebar({super.key});
 
@@ -30,44 +109,6 @@ class PersistentSidebar extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => page),
-    );
-  }
-
-  Widget _buildNavItem(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-    required bool isDark,
-    required bool isExpanded,
-  }) {
-    final Color iconColor = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
-    final Color titleColor = isDark ? Colors.white : Colors.black87;
-
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        height: 52,
-        padding: const EdgeInsets.symmetric(horizontal: 17),
-        child: Row(
-          children: [
-            Icon(icon, color: iconColor, size: 28),
-            if (isExpanded) ...[
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    color: titleColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ]
-          ],
-        ),
-      ),
     );
   }
 
@@ -102,8 +143,7 @@ class PersistentSidebar extends StatelessWidget {
                 child: ListView(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   children: [
-                    _buildNavItem(
-                      context,
+                    SidebarNavItem(
                       icon: Icons.mouse,
                       title: 'Earn DOGE (PTC)',
                       isDark: isDark,
@@ -131,8 +171,7 @@ class PersistentSidebar extends StatelessWidget {
                         );
                       },
                     ),
-                    _buildNavItem(
-                      context,
+                    SidebarNavItem(
                       icon: Icons.install_mobile,
                       title: 'Install App to Device',
                       isDark: isDark,
@@ -164,72 +203,63 @@ class PersistentSidebar extends StatelessWidget {
                         }
                       },
                     ),
-                    _buildNavItem(
-                      context,
+                    SidebarNavItem(
                       icon: Icons.pets,
                       title: 'Dogeogotcha Guide',
                       isDark: isDark,
                       isExpanded: isExpanded,
                       onTap: () => _navigateTo(context, const DogeogotchaInstructionsPage()),
                     ),
-                    _buildNavItem(
-                      context,
+                    SidebarNavItem(
                       icon: Icons.leaderboard,
                       title: 'Weekly Leaderboard',
                       isDark: isDark,
                       isExpanded: isExpanded,
                       onTap: () => _navigateTo(context, const LeaderboardPage()),
                     ),
-                    _buildNavItem(
-                      context,
+                    SidebarNavItem(
                       icon: Icons.group_add,
                       title: 'Referral Program',
                       isDark: isDark,
                       isExpanded: isExpanded,
                       onTap: () => _navigateTo(context, const ReferralPage()),
                     ),
-                    _buildNavItem(
-                      context,
+                    SidebarNavItem(
                       icon: Icons.campaign,
                       title: 'Buy Ads / PTC',
                       isDark: isDark,
                       isExpanded: isExpanded,
                       onTap: () => _navigateTo(context, const AdHubPage()),
                     ),
-                    _buildNavItem(
-                      context,
+                    SidebarNavItem(
                       icon: Icons.link,
                       title: 'Bonus Partners',
                       isDark: isDark,
                       isExpanded: isExpanded,
                       onTap: () => _navigateTo(context, const AffiliateLinksPage()),
                     ),
-                    _buildNavItem(
-                      context,
+                    SidebarNavItem(
                       icon: Icons.star,
                       title: 'Daily Promo',
                       isDark: isDark,
                       isExpanded: isExpanded,
                       onTap: () => _navigateTo(context, const PromoCodePage()),
                     ),
-                    _buildNavItem(
-                      context,
+                    SidebarNavItem(
                       icon: Icons.assignment_turned_in,
                       title: 'Offerwalls',
                       isDark: isDark,
                       isExpanded: isExpanded,
                       onTap: () => _navigateTo(context, const OfferwallHubPage()),
                     ),
-                    _buildNavItem(
-                      context,
+                    SidebarNavItem(
                       icon: Icons.lightbulb,
                       title: 'Suggestion Box',
                       isDark: isDark,
                       isExpanded: isExpanded,
                       onTap: () => _navigateTo(context, const SuggestionBoxPage()),
                     ),
-                    _buildNavItem(
-                      context,
+                    SidebarNavItem(
                       icon: Icons.article,
                       title: 'Blog',
                       isDark: isDark,
@@ -239,8 +269,7 @@ class PersistentSidebar extends StatelessWidget {
                     
                     if (isAdmin) ...[
                       Divider(color: isDark ? themeProvider.darkGreyBorder : Colors.grey.shade300),
-                      _buildNavItem(
-                        context,
+                      SidebarNavItem(
                         icon: Icons.admin_panel_settings,
                         title: 'Admin Dashboard',
                         isDark: isDark,
