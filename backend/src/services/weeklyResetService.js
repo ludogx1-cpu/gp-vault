@@ -48,7 +48,7 @@ async function processWeeklyReset() {
   const hoursSinceReset = 168; // 1 week
   for (let i = 0; i < AI_USERNAMES.length; i++) {
      const name = AI_USERNAMES[i];
-     const efficiency = 0.60 + (seededRandom(i) * 0.35); // 0.60 to 0.95
+     const efficiency = 0.10 + (seededRandom(i) * 0.30); // 0.10 to 0.40
      const score = Math.floor(hoursSinceReset * efficiency);
      aiBots.push({
        uid: `ai_bot_${i}`,

@@ -1,4 +1,6 @@
 import 'package:provider/provider.dart';
+import 'dart:js_interop';
+import 'package:flutter/foundation.dart';
 import '../src/user_provider.dart';
 import '../screens/admin_dashboard_page.dart';
 import '../screens/offerwall_hub_page.dart';
@@ -16,6 +18,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
+
+@JS('canInstallPwa')
+external JSBoolean _canInstallPwaJS();
+
+@JS('triggerPwaInstall')
+external void _triggerPwaInstallJS();
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -202,6 +210,48 @@ class AppDrawer extends StatelessWidget {
                       transitionDuration: const Duration(milliseconds: 400),
                     ),
                   );
+                },
+              ),
+              Divider(color: dividerColor),
+              ListTile(
+                leading: const Icon(Icons.install_mobile, color: Colors.blueAccent),
+                title: Text(
+                  'Install App to Device',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: titleColor,
+                  ),
+                ),
+                subtitle: Text(
+                  'Get notifications & faster access',
+                  style: TextStyle(fontSize: 12, color: subColor),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  if (kIsWeb) {
+                    try {
+                      bool canPrompt = _canInstallPwaJS().toDart;
+                      if (canPrompt) {
+                        _triggerPwaInstallJS();
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("To install: tap your browser menu (⋮ or Share) and select 'Add to Home screen' or 'Install App'!"),
+                            backgroundColor: Colors.orange,
+                            duration: Duration(seconds: 5),
+                          ),
+                        );
+                      }
+                    } catch (_) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("To install: tap your browser menu (⋮ or Share) and select 'Add to Home screen' or 'Install App'!"),
+                          backgroundColor: Colors.orange,
+                          duration: Duration(seconds: 5),
+                        ),
+                      );
+                    }
+                  }
                 },
               ),
               Divider(color: dividerColor),

@@ -32,8 +32,8 @@ function getAIBotScores() {
      const petName = AI_PET_NAMES[i];
      
      // AI bots are pretty good but not perfect. 
-     // Let's say they keep their pet stats above 40% for 60% to 95% of the time.
-     const efficiency = 0.60 + (seededRandom(i) * 0.35); // 0.60 to 0.95
+     // Let's say they keep their pet stats above 40% for 10% to 40% of the time.
+     const efficiency = 0.10 + (seededRandom(i) * 0.30); // 0.10 to 0.40
      const score = Math.floor(hoursSinceReset * efficiency);
      
      bots.push({
