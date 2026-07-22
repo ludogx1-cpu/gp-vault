@@ -109,4 +109,26 @@ router.post('/subscribe-promo-topic', verifyFirebaseToken, async (req, res) => {
   }
 });
 
+// Endpoint to subscribe FCM token to pet_reminders topic
+router.post('/subscribe-pet-topic', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ success: false, error: 'FCM token required' });
+    }
+
+    await admin.messaging().subscribeToTopic(token, 'pet_reminders');
+    
+    res.json({ success: true, message: 'Subscribed to pet_reminders topic' });
+  } catch (error) {
+    console.error('Subscribe pet topic error:', error);
+    res.status(500).json({ success: false, error: 'Failed to subscribe to pet_reminders topic' });
+  }
+});
+
 module.exports = router;
+

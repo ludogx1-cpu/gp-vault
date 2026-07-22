@@ -124,6 +124,28 @@
     }
   </script>
   <script>
+    window.deferredPwaPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      window.deferredPwaPrompt = e;
+      window.dispatchEvent(new Event('pwa-installable'));
+    });
+
+    window.canInstallPwa = function() {
+      return window.deferredPwaPrompt !== null;
+    };
+
+    window.triggerPwaInstall = function() {
+      if (window.deferredPwaPrompt) {
+        window.deferredPwaPrompt.prompt();
+        window.deferredPwaPrompt.userChoice.then(function(choiceResult) {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the PWA install prompt');
+          }
+          window.deferredPwaPrompt = null;
+        });
+      }
+    };
   </script>
   <script type="text/javascript">
       adroll_adv_id = "TYRCWKOL3VFWDDX7CA3SRB";

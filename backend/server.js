@@ -16,6 +16,7 @@ const promoRoutes = require('./src/routes/promoRoutes');
 const { startAiChatService } = require('./src/services/aiChatService');
 const { startWeeklyResetService } = require('./src/services/weeklyResetService');
 const { startPromoCronService } = require('./src/services/promoCronService');
+const { startPetCronService } = require('./src/services/petCronService');
 const app = express();
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
@@ -94,6 +95,7 @@ if (require.main === module) {
   startAiChatService(); // Start the AI Chat bots
   startWeeklyResetService(); // Start the Weekly Leaderboard Reset Service
   startPromoCronService(); // Start the Daily Promo Cron
+  startPetCronService(); // Start the Pet Care Reminder Cron
 
   app.listen(port, '0.0.0.0', () => {
     console.log(`GoldenPaw faucet backend listening on port ${port}`);

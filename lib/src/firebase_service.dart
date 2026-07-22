@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../api_constants.dart';
 
 class FirebaseService {
   static Future<void> initialize() async {
@@ -81,11 +82,19 @@ class FirebaseService {
               'fcm_token': token,
             }, SetOptions(merge: true));
 
-            // Subscribe to promo updates via backend
+            // Subscribe to promo and pet updates via backend
             try {
               final tokenStr = await user.getIdToken();
               await http.post(
-                Uri.parse('https://golden-paw-vault.onrender.com/subscribe-promo-topic'),
+                Uri.parse('${ApiConstants.baseUrl}/subscribe-promo-topic'),
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer $tokenStr',
+                },
+                body: jsonEncode({'token': token}),
+              );
+              await http.post(
+                Uri.parse('${ApiConstants.baseUrl}/subscribe-pet-topic'),
                 headers: {
                   'Content-Type': 'application/json',
                   'Authorization': 'Bearer $tokenStr',
@@ -93,7 +102,7 @@ class FirebaseService {
                 body: jsonEncode({'token': token}),
               );
             } catch (e) {
-              print("Failed to subscribe to topic: $e");
+              print("Failed to subscribe to topics: $e");
             }
           }
         });

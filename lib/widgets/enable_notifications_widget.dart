@@ -26,9 +26,7 @@ class _EnableNotificationsWidgetState extends State<EnableNotificationsWidget> {
       bool isSupported = await FirebaseMessaging.instance.isSupported();
       if (!isSupported) {
         setState(() {
-          _isVisible = true;
-          _statusMessage = "Push notifications are not supported by this browser. (If on iPhone, you must be on iOS 16.4+ and open the app from your Home Screen).";
-          _isButtonEnabled = false;
+          _isVisible = false;
         });
         return;
       }
@@ -37,29 +35,24 @@ class _EnableNotificationsWidgetState extends State<EnableNotificationsWidget> {
       NotificationSettings settings = await messaging.getNotificationSettings();
       
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        // If authorized, hide it entirely as requested
         setState(() {
           _isVisible = false;
         });
       } else if (settings.authorizationStatus == AuthorizationStatus.denied) {
         setState(() {
-          _isVisible = true;
-          _statusMessage = "Notifications are blocked by your browser settings. Please allow them in your browser preferences.";
-          _isButtonEnabled = false;
+          _isVisible = false;
         });
       } else {
         // notDetermined
         setState(() {
           _isVisible = true;
-          _statusMessage = "Enable notifications to keep your streak alive.";
+          _statusMessage = "Get instant alerts for daily promo codes & pet care reminders!";
           _isButtonEnabled = true;
         });
       }
     } catch (e) {
       setState(() {
-        _isVisible = true;
-        _statusMessage = "Error checking notifications: $e";
-        _isButtonEnabled = false;
+        _isVisible = false;
       });
     } finally {
       if (mounted) {
