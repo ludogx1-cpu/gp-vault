@@ -126,10 +126,21 @@
   <script>
     window.deferredPwaPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => {
+      console.log('beforeinstallprompt event fired');
       e.preventDefault();
       window.deferredPwaPrompt = e;
       window.dispatchEvent(new Event('pwa-installable'));
     });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/firebase-messaging-sw.js').then(function(reg) {
+          console.log('ServiceWorker registered with scope:', reg.scope);
+        }).catch(function(err) {
+          console.log('ServiceWorker registration failed:', err);
+        });
+      });
+    }
 
     window.canInstallPwa = function() {
       return window.deferredPwaPrompt !== null;
@@ -144,7 +155,9 @@
           }
           window.deferredPwaPrompt = null;
         });
+        return true;
       }
+      return false;
     };
   </script>
   <script type="text/javascript">
