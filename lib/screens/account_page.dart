@@ -514,13 +514,13 @@ class _AccountPageState extends State<AccountPage> {
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 600),
                 child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: SizedBox(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: SizedBox(
                       width: 728,
                       height: 90,
                       child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
@@ -1326,6 +1326,7 @@ class _AccountPageState extends State<AccountPage> {
                         );
                       },
                     ),
+                  ],
                 ],
               ),
             ),
@@ -1333,8 +1334,8 @@ class _AccountPageState extends State<AccountPage> {
         ),
       );
     },
-  ),
-);
+      ),
+    );
   }
 }
 
