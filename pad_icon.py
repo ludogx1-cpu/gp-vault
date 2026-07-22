@@ -4,11 +4,11 @@ def pad_image(input_path, output_path, padding_ratio=0.2):
     try:
         img = Image.open(input_path).convert("RGBA")
         old_size = img.size
-        # We want the original image to take up 50% of the new canvas
-        new_size = (int(old_size[0] / 0.5), int(old_size[1] / 0.5))
+        # Make original image take up 35% of canvas so toes are safely inside maskable icon margins
+        new_size = (int(old_size[0] / 0.35), int(old_size[1] / 0.35))
         
-        # Create a new black image
-        new_img = Image.new("RGBA", new_size, (0, 0, 0, 255))
+        # Create a new transparent image
+        new_img = Image.new("RGBA", new_size, (0, 0, 0, 0))
         
         # Paste the original image into the center
         paste_x = (new_size[0] - old_size[0]) // 2
@@ -27,5 +27,7 @@ pad_image("assets/Goldenpawicon.png", "web/favicon_padded.png")
 img = Image.open("web/favicon_padded.png").convert("RGBA")
 img.resize((192, 192), Image.Resampling.LANCZOS).save("web/icons/Icon-192.png")
 img.resize((512, 512), Image.Resampling.LANCZOS).save("web/icons/Icon-512.png")
+img.resize((192, 192), Image.Resampling.LANCZOS).save("web/icons/Icon-maskable-192.png")
+img.resize((512, 512), Image.Resampling.LANCZOS).save("web/icons/Icon-maskable-512.png")
 img.resize((512, 512), Image.Resampling.LANCZOS).save("web/favicon.png")
 print("Icons generated!")

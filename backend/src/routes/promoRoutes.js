@@ -16,6 +16,40 @@ function getPromoReward(rolledNumber) {
   return 0.01;
 }
 
+const wordsList = [
+  "doge", "moon", "rocket", "crypto", "blockchain",
+  "wallet", "shiba", "paw", "golden", "vault",
+  "coin", "token", "mining", "faucet", "reward",
+  "bonus", "steak", "hodl", "wagmi", "airdrop"
+];
+
+// Endpoint to fetch or generate current active promo code
+router.get('/today-promo', async (req, res) => {
+  try {
+    const db = admin.firestore();
+    let settingsDoc = await db.collection('system_settings').doc('promo').get();
+    let code = "";
+
+    if (!settingsDoc.exists || !settingsDoc.data() || !settingsDoc.data().code) {
+      const randomWord = wordsList[Math.floor(Math.random() * wordsList.length)];
+      const randomNumber = Math.floor(Math.random() * 99) + 1;
+      code = `${randomWord}${randomNumber}`;
+
+      await db.collection('system_settings').doc('promo').set({
+        code: code,
+        timestamp: admin.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    } else {
+      code = settingsDoc.data().code;
+    }
+
+    res.json({ success: true, code });
+  } catch (error) {
+    console.error('Error fetching today promo:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch promo code' });
+  }
+});
+
 // Endpoint to claim daily promo code
 router.post('/claim-promo', verifyFirebaseToken, async (req, res) => {
   try {
