@@ -181,6 +181,108 @@ void registerWebViews() {
       iframe.setAttribute('style', 'border: 0; border-radius: 6px;');
       return iframe;
     });
+    // 13. Bitcotasks Responsive Ad
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('bitcotasks-ad', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('style', 'border:none; width:100%; height:100%; overflow:hidden;');
+      iframe.setAttribute('scrolling', 'no');
+      iframe.setAttribute('srcdoc', '''
+        <!DOCTYPE html>
+        <html>
+          <body style="margin:0;padding:0; display:flex; justify-content:center; align-items:center;">
+            <script>
+            (function() {
+              function insertAd() {
+                var width = window.parent.innerWidth || window.innerWidth;
+                var size = '300x250';
+                if(width >= 1200) size = '728x90';
+                else if(width >= 992) size = '468x60';
+                else if(width >= 768) size = '300x100';
+                var adIframe = document.createElement('iframe');
+                adIframe.src = 'https://bitcotasks.com/banner.php?key=0cd9422cecc4ffac20af8a7d&size=' + size;
+                adIframe.frameBorder = 'no';
+                adIframe.style.width = size.split('x')[0] + 'px';
+                adIframe.style.height = size.split('x')[1] + 'px';
+                adIframe.style.overflow = 'hidden';
+                var s = document.currentScript;
+                s.parentNode.insertBefore(adIframe, s);
+                s.parentNode.removeChild(s);
+              }
+              insertAd();
+            })();
+            </script>
+          </body>
+        </html>
+      ''');
+      return iframe;
+    });
+
+    // 14. Bitcotasks 468x60 Ad
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('bitcotasks-468x60', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('src', 'https://bitcotasks.com/banner.php?key=0cd9422cecc4ffac20af8a7d&size=468x60');
+      iframe.setAttribute('style', 'border:none; width:468px; height:60px; overflow:hidden;');
+      iframe.setAttribute('frameborder', 'no');
+      iframe.setAttribute('scrolling', 'no');
+      return iframe;
+    });
+
+    // 15. Bitcotasks 728x90 Ad
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('bitcotasks-728x90', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('src', 'https://bitcotasks.com/banner.php?key=0cd9422cecc4ffac20af8a7d&size=728x90');
+      iframe.setAttribute('style', 'border:none; width:728px; height:90px; overflow:hidden;');
+      iframe.setAttribute('frameborder', 'no');
+      iframe.setAttribute('scrolling', 'no');
+      return iframe;
+    });
+
+    // 16. Bitcotasks 300x250 Ad
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('bitcotasks-300x250', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('src', 'https://bitcotasks.com/banner.php?key=0cd9422cecc4ffac20af8a7d&size=300x250');
+      iframe.setAttribute('style', 'border:none; width:300px; height:250px; overflow:hidden;');
+      iframe.setAttribute('frameborder', 'no');
+      iframe.setAttribute('scrolling', 'no');
+      return iframe;
+    });
+
+    // 17. Bitcotasks 300x100 Ad
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('bitcotasks-300x100', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('src', 'https://bitcotasks.com/banner.php?key=0cd9422cecc4ffac20af8a7d&size=300x100');
+      iframe.setAttribute('style', 'border:none; width:300px; height:100px; overflow:hidden;');
+      iframe.setAttribute('frameborder', 'no');
+      iframe.setAttribute('scrolling', 'no');
+      return iframe;
+    });
+
+    // 18. Bitcotasks 160x600 Ad
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('bitcotasks-160x600', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('src', 'https://bitcotasks.com/banner.php?key=0cd9422cecc4ffac20af8a7d&size=160x600');
+      iframe.setAttribute('style', 'border:none; width:160px; height:600px; overflow:hidden;');
+      iframe.setAttribute('frameborder', 'no');
+      iframe.setAttribute('scrolling', 'no');
+      return iframe;
+    });
+
+    // 19. Bitcotasks 300x600 Ad
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('bitcotasks-300x600', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('src', 'https://bitcotasks.com/banner.php?key=0cd9422cecc4ffac20af8a7d&size=300x600');
+      iframe.setAttribute('style', 'border:none; width:300px; height:600px; overflow:hidden;');
+      iframe.setAttribute('frameborder', 'no');
+      iframe.setAttribute('scrolling', 'no');
+      return iframe;
+    });
 
   } catch (e) {
     // ignore: empty_catches

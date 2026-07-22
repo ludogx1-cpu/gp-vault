@@ -8,6 +8,7 @@ import '../src/theme_provider.dart';
 import '../widgets/global_app_bar.dart';
 import '../widgets/page_with_footer.dart';
 import '../widgets/newsletter_subscribe_widget.dart';
+import '../widgets/widgets.dart';
 
 class BlogPage extends StatefulWidget {
   const BlogPage({super.key});
@@ -451,6 +452,8 @@ class _BlogPageState extends State<BlogPage> with SingleTickerProviderStateMixin
                         ],
                       ),
                     ),
+                    const SizedBox(height: 20),
+                    const Bitcotasks300x100AdWidget(),
                   ],
                 ),
               );

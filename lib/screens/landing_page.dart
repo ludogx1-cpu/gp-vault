@@ -278,6 +278,8 @@ class _LandingPageState extends State<LandingPage> {
               ],
             ),
             const SizedBox(height: 50),
+            const Bitcotasks468x60AdWidget(),
+            const SizedBox(height: 50),
             const TrustpilotWidget(),
             const SizedBox(height: 80),
 
@@ -306,6 +308,8 @@ class _LandingPageState extends State<LandingPage> {
               ),
             ),
 
+            const SizedBox(height: 80),
+            const Bitcotasks300x600AdWidget(),
             const SizedBox(height: 80),
             const NewsletterSubscribeWidget(),
             const SizedBox(height: 100),

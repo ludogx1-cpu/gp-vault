@@ -276,6 +276,8 @@ class _WalkPetPageState extends State<WalkPetPage> {
               ),
             ),
             const SizedBox(height: 16),
+            const Bitcotasks468x60AdWidget(),
+            const SizedBox(height: 16),
 
             // Map Area
             Expanded(
