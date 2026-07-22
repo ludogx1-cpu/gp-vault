@@ -18,11 +18,38 @@ class AppScaffold extends StatelessWidget {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: appBar,
-      body: Row(
-        children: [
-          const PersistentSidebar(),
-          Expanded(child: body ?? const SizedBox()),
-        ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isMobile = constraints.maxWidth < 600;
+          if (isMobile) {
+            return Stack(
+              children: [
+                SizedBox.expand(child: body ?? const SizedBox()),
+                ValueListenableBuilder<bool>(
+                  valueListenable: sidebarExpandedNotifier,
+                  builder: (context, isExpanded, child) {
+                    if (!isExpanded) return const SizedBox.shrink();
+                    return GestureDetector(
+                      onTap: () => sidebarExpandedNotifier.value = false,
+                      child: Container(
+                        color: Colors.black54,
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
+                    );
+                  },
+                ),
+                const PersistentSidebar(),
+              ],
+            );
+          }
+          return Row(
+            children: [
+              const PersistentSidebar(),
+              Expanded(child: body ?? const SizedBox()),
+            ],
+          );
+        },
       ),
     );
   }
