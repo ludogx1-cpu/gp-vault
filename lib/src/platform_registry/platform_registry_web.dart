@@ -170,6 +170,18 @@ void registerWebViews() {
       return div;
     });
 
+    // 12. GitHub Sponsors Iframe
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('github-sponsors-iframe', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('src', 'https://github.com/sponsors/ludogx1-cpu/button');
+      iframe.setAttribute('title', 'Sponsor ludogx1-cpu');
+      iframe.setAttribute('height', '32');
+      iframe.setAttribute('width', '114');
+      iframe.setAttribute('style', 'border: 0; border-radius: 6px;');
+      return iframe;
+    });
+
   } catch (e) {
     // ignore: empty_catches
   }
