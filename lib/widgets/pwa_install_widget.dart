@@ -7,7 +7,7 @@ import 'dart:js_interop';
 external JSBoolean _canInstallPwaJS();
 
 @JS('triggerPwaInstall')
-external void _triggerPwaInstallJS();
+external JSBoolean _triggerPwaInstallJS();
 
 class PwaInstallWidget extends StatefulWidget {
   const PwaInstallWidget({super.key});
@@ -49,10 +49,8 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
 
   void _triggerInstall() {
     try {
-      bool canPrompt = _canInstallPwaJS().toDart;
-      if (canPrompt) {
-        _triggerPwaInstallJS();
-      } else {
+      bool prompted = _triggerPwaInstallJS().toDart;
+      if (!prompted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("To install: tap your browser menu (⋮ or Share) and select 'Add to Home screen' or 'Install App'!"),
