@@ -1,9 +1,9 @@
+import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'dart:math';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
 
@@ -125,7 +125,7 @@ class _PromoCodePageState extends State<PromoCodePage> {
   Widget build(BuildContext context) {
     final isDark = themeProvider.isDarkMode;
 
-    return Scaffold(
+    return AppScaffold(
       backgroundColor: isDark ? Colors.black87 : Colors.grey[100],
       appBar: AppBar(
         title: const Text("Daily Promo Code", style: TextStyle(fontWeight: FontWeight.w900)),
@@ -287,3 +287,4 @@ class _PromoCodePageState extends State<PromoCodePage> {
     );
   }
 }
+

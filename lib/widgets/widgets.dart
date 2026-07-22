@@ -1,5 +1,6 @@
 export 'animated_hover_card.dart';
-export 'app_drawer.dart';
+export 'persistent_sidebar.dart';
+export 'app_scaffold.dart';
 export 'app_footer.dart';
 export 'auth_dialog.dart';
 export 'auth_dialog_widget.dart';

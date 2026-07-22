@@ -1,3 +1,4 @@
+import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -55,7 +56,7 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      return Scaffold(
+      return AppScaffold(
         appBar: AppBar(
           title: const Text('Offerwalls'),
           backgroundColor: Colors.amber,
@@ -69,7 +70,7 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
       );
     }
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text(
           'Offerwall Tasks',
@@ -436,4 +437,5 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
     );
   }
 }
+
 

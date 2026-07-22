@@ -1,3 +1,4 @@
+import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:url_launcher/url_launcher.dart';
@@ -246,7 +247,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null || user.email != 'ludogx1@gmail.com') {
-      return Scaffold(
+      return AppScaffold(
         appBar: AppBar(
           title: const Text('Access Denied'),
           backgroundColor: Colors.red,
@@ -254,7 +255,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
       );
     }
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text(
           'BOSS DASHBOARD',
@@ -1045,4 +1046,5 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
 // ==========================================
 // 🌟 AFFILIATE LINKS PAGE (HYBRID TABBED)
 // ==========================================
+
 

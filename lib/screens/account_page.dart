@@ -1,3 +1,4 @@
+import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -503,8 +504,7 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     final isDark = themeProvider.isDarkMode;
 
-    return Scaffold(
-      drawer: const AppDrawer(),
+    return AppScaffold(
       appBar: const GlobalAppBar(),
       body: Consumer<UserProvider>(
         builder: (context, userProvider, _) {
@@ -1337,3 +1337,4 @@ class _AccountPageState extends State<AccountPage> {
 // ==========================================
 // 🌟 THE AD HUB & DEPOSIT PAGE 🌟
 // ==========================================
+

@@ -1,4 +1,4 @@
-const DECAY_RATE_PER_HOUR = 5.0;
+const DECAY_RATE_PER_HOUR = 2.5;
 const MAX_STAT = 100;
 
 function calculateDecay(userData) {
@@ -14,20 +14,20 @@ function calculateDecay(userData) {
   let energyDecayRate = DECAY_RATE_PER_HOUR;
 
   if (stage === 'baby' || stage === 'toddler' || stage === 'puppy') {
-    energyDecayRate = 8.0;
-    happinessDecayRate = 20.0;
-    attentionDecayRate = 20.0;
-    hungerDecayRate = 4.166;
-  } else if (stage === 'child' || stage === 'teen') {
-    energyDecayRate = 6.0;
-    happinessDecayRate = 20.0;
-    attentionDecayRate = 20.0;
-    hungerDecayRate = 4.166;
-  } else if (stage === 'young_adult' || stage === 'adult' || stage === 'old_dog') {
     energyDecayRate = 4.0;
-    happinessDecayRate = 20.0;
-    attentionDecayRate = 20.0;
-    hungerDecayRate = 4.166;
+    happinessDecayRate = 10.0;
+    attentionDecayRate = 10.0;
+    hungerDecayRate = 2.083;
+  } else if (stage === 'child' || stage === 'teen') {
+    energyDecayRate = 3.0;
+    happinessDecayRate = 10.0;
+    attentionDecayRate = 10.0;
+    hungerDecayRate = 2.083;
+  } else if (stage === 'young_adult' || stage === 'adult' || stage === 'old_dog') {
+    energyDecayRate = 2.0;
+    happinessDecayRate = 10.0;
+    attentionDecayRate = 10.0;
+    hungerDecayRate = 2.083;
   }
 
   const hungerDecay = hoursPassed * hungerDecayRate;

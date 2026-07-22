@@ -1,3 +1,4 @@
+import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import '../src/theme_provider.dart';
 import '../widgets/trustpilot_widget.dart';
@@ -30,7 +31,7 @@ class _LandingPageState extends State<LandingPage> {
   Widget build(BuildContext context) {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
 
-    return Scaffold(
+    return AppScaffold(
       backgroundColor: Colors.transparent,
       appBar: GlobalAppBar(
         centerTitle: false,
@@ -314,3 +315,4 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 }
+

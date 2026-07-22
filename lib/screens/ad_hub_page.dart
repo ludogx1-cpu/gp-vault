@@ -1,3 +1,4 @@
+import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
@@ -495,7 +496,7 @@ class _AdHubPageState extends State<AdHubPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: const GlobalAppBar(showBackArrow: true),
       body: Consumer<UserProvider>(
         builder: (context, userProvider, _) {
@@ -1071,4 +1072,5 @@ class _AdHubPageState extends State<AdHubPage> {
 // ==========================================
 // ✨ MULTI-TIER PTC EARN PAGE
 // ==========================================
+
 

@@ -1,3 +1,4 @@
+import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
@@ -157,8 +158,7 @@ class _StakingPageState extends State<StakingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const AppDrawer(),
+    return AppScaffold(
       appBar: const GlobalAppBar(),
       body: Consumer<UserProvider>(
         builder: (context, userProvider, _) {
@@ -589,5 +589,6 @@ class _StakingPageState extends State<StakingPage> {
     );
   }
 }
+
 
 

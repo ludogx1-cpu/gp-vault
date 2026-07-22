@@ -1,3 +1,4 @@
+import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -30,7 +31,7 @@ class ReferralPage extends StatelessWidget {
         ? "https://golden-paw-database.web.app/?ref=${user.uid.substring(0, 8)}"
         : "Login to get your referral link!";
 
-    return Scaffold(
+    return AppScaffold(
       appBar: const GlobalAppBar(showBackArrow: true),
       body: PageWithFooter(
         child: ListenableBuilder(
@@ -226,5 +227,6 @@ class ReferralPage extends StatelessWidget {
 // ==========================================
 // 🌟 LEGAL & SUPPORT PAGES 🌟
 // ==========================================
+
 
 

@@ -1,3 +1,4 @@
+import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import '../src/theme_provider.dart';
 import '../widgets/widgets.dart';
@@ -22,7 +23,7 @@ class PrivacyPolicyPage extends StatelessWidget {
   const PrivacyPolicyPage({super.key});
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: const GlobalAppBar(showBackArrow: true),
       body: PageWithFooter(
         child: SingleChildScrollView(
@@ -66,5 +67,6 @@ class PrivacyPolicyPage extends StatelessWidget {
     );
   }
 }
+
 
 

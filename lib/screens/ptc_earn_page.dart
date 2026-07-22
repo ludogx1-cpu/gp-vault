@@ -1,3 +1,4 @@
+import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:url_launcher/url_launcher.dart';
@@ -69,7 +70,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
     if (user == null ||
         _userStream == null ||
         _adsStream == null) {
-      return Scaffold(
+      return AppScaffold(
         appBar: AppBar(
           title: const Text(
             'EARN DOGE (PTC)',
@@ -91,7 +92,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
       );
     }
 
-    return Scaffold(
+    return AppScaffold(
       appBar: const GlobalAppBar(showBackArrow: true),
       body: StreamBuilder<DocumentSnapshot>(
         stream: _userStream,
@@ -371,4 +372,5 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
 // ==========================================
 // 🚀 SECRET ADMIN DASHBOARD 🚀
 // ==========================================
+
 
