@@ -3,9 +3,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../api_constants.dart';
+import '../main.dart';
 
 class FirebaseService {
   static Future<void> initialize() async {
@@ -35,6 +37,30 @@ class FirebaseService {
         if (settings.authorizationStatus == AuthorizationStatus.authorized) {
           _setupFCMToken(messaging);
         }
+
+        // Listen for foreground messages
+        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+          if (message.notification != null) {
+            final title = message.notification?.title ?? 'Notification';
+            final body = message.notification?.body ?? '';
+            
+            scaffoldMessengerKey.currentState?.showSnackBar(
+              SnackBar(
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    if (body.isNotEmpty) Text(body),
+                  ],
+                ),
+                duration: const Duration(seconds: 5),
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20),
+              ),
+            );
+          }
+        });
       }
     } catch (e) {
       if (kDebugMode) {

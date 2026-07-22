@@ -44,10 +44,10 @@ const runPetCareLogic = async () => {
 };
 
 function startPetCronService() {
-  // Run every 4 hours (e.g. at 00:00, 04:00, 08:00, 12:00, 16:00, 20:00)
-  cron.schedule('0 */4 * * *', runPetCareLogic);
+  // Run every hour at the top of the hour
+  cron.schedule('0 * * * *', runPetCareLogic);
 
-  console.log('Pet Care Reminder Cron Service initialized (Runs every 4 hours).');
+  console.log('Pet Care Reminder Cron Service initialized (Runs every hour).');
 }
 
 module.exports = { startPetCronService, runPetCareLogic };
