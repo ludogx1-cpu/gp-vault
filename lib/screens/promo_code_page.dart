@@ -24,6 +24,30 @@ class _PromoCodePageState extends State<PromoCodePage> {
   int _currentDisplayNumber = 0;
   Timer? _spinnerTimer;
 
+  bool _isFetchingCode = false;
+
+  Future<void> _fetchTodayCode() async {
+    setState(() => _isFetchingCode = true);
+    try {
+      final response = await http.get(
+        Uri.parse('https://golden-paw-vault.onrender.com/today-promo'),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success'] && data['code'] != null) {
+          setState(() {
+            _codeController.text = data['code'];
+            _message = "Today's secret word filled in! Click SPIN & CLAIM below.";
+          });
+        }
+      }
+    } catch (_) {
+      setState(() => _message = "Could not fetch code automatically.");
+    } finally {
+      if (mounted) setState(() => _isFetchingCode = false);
+    }
+  }
+
   @override
   void dispose() {
     _codeController.dispose();
@@ -136,14 +160,31 @@ class _PromoCodePageState extends State<PromoCodePage> {
                     ),
                     const SizedBox(height: 15),
                     Text(
-                      "Enable Push Notifications to receive a new secret word every day at 6:00 AM! Enter the code below to spin the wheel for up to 0.10 DOGE.",
+                      "Enable Push Notifications to receive a new secret word every day at 6:00 AM UK time! Enter the code below or click the code generator to spin the wheel for up to 0.10 DOGE.",
                       style: TextStyle(
                         fontSize: 14,
                         color: isDark ? Colors.grey[400] : Colors.grey[700],
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 25),
+                    
+                    // Code Generator Quick Button
+                    OutlinedButton.icon(
+                      onPressed: _isFetchingCode ? null : _fetchTodayCode,
+                      icon: _isFetchingCode
+                          ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.amber))
+                          : const Icon(Icons.auto_awesome, size: 18, color: Colors.amber),
+                      label: const Text(
+                        "GET TODAY'S CODE",
+                        style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.amber, width: 1.5),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                     
                     // The Spinner
                     Container(

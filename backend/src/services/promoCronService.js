@@ -9,9 +9,9 @@ const wordsList = [
 ];
 
 function startPromoCronService() {
-  // Run every day at 6:00 AM server time
+  // Run every day at 6:00 AM UK time
   cron.schedule('0 6 * * *', async () => {
-    console.log('Running daily promo cron job at 6:00 AM...');
+    console.log('Running daily promo cron job at 6:00 AM UK time...');
     try {
       const db = admin.firestore();
       
@@ -44,9 +44,11 @@ function startPromoCronService() {
     } catch (error) {
       console.error('Error running daily promo cron job:', error);
     }
+  }, {
+    timezone: 'Europe/London'
   });
   
-  console.log('Daily Promo Cron Service initialized (Runs at 06:00 AM).');
+  console.log('Daily Promo Cron Service initialized (Runs at 06:00 AM UK time).');
 }
 
 module.exports = { startPromoCronService };
