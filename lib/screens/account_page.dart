@@ -509,10 +509,12 @@ class _AccountPageState extends State<AccountPage> {
       body: Consumer<UserProvider>(
         builder: (context, userProvider, _) {
           final user = FirebaseAuth.instance.currentUser;
-          return PageWithFooter(
-            child: Center(
+          return Stack(
+            children: [
+              PageWithFooter(
+                child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 600),
+                constraints: const BoxConstraints(maxWidth: 700),
                 child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
@@ -1330,8 +1332,26 @@ class _AccountPageState extends State<AccountPage> {
                 ],
               ),
             ),
+              ),
+            ),
           ),
-        ),
+          if (MediaQuery.of(context).size.width >= 1000) ...[
+            Positioned(
+              left: ((MediaQuery.of(context).size.width - 700) / 2 - 160) / 2,
+              top: 100,
+              width: 160,
+              height: 600,
+              child: UniversalWebView.create(viewType: 'adsterra-160x600', width: 160, height: 600),
+            ),
+            Positioned(
+              right: ((MediaQuery.of(context).size.width - 700) / 2 - 160) / 2,
+              top: 100,
+              width: 160,
+              height: 300,
+              child: UniversalWebView.create(viewType: 'adsterra-160x300', width: 160, height: 300),
+            ),
+          ],
+        ],
       );
     },
       ),
