@@ -195,8 +195,10 @@ class _StakingPageState extends State<StakingPage> {
           double stakedBalance = (userData['staked_balance'] ?? 0.0).toDouble();
           Timestamp? stakeTimestamp = userData['stake_timestamp'] as Timestamp?;
 
-          return PageWithFooter(
-            // 👑 Wrapped the main padding layout in ListenableBuilder
+          return Stack(
+            children: [
+              PageWithFooter(
+                // 👑 Wrapped the main padding layout in ListenableBuilder
             child: ListenableBuilder(
               listenable: themeProvider,
               builder: (context, _) {
@@ -204,7 +206,7 @@ class _StakingPageState extends State<StakingPage> {
 
                 return Center(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 600),
+                    constraints: const BoxConstraints(maxWidth: 700),
                     child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20.0,
@@ -588,7 +590,25 @@ class _StakingPageState extends State<StakingPage> {
             );
           },
             ),
-          );
+          ),
+          if (MediaQuery.of(context).size.width >= 1000) ...[
+            Positioned(
+              left: ((MediaQuery.of(context).size.width - 700) / 2 - 160) / 2,
+              top: 100,
+              width: 160,
+              height: 600,
+              child: UniversalWebView.create(viewType: 'adsterra-160x600', width: 160, height: 600),
+            ),
+            Positioned(
+              right: ((MediaQuery.of(context).size.width - 700) / 2 - 160) / 2,
+              top: 100,
+              width: 160,
+              height: 300,
+              child: UniversalWebView.create(viewType: 'adsterra-160x300', width: 160, height: 300),
+            ),
+          ],
+        ],
+      );
         },
       ),
     );
