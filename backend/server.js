@@ -40,6 +40,24 @@ app.get('/', (req, res) => {
   res.json({ success: true, message: 'GoldenPaw faucet backend is running' });
 });
 
+// Ping endpoint to keep Render awake
+app.get('/ping', (req, res) => {
+  res.json({ success: true, message: 'pong' });
+});
+
+// Manual trigger endpoints for cron jobs
+app.get('/cron/trigger-promo', async (req, res) => {
+  const { runDailyPromoLogic } = require('./src/services/promoCronService');
+  await runDailyPromoLogic();
+  res.json({ success: true, message: 'Promo logic executed' });
+});
+
+app.get('/cron/trigger-pet-reminders', async (req, res) => {
+  const { runPetCareLogic } = require('./src/services/petCronService');
+  await runPetCareLogic();
+  res.json({ success: true, message: 'Pet care logic executed' });
+});
+
 app.get('/price', async (req, res) => {
   try {
     const priceResult = await getDogePrice();
