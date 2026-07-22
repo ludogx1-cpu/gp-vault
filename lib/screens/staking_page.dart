@@ -202,12 +202,15 @@ class _StakingPageState extends State<StakingPage> {
               builder: (context, _) {
                 final isDark = themeProvider.isDarkMode;
 
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0,
-                    vertical: 40.0,
-                  ),
-                  child: Column(
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 600),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0,
+                        vertical: 40.0,
+                      ),
+                      child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       FittedBox(
@@ -578,12 +581,14 @@ class _StakingPageState extends State<StakingPage> {
                           ),
                         ],
                       ),
-                    ],
+                      ],
+                    ),
                   ),
-                );
-              },
-            ),
-          );
+                ),
+              );
+            },
+          ),
+        );
         },
       ),
     );

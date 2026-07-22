@@ -1555,22 +1555,6 @@ class _FaucetPageState extends State<FaucetPage> {
           ),
         ),
       ),
-      if (MediaQuery.of(context).size.width >= 1000) ...[
-        Positioned(
-          left: ((MediaQuery.of(context).size.width - 600) / 2 - 160) / 2,
-          top: 100,
-          width: 160,
-          height: 600,
-          child: UniversalWebView.create(viewType: 'adsterra-160x600', width: 160, height: 600),
-        ),
-        Positioned(
-          right: ((MediaQuery.of(context).size.width - 600) / 2 - 160) / 2,
-          top: 100,
-          width: 160,
-          height: 300,
-          child: UniversalWebView.create(viewType: 'adsterra-160x300', width: 160, height: 300),
-        ),
-      ],
       const PetOverlayWidget(),
       const ChatBoxWidget(),
       ],
