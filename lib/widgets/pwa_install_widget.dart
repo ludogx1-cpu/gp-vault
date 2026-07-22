@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import 'dart:js_interop';
 
 @JS('canInstallPwa')
@@ -32,43 +32,43 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
       return;
     }
 
-    final prefs = await SharedPreferences.getInstance();
-    final bool dismissed = prefs.getBool('pwa_banner_dismissed') ?? false;
-    if (dismissed) {
-      setState(() => _isVisible = false);
-      return;
-    }
-
-    // Check if running on iOS browser
     final userAgent = defaultTargetPlatform;
     bool isIosWeb = userAgent == TargetPlatform.iOS;
-
-    bool canInstall = false;
-    try {
-      canInstall = _canInstallPwaJS().toDart;
-    } catch (_) {
-      canInstall = false;
-    }
 
     if (mounted) {
       setState(() {
         _isIOS = isIosWeb;
-        _isVisible = canInstall || isIosWeb;
+        _isVisible = true; // Always visible on Web so users can download/install
       });
     }
   }
 
-  Future<void> _dismissBanner() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('pwa_banner_dismissed', true);
+  void _dismissBanner() {
     setState(() => _isVisible = false);
   }
 
   void _triggerInstall() {
     try {
-      _triggerPwaInstallJS();
-    } catch (e) {
-      debugPrint("Error triggering PWA install: $e");
+      bool canPrompt = _canInstallPwaJS().toDart;
+      if (canPrompt) {
+        _triggerPwaInstallJS();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("To install: tap your browser menu (⋮ or Share) and select 'Add to Home screen' or 'Install App'!"),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
+    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("To install: tap your browser menu (⋮ or Share) and select 'Add to Home screen' or 'Install App'!"),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 5),
+        ),
+      );
     }
   }
 
