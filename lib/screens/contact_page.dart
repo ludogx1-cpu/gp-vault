@@ -1,3 +1,4 @@
+import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import '../src/theme_provider.dart';
 import '../widgets/widgets.dart';
@@ -22,7 +23,7 @@ class ContactPage extends StatelessWidget {
   const ContactPage({super.key});
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: const GlobalAppBar(showBackArrow: true),
       body: PageWithFooter(
         child: ListenableBuilder(
@@ -114,4 +115,5 @@ class ContactPage extends StatelessWidget {
 // ==========================================
 // ⏱️ PTC AD TIMER DIALOG
 // ==========================================
+
 

@@ -1,3 +1,4 @@
+import '../widgets/app_scaffold.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -119,7 +120,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: const GlobalAppBar(),
       body: PageWithFooter(
         child: Center(
@@ -211,3 +212,4 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     );
   }
 }
+

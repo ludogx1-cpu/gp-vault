@@ -1,3 +1,4 @@
+import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 
 class DogeogotchaInstructionsPage extends StatelessWidget {
@@ -5,7 +6,7 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text('Dogeogotcha Instructions'),
         backgroundColor: Colors.amber.shade700,
@@ -160,3 +161,4 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
     );
   }
 }
+

@@ -1,3 +1,4 @@
+import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -229,7 +230,7 @@ class _AffiliateLinksPageState extends State<AffiliateLinksPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: const GlobalAppBar(showBackArrow: true),
       body: Column(
         children: [
@@ -447,4 +448,5 @@ class _AffiliateLinksPageState extends State<AffiliateLinksPage>
 // ==========================================
 // 🌟 UPDATED REFERRAL DASHBOARD 🌟
 // ==========================================
+
 

@@ -1,3 +1,4 @@
+import '../widgets/app_scaffold.dart';
 import 'package:provider/provider.dart';
 import '../src/user_provider.dart';
 import '../src/js_bindings.dart';
@@ -479,8 +480,7 @@ class _FaucetPageState extends State<FaucetPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const AppDrawer(),
+    return AppScaffold(
       appBar: const GlobalAppBar(),
       body: MouseRegion(
         onHover: (event) {
@@ -1583,4 +1583,5 @@ class _FaucetPageState extends State<FaucetPage> {
 // ==========================================
 // 3. THE STAKING PAGE
 // ==========================================
+
 
