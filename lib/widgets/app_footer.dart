@@ -173,6 +173,22 @@ class AppFooter extends StatelessWidget {
                   ),
                 ),
               ),
+              TextButton(
+                onPressed: () async {
+                  final Uri url = Uri.parse('https://www.patreon.com/cw/goldenpawhub');
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url);
+                  }
+                },
+                child: const Text(
+                  "Support us on Patreon",
+                  style: TextStyle(
+                    color: Color(0xFFFF424D),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
