@@ -9,8 +9,8 @@ const router = express.Router();
 
 router.all('/postback/bitcotasks', async (req, res) => {
   try {
-    // BitcoTasks sends data either via GET (req.query) or POST (req.body)
-    const data = req.method === 'POST' ? req.body : req.query;
+    // BitcoTasks sometimes places parameters in the URL even during a POST request
+    const data = { ...req.query, ...req.body };
 
     // Temporary Debug Log
     await admin.firestore().collection('debug_logs').add({
