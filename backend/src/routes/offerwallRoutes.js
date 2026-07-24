@@ -3,11 +3,14 @@ const crypto = require('crypto');
 const { admin } = require('../services/firebaseService');
 const router = express.Router();
 
+const multer = require('multer');
+const upload = multer();
+
 // Offerwall Postback Routes
 // Use this endpoint to receive conversion notifications from offerwalls
 // Example: https://your-backend.onrender.com/api/offerwall/postback/bitcotasks
 
-router.all('/postback/bitcotasks', async (req, res) => {
+router.all('/postback/bitcotasks', upload.none(), async (req, res) => {
   try {
     // BitcoTasks sometimes places parameters in the URL even during a POST request
     const data = { ...req.query, ...req.body };
