@@ -19,7 +19,7 @@ async function sendHungerNotifications() {
   console.log('Scanning for hungry pets...');
   
   const usersRef = db.collection('users');
-  const snapshot = await usersRef.where('pet_hunger', '<', 20).get();
+  const snapshot = await usersRef.where('pet_hunger', '<', 45).get();
   
   if (snapshot.empty) {
     console.log('No hungry pets found right now.');
