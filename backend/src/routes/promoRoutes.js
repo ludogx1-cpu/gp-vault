@@ -164,5 +164,47 @@ router.post('/subscribe-pet-topic', verifyFirebaseToken, async (req, res) => {
   }
 });
 
+// Endpoint to unsubscribe FCM token from promo_updates topic
+router.post('/unsubscribe-promo-topic', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ success: false, error: 'FCM token required' });
+    }
+
+    await admin.messaging().unsubscribeFromTopic(token, 'promo_updates');
+    
+    res.json({ success: true, message: 'Unsubscribed from promo_updates topic' });
+  } catch (error) {
+    console.error('Unsubscribe topic error:', error);
+    res.status(500).json({ success: false, error: 'Failed to unsubscribe from topic' });
+  }
+});
+
+// Endpoint to unsubscribe FCM token from pet_reminders topic
+router.post('/unsubscribe-pet-topic', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ success: false, error: 'FCM token required' });
+    }
+
+    await admin.messaging().unsubscribeFromTopic(token, 'pet_reminders');
+    
+    res.json({ success: true, message: 'Unsubscribed from pet_reminders topic' });
+  } catch (error) {
+    console.error('Unsubscribe pet topic error:', error);
+    res.status(500).json({ success: false, error: 'Failed to unsubscribe from pet_reminders topic' });
+  }
+});
+
 module.exports = router;
 
