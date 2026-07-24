@@ -16,24 +16,16 @@ function seededRandom(seed) {
     let t = seed += 0x6D2B79F5;
     t = Math.imul(t ^ t >>> 15, t | 1);
     t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-    return ((t ^ t >>> 14) >>> 0) / 4294967296;
-}
-
-function getAIBotScores() {
-  const now = new Date();
-  const dayOfWeek = now.getDay(); // 0 is Sunday
-  const hourOfDay = now.getHours();
-  const hoursSinceReset = (dayOfWeek * 24) + hourOfDay;
-  
+function getAIBotScores(hoursSinceReset) {
   const bots = [];
   
   for (let i = 0; i < AI_USERNAMES.length; i++) {
      const name = AI_USERNAMES[i];
      const petName = AI_PET_NAMES[i];
      
-     // AI bots are pretty good but not perfect. 
-     // Let's say they keep their pet stats above 40% for 10% to 40% of the time.
-     const efficiency = 0.10 + (seededRandom(i) * 0.30); // 0.10 to 0.40
+     // AI bots are now significantly less strict, giving real users a solid chance to win!
+     // They will keep their stats above 40% for only 5% to 25% of the time.
+     const efficiency = 0.05 + (seededRandom(i) * 0.20); // 0.05 to 0.25
      const score = Math.floor(hoursSinceReset * efficiency);
      
      bots.push({
@@ -61,7 +53,7 @@ router.get('/', async (req, res) => {
       if (data.weekly_time_above_40 && data.weekly_time_above_40 > 0) {
         realUsers.push({
           uid: doc.id,
-          username: data.username || 'Anonymous',
+          username: data.username || data.chat_username || 'Anonymous',
           pet_name: data.pet_name || 'Golden Paw Shiba',
           weekly_time_above_40: data.weekly_time_above_40,
           is_ai: false
@@ -69,7 +61,10 @@ router.get('/', async (req, res) => {
       }
     });
     
-    const aiBots = getAIBotScores();
+    const now = new Date();
+    const hoursSinceReset = (now.getDay() * 24) + now.getHours();
+    
+    const aiBots = getAIBotScores(hoursSinceReset);
     const combined = [...realUsers, ...aiBots];
     
     combined.sort((a, b) => b.weekly_time_above_40 - a.weekly_time_above_40);

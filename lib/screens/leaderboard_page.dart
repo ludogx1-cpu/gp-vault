@@ -156,7 +156,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                         final item = _leaderboard[index];
                         final rank = index + 1;
                         final username = item['username'] ?? 'Anonymous';
-                        final score = item['weekly_time_above_40'] ?? 0;
+                        final score = (item['weekly_time_above_40'] as num?)?.toInt() ?? 0;
                         final petName = item['pet_name'] ?? 'Golden Paw Shiba';
                         final isAi = item['is_ai'] == true;
 

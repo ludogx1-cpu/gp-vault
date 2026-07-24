@@ -40,6 +40,8 @@ class _AccountPageState extends State<AccountPage> {
       TextEditingController();
   final TextEditingController _bankTransferAmountController =
       TextEditingController();
+  final TextEditingController _usernameController =
+      TextEditingController();
       
   bool _isWithdrawing = false;
   bool _isBankWithdrawing = false;
@@ -47,6 +49,8 @@ class _AccountPageState extends State<AccountPage> {
   
   String _withdrawMessage = "";
   String _bankMessage = "";
+  String _usernameMessage = "";
+  bool _isSettingUsername = false;
   
   String _transferSource = 'Vault';
   
@@ -511,6 +515,153 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
+  Future<void> _processSetUsername() async {
+    final name = _usernameController.text.trim();
+    if (name.length < 3 || name.length > 15) {
+      setState(() => _usernameMessage = "Username must be 3-15 chars.");
+      return;
+    }
+
+    setState(() {
+      _isSettingUsername = true;
+      _usernameMessage = "Saving...";
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/chat/set-username'),
+        headers: await getAuthHeaders(),
+        body: jsonEncode({"username": name}),
+      );
+
+      final resData = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        setState(() => _usernameMessage = "Username saved successfully!");
+      } else {
+        setState(() => _usernameMessage = resData['error'] ?? "Failed to save username.");
+      }
+    } catch (e) {
+      setState(() => _usernameMessage = "Connection error.");
+    } finally {
+      setState(() => _isSettingUsername = false);
+    }
+  }
+
+  Widget _buildProfileCard(BuildContext context, bool isDark, String currentUsername) {
+    if (currentUsername != "Anonymous" && _usernameController.text.isEmpty) {
+      _usernameController.text = currentUsername;
+    }
+    
+    return AnimatedHoverCard(
+      backgroundColor: isDark ? themeProvider.darkGreyBoxColor : Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(
+        color: isDark ? themeProvider.darkGreyBorder : Colors.grey.shade300,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(25.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.person, color: gpBrownText(context), size: 30),
+                const SizedBox(width: 15),
+                Text(
+                  "Profile Username",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: gpBrownText(context),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
+            Text(
+              "Set a global username for the Leaderboard and Community Chat. You can only change this once every 3 months.",
+              style: TextStyle(
+                color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _usernameController,
+              maxLength: 15,
+              style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+              decoration: InputDecoration(
+                counterText: "",
+                labelText: "Username",
+                hintText: currentUsername == "Anonymous" ? "Enter a username" : currentUsername,
+                labelStyle: TextStyle(color: Colors.amber.shade700),
+                prefixIcon: const Icon(Icons.badge, color: Colors.amber),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide(
+                    color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: const BorderSide(color: Colors.amber, width: 2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 15),
+            if (_usernameMessage.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 15),
+                child: Text(
+                  _usernameMessage,
+                  style: TextStyle(
+                    color: _usernameMessage.contains("success")
+                        ? Colors.green
+                        : Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ElevatedButton.icon(
+              onPressed: _isSettingUsername ? null : _processSetUsername,
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                backgroundColor: Colors.amber.shade700,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                elevation: 3,
+              ),
+              icon: _isSettingUsername
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Icon(Icons.save),
+              label: Text(
+                _isSettingUsername ? "Saving..." : "Update Username",
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final isDark = themeProvider.isDarkMode;
@@ -717,6 +868,8 @@ class _AccountPageState extends State<AccountPage> {
                                 ),
                               ),
                             ),
+                            const SizedBox(height: 20),
+                            _buildProfileCard(context, isDark, userData?['username'] ?? userData?['chat_username'] ?? 'Anonymous'),
                             const SizedBox(height: 20),
 
                             ListenableBuilder(
