@@ -16,6 +16,7 @@ router.all('/postback/bitcotasks', async (req, res) => {
     await admin.firestore().collection('debug_logs').add({
       route: 'bitcotasks',
       method: req.method,
+      headers: req.headers,
       data: data,
       timestamp: admin.firestore.FieldValue.serverTimestamp()
     });
