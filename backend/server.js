@@ -17,6 +17,7 @@ const { startAiChatService } = require('./src/services/aiChatService');
 const { startWeeklyResetService } = require('./src/services/weeklyResetService');
 const { startPromoCronService } = require('./src/services/promoCronService');
 const { startPetCronService } = require('./src/services/petCronService');
+const { startOfferwallCronService } = require('./src/services/offerwallCronService');
 const app = express();
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
@@ -56,6 +57,12 @@ app.get('/cron/trigger-pet-reminders', async (req, res) => {
   const { runPetCareLogic } = require('./src/services/petCronService');
   await runPetCareLogic();
   res.json({ success: true, message: 'Pet care logic executed' });
+});
+
+app.get('/cron/trigger-offerwall-release', async (req, res) => {
+  const { releasePendingOffers } = require('./src/services/offerwallCronService');
+  await releasePendingOffers();
+  res.json({ success: true, message: 'Offerwall release logic executed' });
 });
 
 app.get('/price', async (req, res) => {
@@ -114,6 +121,7 @@ if (require.main === module) {
   startWeeklyResetService(); // Start the Weekly Leaderboard Reset Service
   startPromoCronService(); // Start the Daily Promo Cron
   startPetCronService(); // Start the Pet Care Reminder Cron
+  startOfferwallCronService(); // Start the Offerwall Release Cron
 
   app.listen(port, '0.0.0.0', () => {
     console.log(`GoldenPaw faucet backend listening on port ${port}`);

@@ -226,7 +226,7 @@ packages:
     source: hosted
     version: "4.9.2"
   firebase_messaging_web:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: firebase_messaging_web
       sha256: fcd25d0b9da55766ef4d28ae05a7460f5189635d6b42607adcd9f08818fd35f0

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'src/platform_registry/platform_registry.dart' if (dart.library.html) 'src/platform_registry/platform_registry_web.dart';
@@ -11,6 +12,7 @@ import 'screens/staking_page.dart';
 import 'screens/account_page.dart';
 import 'screens/walk_pet_page.dart';
 import 'src/notification_service.dart';
+import 'src/firebase_messaging_web_hack.dart' if (dart.library.io) 'src/firebase_messaging_web_hack_stub.dart';
 // Router configuration
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
@@ -56,6 +58,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   registerWebViews();
+  if (kIsWeb) {
+    registerFirebaseMessagingWeb();
+  }
 
   await FirebaseService.initialize();
   await NotificationService().init();

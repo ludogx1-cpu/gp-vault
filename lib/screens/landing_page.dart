@@ -130,7 +130,6 @@ class _LandingPageState extends State<LandingPage> {
                 child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
               ),
             ),
-            const PwaInstallWidget(),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
@@ -312,6 +311,8 @@ class _LandingPageState extends State<LandingPage> {
             const Bitcotasks300x600AdWidget(),
             const SizedBox(height: 80),
             const NewsletterSubscribeWidget(),
+            const SizedBox(height: 50),
+            const PwaInstallWidget(),
             const SizedBox(height: 100),
           ],
         ),

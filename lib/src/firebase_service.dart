@@ -88,6 +88,9 @@ class FirebaseService {
       if (kDebugMode) {
         print('Failed to request push permissions: $e');
       }
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(content: Text('Failed to request push permissions: $e'), backgroundColor: Colors.red, duration: const Duration(seconds: 10)),
+      );
     }
   }
 
@@ -100,36 +103,17 @@ class FirebaseService {
       if (token != null) {
         print("FCM Token: $token");
         
+        // Handle already logged-in user
+        User? currentUser = FirebaseAuth.instance.currentUser;
+        if (currentUser != null) {
+          _registerTokenForUser(token, currentUser);
+        }
+
         // We need to save this to the user doc when they log in.
         // We'll hook into Auth state changes so we are guaranteed to have a valid user.
         FirebaseAuth.instance.authStateChanges().listen((User? user) async {
           if (user != null) {
-            FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-              'fcm_token': token,
-            }, SetOptions(merge: true));
-
-            // Subscribe to promo and pet updates via backend
-            try {
-              final tokenStr = await user.getIdToken();
-              await http.post(
-                Uri.parse('${ApiConstants.baseUrl}/subscribe-promo-topic'),
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': 'Bearer $tokenStr',
-                },
-                body: jsonEncode({'token': token}),
-              );
-              await http.post(
-                Uri.parse('${ApiConstants.baseUrl}/subscribe-pet-topic'),
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': 'Bearer $tokenStr',
-                },
-                body: jsonEncode({'token': token}),
-              );
-            } catch (e) {
-              print("Failed to subscribe to topics: $e");
-            }
+            _registerTokenForUser(token, user);
           }
         });
       }
@@ -137,8 +121,87 @@ class FirebaseService {
       if (kDebugMode) {
         print('Failed to get FCM token: $e');
       }
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(content: Text('Failed to get FCM token: $e'), backgroundColor: Colors.red, duration: const Duration(seconds: 10)),
+      );
     }
   }
+
+  static Future<void> _registerTokenForUser(String token, User user) async {
+    FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+      'fcm_token': token,
+    }, SetOptions(merge: true));
+
+    // Subscribe to promo and pet updates via backend
+    try {
+      final tokenStr = await user.getIdToken();
+      await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/subscribe-promo-topic'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $tokenStr',
+        },
+        body: jsonEncode({'token': token}),
+      );
+      await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/subscribe-pet-topic'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $tokenStr',
+        },
+        body: jsonEncode({'token': token}),
+      );
+    } catch (e) {
+      print("Failed to subscribe to topics: $e");
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(content: Text('Failed to subscribe to topics: $e'), backgroundColor: Colors.red, duration: const Duration(seconds: 10)),
+      );
+    }
+  }
+  static Future<void> disablePushPermissions() async {
+    try {
+      FirebaseMessaging messaging = FirebaseMessaging.instance;
+      String? token = await messaging.getToken(
+        vapidKey: "BNNSLNFl4zpOEubsCdhqQC2b5jTkpKV_qLoe6QtKM-fGQ6wqJ06pGhN2snwodgDKgrbF9rhelYMe2sV6mIxwdeU",
+      );
+      
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null && token != null) {
+        // Unsubscribe from topics
+        final tokenStr = await currentUser.getIdToken();
+        await http.post(
+          Uri.parse('${ApiConstants.baseUrl}/unsubscribe-promo-topic'),
+          headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $tokenStr'},
+          body: jsonEncode({'token': token}),
+        );
+        await http.post(
+          Uri.parse('${ApiConstants.baseUrl}/unsubscribe-pet-topic'),
+          headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $tokenStr'},
+          body: jsonEncode({'token': token}),
+        );
+
+        // Remove from firestore
+        await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).update({
+          'fcm_token': FieldValue.delete(),
+        });
+      }
+
+      // Delete token from device
+      await messaging.deleteToken();
+      
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        const SnackBar(content: Text('Notifications disabled successfully.'), backgroundColor: Colors.green, duration: Duration(seconds: 3)),
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to disable push permissions: $e');
+      }
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(content: Text('Failed to disable notifications: $e'), backgroundColor: Colors.red, duration: const Duration(seconds: 5)),
+      );
+    }
+  }
+
 }
 
 Future<Map<String, String>> getAuthHeaders() async {

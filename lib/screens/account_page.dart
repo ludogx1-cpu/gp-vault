@@ -541,8 +541,6 @@ class _AccountPageState extends State<AccountPage> {
                   ),
                   const SizedBox(height: 10),
                   const BitcotasksAdWidget(),
-                  const SizedBox(height: 10),
-                  const EnableNotificationsWidget(),
                   const SizedBox(height: 20),
                   Image.asset(
                     'assets/Goldenpawicon.png',
@@ -1343,6 +1341,9 @@ class _AccountPageState extends State<AccountPage> {
                   ],
                   const SizedBox(height: 30),
                   const PwaInstallWidget(),
+                  const SizedBox(height: 30),
+                  const EnableNotificationsWidget(),
+                  const SizedBox(height: 30),
                 ],
               ),
             ),
