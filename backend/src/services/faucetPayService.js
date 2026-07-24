@@ -24,6 +24,10 @@ async function faucetPaySend(address, amountInDecimal) {
     throw new Error('FaucetPay returned no response body');
   }
 
+  if (response.data.status !== 200 || response.data.success === false) {
+    throw new Error(`FaucetPay API Error: ${response.data.message || 'Unknown error'}`);
+  }
+
   return response.data;
 }
 

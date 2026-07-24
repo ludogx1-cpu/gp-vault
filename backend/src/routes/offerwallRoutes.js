@@ -65,6 +65,7 @@ router.all('/postback/bitcotasks', async (req, res) => {
         provider: 'BitcoTasks',
         userId: subId,
         amount: Number(reward),
+        status: 'pending',
         timestamp: admin.firestore.FieldValue.serverTimestamp()
       });
 
@@ -155,6 +156,7 @@ router.all('/postback/timewall', async (req, res) => {
         amount: Number(currencyAmount || 0),
         revenue: Number(revenue),
         type: type,
+        status: (type === 'credit' || type === 'chargeback') ? 'pending' : type,
         timestamp: admin.firestore.FieldValue.serverTimestamp()
       });
 

@@ -125,8 +125,8 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
           const SizedBox(height: 8),
           Text(
             _isIOS
-                ? "Install our Web App for quick access and instant notifications! Tap the Share button in Safari, then select 'Add to Home Screen'."
-                : "Add Golden Paw to your home screen! Never miss daily promo codes, pet reminders, or staking rewards.",
+                ? "Install the app to receive notifications and daily promo codes to get up to 0.1 Doge. Tap the Share button in Safari, then select 'Add to Home Screen'."
+                : "Install the app to receive notifications and daily promo codes to get up to 0.1 Doge.",
             style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.3),
           ),
           const SizedBox(height: 14),
