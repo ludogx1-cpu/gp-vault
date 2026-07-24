@@ -12,11 +12,19 @@ router.all('/postback/bitcotasks', async (req, res) => {
     // BitcoTasks sends data either via GET (req.query) or POST (req.body)
     const data = req.method === 'POST' ? req.body : req.query;
 
-    const subId = data.subId; // User ID
-    const transId = data.transId; // Transaction ID
-    const reward = data.reward; // Amount to credit
-    const signature = data.signature; // MD5 Signature
-    const status = data.status; // Optional status e.g. "reversed"
+    // Temporary Debug Log
+    await admin.firestore().collection('debug_logs').add({
+      route: 'bitcotasks',
+      method: req.method,
+      data: data,
+      timestamp: admin.firestore.FieldValue.serverTimestamp()
+    });
+
+    const subId = data.subId || data.subid || data.user_id;
+    const transId = data.transId || data.transid || data.tid;
+    const reward = data.reward || data.amount;
+    const signature = data.signature || data.sig || data.hash;
+    const status = data.status;
 
     if (!subId || !transId || !reward || !signature) {
       return res.status(400).send("ERROR: Missing parameters");
