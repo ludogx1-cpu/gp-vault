@@ -22,6 +22,19 @@ router.all('/postback/bitcotasks', async (req, res) => {
       return res.status(400).send("ERROR: Missing parameters");
     }
 
+    // IP Whitelisting for Bitcotasks
+    let reqIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    if (reqIp && reqIp.includes(',')) {
+      reqIp = reqIp.split(',')[0].trim();
+    }
+    const allowedIps = ['45.14.135.48'];
+    const isIpAllowed = allowedIps.some(ip => reqIp && reqIp.includes(ip));
+    
+    if (!isIpAllowed) {
+      console.warn(`BitcoTasks Postback rejected from unauthorized IP: ${reqIp}`);
+      return res.status(403).send("ERROR: Unauthorized IP");
+    }
+
     const secret = process.env.BITCOTASKS_SECRET;
     if (!secret) {
       console.error("BITCOTASKS_SECRET is not configured in environment variables");
