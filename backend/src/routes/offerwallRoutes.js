@@ -35,7 +35,7 @@ router.all('/postback/bitcotasks', async (req, res) => {
       return res.status(403).send("ERROR: Unauthorized IP");
     }
 
-    const secret = process.env.BITCOTASKS_SECRET;
+    const secret = process.env.BITCOTASKS_SECRET || '855c7cf45fb8566c3382e5eddacbbc1d';
     if (!secret) {
       console.error("BITCOTASKS_SECRET is not configured in environment variables");
       return res.status(500).send("ERROR: Server configuration error");
