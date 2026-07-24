@@ -8,7 +8,7 @@ const runPetCareLogic = async () => {
     
     // Query users with pets needing attention (pet_hunger < 30 or pet_sick)
     const snapshot = await db.collection('users')
-      .where('pet_hunger', '<', 30)
+      .where('pet_hunger', '<', 45)
       .limit(100)
       .get();
 
