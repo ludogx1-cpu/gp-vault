@@ -1077,7 +1077,7 @@ class _FaucetPageState extends State<FaucetPage> {
                               ),
                               const SizedBox(height: 20),
                               Text(
-                                "For support, contact: support@goldenpaw.dog",
+                                "For support, contact: goldenpaw.dogeadmin@gmail.com",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
