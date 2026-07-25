@@ -1,10 +1,7 @@
-import '../widgets/app_scaffold.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../api_constants.dart';
-import '../widgets/global_app_bar.dart';
-import '../widgets/page_with_footer.dart';
 import '../widgets/widgets.dart';
 
 class LeaderboardPage extends StatefulWidget {
@@ -162,8 +159,9 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                         final isAi = item['is_ai'] == true;
 
                         Color rankColor;
-                        if (rank == 1) rankColor = Colors.amber;
-                        else if (rank == 2) rankColor = Colors.grey.shade400;
+                        if (rank == 1) {
+                          rankColor = Colors.amber;
+                        } else if (rank == 2) rankColor = Colors.grey.shade400;
                         else if (rank == 3) rankColor = Colors.orange.shade300;
                         else rankColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black;
 
@@ -171,7 +169,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                           margin: const EdgeInsets.symmetric(vertical: 4),
                           child: ListTile(
                             leading: CircleAvatar(
-                              backgroundColor: rankColor.withOpacity(0.2),
+                              backgroundColor: rankColor.withValues(alpha: 0.2),
                               child: Text(
                                 '#$rank',
                                 style: TextStyle(color: rankColor, fontWeight: FontWeight.bold),

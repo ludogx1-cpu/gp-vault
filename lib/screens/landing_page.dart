@@ -1,4 +1,3 @@
-import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import '../src/theme_provider.dart';
 import '../widgets/trustpilot_widget.dart';

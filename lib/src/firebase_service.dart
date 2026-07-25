@@ -68,7 +68,7 @@ class FirebaseService {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Firebase Messaging setup failed: $e');
+        debugPrint('Firebase Messaging setup failed: $e');
       }
     }
   }
@@ -90,7 +90,7 @@ class FirebaseService {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Failed to request push permissions: $e');
+        debugPrint('Failed to request push permissions: $e');
       }
       scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(content: Text('Failed to request push permissions: $e'), backgroundColor: Colors.red, duration: const Duration(seconds: 10)),
@@ -105,7 +105,7 @@ class FirebaseService {
             "BNNSLNFl4zpOEubsCdhqQC2b5jTkpKV_qLoe6QtKM-fGQ6wqJ06pGhN2snwodgDKgrbF9rhelYMe2sV6mIxwdeU",
       );
       if (token != null) {
-        print("FCM Token: $token");
+        debugPrint("FCM Token: $token");
         
         // Handle already logged-in user
         User? currentUser = FirebaseAuth.instance.currentUser;
@@ -123,7 +123,7 @@ class FirebaseService {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Failed to get FCM token: $e');
+        debugPrint('Failed to get FCM token: $e');
       }
       scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(content: Text('Failed to get FCM token: $e'), backgroundColor: Colors.red, duration: const Duration(seconds: 10)),
@@ -156,7 +156,7 @@ class FirebaseService {
         body: jsonEncode({'token': token}),
       );
     } catch (e) {
-      print("Failed to subscribe to topics: $e");
+      debugPrint("Failed to subscribe to topics: $e");
       scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(content: Text('Failed to subscribe to topics: $e'), backgroundColor: Colors.red, duration: const Duration(seconds: 10)),
       );
@@ -198,7 +198,7 @@ class FirebaseService {
       );
     } catch (e) {
       if (kDebugMode) {
-        print('Failed to disable push permissions: $e');
+        debugPrint('Failed to disable push permissions: $e');
       }
       scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(content: Text('Failed to disable notifications: $e'), backgroundColor: Colors.red, duration: const Duration(seconds: 5)),

@@ -1,4 +1,3 @@
-import '../widgets/app_scaffold.dart';
 import 'package:provider/provider.dart';
 import '../src/user_provider.dart';
 import '../src/js_bindings.dart';
@@ -665,8 +664,9 @@ class _FaucetPageState extends State<FaucetPage> {
                           if (streak < 1) streak = 1;
                           
                           double streakMultiplier = 1.0;
-                          if (streak == 2) streakMultiplier = 1.1;
-                          else if (streak == 3) streakMultiplier = 1.2;
+                          if (streak == 2) {
+                            streakMultiplier = 1.1;
+                          } else if (streak == 3) streakMultiplier = 1.2;
                           else if (streak == 4) streakMultiplier = 1.3;
                           else if (streak == 5) streakMultiplier = 1.4;
                           else if (streak == 6) streakMultiplier = 1.5;
