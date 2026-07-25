@@ -1160,6 +1160,10 @@ router.post('/pet-fetch', verifyFirebaseToken, async (req, res) => {
 
       if (dogeReward > 0) {
         updates.doge_balance = Number(data.doge_balance || 0) + dogeReward;
+        let history = data.reward_history || [];
+        history.unshift({ sector: 'Pet Care (Fetch)', amount: dogeReward, timestamp: Date.now() });
+        if (history.length > 15) history = history.slice(0, 15);
+        updates.reward_history = history;
       }
 
       transaction.update(userRef, updates);
