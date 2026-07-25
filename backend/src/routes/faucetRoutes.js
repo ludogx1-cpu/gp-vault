@@ -59,7 +59,7 @@ router.post('/send-doge', verifyFirebaseToken, async (req, res) => {
 
       if (data.pet_birth_date) {
         const decayed = calculateDecay(data);
-        ageMult = getAgeMultiplier(data.pet_birth_date);
+        ageMult = getAgeMultiplier(data);
         
         transaction.update(userRef, {
           last_direct_faucet_claim: admin.firestore.Timestamp.now(),
@@ -179,7 +179,7 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
 
       if (data.pet_birth_date) {
         const decayed = calculateDecay(data);
-        ageMult = getAgeMultiplier(data.pet_birth_date);
+        ageMult = getAgeMultiplier(data);
         
         finalReward = baseReward * (1 + (level / 100)) * streakMultiplier;
         finalReward = finalReward * ageMult;
