@@ -661,19 +661,19 @@ class _FaucetPageState extends State<FaucetPage> {
                           final data = userProvider.userData;
                           int xp = (data?['xp'] ?? 0).toInt();
                           int streak = (data?['streak_count'] ?? 0).toInt();
-                          if (streak < 1) streak = 1;
+                          if (streak < 1) { streak = 1; }
                           
                           double streakMultiplier = 1.0;
                           if (streak == 2) {
                             streakMultiplier = 1.1;
-                          } else if (streak == 3) streakMultiplier = 1.2;
-                          else if (streak == 4) streakMultiplier = 1.3;
-                          else if (streak == 5) streakMultiplier = 1.4;
-                          else if (streak == 6) streakMultiplier = 1.5;
-                          else if (streak >= 7) streakMultiplier = 1.6;
+                          } else if (streak == 3) { streakMultiplier = 1.2; }
+                          else if (streak == 4) { streakMultiplier = 1.3; }
+                          else if (streak == 5) { streakMultiplier = 1.4; }
+                          else if (streak == 6) { streakMultiplier = 1.5; }
+                          else if (streak >= 7) { streakMultiplier = 1.6; }
                           
                           int level = sqrt(xp / 100).floor();
-                          if (level > 100) level = 100;
+                          if (level > 100) { level = 100; }
                           int levelBonus = level;
                           int streakBonus = streak;
                           int totalBonusPercent = levelBonus + streakBonus;
