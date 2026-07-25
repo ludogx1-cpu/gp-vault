@@ -84,6 +84,31 @@ class CrossTabListenerWeb implements CrossTabListener {
       print("Error renderTurnstile: $e");
     }
   }
+
+  @override
+  void injectAdsterraPopunder(String scriptUrl) {
+    try {
+      final script = web.HTMLScriptElement()
+        ..src = scriptUrl
+        ..type = 'text/javascript'
+        ..id = 'injected-popunder';
+      web.document.head!.append(script);
+    } catch (e) {
+      print("Error injecting popunder: $e");
+    }
+  }
+
+  @override
+  void removeAdsterraPopunder(String scriptUrl) {
+    try {
+      final script = web.document.getElementById('injected-popunder');
+      if (script != null) {
+        script.remove();
+      }
+    } catch (e) {
+      print("Error removing popunder: $e");
+    }
+  }
 }
 
 CrossTabListener getCrossTabListener() => CrossTabListenerWeb();
