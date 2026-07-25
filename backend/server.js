@@ -46,20 +46,33 @@ app.get('/ping', (req, res) => {
   res.json({ success: true, message: 'pong' });
 });
 
+// Middleware to secure cron endpoints
+const cronAuth = (req, res, next) => {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) {
+    console.warn('CRON_SECRET is not set in environment variables');
+    return res.status(500).json({ success: false, error: 'Server configuration error' });
+  }
+  if (req.headers['x-cron-secret'] !== secret) {
+    return res.status(401).json({ success: false, error: 'Unauthorized' });
+  }
+  next();
+};
+
 // Manual trigger endpoints for cron jobs
-app.get('/cron/trigger-promo', async (req, res) => {
+app.get('/cron/trigger-promo', cronAuth, async (req, res) => {
   const { runDailyPromoLogic } = require('./src/services/promoCronService');
   await runDailyPromoLogic();
   res.json({ success: true, message: 'Promo logic executed' });
 });
 
-app.get('/cron/trigger-pet-reminders', async (req, res) => {
+app.get('/cron/trigger-pet-reminders', cronAuth, async (req, res) => {
   const { runPetCareLogic } = require('./src/services/petCronService');
   await runPetCareLogic();
   res.json({ success: true, message: 'Pet care logic executed' });
 });
 
-app.get('/cron/trigger-offerwall-release', async (req, res) => {
+app.get('/cron/trigger-offerwall-release', cronAuth, async (req, res) => {
   const { releasePendingOffers } = require('./src/services/offerwallCronService');
   await releasePendingOffers();
   res.json({ success: true, message: 'Offerwall release logic executed' });
