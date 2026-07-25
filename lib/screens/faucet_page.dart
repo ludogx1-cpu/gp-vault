@@ -1060,7 +1060,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                               ),
                                               const SizedBox(height: 4),
                                               Text(
-                                                data['message'] ?? '',
+                                                data['content'] ?? (data['message'] ?? ''),
                                                 textAlign: TextAlign.center,
                                                 style: TextStyle(
                                                   fontSize: isLatest ? 13 : 11,
