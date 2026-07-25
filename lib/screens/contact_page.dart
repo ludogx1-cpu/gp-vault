@@ -73,7 +73,7 @@ class ContactPage extends StatelessWidget {
                         ),
                         SizedBox(height: 10),
                         Text(
-                          "ludogx1@gmail.com",
+                          "support@goldenpaw.dog",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,

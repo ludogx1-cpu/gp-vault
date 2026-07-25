@@ -118,7 +118,7 @@ class PersistentSidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-    final bool isAdmin = user != null && user.email == 'ludogx1@gmail.com';
+    final bool isAdmin = user != null && user.uid == 'P8iffVqbUgetAVA4MdHVZ1CfvUv1';
     final isDark = themeProvider.isDarkMode;
     
     // Header/Footer black color

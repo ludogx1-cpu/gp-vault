@@ -454,7 +454,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                           label: const Text("Sleep", style: TextStyle(fontSize: 11)),
                           style: ElevatedButton.styleFrom(backgroundColor: canSleep ? Colors.blue : Colors.grey, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
                         ),
-                        if (FirebaseAuth.instance.currentUser?.email == 'ludogx1@gmail.com') ...[
+                        if (FirebaseAuth.instance.currentUser?.uid == 'P8iffVqbUgetAVA4MdHVZ1CfvUv1') ...[
                           ElevatedButton.icon(
                             onPressed: _isLoading ? null : () => _forceAgeAdmin(-5),
                             icon: const Icon(Icons.fast_rewind, size: 16),
