@@ -1,4 +1,3 @@
-import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 
 // Since this is a sub-page, we import your main file so we can use your custom header!

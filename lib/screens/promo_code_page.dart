@@ -1,4 +1,3 @@
-import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -248,7 +247,7 @@ class _PromoCodePageState extends State<PromoCodePage> {
                             border: Border.all(color: Colors.amber, width: 4),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.amber.withOpacity(0.5),
+                                color: Colors.amber.withValues(alpha: 0.5),
                                 blurRadius: 10,
                                 spreadRadius: 2,
                               ),

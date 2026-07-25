@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:web/web.dart' as web;
 import 'dart:js_interop';
@@ -10,19 +11,19 @@ class CrossTabListenerWeb implements CrossTabListener {
 
   @override
   void setup(Function(String) onMessage) {
-    print("CrossTabListenerWeb: Setting up listeners!");
+    debugPrint("CrossTabListenerWeb: Setting up listeners!");
     
     _storageSubscription = web.EventStreamProviders.storageEvent
         .forTarget(web.window)
         .listen((web.Event event) {
-      print("CrossTabListenerWeb: Received storage event!");
+      debugPrint("CrossTabListenerWeb: Received storage event!");
       try {
         final storageEvent = event as web.StorageEvent;
         if (storageEvent.key != null && storageEvent.key!.contains('bonus_timer_trigger')) {
           onMessage('{"type":"start_bonus_timer"}');
         }
       } catch (e) {
-        print("CrossTabListenerWeb error: $e");
+        debugPrint("CrossTabListenerWeb error: $e");
       }
     });
 
@@ -72,7 +73,7 @@ class CrossTabListenerWeb implements CrossTabListener {
     try {
       _renderHCaptcha();
     } catch (e) {
-      print("Error renderHCaptcha: $e");
+      debugPrint("Error renderHCaptcha: $e");
     }
   }
 
@@ -81,7 +82,7 @@ class CrossTabListenerWeb implements CrossTabListener {
     try {
       _renderTurnstile();
     } catch (e) {
-      print("Error renderTurnstile: $e");
+      debugPrint("Error renderTurnstile: $e");
     }
   }
 
@@ -94,7 +95,7 @@ class CrossTabListenerWeb implements CrossTabListener {
         ..id = 'injected-popunder';
       web.document.head!.append(script);
     } catch (e) {
-      print("Error injecting popunder: $e");
+      debugPrint("Error injecting popunder: $e");
     }
   }
 
@@ -106,7 +107,7 @@ class CrossTabListenerWeb implements CrossTabListener {
         script.remove();
       }
     } catch (e) {
-      print("Error removing popunder: $e");
+      debugPrint("Error removing popunder: $e");
     }
   }
 }

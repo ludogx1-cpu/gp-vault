@@ -1,12 +1,9 @@
-import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
-import '../widgets/global_app_bar.dart';
-import '../widgets/page_with_footer.dart';
 import '../widgets/newsletter_subscribe_widget.dart';
 import '../widgets/widgets.dart';
 
