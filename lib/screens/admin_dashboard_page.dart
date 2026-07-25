@@ -246,7 +246,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null || user.email != 'ludogx1@gmail.com') {
+    if (user == null || user.uid != 'P8iffVqbUgetAVA4MdHVZ1CfvUv1') {
       return AppScaffold(
         appBar: AppBar(
           title: const Text('Access Denied'),
