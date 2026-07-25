@@ -122,7 +122,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      appBar: const GlobalAppBar(),
+      appBar: const GlobalAppBar(showBackArrow: true),
       body: PageWithFooter(
         child: Center(
           child: Container(
@@ -149,9 +149,10 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                 else if (_leaderboard.isEmpty)
                   const Center(child: Text('No scores yet! Feed your pet to get on the board.'))
                 else
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: _leaderboard.length,
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _leaderboard.length,
                       itemBuilder: (context, index) {
                         final item = _leaderboard[index];
                         final rank = index + 1;
@@ -205,7 +206,6 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                           ),
                         );
                       },
-                    ),
                   ),
               ],
             ),
