@@ -19,7 +19,16 @@ import '../src/cross_tab_listener/cross_tab_listener.dart';
 // ==========================================
 
 class BonusTimerDialog extends StatefulWidget {
-  const BonusTimerDialog({super.key});
+  final String endpoint;
+  final int durationSeconds;
+  final String? targetUrl;
+
+  const BonusTimerDialog({
+    super.key,
+    this.endpoint = 'https://golden-paw-vault.onrender.com/claim-bonus-sponsor',
+    this.durationSeconds = 20,
+    this.targetUrl,
+  });
 
   @override
   State<BonusTimerDialog> createState() => _BonusTimerDialogState();
@@ -43,10 +52,10 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
   @override
   void initState() {
     super.initState();
-    _timeLeft = 20; // 20 seconds required
+    _timeLeft = widget.durationSeconds;
     _updateBrowserTitle("Click an ad...");
     _message =
-        "Click an ad and stay on the page for 20 seconds to earn your reward!";
+        "Stay on the page for ${widget.durationSeconds} seconds to earn your reward!";
 
     try {
       _crossTabListener = getCrossTabListener();
@@ -112,7 +121,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
       }
 
       int elapsedSeconds = _stopwatch.elapsed.inSeconds;
-      int remaining = 20 - elapsedSeconds;
+      int remaining = widget.durationSeconds - elapsedSeconds;
 
       if (remaining <= 0) {
         timer.cancel();
@@ -159,7 +168,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
 
     try {
       final response = await http.post(
-        Uri.parse('https://golden-paw-vault.onrender.com/claim-bonus-sponsor'),
+        Uri.parse(widget.endpoint),
         headers: await getAuthHeaders(),
         body: jsonEncode({
           'captcha_token': _captchaToken,

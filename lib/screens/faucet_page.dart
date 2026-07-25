@@ -1434,15 +1434,27 @@ class _FaucetPageState extends State<FaucetPage> {
                       builder: (context, userProvider, _) {
                         bool canClaimBonus = true;
                         int minutesLeftBonus = 0;
+                        
+                        bool canClaimEcoVideo = true;
+                        int minutesLeftEcoVideo = 0;
 
                         final userData = userProvider.userData;
                         if (userData != null) {
                           final Timestamp? lastClaimBonus = userData['last_bonus_sponsor_claim'];
                           if (lastClaimBonus != null) {
                             final difference = DateTime.now().difference(lastClaimBonus.toDate());
-                            if (difference.inMinutes < 10) {
+                            if (difference.inMinutes < 15) { // The backend is 15 minutes!
                               canClaimBonus = false;
-                              minutesLeftBonus = 10 - difference.inMinutes;
+                              minutesLeftBonus = 15 - difference.inMinutes;
+                            }
+                          }
+
+                          final Timestamp? lastEcoVideo = userData['last_ecosystem_video_claim'];
+                          if (lastEcoVideo != null) {
+                            final difference = DateTime.now().difference(lastEcoVideo.toDate());
+                            if (difference.inMinutes < 30) { // The backend is 30 minutes!
+                              canClaimEcoVideo = false;
+                              minutesLeftEcoVideo = 30 - difference.inMinutes;
                             }
                           }
                         }
@@ -1486,7 +1498,7 @@ class _FaucetPageState extends State<FaucetPage> {
                                       ),
                                       const SizedBox(height: 5),
                                       const Text(
-                                        "Click an ad and stay for 20 seconds to earn\n0.004 DOGE & 15 XP!",
+                                        "Support Sponsors (0.004 DOGE) or Watch the\nEcosystem Video (0.003 DOGE) for extra rewards & XP!",
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           color: Colors.green,
@@ -1533,6 +1545,52 @@ class _FaucetPageState extends State<FaucetPage> {
                                                     context: context,
                                                     builder: (context) =>
                                                         const BonusTimerDialog(),
+                                                  );
+                                                }
+                                              : null,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 15),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        height: 50,
+                                        child: ElevatedButton.icon(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: canClaimEcoVideo
+                                                ? Colors.red.shade600
+                                                : Colors.grey,
+                                            foregroundColor: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                          icon: Icon(
+                                            canClaimEcoVideo
+                                                ? Icons.play_circle_fill
+                                                : Icons.lock_clock,
+                                          ),
+                                          label: Text(
+                                            canClaimEcoVideo
+                                                ? 'WATCH: GOLDEN PAW ECOSYSTEM'
+                                                : 'COOLDOWN: $minutesLeftEcoVideo MIN',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w900,
+                                              fontSize: 14,
+                                              letterSpacing: 1.1,
+                                            ),
+                                          ),
+                                          onPressed: canClaimEcoVideo
+                                              ? () {
+                                                  launchUrl(Uri.parse('https://www.youtube.com/watch?v=_P9YSHwbcC0'));
+                                                  showDialog(
+                                                    barrierDismissible: false,
+                                                    context: context,
+                                                    builder: (context) =>
+                                                        const BonusTimerDialog(
+                                                          durationSeconds: 30,
+                                                          endpoint: 'https://golden-paw-vault.onrender.com/claim-ecosystem-video',
+                                                          targetUrl: 'https://www.youtube.com/watch?v=_P9YSHwbcC0',
+                                                        ),
                                                   );
                                                 }
                                               : null,
