@@ -48,3 +48,5 @@ app.*.map.json
 /android/app/release
 backend/.env
 android/app/google-services.json
+# User Data
+backend/subscribers.csv

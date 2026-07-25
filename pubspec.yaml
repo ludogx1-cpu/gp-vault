@@ -1,5 +1,5 @@
 name: gp_faucet
-description: "A new Flutter project."
+description: "Golden Paw — Dogecoin faucet, staking, and pet ecosystem."
 publish_to: 'none' 
 version: 1.0.0+1
 
