@@ -11,6 +11,7 @@ import 'screens/faucet_page.dart';
 import 'screens/staking_page.dart';
 import 'screens/account_page.dart';
 import 'screens/walk_pet_page.dart';
+import 'screens/not_found_page.dart';
 import 'src/notification_service.dart';
 import 'src/firebase_messaging_web_hack.dart' if (dart.library.io) 'src/firebase_messaging_web_hack_stub.dart';
 // Router configuration
@@ -20,6 +21,7 @@ final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(d
 final _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/',
+  errorBuilder: (context, state) => const NotFoundPage(),
   routes: [
     GoRoute(
       path: '/',
