@@ -5,6 +5,7 @@ import 'src/platform_registry/platform_registry.dart' if (dart.library.html) 'sr
 import 'package:go_router/go_router.dart';
 import 'src/theme_provider.dart';
 import 'src/firebase_service.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'src/user_provider.dart';
 import 'widgets/widgets.dart';
 import 'screens/faucet_page.dart';
@@ -33,6 +34,9 @@ final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(d
 final _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/',
+  observers: [
+    FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+  ],
   errorBuilder: (context, state) => const NotFoundPage(),
   routes: [
     GoRoute(

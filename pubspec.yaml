@@ -35,6 +35,7 @@ dependencies:
   firebase_messaging: ^16.4.3
   firebase_messaging_web: ^4.2.3
   firebase_performance: ^0.11.4+5
+  firebase_analytics: ^12.4.5
 dev_dependencies:
   flutter_test:
     sdk: flutter
