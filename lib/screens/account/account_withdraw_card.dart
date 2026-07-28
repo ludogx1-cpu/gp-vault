@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../src/firebase_service.dart';
 import '../../api_constants.dart';
 import '../../widgets/widgets.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class AccountWithdrawCard extends StatefulWidget {
   final bool isDark;
@@ -90,6 +91,10 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
         }
 
         if (response.statusCode == 200) {
+          FirebaseAnalytics.instance.logEvent(
+            name: 'withdrawal_success',
+            parameters: {'amount': amountToWithdraw},
+          );
           setState(() {
             _withdrawMessage = "Success! $amountToWithdraw DOGE sent to FaucetPay.";
             _withdrawAmountController.clear();

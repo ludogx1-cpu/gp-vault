@@ -6,6 +6,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../widgets/bitcotasks_native_widget.dart';
+import '../src/firebase_service.dart';
+import '../widgets/universal_web_view/universal_web_view.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 
 
@@ -305,8 +308,13 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                           "BitcoTasks",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        onPressed: () =>
-                            setState(() => selectedNetwork = "BITCOTASKS"),
+                        onPressed: () {
+                          FirebaseAnalytics.instance.logEvent(
+                            name: 'offerwall_clicked',
+                            parameters: {'network': 'BITCOTASKS'},
+                          );
+                          setState(() => selectedNetwork = "BITCOTASKS");
+                        },
                       ),
                     ),
                     const SizedBox(width: 15),
@@ -327,8 +335,13 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                           "TimeWall",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        onPressed: () =>
-                            setState(() => selectedNetwork = "TIMEWALL"),
+                        onPressed: () {
+                          FirebaseAnalytics.instance.logEvent(
+                            name: 'offerwall_clicked',
+                            parameters: {'network': 'TIMEWALL'},
+                          );
+                          setState(() => selectedNetwork = "TIMEWALL");
+                        },
                       ),
                     ),
                   ],
