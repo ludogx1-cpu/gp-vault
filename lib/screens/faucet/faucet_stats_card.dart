@@ -1,29 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:math';
+
 import '../../src/user_provider.dart';
 import '../../src/theme_provider.dart';
+import '../../src/reward_logic.dart';
 import '../../widgets/shiba_pet_widget.dart';
 import 'leaderboard_preview.dart';
 
 class FaucetStatsCard extends StatelessWidget {
   final double currentDogePrice;
+  final bool isPriceStale;
 
   const FaucetStatsCard({
     super.key,
     required this.currentDogePrice,
+    this.isPriceStale = false,
   });
-
-  double _getBaseReward(double price) {
-    if (price <= 0.02) {
-      return 0.01;
-    }
-    if (price >= 0.20) {
-      return 0.001;
-    }
-    return 0.01 - ((price - 0.02) / 0.18) * 0.009;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,23 +30,13 @@ class FaucetStatsCard extends StatelessWidget {
               final data = userProvider.userData;
               int xp = (data?['xp'] ?? 0).toInt();
               int streak = (data?['streak_count'] ?? 0).toInt();
-              if (streak < 1) { streak = 1; }
               
-              double streakMultiplier = 1.0;
-              if (streak == 2) {
-                streakMultiplier = 1.1;
-              } else if (streak == 3) { streakMultiplier = 1.2; }
-              else if (streak == 4) { streakMultiplier = 1.3; }
-              else if (streak == 5) { streakMultiplier = 1.4; }
-              else if (streak == 6) { streakMultiplier = 1.5; }
-              else if (streak >= 7) { streakMultiplier = 1.6; }
+              double streakMultiplier = RewardLogic.getStreakMultiplier(streak);
               
-              int level = sqrt(xp / 100).floor();
-              if (level > 100) { level = 100; }
-              int levelBonus = level;
-              int streakBonus = streak;
+              int levelBonus = RewardLogic.getLevel(xp);
+              int streakBonus = streak < 1 ? 1 : streak;
               int totalBonusPercent = levelBonus + streakBonus;
-              double baseReward = _getBaseReward(currentDogePrice);
+              double baseReward = RewardLogic.getBaseReward(currentDogePrice);
               double expectedReward =
                   baseReward * (1 + (totalBonusPercent / 100));
 
@@ -78,12 +61,10 @@ class FaucetStatsCard extends StatelessWidget {
                               ? themeProvider.darkGreyBoxColor
                               : Colors.green.shade100,
                           borderRadius: BorderRadius.circular(10),
-                          border: isDark
-                              ? Border.all(
-                                  color: themeProvider.darkGreyBorder,
-                                  width: 1,
-                                )
-                              : null,
+                          border: Border.all(
+                            color: Colors.amber,
+                            width: 0.5,
+                          ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -124,6 +105,24 @@ class FaucetStatsCard extends StatelessWidget {
                                   : Colors.green,
                               height: 2,
                             ),
+                            if (isPriceStale) ...[
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.warning_amber_rounded, color: isDark ? Colors.red.shade400 : Colors.red, size: 16),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    "DOGE price data is stale (>10m old). Wait for update before claiming.",
+                                    style: TextStyle(
+                                      color: isDark ? Colors.red.shade400 : Colors.red,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                             const SizedBox(height: 8),
                             Text(
                               "Earn 10 XP per claim to level up and boost your daily multipliers!",
@@ -171,18 +170,16 @@ class FaucetStatsCard extends StatelessWidget {
                       ? themeProvider.darkGreyBoxColor
                       : Colors.green.shade100,
                   borderRadius: BorderRadius.circular(10),
-                  border: isDark
-                      ? Border.all(
-                          color: themeProvider.darkGreyBorder,
-                          width: 1,
-                        )
-                      : null,
+                  border: Border.all(
+                    color: Colors.amber,
+                    width: 0.5,
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      "Current Base Reward: ${_getBaseReward(currentDogePrice).toStringAsFixed(6)} DOGE\n(Log in to unlock XP & Multipliers!)",
+                      "Current Base Reward: ${RewardLogic.getBaseReward(currentDogePrice).toStringAsFixed(6)} DOGE\n(Log in to unlock XP & Multipliers!)",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: isDark

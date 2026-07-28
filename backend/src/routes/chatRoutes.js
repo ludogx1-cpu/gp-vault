@@ -1,8 +1,15 @@
 const express = require('express');
 const { admin, verifyFirebaseToken } = require('../services/firebaseService');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
 
-const getAdminUid = () => process.env.ADMIN_UID || 'P8iffVqbUgetAVA4MdHVZ1CfvUv1';
+const chatRateLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute window
+  max: 5, // Limit each IP to 5 requests per windowMs
+  message: { success: false, error: 'You are sending messages too quickly. Please wait a minute.' }
+});
+
+const { getAdminUid } = require('../utils/helpers');
 
 const SWEAR_WORDS = ['fuck', 'shit', 'bitch', 'asshole', 'cunt', 'dick', 'pussy', 'bastard'];
 const BEGGING_PHRASES = ['please send', 'send doge', 'need doge', 'give me', 'im poor'];
@@ -57,7 +64,7 @@ router.post('/set-username', verifyFirebaseToken, async (req, res) => {
   }
 });
 
-router.post('/send', verifyFirebaseToken, async (req, res) => {
+router.post('/send', verifyFirebaseToken, chatRateLimiter, async (req, res) => {
   try {
     if (!req.user) return res.status(401).json({ success: false, error: 'Unauthorized' });
     const { message } = req.body;

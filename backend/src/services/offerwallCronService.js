@@ -83,7 +83,8 @@ async function releasePendingOffers() {
         transaction.update(userRef, {
           pending_offer_balance: newPending,
           offerwall_balance: newOfferwall,
-          reward_history: history
+          reward_history: history,
+          total_earned: admin.firestore.FieldValue.increment(totalAmountToRelease)
         });
       });
       console.log(`[OfferwallCron] Released ${totalAmountToRelease} DOGE for user ${userId}.`);

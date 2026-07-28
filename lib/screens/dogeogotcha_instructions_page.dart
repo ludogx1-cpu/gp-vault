@@ -1,5 +1,6 @@
 import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class DogeogotchaInstructionsPage extends StatelessWidget {
   const DogeogotchaInstructionsPage({super.key});
@@ -11,6 +12,16 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
         title: const Text('Dogeogotcha Instructions'),
         backgroundColor: Colors.amber.shade700,
         foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/');
+            }
+          },
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -93,7 +104,13 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
             const SizedBox(height: 30),
             Center(
               child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go('/');
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber,
                   foregroundColor: Colors.black,

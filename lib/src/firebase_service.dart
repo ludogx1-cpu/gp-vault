@@ -100,6 +100,9 @@ class FirebaseService {
 
   static Future<void> _setupFCMToken(FirebaseMessaging messaging) async {
     try {
+      // NOTE: This VAPID key is a public identifier used to verify the sender 
+      // of push notifications to the browser. It is NOT a secret credential 
+      // and is safe to be included in client-side code.
       String? token = await messaging.getToken(
         vapidKey:
             "BNNSLNFl4zpOEubsCdhqQC2b5jTkpKV_qLoe6QtKM-fGQ6wqJ06pGhN2snwodgDKgrbF9rhelYMe2sV6mIxwdeU",

@@ -31,8 +31,10 @@ class _LandingPageState extends State<LandingPage> {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return AppScaffold(
+      showSidebar: false,
       backgroundColor: Colors.transparent,
       appBar: GlobalAppBar(
+        showMenuIcon: false,
         centerTitle: false,
         showWallet: false,
         actions: [

@@ -22,10 +22,8 @@ class WelcomeBanner extends StatelessWidget {
               : Colors.amber[50],
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: isDark
-                ? themeProvider.darkGreyBorder
-                : Colors.amber.shade200,
-            width: 1,
+            color: Colors.amber,
+            width: 0.5,
           ),
           child: Padding(
             padding: const EdgeInsets.all(20.0),

@@ -14,6 +14,18 @@ import 'screens/walk_pet_page.dart';
 import 'screens/not_found_page.dart';
 import 'src/notification_service.dart';
 import 'src/firebase_messaging_web_hack.dart' if (dart.library.io) 'src/firebase_messaging_web_hack_stub.dart';
+
+import 'screens/admin_dashboard_page.dart';
+import 'screens/offerwall_hub_page.dart';
+import 'screens/affiliate_links_page.dart';
+import 'screens/ad_hub_page.dart';
+import 'screens/referral_page.dart';
+import 'screens/ptc_earn_page.dart';
+import 'screens/dogeogotcha_instructions_page.dart';
+import 'screens/leaderboard_page.dart';
+import 'screens/suggestion_box_page.dart';
+import 'screens/blog_page.dart';
+import 'screens/promo_code_page.dart';
 // Router configuration
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
@@ -49,6 +61,17 @@ final _router = GoRouter(
           path: '/walk-pet',
           pageBuilder: (context, state) => const NoTransitionPage(child: WalkPetPage()),
         ),
+        GoRoute(path: '/admin', pageBuilder: (context, state) => const NoTransitionPage(child: AdminDashboardPage())),
+        GoRoute(path: '/offerwalls', pageBuilder: (context, state) => const NoTransitionPage(child: OfferwallHubPage())),
+        GoRoute(path: '/bonus-partners', pageBuilder: (context, state) => const NoTransitionPage(child: AffiliateLinksPage())),
+        GoRoute(path: '/ads', pageBuilder: (context, state) => const NoTransitionPage(child: AdHubPage())),
+        GoRoute(path: '/referral', pageBuilder: (context, state) => const NoTransitionPage(child: ReferralPage())),
+        GoRoute(path: '/ptc', pageBuilder: (context, state) => const NoTransitionPage(child: PtcEarnPage())),
+        GoRoute(path: '/guide', pageBuilder: (context, state) => const NoTransitionPage(child: DogeogotchaInstructionsPage())),
+        GoRoute(path: '/leaderboard', pageBuilder: (context, state) => const NoTransitionPage(child: LeaderboardPage())),
+        GoRoute(path: '/suggestions', pageBuilder: (context, state) => const NoTransitionPage(child: SuggestionBoxPage())),
+        GoRoute(path: '/blog', pageBuilder: (context, state) => const NoTransitionPage(child: BlogPage())),
+        GoRoute(path: '/promo', pageBuilder: (context, state) => const NoTransitionPage(child: PromoCodePage())),
       ],
     ),
   ],

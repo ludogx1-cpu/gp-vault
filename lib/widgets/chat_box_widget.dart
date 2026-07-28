@@ -336,7 +336,7 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
   Widget _buildExpanded() {
     final isDark = themeProvider.isDarkMode;
     final currentUser = FirebaseAuth.instance.currentUser;
-    final isCurrentUserAdmin = currentUser?.uid == 'P8iffVqbUgetAVA4MdHVZ1CfvUv1';
+    final isCurrentUserAdmin = currentUser?.uid == ApiConstants.adminUid;
     
     return Container(
       width: 320,

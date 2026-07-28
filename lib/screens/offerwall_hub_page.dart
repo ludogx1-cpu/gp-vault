@@ -1,9 +1,11 @@
 import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../widgets/bitcotasks_native_widget.dart';
 
 
 
@@ -60,6 +62,16 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
         appBar: AppBar(
           title: const Text('Offerwalls'),
           backgroundColor: Colors.amber,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/');
+              }
+            },
+          ),
         ),
         body: const Center(
           child: Text(
@@ -79,6 +91,16 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
         backgroundColor: Colors.amber,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/');
+            }
+          },
+        ),
       ),
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
@@ -416,17 +438,19 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                       ),
                     ),
                     clipBehavior: Clip.antiAlias,
-                    child: HtmlElementView.fromTagName(
-                      tagName: 'iframe',
-                      onElementCreated: (Object element) {
-                        // Casts the generated web element dynamically to tweak browser properties
-                        final iframe = element as dynamic;
-                        iframe.src = getOfferwallUrl(selectedNetwork, user.uid);
-                        iframe.style.border = 'none';
-                        iframe.style.width = '100%';
-                        iframe.style.height = '100%';
-                      },
-                    ),
+                    child: selectedNetwork == "BITCOTASKS"
+                        ? BitcoTasksNativeWidget(subId: user.uid)
+                        : HtmlElementView.fromTagName(
+                            tagName: 'iframe',
+                            onElementCreated: (Object element) {
+                              // Casts the generated web element dynamically to tweak browser properties
+                              final iframe = element as dynamic;
+                              iframe.src = getOfferwallUrl(selectedNetwork, user.uid);
+                              iframe.style.border = 'none';
+                              iframe.style.width = '100%';
+                              iframe.style.height = '100%';
+                            },
+                          ),
                   ),
                 ],
               ],

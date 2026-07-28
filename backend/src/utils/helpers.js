@@ -161,6 +161,10 @@ function getStreakUpdates(data) {
   return updates;
 }
 
+function getAdminUid() {
+  return process.env.ADMIN_UID || 'P8iffVqbUgetAVA4MdHVZ1CfvUv1';
+}
+
 module.exports = {
   normalizeHttpUrl,
   getBannerCost,
@@ -170,4 +174,5 @@ module.exports = {
   formatAmount,
   verifyCaptchaToken,
   getStreakUpdates,
+  getAdminUid,
 };

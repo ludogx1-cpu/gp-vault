@@ -278,7 +278,7 @@ class _StakingPageState extends State<StakingPage> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 25),
+                      const SizedBox(height: 40),
 
                       Align(
                         alignment: Alignment.centerLeft,
@@ -318,10 +318,8 @@ class _StakingPageState extends State<StakingPage> {
                             : Colors.white,
                         borderRadius: BorderRadius.circular(15),
                         border: Border.all(
-                          color: isDark
-                              ? themeProvider.darkGreyBorder
-                              : Colors.amber.shade300,
-                          width: 2,
+                          color: Colors.amber,
+                          width: 0.5,
                         ),
                         child: SizedBox(
                           width: double.infinity,
@@ -361,7 +359,7 @@ class _StakingPageState extends State<StakingPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 15),
+                      const SizedBox(height: 25),
 
                       // 👑 THEMED HARVEST BOX
                       AnimatedHoverCard(
@@ -369,12 +367,10 @@ class _StakingPageState extends State<StakingPage> {
                             ? themeProvider.darkGreyBoxColor
                             : Colors.amber.shade100,
                         borderRadius: BorderRadius.circular(20),
-                        border: isDark
-                            ? Border.all(
-                                color: themeProvider.darkGreyBorder,
-                                width: 2,
-                              )
-                            : null,
+                        border: Border.all(
+                          color: Colors.amber,
+                          width: 0.5,
+                        ),
                         child: SizedBox(
                           width: double.infinity,
                           child: Padding(
@@ -441,7 +437,7 @@ class _StakingPageState extends State<StakingPage> {
                       ),
                       ),
 
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 40),
 
                       TextField(
                         controller: _amountController,

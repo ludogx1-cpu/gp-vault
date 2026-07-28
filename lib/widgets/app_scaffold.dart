@@ -5,12 +5,14 @@ class AppScaffold extends StatelessWidget {
   final Widget? body;
   final PreferredSizeWidget? appBar;
   final Color? backgroundColor;
+  final bool showSidebar;
 
   const AppScaffold({
     super.key,
     this.body,
     this.appBar,
     this.backgroundColor,
+    this.showSidebar = true,
   });
 
   @override
@@ -25,27 +27,28 @@ class AppScaffold extends StatelessWidget {
             return Stack(
               children: [
                 SizedBox.expand(child: body ?? const SizedBox()),
-                ValueListenableBuilder<bool>(
-                  valueListenable: sidebarExpandedNotifier,
-                  builder: (context, isExpanded, child) {
-                    if (!isExpanded) return const SizedBox.shrink();
-                    return GestureDetector(
-                      onTap: () => sidebarExpandedNotifier.value = false,
-                      child: Container(
-                        color: Colors.black54,
-                        width: double.infinity,
-                        height: double.infinity,
-                      ),
-                    );
-                  },
-                ),
-                const PersistentSidebar(),
+                if (showSidebar)
+                  ValueListenableBuilder<bool>(
+                    valueListenable: sidebarExpandedNotifier,
+                    builder: (context, isExpanded, child) {
+                      if (!isExpanded) return const SizedBox.shrink();
+                      return GestureDetector(
+                        onTap: () => sidebarExpandedNotifier.value = false,
+                        child: Container(
+                          color: Colors.black54,
+                          width: double.infinity,
+                          height: double.infinity,
+                        ),
+                      );
+                    },
+                  ),
+                if (showSidebar) const PersistentSidebar(),
               ],
             );
           }
           return Row(
             children: [
-              const PersistentSidebar(),
+              if (showSidebar) const PersistentSidebar(),
               Expanded(child: body ?? const SizedBox()),
             ],
           );

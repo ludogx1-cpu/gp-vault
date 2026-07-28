@@ -29,8 +29,8 @@ class UpdatesBox extends StatelessWidget {
                 color: isDark ? themeProvider.darkGreyBoxColor : Colors.blue.shade50,
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(
-                  color: isDark ? themeProvider.darkGreyBorder : Colors.blue.shade200,
-                  width: 2,
+                  color: Colors.amber,
+                  width: 0.5,
                 ),
               ),
               child: Column(

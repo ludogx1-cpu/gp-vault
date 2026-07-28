@@ -3,14 +3,19 @@ const { admin, verifyFirebaseToken } = require('../services/firebaseService');
 const { faucetPaySend } = require('../services/faucetPayService');
 const { getDogePrice } = require('../services/priceService');
 const { calculateDogeReward } = require('../utils/rewardCalculator');
-const { formatAmount, verifyCaptchaToken, getStreakUpdates } = require('../utils/helpers');
+const { formatAmount, verifyCaptchaToken, getStreakUpdates, getAdminUid } = require('../utils/helpers');
 const { calculateDecay, calculatePetBonusPercent, calculateTrickBonusPercent, getAgeMultiplier } = require('../utils/petMechanics');
 
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 
-const getAdminUid = () => process.env.ADMIN_UID || 'P8iffVqbUgetAVA4MdHVZ1CfvUv1';
+const faucetLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 20, // limit each IP to 20 requests per windowMs
+  message: { success: false, error: 'Too many requests, please try again later.' }
+});
 
-router.post('/send-doge', verifyFirebaseToken, async (req, res) => {
+router.post('/send-doge', faucetLimiter, verifyFirebaseToken, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({ success: false, error: 'Authentication required for faucet claim' });
@@ -102,6 +107,16 @@ router.post('/send-doge', verifyFirebaseToken, async (req, res) => {
       captchaProvider: captcha_provider || 'Admin Bypass',
       authUser: req.user || null,
     };
+
+    // Increment lifetime metrics for FaucetPay direct claim
+    try {
+      await userRef.update({
+        total_faucet_claims: admin.firestore.FieldValue.increment(1),
+        total_earned: admin.firestore.FieldValue.increment(dogeAmount)
+      });
+    } catch (metricErr) {
+      console.error('Failed to update lifetime metrics for direct claim:', metricErr);
+    }
 
     console.log('Send DOGE success:', JSON.stringify({ address, amount: dogeAmount }));
     res.json(resultPayload);
@@ -198,6 +213,8 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
           pet_energy: decayed.energy,
           pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
           reward_history: history,
+          total_faucet_claims: admin.firestore.FieldValue.increment(1),
+          total_earned: admin.firestore.FieldValue.increment(finalReward),
           ...streakUpdates
         };
         if (isNewUser) {
@@ -218,6 +235,8 @@ router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
           xp: xp + 10,
           last_claim_time: now,
           reward_history: history,
+          total_faucet_claims: admin.firestore.FieldValue.increment(1),
+          total_earned: admin.firestore.FieldValue.increment(finalReward),
           ...streakUpdates
         };
         if (isNewUser) {
@@ -312,6 +331,23 @@ router.post('/withdraw', verifyFirebaseToken, async (req, res) => {
       throw new Error('Payment processor is temporarily down. Your funds have been securely refunded. Please try again later.');
     }
 
+    // Log the withdrawal receipt and increment total_withdrawn
+    try {
+      await admin.firestore().collection('withdrawals').add({
+        uid: req.user.uid,
+        email: req.user.email,
+        amount: sendAmount,
+        address: user_address,
+        source: 'vault',
+        timestamp: admin.firestore.FieldValue.serverTimestamp()
+      });
+      await userRef.update({
+        total_withdrawn: admin.firestore.FieldValue.increment(sendAmount)
+      });
+    } catch (logErr) {
+      console.error('Failed to log withdrawal receipt:', logErr);
+    }
+
     const resultPayload = {
       success: true,
       address: user_address,
@@ -396,6 +432,23 @@ router.post('/bank/withdraw', verifyFirebaseToken, async (req, res) => {
       });
       console.error('FaucetPay send failed, user refunded:', faucetError.message || faucetError);
       throw new Error('Payment processor is temporarily down. Your funds have been securely refunded. Please try again later.');
+    }
+
+    // Log the withdrawal receipt and increment total_withdrawn
+    try {
+      await admin.firestore().collection('withdrawals').add({
+        uid: req.user.uid,
+        email: req.user.email,
+        amount: sendAmount,
+        address: user_address,
+        source: 'bank',
+        timestamp: admin.firestore.FieldValue.serverTimestamp()
+      });
+      await userRef.update({
+        total_withdrawn: admin.firestore.FieldValue.increment(sendAmount)
+      });
+    } catch (logErr) {
+      console.error('Failed to log bank withdrawal receipt:', logErr);
     }
 
     const resultPayload = {

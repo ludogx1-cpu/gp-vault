@@ -1,10 +1,9 @@
 const express = require('express');
 const { admin, verifyFirebaseToken } = require('../services/firebaseService');
-const { verifyCaptchaToken } = require('../utils/helpers');
+const { verifyCaptchaToken, getAdminUid } = require('../utils/helpers');
 const { calculateShopBonusPercent } = require('../utils/petMechanics');
 
 const router = express.Router();
-const getAdminUid = () => process.env.ADMIN_UID || 'P8iffVqbUgetAVA4MdHVZ1CfvUv1';
 
 router.post('/buy-ptc', verifyFirebaseToken, async (req, res) => {
   try {
@@ -132,6 +131,8 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
         doge_balance: Number(userData.doge_balance || 0) + finalRewardAmount,
         [`ptc_history.${ad_id}`]: now,
         reward_history: history,
+        total_earned: admin.firestore.FieldValue.increment(finalRewardAmount),
+        total_ptc_clicks: admin.firestore.FieldValue.increment(1),
         ...streakUpdates
       });
 

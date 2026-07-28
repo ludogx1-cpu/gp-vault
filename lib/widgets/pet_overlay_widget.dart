@@ -8,14 +8,9 @@ import '../src/firebase_service.dart';
 import '../utils/pet_events.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-class PooData {
-  final String id;
-  final double x;
-  final double y;
-
-  PooData({required this.id, required this.x, required this.y});
-}
+import 'pet/pet_sprite_widget.dart';
+import 'pet/speech_bubble_widget.dart';
+import 'pet/poo_layer_widget.dart';
 
 double globalMouseX = 0;
 double globalMouseY = 0;
@@ -509,51 +504,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     }
   }
 
-  String _getImageAsset() {
-    switch (_stage) {
-      case 'baby':
-        return 'assets/shiba_baby.png';
-      case 'toddler':
-        return 'assets/shiba_baby.png'; // Uses baby image but scaled larger
-      case 'puppy':
-        return 'assets/shiba_teen.png'; // Swapped with teen
-      case 'child':
-        return 'assets/shiba_child.png';
-      case 'teen':
-        return 'assets/shiba_puppy.png'; // Swapped with puppy
-      case 'young_adult':
-        return 'assets/shiba_young_adult.png';
-      case 'adult':
-        return 'assets/shiba_adult.png';
-      case 'old_dog':
-        return 'assets/old_dog.png';
-      default:
-        return 'assets/shiba_toddler.png';
-    }
-  }
-
-  double _getScaleForStage() {
-    switch (_stage) {
-      case 'baby':
-        return 0.75; // Increased from 0.5
-      case 'toddler':
-        return 0.85; // Increased from 0.6
-      case 'puppy':
-        return 0.95; // Increased from 0.7
-      case 'child':
-        return 1.0; // Increased from 0.8
-      case 'teen':
-        return 1.1; // Increased from 0.9
-      case 'young_adult':
-        return 1.2; // Increased from 1.0
-      case 'adult':
-        return 1.4; // Increased from 1.2
-      case 'old_dog':
-        return 1.5;
-      default:
-        return 0.7;
-    }
-  }
+// the methods _getImageAsset and _getScaleForStage were moved to pet_sprite_widget.dart
 
   void _onBallPanUpdate(DragUpdateDetails details) {
     if (_isFetching || _stage == 'baby') return;
@@ -715,73 +666,22 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     }
 
     if (_isSleepingOverlay && _stage != 'egg') {
-      return Stack(
-        children: [
-          ..._poos.map(
-            (poo) => Positioned(
-              left: poo.x,
-              top: poo.y,
-              child: GestureDetector(
-                onTap: () => _cleanPoo(poo.id),
-                child: SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: Image.asset('assets/shiba_poo.png'),
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
+      return PooLayerWidget(poos: _poos, onClean: _cleanPoo);
     }
 
     return Stack(
       children: [
         // Poos
-        ..._poos.map(
-          (poo) => Positioned(
-            left: poo.x,
-            top: poo.y,
-            child: GestureDetector(
-              onTap: () => _cleanPoo(poo.id),
-              child: SizedBox(
-                width: 40,
-                height: 40,
-                child: Image.asset('assets/shiba_poo.png'),
-              ),
-            ),
-          ),
-        ),
+        PooLayerWidget(poos: _poos, onClean: _cleanPoo),
 
         // Speech Bubble
         if (_currentSpeech.isNotEmpty && !_isSleepingOverlay && _stage != 'egg')
-          AnimatedPositioned(
-            duration: Duration(seconds: _isChasing ? 1 : (_isReturning ? 2 : 4)),
-            curve: Curves.easeInOut,
-            left: _petX - 80, // Offset to center bubble over pet
-            top: _petY - 80, // Above the pet
-            child: IgnorePointer(
-              child: Container(
-                width: 160,
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.95),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(15),
-                    topRight: Radius.circular(15),
-                    bottomLeft: Radius.circular(15),
-                    bottomRight: Radius.circular(0), // Points to pet
-                  ),
-                  border: Border.all(color: Colors.amber, width: 2),
-                  boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(2, 2))],
-                ),
-                child: Text(
-                  _currentSpeech,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 12, color: Colors.black87, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
+          SpeechBubbleWidget(
+            text: _currentSpeech,
+            x: _petX,
+            y: _petY,
+            isChasing: _isChasing,
+            isReturning: _isReturning,
           ),
 
         // Pet
@@ -793,328 +693,45 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
             curve: Curves.easeInOut,
             left: _petX,
             top: _petY,
-            child: AnimatedBuilder(
-              animation: Listenable.merge([
-                _shakeController,
-                _walkController,
-                _boopController,
-              ]),
-              builder: (context, child) {
-                double eggOffset = 0;
-                double walkOffset = 0;
-
-                if (_stage == 'baby') {
-                  eggOffset = sin(_shakeController.value * pi * 4) * 10;
-                } else if (_walkController.isAnimating) {
-                  // Bob up and down while walking
-                  walkOffset = sin(_walkController.value * pi) * -10;
-                }
-
-                // Squish effect for boop
-                double baseScale = _getScaleForStage();
-                double boopScale =
-                    baseScale - (_boopController.value * 0.15 * baseScale);
-
-                return Transform.translate(
-                  offset: Offset(eggOffset, walkOffset),
-                  child: AnimatedScale(
-                    scale: _isCloseUp
-                        ? 2.5
-                        : 1.0, // Scale up if walking to camera
-                    duration: const Duration(seconds: 4),
-                    curve: Curves.easeInOut,
-                    child: Transform.scale(
-                      scale: boopScale,
-                      child: AnimatedBuilder(
-                        animation: _trickController,
-                        builder: (context, child) {
-                          double trickRotation = 0;
-                          double trickScale = 1.0;
-                          double trickYOffset = 0;
-
-                          if (_currentTrick == 'Spin') {
-                            trickRotation = _trickController.value * pi * 2;
-                          } else if (_currentTrick == 'Jump') {
-                            trickYOffset =
-                                sin(_trickController.value * pi) * -50;
-                          } else if (_currentTrick == 'Roll Over') {
-                            trickRotation = _trickController.value * pi * 2;
-                            trickYOffset =
-                                sin(_trickController.value * pi) *
-                                20; // dip down
-                          } else if (_currentTrick == 'Backflip') {
-                            trickRotation =
-                                _trickController.value *
-                                pi *
-                                2 *
-                                -1; // rotate backwards
-                            trickYOffset =
-                                sin(_trickController.value * pi) *
-                                -80; // jump higher
-                          }
-
-                          double trickXOffset = 0;
-                          if (_currentTrick == 'Moonwalk') {
-                            double direction = _facingRight ? -1.0 : 1.0;
-                            double slideDist =
-                                sin(_trickController.value * pi) * 60;
-                            trickXOffset = slideDist * direction;
-                          }
-
-                          return Transform(
-                            alignment: Alignment.center,
-                            transform:
-                                Matrix4.translationValues(
-                                  trickXOffset,
-                                  trickYOffset,
-                                  0.0,
-                                ) *
-                                Matrix4.rotationZ(trickRotation) *
-                                Matrix4.diagonal3Values(
-                                  trickScale,
-                                  trickScale,
-                                  1.0,
-                                ),
-                            child: child,
-                          );
-                        },
-                        child: GestureDetector(
-                          onTapDown: (_) {
-                            if (_isSleepingOverlay || _isSick) return;
-                            if (_stage != 'egg') _boopController.forward();
-                          },
-                          onTapUp: (_) {
-                            if (_isSleepingOverlay || _isSick) return;
-                            if (_stage != 'egg') _boopController.reverse();
-                            if (_isCloseUp) {
-                              _boopPet();
-                            } else if (_stage != 'egg') {
-                              _startChasingMouse();
-                            }
-                          },
-                          onTapCancel: () {
-                            if (_isSleepingOverlay || _isSick) return;
-                            if (_stage != 'egg') _boopController.reverse();
-                          },
-                          onPanUpdate: (details) {
-                            if (_isSleepingOverlay || _isSick) return;
-                            if (_stage != 'egg') {
-                              _strokePet();
-                            }
-                          },
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            alignment: Alignment.center,
-                            children: [
-                              Transform(
-                                alignment: Alignment.center,
-                                transform: Matrix4.rotationY(
-                                  _facingRight ? pi : 0,
-                                ), // Flip horizontal
-                                child: Stack(
-                                  children: [
-                                    SizedBox(
-                                      width: 100,
-                                      height: 100,
-                                      child: Image.asset(_getImageAsset()),
-                                    ),
-                                    if (_isSick)
-                                      const Positioned(
-                                        top: -20,
-                                        right: -20,
-                                        child: Text("🤢", style: TextStyle(fontSize: 32)),
-                                      ),
-                                    // Render equipped accessories
-                                    if (_equippedAccessories.contains(
-                                      'top_hat',
-                                    ))
-                                      Positioned(
-                                        top: -15,
-                                        left: 30,
-                                        child: Image.asset(
-                                          'assets/shiba_top_hat.png',
-                                          width: 40,
-                                        ),
-                                      ),
-                                    if (_equippedAccessories.contains('crown'))
-                                      Positioned(
-                                        top: -10,
-                                        left: 25,
-                                        child: Image.asset(
-                                          'assets/shiba_crown.png',
-                                          width: 50,
-                                        ),
-                                      ),
-                                    if (_equippedAccessories.contains(
-                                      'sunglasses',
-                                    ))
-                                      Positioned(
-                                        top: 25,
-                                        left: 20,
-                                        child: Image.asset(
-                                          'assets/shiba_sunglasses.png',
-                                          width: 45,
-                                        ),
-                                      ),
-                                    if (_equippedAccessories.contains(
-                                      'gold_chain',
-                                    ))
-                                      Positioned(
-                                        top: 55,
-                                        left: 25,
-                                        child: Image.asset(
-                                          'assets/shiba_gold_chain.png',
-                                          width: 50,
-                                        ),
-                                      ),
-                                    if (_equippedAccessories.contains(
-                                      'coat_basic',
-                                    ))
-                                      Positioned(
-                                        top: 20,
-                                        left: 10,
-                                        child: Image.asset(
-                                          'assets/shiba_coat_basic.png',
-                                          width: 80,
-                                        ),
-                                      ),
-                                    if (_equippedAccessories.contains(
-                                      'coat_rain',
-                                    ))
-                                      Positioned(
-                                        top: 20,
-                                        left: 10,
-                                        child: Image.asset(
-                                          'assets/shiba_coat_rain.png',
-                                          width: 80,
-                                        ),
-                                      ),
-                                    if (_equippedAccessories.contains(
-                                      'coat_winter',
-                                    ))
-                                      Positioned(
-                                        top: 20,
-                                        left: 10,
-                                        child: Image.asset(
-                                          'assets/shiba_coat_winter.png',
-                                          width: 80,
-                                        ),
-                                      ),
-                                    if (_equippedAccessories.contains(
-                                      'coat_luxury',
-                                    ))
-                                      Positioned(
-                                        top: 20,
-                                        left: 10,
-                                        child: Image.asset(
-                                          'assets/shiba_coat_luxury.png',
-                                          width: 80,
-                                        ),
-                                      ),
-                                    if (_equippedAccessories.contains(
-                                      'diamond_watch',
-                                    ))
-                                      Positioned(
-                                        top: 55,
-                                        left: 25,
-                                        child: Image.asset(
-                                          'assets/shiba_diamond_watch.png',
-                                          width: 50,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                              // Emotion bubble
-                              if (emotion.isNotEmpty || _stage != 'egg')
-                                Positioned(
-                                  top: -45,
-                                  child: Column(
-                                    children: [
-                                      if (_stage != 'egg')
-                                        Column(
-                                          children: [
-                                            Text(
-                                              _petName,
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.amber,
-                                                shadows: [
-                                                  Shadow(
-                                                    color: Colors.black,
-                                                    blurRadius: 2,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Text(
-                                              _stage
-                                                  .replaceAll('_', ' ')
-                                                  .toUpperCase(),
-                                              style: const TextStyle(
-                                                fontSize: 9,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                                letterSpacing: 1.0,
-                                                shadows: [
-                                                  Shadow(
-                                                    color: Colors.black,
-                                                    blurRadius: 2,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      if (emotion.isNotEmpty)
-                                        AnimatedOpacity(
-                                          opacity: emotion.isNotEmpty
-                                              ? 1.0
-                                              : 0.0,
-                                          duration: const Duration(
-                                            milliseconds: 500,
-                                          ),
-                                          child: Text(
-                                            emotion,
-                                            style: const TextStyle(
-                                              fontSize: 24,
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              // Boop Hint
-                              if (_isCloseUp &&
-                                  !_walkController.isAnimating &&
-                                  !_isChasing)
-                                const Positioned(
-                                  top: -25,
-                                  child: Text(
-                                    "Boop!",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.pinkAccent,
-                                      shadows: [
-                                        Shadow(
-                                          color: Colors.white,
-                                          blurRadius: 4,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ), // closes AnimatedBuilder (trickController)
-                    ), // closes Transform.scale (boopScale)
-                  ), // closes AnimatedScale
-                ); // closes Transform.translate
+            child: PetSpriteWidget(
+              stage: _stage,
+              petName: _petName,
+              isSick: _isSick,
+              facingRight: _facingRight,
+              equippedAccessories: _equippedAccessories,
+              emotion: emotion,
+              isCloseUp: _isCloseUp,
+              isWalkAnimating: _walkController.isAnimating,
+              isChasing: _isChasing,
+              shakeController: _shakeController,
+              walkController: _walkController,
+              boopController: _boopController,
+              trickController: _trickController,
+              currentTrick: _currentTrick,
+              onBoopDown: () {
+                if (_isSleepingOverlay || _isSick) return;
+                if (_stage != 'egg') _boopController.forward();
               },
-            ), // closes AnimatedBuilder (shake/walk)
+              onBoopUp: () {
+                if (_isSleepingOverlay || _isSick) return;
+                if (_stage != 'egg') _boopController.reverse();
+                if (_isCloseUp) {
+                  _boopPet();
+                } else if (_stage != 'egg') {
+                  _startChasingMouse();
+                }
+              },
+              onBoopCancel: () {
+                if (_isSleepingOverlay || _isSick) return;
+                if (_stage != 'egg') _boopController.reverse();
+              },
+              onStroke: () {
+                if (_isSleepingOverlay || _isSick) return;
+                if (_stage != 'egg') {
+                  _strokePet();
+                }
+              },
+            ), // PetSpriteWidget
           ), // closes AnimatedPositioned
           
         // Fetch Ball

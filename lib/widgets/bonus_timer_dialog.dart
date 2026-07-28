@@ -9,6 +9,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
 import '../src/cross_tab_listener/cross_tab_listener.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart';
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
 
@@ -48,6 +50,10 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
   String _selectedCaptcha = 'hCaptcha';
   bool _captchaLoading = false;
   String? _captchaToken;
+  
+  int _accumulatedSeconds = 0;
+  DateTime? _leaveTime;
+  DateTime _lastClickTime = DateTime.now();
 
   @override
   void initState() {
@@ -74,6 +80,8 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
         if (!_timerStarted) {
           setState(() {
             _timerStarted = true;
+            _leaveTime = DateTime.now();
+            _lastClickTime = DateTime.now();
           });
           _stopwatch.start();
           _startTimer();
@@ -102,30 +110,20 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
   void _startTimer() {
     _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) async {
       if (_isProcessing || _showCaptcha) return;
-
-      bool isFocused = _crossTabListener?.hasFocus() ?? true;
-
-      if (isFocused) {
-        if (_stopwatch.isRunning) {
-          _stopwatch.stop();
-          if (mounted) {
-            setState(
-              () => _message = "⚠️ Paused! Go back and view the Sponsor tab!",
-            );
-          }
-        }
-      } else {
-        if (!_stopwatch.isRunning) {
-          _stopwatch.start();
-        }
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (_claimed) {
+        timer.cancel();
+        return;
       }
 
-      int elapsedSeconds = _stopwatch.elapsed.inSeconds;
-      int remaining = widget.durationSeconds - elapsedSeconds;
+      int currentElapsed = DateTime.now().difference(_lastClickTime).inSeconds;
+      int remaining = widget.durationSeconds - currentElapsed;
 
       if (remaining <= 0) {
         timer.cancel();
-        _stopwatch.stop();
         if (mounted) {
           setState(() {
             _timeLeft = 0;
@@ -133,12 +131,13 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
             _message = "Solve Captcha to Claim!";
           });
           _updateBrowserTitle("Claim ready");
+          HapticFeedback.vibrate();
         }
       } else {
-        if (mounted && remaining != _timeLeft) {
+        if (mounted && remaining != _timeLeft && remaining <= widget.durationSeconds) {
           setState(() {
             _timeLeft = remaining;
-            _message = "Watching Sponsor... $_timeLeft seconds left";
+            _message = "Watching Ad... $_timeLeft seconds left";
           });
           _updateBrowserTitle("${remaining}s left");
         }
@@ -352,6 +351,32 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
                       : gpBrownText(context),
                   fontSize: 16,
                 ),
+              ),
+              const SizedBox(height: 15),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+                    child: Text(
+                      "Cancel",
+                      style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600),
+                    ),
+                  ),
+                  if (_message.contains("Paused") && widget.targetUrl != null) ...[
+                    const SizedBox(width: 10),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
+                      onPressed: () {
+                        setState(() {
+                          _leaveTime = DateTime.now();
+                        });
+                        launchUrl(Uri.parse(widget.targetUrl!));
+                      },
+                      child: const Text("Resume Ad", style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ],
               ),
               if (!_timerStarted) ...[
                 const SizedBox(height: 15),

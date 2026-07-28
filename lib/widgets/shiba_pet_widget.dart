@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'walk_treadmill_dialog.dart';
 import '../src/notification_service.dart';
 import '../utils/pet_events.dart';
+import 'pet/pet_tabs_widget.dart';
 
 class ShibaPetWidget extends StatefulWidget {
   const ShibaPetWidget({super.key});
@@ -358,7 +359,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
       decoration: BoxDecoration(
         color: isDark ? theme.darkGreyBoxColor : Colors.amber.shade50,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: isDark ? theme.darkGreyBorder : Colors.amber.shade200, width: 2),
+        border: Border.all(color: Colors.amber, width: 0.5),
       ),
       child: Column(
         children: [
@@ -454,7 +455,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                           label: const Text("Sleep", style: TextStyle(fontSize: 11)),
                           style: ElevatedButton.styleFrom(backgroundColor: canSleep ? Colors.blue : Colors.grey, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
                         ),
-                        if (FirebaseAuth.instance.currentUser?.uid == 'P8iffVqbUgetAVA4MdHVZ1CfvUv1') ...[
+                        if (FirebaseAuth.instance.currentUser?.uid == ApiConstants.adminUid) ...[
                           ElevatedButton.icon(
                             onPressed: _isLoading ? null : () => _forceAgeAdmin(-5),
                             icon: const Icon(Icons.fast_rewind, size: 16),
@@ -484,116 +485,37 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                         child: Text("Locked Returns: ${_lockedReturns.toStringAsFixed(4)} DOGE (Matures in 24h)", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.purple)),
                       ),
                     
-                    // Tabbed Area (Info, Shop, Tricks)
-                    DefaultTabController(
-                      length: 5,
-                      child: Container(
-                        height: 180,
-                        margin: const EdgeInsets.only(top: 15),
-                        decoration: BoxDecoration(
-                          color: isDark ? Colors.blueGrey.withValues(alpha: 0.2) : Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.blue.withValues(alpha: 0.5)),
-                        ),
-                        child: Column(
-                          children: [
-                            TabBar(
-                              labelColor: isDark ? Colors.amber : Colors.blue.shade800,
-                              unselectedLabelColor: isDark ? Colors.white54 : Colors.black54,
-                              indicatorColor: Colors.amber,
-                              isScrollable: true,
-                              tabs: const [
-                                Tab(icon: Icon(Icons.info, size: 20), text: "Info"),
-                                Tab(icon: Icon(Icons.shopping_cart, size: 20), text: "Shop"),
-                                Tab(icon: Icon(Icons.fastfood, size: 20), text: "Items"),
-                                Tab(icon: Icon(Icons.sports_baseball, size: 20), text: "Balls"),
-                                Tab(icon: Icon(Icons.star, size: 20), text: "Tricks"),
-                              ],
-                            ),
-                            Expanded(
-                              child: TabBarView(
-                                children: [
-                                  // Info Tab
-                                  Padding(
-                                    padding: const EdgeInsets.all(12),
-                                    child: SingleChildScrollView(
-                                      child: Text(
-                                        "• Stroke: Stroke your pet to raise Attention & get 5 XP!\n"
-                                        "• Fetch: Swipe the ball! Costs Energy & Hunger but boosts Happiness.\n"
-                                        "• Boop: Every 30 mins, it walks to the camera. Boop its nose for 0.002 DOGE!\n"
-                                        "• Walk: Walk your pet every 3 hours for up to 0.005 DOGE.\n"
-                                        "• Sickness: Keep stats above 0! Sick pets can't walk and lose faucet bonuses.\n"
-                                        "• Items: Buy Medicine to cure sickness for FREE.",
-                                        style: TextStyle(fontSize: 12, height: 1.4, color: isDark ? Colors.white70 : Colors.black87),
-                                      ),
-                                    ),
-                                  ),
-                                  // Shop Tab
-                                  _stage == 'egg' 
-                                  ? const Center(child: Text("Shop unlocks at Baby stage!\n(Wait 2 days or use Admin controls)", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)))
-                                  : ListView(
-                                      padding: const EdgeInsets.all(8),
-                                      children: [
-                                        _buildShopItem('top_hat', 'Fancy Top Hat', 1.0, '+10% PTC Bonus'),
-                                        _buildShopItem('sunglasses', 'Cool Shades', 2.0, '+20% PTC Bonus'),
-                                        _buildShopItem('gold_chain', 'Gold Chain', 3.0, '+30% PTC Bonus'),
-                                        _buildShopItem('diamond_watch', 'Diamond Watch', 5.0, '+50% PTC Bonus'),
-                                        _buildShopItem('crown', 'Royal Crown', 10.0, '+100% PTC Bonus'),
-                                        _buildShopItem('coat_basic', 'Basic Coat', 1.5, '+15% PTC Bonus'),
-                                        _buildShopItem('coat_rain', 'Rain Coat', 2.5, '+25% PTC Bonus'),
-                                        _buildShopItem('coat_winter', 'Winter Coat', 4.0, '+40% PTC Bonus'),
-                                        _buildShopItem('coat_luxury', 'Luxury Coat', 7.5, '+75% PTC Bonus'),
-                                      ],
-                                    ),
-                                  // Consumables Tab
-                                  _stage == 'egg' 
-                                  ? const Center(child: Text("Items unlock at Baby stage!\n(Wait 2 days or use Admin controls)", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)))
-                                  : ListView(
-                                      padding: const EdgeInsets.all(8),
-                                      children: [
-                                        _buildConsumableItem('medicine', 'Medicine', 0.0, 'Cures Sickness (FREE)', Icons.local_hospital),
-                                      ],
-                                    ),
-                                  // Balls Tab
-                                  _stage == 'egg' 
-                                  ? const Center(child: Text("Balls unlock at Baby stage!", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)))
-                                  : ListView(
-                                      padding: const EdgeInsets.all(8),
-                                      children: [
-                                        _buildBallItem('white', 'Classic White', 0.0, '0.0 DOGE | 1 XP'),
-                                        _buildBallItem('red', 'Red Ball', 0.25, '0.0001 DOGE | 1 XP'),
-                                        _buildBallItem('orange', 'Orange Ball', 0.75, '0.0002 DOGE | 2 XP'),
-                                        _buildBallItem('yellow', 'Yellow Ball', 1.25, '0.0003 DOGE | 3 XP'),
-                                        _buildBallItem('green', 'Green Ball', 1.75, '0.0004 DOGE | 4 XP'),
-                                        _buildBallItem('blue', 'Blue Ball', 2.25, '0.0005 DOGE | 5 XP'),
-                                        _buildBallItem('indigo', 'Indigo Ball', 2.75, '0.0006 DOGE | 6 XP'),
-                                        _buildBallItem('violet', 'Violet Ball', 3.25, '0.0007 DOGE | 7 XP'),
-                                      ],
-                                    ),
-                                  // Tricks Tab
-                                  _stage == 'egg'
-                                  ? const Center(child: Text("Tricks unlock at Baby stage!\n(Wait 2 days or use Admin controls)", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)))
-                                  : Center(
-                                      child: SingleChildScrollView(
-                                        child: Wrap(
-                                          spacing: 10,
-                                          runSpacing: 10,
-                                          alignment: WrapAlignment.center,
-                                          children: [
-                                            _buildTrickButton('Spin', Icons.rotate_right, 1.0, '+10% Sponsor Bonus'),
-                                            _buildTrickButton('Jump', Icons.arrow_upward, 2.0, '+20% Sponsor Bonus'),
-                                            _buildTrickButton('Roll Over', Icons.replay, 3.0, '+30% Sponsor Bonus'),
-                                            _buildTrickButton('Backflip', Icons.loop, 5.0, '+50% Sponsor Bonus'),
-                                            _buildTrickButton('Moonwalk', Icons.directions_walk, 10.0, '+100% Sponsor Bonus'),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                    // Tabbed Area (Info, Shop, Items, Balls, Tricks)
+                    PetTabsWidget(
+                      data: PetTabsData(
+                        stage: _stage,
+                        isDark: isDark,
+                        ownedAccessories: _ownedAccessories,
+                        equippedAccessories: _equippedAccessories,
+                        ownedTricks: _ownedTricks,
+                        ownedConsumables: _ownedConsumables,
+                        ownedBalls: _ownedBalls,
+                        equippedBall: _equippedBall,
+                      ),
+                      callbacks: PetTabsCallbacks(
+                        onEquipAccessory: (id, equip) => _equipAccessory(id, equip),
+                        onBuyAccessory: (id, price) => _showPurchaseDialog(
+                            id, price, (currency) => _buyAccessory(id, currency)),
+                        onUseConsumable: (id) => _useConsumable(id),
+                        onBuyConsumable: (id, price) {
+                          if (price == 0.0) {
+                            _buyConsumable(id, 'doge');
+                          } else {
+                            _showPurchaseDialog(id, price,
+                                (currency) => _buyConsumable(id, currency));
+                          }
+                        },
+                        onEquipBall: (color) => _equipBall(color),
+                        onBuyBall: (color, price) => _showPurchaseDialog(
+                            color, price, (currency) => _buyBall(color, currency)),
+                        onPerformTrick: (name) => _performTrick(name),
+                        onBuyTrick: (name, price) => _showPurchaseDialog(
+                            name, price, (currency) => _buyTrick(name, currency)),
                       ),
                     ),
                   ],
@@ -664,146 +586,6 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
             child: Text("${dogePrice.toStringAsFixed(2)} DOGE", style: const TextStyle(color: Colors.white)),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildShopItem(String id, String name, double price, String bonus) {
-    final isOwned = _ownedAccessories.contains(id);
-    final isEquipped = _equippedAccessories.contains(id);
-    
-    return ListTile(
-      visualDensity: VisualDensity.compact,
-      leading: Image.asset('assets/shiba_$id.png', width: 30, height: 30, errorBuilder: (c,e,s) => const Icon(Icons.checkroom)),
-      title: Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-      subtitle: isOwned ? Text(bonus, style: const TextStyle(fontSize: 10, color: Colors.green)) : Text('\$$price USDT (Ad Credit)\n$bonus', style: const TextStyle(fontSize: 10, color: Colors.amber)),
-      trailing: isOwned
-          ? ElevatedButton(
-              onPressed: () => _equipAccessory(id, !isEquipped),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isEquipped ? Colors.grey : Colors.blue,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                minimumSize: const Size(60, 30),
-              ),
-              child: Text(isEquipped ? "Unequip" : "Equip", style: const TextStyle(fontSize: 10, color: Colors.white)),
-            )
-          : ElevatedButton(
-              onPressed: () {
-                _showPurchaseDialog(name, price, (currency) => _buyAccessory(id, currency));
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.amber,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                minimumSize: const Size(60, 30),
-              ),
-              child: const Text("Buy", style: TextStyle(fontSize: 10, color: Colors.black)),
-            ),
-    );
-  }
-
-  Widget _buildConsumableItem(String id, String name, double price, String desc, IconData icon) {
-    final count = _ownedConsumables[id] ?? 0;
-    
-    return ListTile(
-      visualDensity: VisualDensity.compact,
-      leading: Icon(icon, size: 30, color: Colors.amber),
-      title: Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-      subtitle: Text('Owned: $count\n$desc', style: const TextStyle(fontSize: 10, color: Colors.grey)),
-      trailing: Wrap(
-        spacing: 4,
-        children: [
-          if (count > 0)
-            ElevatedButton(
-              onPressed: () => _useConsumable(id),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                minimumSize: const Size(50, 30),
-              ),
-              child: const Text("Use", style: TextStyle(fontSize: 10, color: Colors.white)),
-            ),
-          ElevatedButton(
-            onPressed: () {
-              if (price == 0.0) {
-                _buyConsumable(id, 'doge');
-              } else {
-                _showPurchaseDialog(name, price, (currency) => _buyConsumable(id, currency));
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.amber,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              minimumSize: const Size(50, 30),
-            ),
-            child: Text(price == 0.0 ? "FREE" : "\$$price", style: const TextStyle(fontSize: 10, color: Colors.black)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBallItem(String color, String name, double price, String bonus) {
-    final isOwned = _ownedBalls.contains(color);
-    final isEquipped = _equippedBall == color;
-    
-    Color ballColor = Colors.white;
-    switch(color) {
-      case 'red': ballColor = Colors.red; break;
-      case 'orange': ballColor = Colors.orange; break;
-      case 'yellow': ballColor = Colors.yellow; break;
-      case 'green': ballColor = Colors.green; break;
-      case 'blue': ballColor = Colors.blue; break;
-      case 'indigo': ballColor = Colors.indigo; break;
-      case 'violet': ballColor = Colors.purple; break;
-    }
-
-    return ListTile(
-      visualDensity: VisualDensity.compact,
-      leading: Container(width: 20, height: 20, decoration: BoxDecoration(color: ballColor, shape: BoxShape.circle, border: Border.all(color: Colors.black))),
-      title: Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-      subtitle: isOwned ? Text(bonus, style: const TextStyle(fontSize: 10, color: Colors.green)) : Text('\$$price USDT (Ad Credit)\n$bonus', style: const TextStyle(fontSize: 10, color: Colors.amber)),
-      trailing: isOwned
-          ? ElevatedButton(
-              onPressed: isEquipped ? null : () => _equipBall(color),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isEquipped ? Colors.grey : Colors.blue,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                minimumSize: const Size(60, 30),
-              ),
-              child: Text(isEquipped ? "Equipped" : "Equip", style: const TextStyle(fontSize: 10, color: Colors.white)),
-            )
-          : ElevatedButton(
-              onPressed: () {
-                _showPurchaseDialog(name, price, (currency) => _buyBall(color, currency));
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.amber,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                minimumSize: const Size(60, 30),
-              ),
-              child: const Text("Buy", style: TextStyle(fontSize: 10, color: Colors.black)),
-            ),
-    );
-  }
-
-  Widget _buildTrickButton(String name, IconData icon, double price, String bonus) {
-    final isOwned = _ownedTricks.contains(name);
-    return Tooltip(
-      message: isOwned ? 'Perform $name' : 'Buy $name for \$$price USDT / ${price * 8.0} DOGE ($bonus)',
-      child: ElevatedButton.icon(
-        onPressed: () {
-          if (isOwned) {
-            _performTrick(name);
-          } else {
-            _showPurchaseDialog(name, price, (currency) => _buyTrick(name, currency));
-          }
-        },
-        icon: Icon(isOwned ? icon : Icons.lock, size: 16),
-        label: Text(isOwned ? name : 'Buy'),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isOwned ? Colors.purple.shade400 : Colors.grey.shade700,
-          foregroundColor: Colors.white,
-        ),
       ),
     );
   }

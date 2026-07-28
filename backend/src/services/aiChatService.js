@@ -70,7 +70,7 @@ function startAiChatService() {
         const message = AI_MESSAGES[getRandomInt(0, AI_MESSAGES.length - 1)];
 
         await admin.firestore().collection('chat_messages').add({
-          chat_username: username,
+          display_name: username,
           message: message,
           timestamp: admin.firestore.FieldValue.serverTimestamp(),
           is_ai: true // internal flag, invisible to frontend
@@ -93,7 +93,7 @@ function startAiChatService() {
       const message = AI_MESSAGES[getRandomInt(0, AI_MESSAGES.length - 1)];
 
       await admin.firestore().collection('chat_messages').add({
-        chat_username: username,
+        display_name: username,
         message: message,
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
         is_ai: true

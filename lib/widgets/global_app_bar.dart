@@ -9,6 +9,7 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
   final bool centerTitle;
   final bool showWallet;
+  final bool showMenuIcon;
 
   const GlobalAppBar({
     super.key,
@@ -16,6 +17,7 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.actions,
     this.centerTitle = false,
     this.showWallet = true,
+    this.showMenuIcon = true,
   });
 
   @override
@@ -40,6 +42,27 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
               centerTitle: isMobile ? false : centerTitle,
               iconTheme: const IconThemeData(color: kAppBarIconColor),
               titleSpacing: showBackArrow ? 0 : 16,
+              automaticallyImplyLeading: false,
+              leading: showBackArrow
+                  ? IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go('/');
+                        }
+                      },
+                    )
+                  : showMenuIcon
+                      ? IconButton(
+                          icon: const Icon(Icons.menu),
+                          onPressed: () {
+                            sidebarExpandedNotifier.value = !sidebarExpandedNotifier.value;
+                          },
+                        )
+                      : const SizedBox.shrink(),
+              leadingWidth: (showBackArrow || showMenuIcon) ? 56.0 : 0.0,
               title: InkWell(
                 onTap: () => context.go('/'),
                 child: Row(
@@ -55,24 +78,13 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
                     Flexible(
                       child: Image.asset(
                         'assets/Golen Paw Title.png',
-                        height: isMobile ? 44 : 52,
+                        height: isMobile ? ((showBackArrow || showMenuIcon) ? 44 : 52) : 52,
                         fit: BoxFit.contain,
                       ),
                     ),
                   ],
                 ),
               ),
-              leading: showBackArrow
-                  ? IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      onPressed: () => Navigator.pop(context),
-                    )
-                  : IconButton(
-                      icon: const Icon(Icons.menu),
-                      onPressed: () {
-                        sidebarExpandedNotifier.value = !sidebarExpandedNotifier.value;
-                      },
-                    ),
               actions: [
                 if (actions != null) ...actions!,
                 if (showWallet)
