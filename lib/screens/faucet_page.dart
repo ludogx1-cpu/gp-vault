@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
 import '../widgets/widgets.dart';
 import '../widgets/pet_overlay_widget.dart';
 import '../widgets/chat_box_widget.dart';
@@ -21,11 +22,22 @@ class FaucetPage extends StatefulWidget {
 
 class _FaucetPageState extends State<FaucetPage> {
   double _currentDogePrice = 0.15;
+  DateTime? _lastPriceUpdate;
+  Timer? _priceTimer;
 
   @override
   void initState() {
     super.initState();
     _fetchDogePrice();
+    _priceTimer = Timer.periodic(const Duration(minutes: 5), (_) {
+      _fetchDogePrice();
+    });
+  }
+
+  @override
+  void dispose() {
+    _priceTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _fetchDogePrice() async {
@@ -36,13 +48,19 @@ class _FaucetPageState extends State<FaucetPage> {
         ),
       );
       if (res.statusCode == 200 && mounted) {
-        setState(
-          () => _currentDogePrice = double.parse(jsonDecode(res.body)['price']),
-        );
+        setState(() {
+          _currentDogePrice = double.parse(jsonDecode(res.body)['price']);
+          _lastPriceUpdate = DateTime.now();
+        });
       }
     } catch (e) {
       // ignore
     }
+  }
+
+  bool get _isPriceStale {
+    if (_lastPriceUpdate == null) return true;
+    return DateTime.now().difference(_lastPriceUpdate!).inMinutes >= 10;
   }
 
   @override
@@ -92,19 +110,45 @@ class _FaucetPageState extends State<FaucetPage> {
                       const SizedBox(height: 20),
 
                       const WelcomeBanner(),
+                      const SizedBox(height: 25),
+
+                      FaucetStatsCard(
+                        currentDogePrice: _currentDogePrice,
+                        isPriceStale: _isPriceStale,
+                      ),
                       const SizedBox(height: 20),
 
-                      FaucetStatsCard(currentDogePrice: _currentDogePrice),
-                      const SizedBox(height: 40),
-
+                      Container(
+                        width: double.infinity,
+                        constraints: const BoxConstraints(maxWidth: 800),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.amber.withOpacity(0.5)),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.info_outline, color: Colors.amber, size: 20),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                "Tip: If you're having trouble clicking the left menu tabs, please scroll down slightly so no ads are in view, then try again.",
+                                style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                       const UpdatesBox(),
-                      const SizedBox(height: 35),
+                      const SizedBox(height: 25),
 
                       const FaucetClaimCard(),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 25),
 
                       const BonusTimersCard(),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 25),
 
                       const Bitcotasks160x600AdWidget(),
                       const SizedBox(height: 20),

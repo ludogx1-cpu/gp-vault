@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,6 +10,9 @@ import 'create_ad_page.dart';
 import '../src/firebase_service.dart';
 import '../widgets/widgets.dart';
 import '../api_constants.dart';
+import 'ads/deposit_dialog.dart';
+import 'ads/buy_banner_dialog.dart';
+import 'ads/buy_ptc_ad_dialog.dart';
 
 
 
@@ -37,8 +39,6 @@ class AdHubPage extends StatefulWidget {
 }
 
 class _AdHubPageState extends State<AdHubPage> {
-  final TextEditingController _depositAmountController =
-      TextEditingController();
   final TextEditingController _swapAmountController = TextEditingController();
   bool _isSwapping = false;
 
@@ -95,75 +95,7 @@ class _AdHubPageState extends State<AdHubPage> {
   void _showDepositDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext dContext) {
-        return AlertDialog(
-          title: const Text(
-            "Deposit USDT",
-            style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                "Enter the amount of Tether (USDT) you want to deposit.",
-                style: TextStyle(fontSize: 13, color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 15),
-              TextField(
-                controller: _depositAmountController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                decoration: const InputDecoration(
-                  labelText: "Amount (USDT)",
-                  prefixIcon: Icon(Icons.attach_money, color: Colors.green),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dContext),
-              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-              onPressed: () {
-                final user = FirebaseAuth.instance.currentUser;
-                String amount = _depositAmountController.text.trim();
-
-                if (user != null && amount.isNotEmpty) {
-                  final uri = Uri.parse(
-                    'https://faucetpay.io/merchant/webscr'
-                    '?merchant_username=ludogx1'
-                    '&item_description=Golden+Paw+Ad+Balance'
-                    '&amount1=$amount'
-                    '&currency1=USDT'
-                    '&custom=${user.uid}'
-                    '&callback_url=${Uri.encodeComponent('${ApiConstants.baseUrl}/ipn')}'
-                  );
-                  launchUrl(uri, mode: LaunchMode.externalApplication);
-
-                  if (dContext.mounted) {
-                    Navigator.pop(dContext);
-                  }
-                }
-              },
-              child: const Text(
-                "PAY WITH FAUCETPAY",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+      builder: (BuildContext dContext) => const DepositDialog(),
     );
   }
 
@@ -173,322 +105,22 @@ class _AdHubPageState extends State<AdHubPage> {
     String title,
     double defaultCost,
   ) {
-    final imgCtrl = TextEditingController();
-    final targetCtrl = TextEditingController();
-    bool loading = false;
-
     showDialog(
       context: context,
-      builder: (BuildContext dContext) => StatefulBuilder(
-        builder: (dContext, setDialogState) => AlertDialog(
-          title: Text(
-            "Buy $title",
-            style: const TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Cost: \$${defaultCost.toStringAsFixed(2)} USDT",
-                style: const TextStyle(
-                  color: Colors.green,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: imgCtrl,
-                decoration: const InputDecoration(labelText: "Image URL"),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: targetCtrl,
-                decoration: const InputDecoration(
-                  labelText: "Target Link (URL)",
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dContext),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              onPressed: loading
-                  ? null
-                  : () async {
-                      if (currentAdsBalance < defaultCost) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                "Insufficient Ad Balance! Need \$${defaultCost.toStringAsFixed(2)}",
-                              ),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                        return;
-                      }
-                      if (targetCtrl.text.isEmpty || imgCtrl.text.isEmpty) {
-                        return;
-                      }
-
-                      setDialogState(() => loading = true);
-
-                      final messenger = ScaffoldMessenger.of(context);
-
-                      try {
-                        final response = await http.post(
-                          Uri.parse(
-                            '${ApiConstants.baseUrl}/buy-banner',
-                          ),
-                          headers: await getAuthHeaders(),
-                          body: jsonEncode({
-                            'doc_id': docId,
-                            'image_url': imgCtrl.text.trim(),
-                            'target_url': targetCtrl.text.trim(),
-                          }),
-                        );
-
-                        if (!context.mounted) {
-                          return;
-                        }
-
-                        if (response.statusCode == 200) {
-                          if (dContext.mounted) {
-                            Navigator.pop(dContext);
-                          }
-                          messenger.showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                "Ad Campaign Successfully Launched! 🚀",
-                              ),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
-                        } else {
-                          throw "Server returned error";
-                        }
-                      } catch (e) {
-                        setDialogState(() => loading = false);
-                        if (context.mounted) {
-                          messenger.showSnackBar(
-                            SnackBar(content: Text("Error: $e")),
-                          );
-                        }
-                      }
-                    },
-              child: Text(
-                loading ? "Processing..." : "PURCHASE",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
+      builder: (BuildContext dContext) => BuyBannerDialog(
+        currentAdsBalance: currentAdsBalance,
+        docId: docId,
+        title: title,
+        defaultCost: defaultCost,
       ),
     );
   }
 
   void _buyPtcAd(double currentAdsBalance) {
-    final titleCtrl = TextEditingController();
-    final targetCtrl = TextEditingController();
-    bool loading = false;
-    int selectedTier = 1;
-    int selectedClicks = 100;
-
-    Map<int, double> costs = {1: 0.25, 2: 0.50, 3: 0.75, 4: 1.50};
-    Map<int, String> labels = {
-      1: "10 Seconds",
-      2: "20 Seconds",
-      3: "30 Seconds",
-      4: "60 Seconds",
-    };
-    List<int> clickOptions = [100, 200, 300, 500, 1000];
-
     showDialog(
       context: context,
-      builder: (BuildContext dContext) => StatefulBuilder(
-        builder: (dContext, setDialogState) {
-          double totalCost = costs[selectedTier]! * (selectedClicks / 100);
-
-          return AlertDialog(
-            title: const Text(
-              "Buy Guaranteed PTC Clicks",
-              style: TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "Total Cost: \$${totalCost.toStringAsFixed(2)} USDT",
-                  style: const TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-                const SizedBox(height: 15),
-                DropdownButtonFormField<int>(
-                  initialValue: selectedTier,
-                  isExpanded: true,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Select View Duration",
-                  ),
-                  items: [1, 2, 3, 4]
-                      .map(
-                        (t) => DropdownMenuItem(
-                          value: t,
-                          child: Text(
-                            "${labels[t]} (+\$${costs[t]!.toStringAsFixed(2)} per 100)",
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (val) {
-                    if (val != null) setDialogState(() => selectedTier = val);
-                  },
-                ),
-                const SizedBox(height: 15),
-                DropdownButtonFormField<int>(
-                  initialValue: selectedClicks,
-                  isExpanded: true,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Number of Clicks",
-                  ),
-                  items: clickOptions
-                      .map(
-                        (c) => DropdownMenuItem(
-                          value: c,
-                          child: Text(
-                            "$c Guaranteed Views",
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (val) {
-                    if (val != null) setDialogState(() => selectedClicks = val);
-                  },
-                ),
-                const SizedBox(height: 15),
-                TextField(
-                  controller: titleCtrl,
-                  decoration: const InputDecoration(
-                    labelText: "Ad Title",
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 15),
-                TextField(
-                  controller: targetCtrl,
-                  decoration: const InputDecoration(
-                    labelText: "Target Link (URL)",
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dContext),
-                child: const Text("Cancel"),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-                onPressed: loading
-                    ? null
-                    : () async {
-                        if (currentAdsBalance < totalCost) {
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  "Insufficient Balance! Need \$${totalCost.toStringAsFixed(2)}",
-                                ),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                          return;
-                        }
-                        if (titleCtrl.text.isEmpty || targetCtrl.text.isEmpty) {
-                          return;
-                        }
-
-                        setDialogState(() => loading = true);
-
-                        final messenger = ScaffoldMessenger.of(context);
-
-                        try {
-                          final response = await http.post(
-                            Uri.parse(
-                              '${ApiConstants.baseUrl}/buy-ptc',
-                            ),
-                            headers: await getAuthHeaders(),
-                            body: jsonEncode({
-                              'title': titleCtrl.text.trim(),
-                              'target_url': targetCtrl.text.trim(),
-                              'tier': selectedTier,
-                              'clicks': selectedClicks,
-                            }),
-                          );
-
-                          if (!context.mounted) {
-                            return;
-                          }
-
-                          if (response.statusCode == 200) {
-                            if (dContext.mounted) {
-                              Navigator.pop(dContext);
-                            }
-                            messenger.showSnackBar(
-                              const SnackBar(
-                                content: Text("PTC Ad added to pool! 🚀"),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                          } else {
-                            final err = jsonDecode(response.body);
-                            throw err['error'];
-                          }
-                        } catch (e) {
-                          setDialogState(() => loading = false);
-                          if (context.mounted) {
-                            messenger.showSnackBar(
-                              SnackBar(content: Text("Error: $e")),
-                            );
-                          }
-                        }
-                      },
-                child: Text(
-                  loading
-                      ? "Processing..."
-                      : "PAY \$${totalCost.toStringAsFixed(2)}",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
+      builder: (BuildContext dContext) => BuyPtcAdDialog(
+        currentAdsBalance: currentAdsBalance,
       ),
     );
   }

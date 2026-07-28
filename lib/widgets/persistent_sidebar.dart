@@ -1,19 +1,10 @@
+import '../api_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:js_interop';
-import '../screens/admin_dashboard_page.dart';
-import '../screens/offerwall_hub_page.dart';
-import '../screens/affiliate_links_page.dart';
-import '../screens/ad_hub_page.dart';
-import '../screens/referral_page.dart';
-import '../screens/ptc_earn_page.dart';
-import '../screens/dogeogotcha_instructions_page.dart';
-import '../screens/leaderboard_page.dart';
-import '../screens/suggestion_box_page.dart';
-import '../screens/blog_page.dart';
-import '../screens/promo_code_page.dart';
+import 'package:go_router/go_router.dart';
 
 @JS('canInstallPwa')
 external JSBoolean _canInstallPwaJS();
@@ -105,20 +96,17 @@ class _SidebarNavItemState extends State<SidebarNavItem> {
 class PersistentSidebar extends StatelessWidget {
   const PersistentSidebar({super.key});
 
-  void _navigateTo(BuildContext context, Widget page) {
+  void _navigateTo(BuildContext context, String path) {
     if (MediaQuery.of(context).size.width < 600) {
       sidebarExpandedNotifier.value = false;
     }
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => page),
-    );
+    context.go(path);
   }
 
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-    final bool isAdmin = user != null && user.uid == 'P8iffVqbUgetAVA4MdHVZ1CfvUv1';
+    final bool isAdmin = user != null && user.uid == ApiConstants.adminUid;
     final isDark = themeProvider.isDarkMode;
     
     // Header/Footer black color
@@ -165,26 +153,7 @@ class PersistentSidebar extends StatelessWidget {
                         if (MediaQuery.of(context).size.width < 600) {
                           sidebarExpandedNotifier.value = false;
                         }
-                        Navigator.push(
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) => const PtcEarnPage(),
-                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                              const begin = Offset(0.0, 0.05);
-                              const end = Offset.zero;
-                              const curve = Curves.easeOutCubic;
-                              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-                              return FadeTransition(
-                                opacity: animation,
-                                child: SlideTransition(
-                                  position: animation.drive(tween),
-                                  child: child,
-                                ),
-                              );
-                            },
-                            transitionDuration: const Duration(milliseconds: 400),
-                          ),
-                        );
+                        context.go('/ptc');
                       },
                     ),
                     SidebarNavItem(
@@ -227,63 +196,63 @@ class PersistentSidebar extends StatelessWidget {
                       title: 'Dogeogotcha Guide',
                       isDark: isDark,
                       isExpanded: isExpanded,
-                      onTap: () => _navigateTo(context, const DogeogotchaInstructionsPage()),
+                      onTap: () => _navigateTo(context, '/guide'),
                     ),
                     SidebarNavItem(
                       icon: Icons.leaderboard,
                       title: 'Weekly Leaderboard',
                       isDark: isDark,
                       isExpanded: isExpanded,
-                      onTap: () => _navigateTo(context, const LeaderboardPage()),
+                      onTap: () => _navigateTo(context, '/leaderboard'),
                     ),
                     SidebarNavItem(
                       icon: Icons.group_add,
                       title: 'Referral Program',
                       isDark: isDark,
                       isExpanded: isExpanded,
-                      onTap: () => _navigateTo(context, const ReferralPage()),
+                      onTap: () => _navigateTo(context, '/referral'),
                     ),
                     SidebarNavItem(
                       icon: Icons.campaign,
                       title: 'Buy Ads / PTC',
                       isDark: isDark,
                       isExpanded: isExpanded,
-                      onTap: () => _navigateTo(context, const AdHubPage()),
+                      onTap: () => _navigateTo(context, '/ads'),
                     ),
                     SidebarNavItem(
                       icon: Icons.link,
                       title: 'Bonus Partners',
                       isDark: isDark,
                       isExpanded: isExpanded,
-                      onTap: () => _navigateTo(context, const AffiliateLinksPage()),
+                      onTap: () => _navigateTo(context, '/bonus-partners'),
                     ),
                     SidebarNavItem(
                       icon: Icons.star,
                       title: 'Daily Promo',
                       isDark: isDark,
                       isExpanded: isExpanded,
-                      onTap: () => _navigateTo(context, const PromoCodePage()),
+                      onTap: () => _navigateTo(context, '/promo'),
                     ),
                     SidebarNavItem(
                       icon: Icons.assignment_turned_in,
                       title: 'Offerwalls',
                       isDark: isDark,
                       isExpanded: isExpanded,
-                      onTap: () => _navigateTo(context, const OfferwallHubPage()),
+                      onTap: () => _navigateTo(context, '/offerwalls'),
                     ),
                     SidebarNavItem(
                       icon: Icons.lightbulb,
                       title: 'Suggestion Box',
                       isDark: isDark,
                       isExpanded: isExpanded,
-                      onTap: () => _navigateTo(context, const SuggestionBoxPage()),
+                      onTap: () => _navigateTo(context, '/suggestions'),
                     ),
                     SidebarNavItem(
                       icon: Icons.article,
                       title: 'Blog',
                       isDark: isDark,
                       isExpanded: isExpanded,
-                      onTap: () => _navigateTo(context, const BlogPage()),
+                      onTap: () => _navigateTo(context, '/blog'),
                     ),
                     
                     if (isAdmin) ...[
@@ -293,7 +262,7 @@ class PersistentSidebar extends StatelessWidget {
                         title: 'Admin Dashboard',
                         isDark: isDark,
                         isExpanded: isExpanded,
-                        onTap: () => _navigateTo(context, const AdminDashboardPage()),
+                        onTap: () => _navigateTo(context, '/admin'),
                       ),
                     ],
                   ],

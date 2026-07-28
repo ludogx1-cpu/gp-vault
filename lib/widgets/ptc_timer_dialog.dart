@@ -9,6 +9,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
 import '../src/cross_tab_listener/cross_tab_listener.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart';
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
 
@@ -20,8 +22,9 @@ import '../src/cross_tab_listener/cross_tab_listener.dart';
 
 class PtcTimerDialog extends StatefulWidget {
   final String adId;
+  final String targetUrl;
   final int duration;
-  const PtcTimerDialog({super.key, required this.adId, required this.duration});
+  const PtcTimerDialog({super.key, required this.adId, required this.targetUrl, required this.duration});
 
   @override
   State<PtcTimerDialog> createState() => _PtcTimerDialogState();
@@ -40,6 +43,10 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
   bool _captchaLoading = false;
   String? _captchaToken;
   CrossTabListener? _crossTabListener;
+  
+  int _accumulatedSeconds = 0;
+  DateTime? _leaveTime;
+  DateTime _lastClickTime = DateTime.now();
 
   @override
   void initState() {
@@ -52,6 +59,8 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
     _timeLeft = widget.duration;
     _updateBrowserTitle("${_timeLeft}s left");
     _stopwatch.start();
+    _leaveTime = DateTime.now();
+    _lastClickTime = DateTime.now();
     _startTimer();
   }
 
@@ -82,30 +91,20 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
   void _startTimer() {
     _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) async {
       if (_isProcessing || _showCaptcha) return;
-
-      bool isFocused = _crossTabListener?.hasFocus() ?? true;
-
-      if (isFocused) {
-        if (_stopwatch.isRunning) {
-          _stopwatch.stop();
-          if (mounted) {
-            setState(
-              () => _message = "⚠️ Paused! Go back and view the Ad tab!",
-            );
-          }
-        }
-      } else {
-        if (!_stopwatch.isRunning) {
-          _stopwatch.start();
-        }
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (_claimed) {
+        timer.cancel();
+        return;
       }
 
-      int elapsedSeconds = _stopwatch.elapsed.inSeconds;
-      int remaining = widget.duration - elapsedSeconds;
+      int currentElapsed = DateTime.now().difference(_lastClickTime).inSeconds;
+      int remaining = widget.duration - currentElapsed;
 
       if (remaining <= 0) {
         timer.cancel();
-        _stopwatch.stop();
         if (mounted) {
           setState(() {
             _timeLeft = 0;
@@ -113,9 +112,10 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
             _message = "Solve Captcha to Claim!";
           });
           _updateBrowserTitle("Claim ready");
+          HapticFeedback.vibrate();
         }
       } else {
-        if (mounted && remaining != _timeLeft) {
+        if (mounted && remaining != _timeLeft && remaining <= widget.duration) {
           setState(() {
             _timeLeft = remaining;
             _message = "Watching Ad... $_timeLeft seconds left";
@@ -326,6 +326,32 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
                       : gpBrownText(context),
                   fontSize: 16,
                 ),
+              ),
+              const SizedBox(height: 15),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+                    child: Text(
+                      "Cancel",
+                      style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600),
+                    ),
+                  ),
+                  if (_message.contains("Paused")) ...[
+                    const SizedBox(width: 10),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
+                      onPressed: () {
+                        setState(() {
+                          _leaveTime = DateTime.now();
+                        });
+                        launchUrl(Uri.parse(widget.targetUrl));
+                      },
+                      child: const Text("Resume Ad", style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ],
               ),
             ] else ...[
               const Icon(Icons.check_circle, color: Colors.green, size: 60),

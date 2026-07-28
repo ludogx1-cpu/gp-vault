@@ -104,7 +104,8 @@ router.all('/postback/bitcotasks', upload.none(), async (req, res) => {
 
       transaction.update(userRef, {
         pending_offer_balance: currentPending + Number(reward),
-        reward_history: history
+        reward_history: history,
+        total_offerwalls_completed: admin.firestore.FieldValue.increment(1)
       });
     });
 
@@ -201,10 +202,16 @@ router.all('/postback/timewall', async (req, res) => {
         });
         if (history.length > 15) history = history.slice(0, 15);
 
-        transaction.update(userRef, {
+        const updatePayload = {
           pending_offer_balance: currentPending + amountToAdd,
           reward_history: history
-        });
+        };
+
+        if (type === 'credit') {
+          updatePayload.total_offerwalls_completed = admin.firestore.FieldValue.increment(1);
+        }
+
+        transaction.update(userRef, updatePayload);
       }
       // If type is 'hold' or 'hold_cancelled', we just record the transaction (done above) but don't touch balances.
     });

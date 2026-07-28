@@ -1,8 +1,8 @@
 const express = require('express');
 const { admin, verifyFirebaseToken } = require('../services/firebaseService');
+const { getAdminUid } = require('../utils/helpers');
 
 const router = express.Router();
-const getAdminUid = () => process.env.ADMIN_UID || 'P8iffVqbUgetAVA4MdHVZ1CfvUv1';
 
 router.post('/add-update', verifyFirebaseToken, async (req, res) => {
   try {

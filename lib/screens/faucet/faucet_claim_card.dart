@@ -11,6 +11,7 @@ import '../../src/notification_service.dart';
 import '../../api_constants.dart';
 import '../../widgets/universal_web_view/universal_web_view.dart';
 import '../../widgets/widgets.dart';
+import 'captcha_selector_widget.dart';
 
 class FaucetClaimCard extends StatefulWidget {
   const FaucetClaimCard({super.key});
@@ -205,6 +206,15 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
       } catch (e) {
         // ignore
       }
+      
+      // Give the widget time to load, then hide the spinner
+      if (mounted) {
+        Timer(const Duration(milliseconds: 1500), () {
+          if (mounted) {
+            setState(() => _captchaLoading = false);
+          }
+        });
+      }
     });
   }
 
@@ -360,8 +370,11 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
+    return Container(
+      width: double.infinity,
+      constraints: const BoxConstraints(maxWidth: 800),
+      child: Column(
+        children: [
         StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
@@ -383,10 +396,8 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
                         : Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: _saveToVault
-                          ? Colors.green.shade300
-                          : Colors.amber.shade300,
-                      width: 2,
+                      color: Colors.amber,
+                      width: 0.5,
                     ),
                   ),
                   child: Row(
@@ -405,7 +416,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
                           const SizedBox(width: 10),
                           Text(
                             _saveToVault
-                                ? "Routing to Vault"
+                                ? "Routing to your wallet"
                                 : "Send to FaucetPay",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -484,146 +495,46 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
 
         const SizedBox(height: 20),
 
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.security, color: Colors.yellow, size: 20),
-            const SizedBox(width: 8),
-            Text(
-              "Security:",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white70
-                    : Colors.grey.shade600,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.amber.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.amber.withOpacity(0.5)),
+          ),
+          child: const Row(
+            children: [
+              Icon(Icons.info_outline, color: Colors.amber, size: 20),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  "Don't forget to toggle the button if you are not sending your claims directly to FaucetPay and are sending them to your Golden Paw Wallet instead.",
+                  style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+                ),
               ),
-            ),
-            const SizedBox(width: 10),
-            ListenableBuilder(
-              listenable: themeProvider,
-              builder: (context, _) {
-                final isDark = themeProvider.isDarkMode;
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 0,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? themeProvider.darkGreyBoxColor
-                        : Colors.amber.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: isDark
-                          ? themeProvider.darkGreyBorder
-                          : Colors.amber.shade200,
-                    ),
-                  ),
-                  child: DropdownButton<String>(
-                    value: _selectedCaptcha,
-                    icon: Icon(
-                      Icons.arrow_drop_down,
-                      color: isDark ? Colors.amber : Colors.black87,
-                    ),
-                    elevation: 16,
-                    style: TextStyle(
-                      color: isDark ? Colors.amber : Colors.black87,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    underline: Container(),
-                    onChanged: _secondsRemaining > 0
-                        ? null
-                        : (String? value) {
-                            setState(() {
-                              _selectedCaptcha = value!;
-                              _captchaToken = null;
-                              _captchaLoading = false;
-                              _status = "Ready to Claim";
-                            });
-                          },
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'hCaptcha',
-                        child: Text('hCaptcha'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Turnstile',
-                        child: Text('Turnstile'),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ],
+            ],
+          ),
         ),
 
         const SizedBox(height: 20),
-        Container(
-          height: 120,
-          width: 340,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.amber, width: 2),
-            borderRadius: BorderRadius.circular(12),
-            color: Colors.white,
-          ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                if (_isCheckingCooldown)
-                  const Center(
-                    child: Text(
-                      "Checking Vault Status...",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  )
-                else if (_selectedCaptcha == 'hCaptcha' &&
-                    _secondsRemaining == 0)
-                  UniversalWebView.create(
-                    viewType: 'hcaptcha-widget',
-                    width: 320,
-                    height: 90,
-                    onMessageReceived: _onCaptchaMessage,
-                  )
-                else if (_selectedCaptcha == 'Turnstile' &&
-                    _secondsRemaining == 0)
-                  UniversalWebView.create(
-                    viewType: 'turnstile-widget',
-                    width: 320,
-                    height: 90,
-                    onMessageReceived: _onCaptchaMessage,
-                  ),
 
-                if (!_isCheckingCooldown &&
-                    !_captchaLoading &&
-                    _secondsRemaining == 0)
-                  ElevatedButton(
-                    onPressed: _forceRenderCaptcha,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.amber.shade100,
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      "Tap to Load Captcha",
-                      style: TextStyle(color: Colors.black87),
-                    ),
-                  ),
-                if (!_isCheckingCooldown && _secondsRemaining > 0)
-                  Container(
-                    color: Colors.white,
-                    child: const Center(
-                      child: Text(
-                        "Wait for timer...",
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
+
+        CaptchaSelectorWidget(
+          selectedCaptcha: _selectedCaptcha,
+          secondsRemaining: _secondsRemaining,
+          isCheckingCooldown: _isCheckingCooldown,
+          captchaLoading: _captchaLoading,
+          onChanged: (String? value) {
+            setState(() {
+              _selectedCaptcha = value!;
+              _captchaToken = null;
+              _captchaLoading = false;
+              _status = "Ready to Claim";
+            });
+          },
+          onMessageReceived: _onCaptchaMessage,
+          onForceRender: _forceRenderCaptcha,
+        ),
         const SizedBox(height: 20),
         Column(
           children: [
@@ -689,6 +600,6 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
           ),
         ),
       ],
-    );
+    ));
   }
 }

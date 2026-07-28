@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
 import '../src/theme_provider.dart';
 
 class AuthDialogWidget extends StatefulWidget {
@@ -413,7 +414,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                 });
                           }
                           if (!context.mounted) return;
-                          Navigator.pop(context);
+                          context.go('/faucet');
                         } catch (e) {
                           if (!context.mounted) return;
                           setState(() {
@@ -531,7 +532,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                 });
                           }
                           if (!context.mounted) return;
-                          Navigator.pop(context);
+                          context.go('/faucet');
                         } catch (e) {
                           if (!context.mounted) return;
                           setState(() {

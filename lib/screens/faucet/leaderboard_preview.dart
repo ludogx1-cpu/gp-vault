@@ -85,9 +85,7 @@ class _LeaderboardPreviewState extends State<LeaderboardPreview> {
           decoration: BoxDecoration(
             color: isDark ? themeProvider.darkGreyBoxColor : Colors.green.shade100,
             borderRadius: BorderRadius.circular(10),
-            border: isDark
-                ? Border.all(color: themeProvider.darkGreyBorder, width: 1)
-                : null,
+            border: Border.all(color: Colors.amber, width: 0.5),
           ),
           child: ExpansionTile(
             title: const Text(

@@ -5,4 +5,6 @@ class ApiConstants {
   static const String baseUrl = kDebugMode
       ? 'https://golden-paw-vault.onrender.com' // You can change this to 'http://localhost:3000' for local testing
       : 'https://golden-paw-vault.onrender.com';
+      
+  static const String adminUid = 'P8iffVqbUgetAVA4MdHVZ1CfvUv1';
 }

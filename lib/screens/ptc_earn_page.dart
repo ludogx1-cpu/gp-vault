@@ -52,7 +52,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
     showDialog(
       barrierDismissible: false,
       context: context,
-      builder: (context) => PtcTimerDialog(adId: adId, duration: duration),
+      builder: (context) => PtcTimerDialog(adId: adId, targetUrl: targetUrl, duration: duration),
     );
   }
 

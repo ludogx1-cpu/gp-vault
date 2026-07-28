@@ -66,12 +66,8 @@ class BonusTimersCard extends StatelessWidget {
                                   : Colors.grey.shade200),
                         borderRadius: BorderRadius.circular(15),
                         border: Border.all(
-                          color: isDark
-                              ? themeProvider.darkGreyBorder
-                              : (canClaimBonus
-                                    ? Colors.amber.shade400
-                                    : Colors.grey.shade400),
-                          width: 2,
+                          color: Colors.amber,
+                          width: 0.5,
                         ),
                       ),
                       child: Column(
@@ -86,9 +82,9 @@ class BonusTimersCard extends StatelessWidget {
                               fontSize: 16,
                             ),
                           ),
-                          const SizedBox(height: 5),
+                          const SizedBox(height: 15),
                           const Text(
-                            "Support Sponsors (0.004 DOGE) or Watch the\nEcosystem Video (0.003 DOGE) for extra rewards & XP!",
+                            "Support Sponsors (0.004 DOGE) for extra rewards & XP!",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.green,
@@ -96,7 +92,7 @@ class BonusTimersCard extends StatelessWidget {
                               fontSize: 13,
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 10),
                           SizedBox(
                             width: double.infinity,
                             height: 50,
@@ -107,9 +103,7 @@ class BonusTimersCard extends StatelessWidget {
                                     : Colors.grey,
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    10,
-                                  ),
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
                               icon: Icon(
@@ -140,7 +134,17 @@ class BonusTimersCard extends StatelessWidget {
                                   : null,
                             ),
                           ),
-                          const SizedBox(height: 15),
+                          const SizedBox(height: 20),
+                          const Text(
+                            "Watch the Ecosystem Video (0.003 DOGE) for extra rewards & XP!",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
                           SizedBox(
                             width: double.infinity,
                             height: 50,
