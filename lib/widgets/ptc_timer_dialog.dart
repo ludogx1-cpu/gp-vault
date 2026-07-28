@@ -8,6 +8,7 @@ import 'universal_web_view/universal_web_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import '../src/cross_tab_listener/cross_tab_listener.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
@@ -158,6 +159,10 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
       );
 
       if (response.statusCode == 200) {
+        FirebaseAnalytics.instance.logEvent(
+          name: 'ptc_ad_watched',
+          parameters: {'ad_id': widget.adId},
+        );
         if (mounted) {
           setState(() {
             _claimed = true;

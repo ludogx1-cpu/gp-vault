@@ -12,6 +12,7 @@ import '../../api_constants.dart';
 import '../../widgets/universal_web_view/universal_web_view.dart';
 import '../../widgets/widgets.dart';
 import 'captcha_selector_widget.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class FaucetClaimCard extends StatefulWidget {
   const FaucetClaimCard({super.key});
@@ -269,6 +270,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
 
         if (response.statusCode == 200) {
           final resData = jsonDecode(response.body);
+          FirebaseAnalytics.instance.logEvent(name: 'faucet_claim_vault_success');
           setState(() {
             _status = "${resData['message']} (+10 XP!)";
             _isLoading = false;
@@ -324,6 +326,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
         }
 
         if (response.statusCode == 200) {
+          FirebaseAnalytics.instance.logEvent(name: 'faucet_claim_direct_success');
           setState(() {
             _status = "Claim Sent to FaucetPay! 🚀 (+10 XP!)";
             _isLoading = false;
