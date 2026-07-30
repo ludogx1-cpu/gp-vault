@@ -134,6 +134,26 @@ void registerWebViews() {
       return iframe;
     });
 
+    // 10b. CCNSAD 300x250
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('ccnsad-300x250', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('src', '/ccnsad_300x250.html');
+      iframe.setAttribute('style', 'border:none; width:300px; height:250px; overflow:hidden; background:transparent;');
+      iframe.setAttribute('scrolling', 'no');
+      return iframe;
+    });
+
+    // 10c. CCNSAD 728x90
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('ccnsad-728x90', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('src', '/ccnsad_728x90.html');
+      iframe.setAttribute('style', 'border:none; width:728px; height:90px; overflow:hidden; background:transparent;');
+      iframe.setAttribute('scrolling', 'no');
+      return iframe;
+    });
+
     // 11. Trustpilot
     // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory('trustpilot-widget', (int viewId) {
