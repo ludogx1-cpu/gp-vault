@@ -95,6 +95,15 @@ class _FaucetPageState extends State<FaucetPage> {
                           child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
                         ),
                       ),
+                      const SizedBox(height: 10),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: SizedBox(
+                          width: 728,
+                          height: 90,
+                          child: UniversalWebView.create(viewType: 'ccnsad-728x90', width: 728, height: 90),
+                        ),
+                      ),
                       const SizedBox(height: 20),
                       const BitcotasksAdWidget(),
                       const SizedBox(height: 20),

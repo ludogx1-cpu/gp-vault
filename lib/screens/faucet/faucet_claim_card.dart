@@ -586,6 +586,12 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
               height: 250,
               child: UniversalWebView.create(viewType: 'adsterra-300x250', width: 300, height: 250),
             ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: 300,
+              height: 250,
+              child: UniversalWebView.create(viewType: 'ccnsad-300x250', width: 300, height: 250),
+            ),
           ],
         ),
 
