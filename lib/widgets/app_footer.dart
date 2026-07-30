@@ -311,6 +311,7 @@ class _PulsatingSecurityTextState extends State<PulsatingSecurityText> with Sing
       builder: (context, child) {
         final value = _controller.value;
         return Row(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
