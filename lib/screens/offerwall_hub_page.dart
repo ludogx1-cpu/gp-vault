@@ -6,8 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../widgets/bitcotasks_native_widget.dart';
-import '../src/firebase_service.dart';
-import '../widgets/universal_web_view/universal_web_view.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
 

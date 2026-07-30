@@ -45,8 +45,7 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
   String? _captchaToken;
   CrossTabListener? _crossTabListener;
   
-  int _accumulatedSeconds = 0;
-  DateTime? _leaveTime;
+
   DateTime _lastClickTime = DateTime.now();
 
   @override
@@ -60,7 +59,7 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
     _timeLeft = widget.duration;
     _updateBrowserTitle("${_timeLeft}s left");
     _stopwatch.start();
-    _leaveTime = DateTime.now();
+
     _lastClickTime = DateTime.now();
     _startTimer();
   }
@@ -349,7 +348,7 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
                       onPressed: () {
                         setState(() {
-                          _leaveTime = DateTime.now();
+
                         });
                         launchUrl(Uri.parse(widget.targetUrl));
                       },

@@ -151,6 +151,34 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
         </body>
         </html>
        ''';
+    } else if (viewType == 'ccnsad-300x250') {
+      return '''
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>body { margin:0; overflow:hidden; background:transparent; display:flex; justify-content:center; align-items:center; }</style>
+        </head>
+        <body>
+          <div class="cc-c5665d1f63554fb5" style="display:inline-block;width:300px;height:250px;"></div>
+          <script>!function e(n,o,t,c,r,d,s,a){(a=o.createElement(t)).async=!0,a.src="https://"+r[d]+"/js/"+c+".js?v="+s,a.onerror=function(){a.remove(),(d+=1)>=r.length||e(n,o,t,c,r,d,s)},o.head.appendChild(a)}(window,document,"script","c5665d1f63554fb5",["cdn.ccnsad.com"],0,Math.floor(Date.now()/3600000));</script>
+        </body>
+        </html>
+      ''';
+    } else if (viewType == 'ccnsad-728x90') {
+      return '''
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>body { margin:0; overflow:hidden; background:transparent; display:flex; justify-content:center; align-items:center; }</style>
+        </head>
+        <body>
+          <div class="cc-05f6fe5b0116e524" style="display:inline-block;width:728px;height:90px;"></div>
+          <script>!function e(n,o,t,c,r,d,s,a){(a=o.createElement(t)).async=!0,a.src="https://"+r[d]+"/js/"+c+".js?v="+s,a.onerror=function(){a.remove(),(d+=1)>=r.length||e(n,o,t,c,r,d,s)},o.head.appendChild(a)}(window,document,"script","05f6fe5b0116e524",["cdn.ccnsad.com"],0,Math.floor(Date.now()/3600000));</script>
+        </body>
+        </html>
+      ''';
     }
     return '<html><body>Not found</body></html>';
   }

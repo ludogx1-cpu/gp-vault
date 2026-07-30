@@ -1,0 +1,33 @@
+type User @table {
+  displayName: String!
+  email: String!
+  bio: String!
+  avatarUrl: String
+  location: String
+}
+
+type Skill @table {
+  name: String!
+  category: String!
+}
+
+type UserSkill @table {
+  user: User!
+  skill: Skill!
+  level: String!
+}
+
+type Session @table {
+  proposer: User!
+  recipient: User!
+  status: String!
+  scheduledDate: Timestamp!
+}
+
+type Review @table {
+  session: Session!
+  reviewer: User!
+  rating: Int!
+  comment: String!
+  createdAt: Timestamp
+}
