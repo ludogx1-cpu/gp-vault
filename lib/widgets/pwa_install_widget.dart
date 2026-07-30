@@ -76,8 +76,11 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
   Widget build(BuildContext context) {
     if (!_isVisible) return const SizedBox.shrink();
 
-    return Container(
-      width: double.infinity,
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 800),
+        child: Container(
+          width: double.infinity,
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -176,6 +179,6 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
             ),
         ],
       ),
-    );
+    )));
   }
 }

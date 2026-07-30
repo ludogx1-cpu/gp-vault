@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'persistent_sidebar.dart';
 
 class AppScaffold extends StatelessWidget {
@@ -17,6 +18,9 @@ class AppScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isLogged = FirebaseAuth.instance.currentUser != null;
+    final bool effectiveShowSidebar = showSidebar && isLogged;
+
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: appBar,
@@ -27,7 +31,7 @@ class AppScaffold extends StatelessWidget {
             return Stack(
               children: [
                 SizedBox.expand(child: body ?? const SizedBox()),
-                if (showSidebar)
+                if (effectiveShowSidebar)
                   ValueListenableBuilder<bool>(
                     valueListenable: sidebarExpandedNotifier,
                     builder: (context, isExpanded, child) {
@@ -42,13 +46,13 @@ class AppScaffold extends StatelessWidget {
                       );
                     },
                   ),
-                if (showSidebar) const PersistentSidebar(),
+                if (effectiveShowSidebar) const PersistentSidebar(),
               ],
             );
           }
           return Row(
             children: [
-              if (showSidebar) const PersistentSidebar(),
+              if (effectiveShowSidebar) const PersistentSidebar(),
               Expanded(child: body ?? const SizedBox()),
             ],
           );
