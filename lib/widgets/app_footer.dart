@@ -244,7 +244,9 @@ class AppFooter extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
+              const PulsatingSecurityText(),
+              const SizedBox(height: 12),
+              const Text(
                 "© 2026 Golden Paw. All rights reserved.",
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 12, color: Colors.white54),
@@ -273,6 +275,76 @@ class AppFooter extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class PulsatingSecurityText extends StatefulWidget {
+  const PulsatingSecurityText({super.key});
+
+  @override
+  State<PulsatingSecurityText> createState() => _PulsatingSecurityTextState();
+}
+
+class _PulsatingSecurityTextState extends State<PulsatingSecurityText> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final value = _controller.value;
+        return Padding(
+          padding: const EdgeInsets.only(right: 40.0), // Offsets the left icon width to center the text exactly
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.shield_outlined,
+                size: 14,
+                color: Colors.greenAccent.withValues(alpha: 0.5 + (0.5 * value)),
+                shadows: [
+                  Shadow(
+                    color: Colors.greenAccent.withValues(alpha: 0.8 * value),
+                    blurRadius: 10 * value,
+                  )
+                ],
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '256-Bit SSL Encryption • Secured by Cloudflare',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.greenAccent.withValues(alpha: 0.7 + (0.3 * value)),
+                  shadows: [
+                    Shadow(
+                      color: Colors.greenAccent.withValues(alpha: 0.6 * value),
+                      blurRadius: 8 * value,
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
