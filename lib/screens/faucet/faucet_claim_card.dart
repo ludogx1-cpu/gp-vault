@@ -501,9 +501,9 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.amber.withOpacity(0.1),
+            color: Colors.amber.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.amber.withOpacity(0.5)),
+            border: Border.all(color: Colors.amber.withValues(alpha: 0.5)),
           ),
           child: const Row(
             children: [

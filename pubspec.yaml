@@ -36,10 +36,22 @@ dependencies:
   firebase_messaging_web: ^4.2.3
   firebase_performance: ^0.11.4+5
   firebase_analytics: ^12.4.5
+  firebase_data_connect: ^0.3.0+7
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/Goldenpawicon.png"
+  web:
+    generate: true
+    image_path: "assets/Goldenpawicon.png"
+    background_color: "#ffffff"
+    theme_color: "#ffffff"
 
 flutter:
   uses-material-design: true
@@ -49,6 +61,7 @@ flutter:
     - assets/bg.png
     - assets/Bank.png
     - assets/Goldenpawicon.png
+    - assets/studios_logo.png
     - assets/logo_landing.png
     - assets/Golen Paw Title.png
     - assets/shiba_puppy.png

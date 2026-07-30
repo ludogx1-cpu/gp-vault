@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../widgets/universal_web_view/universal_web_view.dart';
 import '../widgets/widgets.dart';
 import '../widgets/pet_overlay_widget.dart';
 import '../widgets/chat_box_widget.dart';
 import '../widgets/newsletter_subscribe_widget.dart';
-import '../widgets/universal_web_view/universal_web_view.dart';
+import '../widgets/profile_setup_dialog.dart';
 import 'faucet/welcome_banner.dart';
 import 'faucet/updates_box.dart';
 import 'faucet/faucet_claim_card.dart';
@@ -32,12 +35,58 @@ class _FaucetPageState extends State<FaucetPage> {
     _priceTimer = Timer.periodic(const Duration(minutes: 5), (_) {
       _fetchDogePrice();
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAndShowProfileSetup();
+    });
   }
 
   @override
   void dispose() {
     _priceTimer?.cancel();
     super.dispose();
+  }
+
+  Future<void> _checkAndShowProfileSetup() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // Fetch chat username from Firestore
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        String chatUsername = '';
+        String petName = 'Golden Paw Shiba';
+        if (doc.exists) {
+          final data = doc.data() as Map<String, dynamic>;
+          chatUsername =
+              data['username']?.toString() ??
+              data['chat_username']?.toString() ??
+              '';
+          petName = data['pet_name']?.toString() ?? 'Golden Paw Shiba';
+        }
+
+        if (chatUsername.isEmpty ||
+            chatUsername == 'Anonymous' ||
+            petName == 'Golden Paw Shiba') {
+          if (mounted) {
+            await showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => ProfileSetupDialog(
+                currentUsername: chatUsername,
+                currentPetName: petName,
+              ),
+            );
+
+            // If they saved successfully, we should probably force a rebuild or tell the chat to update?
+            // The next fetch will get the new data.
+          }
+        }
+      }
+    } catch (e) {
+      // Ignore errors so we don't break the page load
+    }
   }
 
   Future<void> _fetchDogePrice() async {
@@ -83,7 +132,10 @@ class _FaucetPageState extends State<FaucetPage> {
                   ),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 20,
+                  ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -92,7 +144,11 @@ class _FaucetPageState extends State<FaucetPage> {
                         child: SizedBox(
                           width: 728,
                           height: 90,
-                          child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
+                          child: UniversalWebView.create(
+                            viewType: 'adsterra-728x90',
+                            width: 728,
+                            height: 90,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -101,7 +157,11 @@ class _FaucetPageState extends State<FaucetPage> {
                         child: SizedBox(
                           width: 728,
                           height: 90,
-                          child: UniversalWebView.create(viewType: 'ccnsad-728x90', width: 728, height: 90),
+                          child: UniversalWebView.create(
+                            viewType: 'ccnsad-728x90',
+                            width: 728,
+                            height: 90,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -130,20 +190,32 @@ class _FaucetPageState extends State<FaucetPage> {
                       Container(
                         width: double.infinity,
                         constraints: const BoxConstraints(maxWidth: 800),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
-                          color: Colors.amber.withOpacity(0.1),
+                          color: Colors.amber.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.amber.withOpacity(0.5)),
+                          border: Border.all(
+                            color: Colors.amber.withValues(alpha: 0.5),
+                          ),
                         ),
                         child: const Row(
                           children: [
-                            Icon(Icons.info_outline, color: Colors.amber, size: 20),
+                            Icon(
+                              Icons.info_outline,
+                              color: Colors.amber,
+                              size: 20,
+                            ),
                             SizedBox(width: 10),
                             Expanded(
                               child: Text(
                                 "Tip: If you're having trouble clicking the left menu tabs, please scroll down slightly so no ads are in view, then try again.",
-                                style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontStyle: FontStyle.italic,
+                                ),
                               ),
                             ),
                           ],

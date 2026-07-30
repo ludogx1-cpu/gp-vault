@@ -51,8 +51,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
   bool _captchaLoading = false;
   String? _captchaToken;
   
-  int _accumulatedSeconds = 0;
-  DateTime? _leaveTime;
+
   DateTime _lastClickTime = DateTime.now();
 
   @override
@@ -80,7 +79,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
         if (!_timerStarted) {
           setState(() {
             _timerStarted = true;
-            _leaveTime = DateTime.now();
+
             _lastClickTime = DateTime.now();
           });
           _stopwatch.start();
@@ -369,7 +368,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
                       onPressed: () {
                         setState(() {
-                          _leaveTime = DateTime.now();
+
                         });
                         launchUrl(Uri.parse(widget.targetUrl!));
                       },

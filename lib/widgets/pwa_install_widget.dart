@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
-import 'dart:js_interop';
-
-@JS('canInstallPwa')
-external JSBoolean _canInstallPwaJS();
-
-@JS('triggerPwaInstall')
-external void _triggerPwaInstallJS();
+import '../src/pwa_interop.dart' if (dart.library.html) '../src/pwa_interop_web.dart';
 
 class PwaInstallWidget extends StatefulWidget {
   const PwaInstallWidget({super.key});
@@ -49,9 +43,9 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
 
   void _triggerInstall() {
     try {
-      bool canPrompt = _canInstallPwaJS().toDart;
+      bool canPrompt = canInstallPwa();
       if (canPrompt) {
-        _triggerPwaInstallJS();
+        triggerPwaInstall();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

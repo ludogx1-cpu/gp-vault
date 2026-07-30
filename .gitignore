@@ -50,3 +50,11 @@ backend/.env
 android/app/google-services.json
 # User Data
 backend/subscribers.csv
+
+# AI tool configs (local, machine-specific)
+.agents/
+.claude/
+.codex-temp-gitdir/
+.codex-temp-push/
+.codex-temp-work/
+skills-lock.json

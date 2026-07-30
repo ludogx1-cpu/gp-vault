@@ -3,14 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
 import 'package:flutter/foundation.dart';
-import 'dart:js_interop';
+import '../src/pwa_interop.dart' if (dart.library.html) '../src/pwa_interop_web.dart';
 import 'package:go_router/go_router.dart';
-
-@JS('canInstallPwa')
-external JSBoolean _canInstallPwaJS();
-
-@JS('triggerPwaInstall')
-external void _triggerPwaInstallJS();
 
 final ValueNotifier<bool> sidebarExpandedNotifier = ValueNotifier(false);
 
@@ -167,9 +161,9 @@ class PersistentSidebar extends StatelessWidget {
                         }
                         if (kIsWeb) {
                           try {
-                            bool canPrompt = _canInstallPwaJS().toDart;
+                            bool canPrompt = canInstallPwa();
                             if (canPrompt) {
-                              _triggerPwaInstallJS();
+                              triggerPwaInstall();
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
