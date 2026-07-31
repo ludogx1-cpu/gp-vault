@@ -43,6 +43,8 @@ router.post('/set-username', verifyFirebaseToken, async (req, res) => {
       const doc = await transaction.get(userRef);
       const data = doc.data() || {};
       
+      // 3-month rule removed per user request
+      /*
       if (data.chat_username_last_changed) {
         const lastChanged = data.chat_username_last_changed.toDate();
         const daysSince = (Date.now() - lastChanged.getTime()) / (1000 * 60 * 60 * 24);
@@ -50,6 +52,7 @@ router.post('/set-username', verifyFirebaseToken, async (req, res) => {
           throw new Error(`You can only change your username once every 3 months. Try again in ${Math.ceil(90 - daysSince)} days.`);
         }
       }
+      */
 
       transaction.set(userRef, {
         username: cleanUsername,
