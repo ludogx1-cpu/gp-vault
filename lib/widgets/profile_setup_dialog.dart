@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../src/firebase_service.dart';
 import '../api_constants.dart';
 
@@ -88,6 +90,16 @@ class _ProfileSetupDialogState extends State<ProfileSetupDialog> {
         final petData = jsonDecode(petRes.body);
         
         if (userData['success'] == true && petData['success'] == true) {
+          // Mark setup as complete in the user's Firestore document
+          try {
+            final uid = FirebaseAuth.instance.currentUser?.uid;
+            if (uid != null) {
+              await FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(uid)
+                  .set({'setupComplete': true}, SetOptions(merge: true));
+            }
+          } catch (_) {}
           if (mounted) {
             Navigator.pop(context, true);
           }
