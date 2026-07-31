@@ -109,7 +109,7 @@ void main() async {
       child: Consumer<ThemeProvider>(
         builder: (context, theme, child) => MaterialApp.router(
           scaffoldMessengerKey: scaffoldMessengerKey,
-          title: 'Golden Paw Doge Faucet - Earn & Stake Crypto',
+          title: 'Golden Paw',
           routerConfig: _router,
           debugShowCheckedModeBanner: false,
           theme: theme.lightTheme,
