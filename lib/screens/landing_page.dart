@@ -147,11 +147,11 @@ class _LandingPageState extends State<LandingPage> {
                     listenable: themeProvider,
                     builder: (context, child) {
                       return Text(
-                        "Welcome to Golden Paw!\nThe Ultimate Dogecoin Ecosystem",
+                        "Golden Paw",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontFamily: 'Arial Black',
-                          fontSize: isMobile ? 28 : 40,
+                          fontSize: isMobile ? 36 : 48,
                           letterSpacing: -1.0,
                           fontWeight: FontWeight.w900,
                           color: themeProvider.isDarkMode
@@ -167,6 +167,22 @@ class _LandingPageState extends State<LandingPage> {
                               blurRadius: 4,
                             ),
                           ],
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  ListenableBuilder(
+                    listenable: themeProvider,
+                    builder: (context, child) {
+                      return Text(
+                        "The Ultimate Dogecoin Ecosystem",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Arial Black',
+                          fontSize: isMobile ? 18 : 24,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.amber,
                         ),
                       );
                     },
