@@ -50,11 +50,11 @@ class _FaucetPageState extends State<FaucetPage> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        // Fetch chat username from Firestore
+        // Fetch chat username from Firestore (force server fetch to avoid stale cache)
         final doc = await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
-            .get();
+            .get(const GetOptions(source: Source.server));
         String chatUsername = '';
         String petName = 'Golden Paw Shiba';
         bool hasUsername = false;

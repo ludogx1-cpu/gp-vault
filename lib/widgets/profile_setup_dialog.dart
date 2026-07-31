@@ -93,10 +93,20 @@ class _ProfileSetupDialogState extends State<ProfileSetupDialog> {
           }
           return;
         } else {
-           setState(() => _message = "Failed to save. Try again.");
+           setState(() => _message = userData['error'] ?? petData['error'] ?? "Failed to save. Try again.");
         }
       } else {
-         setState(() => _message = "Server error. Try again.");
+         String errorMsg = "Server error. Try again.";
+         try {
+           if (userRes.statusCode != 200) {
+             final d = jsonDecode(userRes.body);
+             if (d['error'] != null) errorMsg = d['error'];
+           } else if (petRes.statusCode != 200) {
+             final d = jsonDecode(petRes.body);
+             if (d['error'] != null) errorMsg = d['error'];
+           }
+         } catch(e) {}
+         setState(() => _message = errorMsg);
       }
     } catch (e) {
       setState(() => _message = "Connection error.");

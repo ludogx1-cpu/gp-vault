@@ -79,7 +79,12 @@ class AppFooter extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () => context.push('/terms'),
+                onPressed: () async {
+                  final url = Uri.base.resolve('/terms/');
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url);
+                  }
+                },
                 child: const Text(
                   "Terms of Service",
                   style: TextStyle(
@@ -90,7 +95,12 @@ class AppFooter extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () => context.push('/privacy'),
+                onPressed: () async {
+                  final url = Uri.base.resolve('/privacy/');
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url);
+                  }
+                },
                 child: const Text(
                   "Privacy Policy",
                   style: TextStyle(
