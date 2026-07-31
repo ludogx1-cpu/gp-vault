@@ -1,8 +1,6 @@
 import '../screens/contact_page.dart';
 import '../screens/faq_page.dart';
 import '../screens/cookie_policy_page.dart';
-import '../screens/privacy_policy_page.dart';
-import '../screens/terms_of_service_page.dart';
 import '../screens/blog_page.dart';
 
 import 'package:flutter/material.dart';
@@ -69,9 +67,7 @@ class AppFooter extends StatelessWidget {
               TextButton(
                 onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const BlogPage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const BlogPage()),
                 ),
                 child: const Text(
                   "Blog",
@@ -150,7 +146,9 @@ class AppFooter extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () async {
-                  final Uri url = Uri.parse('https://www.trustpilot.com/review/goldenpaw.dog');
+                  final Uri url = Uri.parse(
+                    'https://www.trustpilot.com/review/goldenpaw.dog',
+                  );
                   if (await canLaunchUrl(url)) {
                     await launchUrl(url);
                   }
@@ -166,7 +164,9 @@ class AppFooter extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () async {
-                  final Uri url = Uri.parse('https://www.patreon.com/cw/goldenpawhub');
+                  final Uri url = Uri.parse(
+                    'https://www.patreon.com/cw/goldenpawhub',
+                  );
                   if (await canLaunchUrl(url)) {
                     await launchUrl(url);
                   }
@@ -203,7 +203,9 @@ class AppFooter extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.facebook, color: Colors.blue),
                 onPressed: () {
-                  launchUrl(Uri.parse('https://www.facebook.com/GoldenPawDogeHub'));
+                  launchUrl(
+                    Uri.parse('https://www.facebook.com/GoldenPawDogeHub'),
+                  );
                 },
                 tooltip: 'Follow us on Facebook',
               ),
@@ -219,12 +221,15 @@ class AppFooter extends StatelessWidget {
           const SizedBox(height: 10),
           LayoutBuilder(
             builder: (context, constraints) {
-
               return Center(
                 child: SizedBox(
                   width: 114,
                   height: 32,
-                  child: UniversalWebView.create(viewType: 'github-sponsors-iframe', width: 114, height: 32),
+                  child: UniversalWebView.create(
+                    viewType: 'github-sponsors-iframe',
+                    width: 114,
+                    height: 32,
+                  ),
                 ),
               );
             },
@@ -277,7 +282,8 @@ class PulsatingSecurityText extends StatefulWidget {
   State<PulsatingSecurityText> createState() => _PulsatingSecurityTextState();
 }
 
-class _PulsatingSecurityTextState extends State<PulsatingSecurityText> with SingleTickerProviderStateMixin {
+class _PulsatingSecurityTextState extends State<PulsatingSecurityText>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -313,7 +319,7 @@ class _PulsatingSecurityTextState extends State<PulsatingSecurityText> with Sing
                 Shadow(
                   color: Colors.greenAccent.withValues(alpha: 0.8 * value),
                   blurRadius: 10 * value,
-                )
+                ),
               ],
             ),
             const SizedBox(width: 6),
@@ -322,12 +328,14 @@ class _PulsatingSecurityTextState extends State<PulsatingSecurityText> with Sing
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: Colors.greenAccent.withValues(alpha: 0.7 + (0.3 * value)),
+                color: Colors.greenAccent.withValues(
+                  alpha: 0.7 + (0.3 * value),
+                ),
                 shadows: [
                   Shadow(
                     color: Colors.greenAccent.withValues(alpha: 0.6 * value),
                     blurRadius: 8 * value,
-                  )
+                  ),
                 ],
               ),
             ),
