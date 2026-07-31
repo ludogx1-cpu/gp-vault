@@ -257,7 +257,13 @@ class AppFooter extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 12, color: Colors.white54),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
+              const Text(
+                "Google is a trademark of Google LLC.",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 11, color: Colors.white38),
+              ),
+              const SizedBox(height: 4),
               Text(
                 "Made with ❤️ by Luke in England, UK",
                 textAlign: TextAlign.center,
