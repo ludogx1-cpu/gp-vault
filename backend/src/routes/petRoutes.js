@@ -645,9 +645,9 @@ router.post('/pet-rename', verifyFirebaseToken, async (req, res) => {
     }
 
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    await userRef.update({
+    await userRef.set({
       pet_name: newName
-    });
+    }, { merge: true });
 
     res.json({ success: true, message: 'Pet renamed successfully!' });
   } catch (error) {
