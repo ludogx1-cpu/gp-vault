@@ -34,74 +34,93 @@ class ContactPage extends StatelessWidget {
 
             return Padding(
               padding: const EdgeInsets.all(25.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.support_agent, size: 80, color: Colors.blue),
-                  const SizedBox(height: 20),
-                  Text(
-                    "Need Help?",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: titleColor,
-                    ),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(30),
+                decoration: BoxDecoration(
+                  color: isDark ? themeProvider.darkGreyBoxColor : Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: isDark ? themeProvider.darkGreyBorder : Colors.grey.shade300,
                   ),
-                  const SizedBox(height: 15),
-                  Text(
-                    "If you have questions about a withdrawal, an ad campaign, or need to report a bug, please reach out!",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 15, color: textColor),
-                  ),
-                  const SizedBox(height: 30),
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: Colors.blue.shade200, width: 2),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.support_agent,
+                      size: 80,
+                      color: isDark ? Colors.amber : Colors.amber.shade700,
                     ),
-                    child: const Column(
-                      children: [
-                        Text(
-                          "Email Support",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
-                            fontSize: 18,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          "goldenpaw.dogeadmin@gmail.com",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          "We aim to respond to all inquiries within 24-48 hours.",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 12, color: Colors.black54),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text(
-                      "Back",
+                    const SizedBox(height: 20),
+                    Text(
+                      "Need Help?",
                       style: TextStyle(
-                        color: Colors.black87,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.amber : Colors.amber.shade700,
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 15),
+                    Text(
+                      "If you have questions about a withdrawal, an ad campaign, or need to report a bug, please reach out!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 15, color: textColor),
+                    ),
+                    const SizedBox(height: 30),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.black26 : Colors.amber.shade50,
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(
+                          color: isDark ? Colors.amber.withValues(alpha: 0.3) : Colors.amber.shade200,
+                          width: 2,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            "Email Support",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.amber : Colors.amber.shade700,
+                              fontSize: 18,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            "goldenpaw.dogeadmin@gmail.com",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: titleColor,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            "We aim to respond to all inquiries within 24-48 hours.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 12, color: textColor),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.amber,
+                        foregroundColor: Colors.black87,
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text(
+                        "Back",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           },

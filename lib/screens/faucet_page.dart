@@ -27,6 +27,7 @@ class _FaucetPageState extends State<FaucetPage> {
   double _currentDogePrice = 0.15;
   DateTime? _lastPriceUpdate;
   Timer? _priceTimer;
+  bool _isProfileSetupShowing = false;
 
   @override
   void initState() {
@@ -75,6 +76,7 @@ class _FaucetPageState extends State<FaucetPage> {
 
         if (!hasUsername || !hasPetName) {
           if (mounted) {
+            setState(() { _isProfileSetupShowing = true; });
             final result = await showDialog<bool>(
               context: context,
               barrierDismissible: false,
@@ -83,6 +85,9 @@ class _FaucetPageState extends State<FaucetPage> {
                 currentPetName: petName,
               ),
             );
+            if (mounted) {
+              setState(() { _isProfileSetupShowing = false; });
+            }
 
             if (result == true && mounted) {
               // Dialog saved successfully, re-fetch to update state
@@ -146,34 +151,36 @@ class _FaucetPageState extends State<FaucetPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: SizedBox(
-                          width: 728,
-                          height: 90,
-                          child: UniversalWebView.create(
-                            viewType: 'adsterra-728x90',
+                      if (!_isProfileSetupShowing) ...[
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: SizedBox(
                             width: 728,
                             height: 90,
+                            child: UniversalWebView.create(
+                              viewType: 'adsterra-728x90',
+                              width: 728,
+                              height: 90,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: SizedBox(
-                          width: 728,
-                          height: 90,
-                          child: UniversalWebView.create(
-                            viewType: 'ccnsad-728x90',
+                        const SizedBox(height: 10),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: SizedBox(
                             width: 728,
                             height: 90,
+                            child: UniversalWebView.create(
+                              viewType: 'ccnsad-728x90',
+                              width: 728,
+                              height: 90,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      const BitcotasksAdWidget(),
-                      const SizedBox(height: 20),
+                        const SizedBox(height: 20),
+                        const BitcotasksAdWidget(),
+                        const SizedBox(height: 20),
+                      ],
 
                       const SizedBox(
                         width: 120,
@@ -238,8 +245,10 @@ class _FaucetPageState extends State<FaucetPage> {
                       const BonusTimersCard(),
                       const SizedBox(height: 25),
 
-                      const Bitcotasks160x600AdWidget(),
-                      const SizedBox(height: 20),
+                      if (!_isProfileSetupShowing) ...[
+                        const Bitcotasks160x600AdWidget(),
+                        const SizedBox(height: 20),
+                      ],
 
                       const NewsletterSubscribeWidget(),
                       const SizedBox(height: 60),
