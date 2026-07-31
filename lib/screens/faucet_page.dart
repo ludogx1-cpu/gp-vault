@@ -63,12 +63,15 @@ class _FaucetPageState extends State<FaucetPage> {
 
         if (doc.exists) {
           final data = doc.data() as Map<String, dynamic>;
+
+          // Primary check: setupComplete flag written by dialog on successful save
+          if (data['setupComplete'] == true) return;
           
           final uName = data['username']?.toString() ?? '';
           final cName = data['chat_username']?.toString() ?? '';
           hasUsername = (uName.isNotEmpty && uName != 'Anonymous') || 
                         (cName.isNotEmpty && cName != 'Anonymous');
-          hasPetName = data.containsKey('pet_name');
+          hasPetName = data.containsKey('pet_name') || data.containsKey('setupComplete');
 
           chatUsername = uName.isNotEmpty ? uName : cName;
           petName = data['pet_name']?.toString() ?? 'Golden Paw Shiba';
@@ -95,6 +98,7 @@ class _FaucetPageState extends State<FaucetPage> {
             }
           }
         }
+
       }
     } catch (e) {
       // Ignore errors so we don't break the page load
