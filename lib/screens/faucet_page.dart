@@ -57,18 +57,23 @@ class _FaucetPageState extends State<FaucetPage> {
             .get();
         String chatUsername = '';
         String petName = 'Golden Paw Shiba';
+        bool hasUsername = false;
+        bool hasPetName = false;
+
         if (doc.exists) {
           final data = doc.data() as Map<String, dynamic>;
-          chatUsername =
-              data['username']?.toString() ??
-              data['chat_username']?.toString() ??
-              '';
+          
+          final uName = data['username']?.toString() ?? '';
+          final cName = data['chat_username']?.toString() ?? '';
+          hasUsername = (uName.isNotEmpty && uName != 'Anonymous') || 
+                        (cName.isNotEmpty && cName != 'Anonymous');
+          hasPetName = data.containsKey('pet_name');
+
+          chatUsername = uName.isNotEmpty ? uName : cName;
           petName = data['pet_name']?.toString() ?? 'Golden Paw Shiba';
         }
 
-        if (chatUsername.isEmpty ||
-            chatUsername == 'Anonymous' ||
-            petName == 'Golden Paw Shiba') {
+        if (!hasUsername || !hasPetName) {
           if (mounted) {
             await showDialog(
               context: context,

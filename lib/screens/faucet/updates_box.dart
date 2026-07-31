@@ -71,7 +71,7 @@ class UpdatesBox extends StatelessWidget {
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: isLatest ? 15 : 12,
+                                      fontSize: 15,
                                       color: isDark ? Colors.white : Colors.black87,
                                     ),
                                   ),
@@ -80,7 +80,7 @@ class UpdatesBox extends StatelessWidget {
                                     data['content'] ?? (data['message'] ?? ''),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
-                                      fontSize: isLatest ? 13 : 11,
+                                      fontSize: 13,
                                       color: isDark ? Colors.white70 : Colors.black54,
                                     ),
                                   ),

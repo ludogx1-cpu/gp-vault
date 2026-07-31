@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:provider/provider.dart';
 import 'src/platform_registry/platform_registry.dart' if (dart.library.html) 'src/platform_registry/platform_registry_web.dart';
 import 'package:go_router/go_router.dart';
@@ -27,6 +28,8 @@ import 'screens/leaderboard_page.dart';
 import 'screens/suggestion_box_page.dart';
 import 'screens/blog_page.dart';
 import 'screens/promo_code_page.dart';
+import 'screens/privacy_policy_page.dart';
+import 'screens/terms_of_service_page.dart';
 // Router configuration
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
@@ -76,6 +79,8 @@ final _router = GoRouter(
         GoRoute(path: '/suggestions', pageBuilder: (context, state) => const NoTransitionPage(child: SuggestionBoxPage())),
         GoRoute(path: '/blog', pageBuilder: (context, state) => const NoTransitionPage(child: BlogPage())),
         GoRoute(path: '/promo', pageBuilder: (context, state) => const NoTransitionPage(child: PromoCodePage())),
+        GoRoute(path: '/privacy', pageBuilder: (context, state) => const NoTransitionPage(child: PrivacyPolicyPage())),
+        GoRoute(path: '/terms', pageBuilder: (context, state) => const NoTransitionPage(child: TermsOfServicePage())),
       ],
     ),
   ],
@@ -85,6 +90,7 @@ final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<Scaffol
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  usePathUrlStrategy();
 
   registerWebViews();
   if (kIsWeb) {
