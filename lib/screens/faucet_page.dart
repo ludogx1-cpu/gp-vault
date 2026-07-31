@@ -75,7 +75,7 @@ class _FaucetPageState extends State<FaucetPage> {
 
         if (!hasUsername || !hasPetName) {
           if (mounted) {
-            await showDialog(
+            final result = await showDialog<bool>(
               context: context,
               barrierDismissible: false,
               builder: (context) => ProfileSetupDialog(
@@ -84,8 +84,10 @@ class _FaucetPageState extends State<FaucetPage> {
               ),
             );
 
-            // If they saved successfully, we should probably force a rebuild or tell the chat to update?
-            // The next fetch will get the new data.
+            if (result == true && mounted) {
+              // Dialog saved successfully, re-fetch to update state
+              _checkAndShowProfileSetup();
+            }
           }
         }
       }

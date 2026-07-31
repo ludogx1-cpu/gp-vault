@@ -51,11 +51,11 @@ router.post('/set-username', verifyFirebaseToken, async (req, res) => {
         }
       }
 
-      transaction.update(userRef, {
+      transaction.set(userRef, {
         username: cleanUsername,
         chat_username: cleanUsername,
         chat_username_last_changed: admin.firestore.FieldValue.serverTimestamp()
-      });
+      }, { merge: true });
     });
 
     res.json({ success: true, message: 'Username set successfully!' });
