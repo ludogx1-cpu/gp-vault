@@ -7,6 +7,7 @@ import '../screens/blog_page.dart';
 
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
 import '../src/theme_provider.dart';
 import 'universal_web_view/universal_web_view.dart';
 
@@ -82,12 +83,7 @@ class AppFooter extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const TermsOfServicePage(),
-                  ),
-                ),
+                onPressed: () => context.push('/terms'),
                 child: const Text(
                   "Terms of Service",
                   style: TextStyle(
@@ -98,12 +94,7 @@ class AppFooter extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const PrivacyPolicyPage(),
-                  ),
-                ),
+                onPressed: () => context.push('/privacy'),
                 child: const Text(
                   "Privacy Policy",
                   style: TextStyle(
