@@ -103,7 +103,9 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
         ),
         textAlign: TextAlign.center,
       ),
-      content: SingleChildScrollView(
+      content: !kIsWeb
+          ? _buildMobileContent(context, isDark)
+          : SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -571,7 +573,114 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
             ),
           ],
         ),
-      ),
+      ), // end of web SingleChildScrollView
+    );
+  }
+
+  /// Simple sign-in UI for Android/iOS — no captcha needed
+  Widget _buildMobileContent(BuildContext context, bool isDark) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(height: 8),
+        Text(
+          "Sign in with your Google account to save your progress and access your balance from any device.",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: isDark ? Colors.white70 : Colors.black54,
+            fontSize: 14,
+            height: 1.5,
+          ),
+        ),
+        const SizedBox(height: 24),
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: OutlinedButton.icon(
+            icon: Image.network(
+              'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/120px-Google_%22G%22_logo.svg.png',
+              height: 20,
+              errorBuilder: (context, error, stackTrace) =>
+                  const Icon(Icons.account_circle, color: Colors.blue),
+            ),
+            label: isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.black87,
+                    ),
+                  )
+                : const Text(
+                    "CONTINUE WITH GOOGLE",
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+            style: OutlinedButton.styleFrom(
+              backgroundColor: Colors.white,
+              side: BorderSide(color: Colors.grey.shade300, width: 2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: isLoading
+                ? null
+                : () async {
+                    setState(() => isLoading = true);
+                    try {
+                      final GoogleSignIn googleSignIn = GoogleSignIn();
+                      final GoogleSignInAccount? googleUser =
+                          await googleSignIn.signIn();
+                      if (googleUser == null) {
+                        setState(() => isLoading = false);
+                        return;
+                      }
+                      final GoogleSignInAuthentication googleAuth =
+                          await googleUser.authentication;
+                      final credential = GoogleAuthProvider.credential(
+                        accessToken: googleAuth.accessToken,
+                        idToken: googleAuth.idToken,
+                      );
+                      final userCred = await FirebaseAuth.instance
+                          .signInWithCredential(credential);
+
+                      final doc = await FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(userCred.user!.uid)
+                          .get();
+                      if (!doc.exists) {
+                        await FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(userCred.user!.uid)
+                            .set({
+                              'email': userCred.user!.email,
+                              'doge_balance': 0.0,
+                              'staked_balance': 0.0,
+                              'bank_balance': 0.0,
+                              'ads_balance': 0.0,
+                              'offerwall_balance': 0.0,
+                              'xp': 0,
+                              'streak_count': 0,
+                              'joined_date': DateTime.now().toIso8601String(),
+                            });
+                      }
+                      if (!context.mounted) return;
+                      context.go('/faucet');
+                    } catch (e) {
+                      if (!context.mounted) return;
+                      setState(() => isLoading = false);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(e.toString())),
+                      );
+                    }
+                  },
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
     );
   }
 }
