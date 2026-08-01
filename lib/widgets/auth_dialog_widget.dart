@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:go_router/go_router.dart';
 import '../src/theme_provider.dart';
@@ -677,9 +678,23 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                       );
                     }
                   },
-          ),
-        ),
         const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.security, size: 16, color: Colors.green.shade600),
+            const SizedBox(width: 8),
+            Text(
+              "Secured by Firebase App Check",
+              style: TextStyle(
+                color: isDark ? Colors.white54 : Colors.black54,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
       ],
     );
   }
