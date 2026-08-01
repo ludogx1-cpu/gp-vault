@@ -678,6 +678,8 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                       );
                     }
                   },
+          ),
+        ),
         const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
