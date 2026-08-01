@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_performance/firebase_performance.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,19 @@ class FirebaseService {
     } else {
       await Firebase.initializeApp();
     }
+
+    // Initialize Firebase App Check
+    // - Android: Play Integrity (production) or Debug provider (debug builds)
+    // - Web: reCAPTCHA Enterprise
+    await FirebaseAppCheck.instance.activate(
+      androidProvider: kDebugMode
+          ? AndroidProvider.debug
+          : AndroidProvider.playIntegrity,
+      appleProvider: AppleProvider.appAttest,
+      webProvider: ReCaptchaEnterpriseProvider(
+        '6LeEKjotAAAAABBcMyZho_GL7pH7HW7YlQ_JowPy',
+      ),
+    );
 
     // Initialize Performance Monitoring
     FirebasePerformance.instance;
