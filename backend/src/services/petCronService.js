@@ -35,7 +35,7 @@ const runPetCareLogic = async () => {
         tokens: tokens
       };
 
-      const response = await admin.messaging().sendMulticast(message);
+      const response = await admin.messaging().sendEachForMulticast(message);
       console.log(`Pet reminder notifications sent to ${response.successCount} users.`);
     }
   } catch (error) {
