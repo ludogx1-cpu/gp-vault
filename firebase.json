@@ -28,12 +28,29 @@
             "value": "no-cache, no-store, must-revalidate"
           }
         ]
+      },
+      {
+        "source": "golden-paw.apk",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/vnd.android.package-archive"
+          },
+          {
+            "key": "Content-Disposition",
+            "value": "attachment; filename=golden-paw.apk"
+          }
+        ]
       }
     ],
     "rewrites": [
       {
         "source": "/about.html",
         "destination": "/about.html"
+      },
+      {
+        "source": "/golden-paw.apk",
+        "destination": "/golden-paw.apk"
       },
       {
         "source": "**",
