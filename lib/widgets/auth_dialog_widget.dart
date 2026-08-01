@@ -3,9 +3,11 @@ import 'universal_web_view/universal_web_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:go_router/go_router.dart';
 import '../src/theme_provider.dart';
 
@@ -506,9 +508,31 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                           isLoading = true;
                         });
                         try {
-                          final authProvider = GoogleAuthProvider();
-                          UserCredential userCred = await FirebaseAuth.instance
-                              .signInWithPopup(authProvider);
+                          UserCredential userCred;
+                          if (kIsWeb) {
+                            // Web: use popup
+                            final authProvider = GoogleAuthProvider();
+                            userCred = await FirebaseAuth.instance
+                                .signInWithPopup(authProvider);
+                          } else {
+                            // Android/iOS: use google_sign_in package
+                            final GoogleSignIn googleSignIn = GoogleSignIn();
+                            final GoogleSignInAccount? googleUser =
+                                await googleSignIn.signIn();
+                            if (googleUser == null) {
+                              // User cancelled
+                              setState(() => isLoading = false);
+                              return;
+                            }
+                            final GoogleSignInAuthentication googleAuth =
+                                await googleUser.authentication;
+                            final credential = GoogleAuthProvider.credential(
+                              accessToken: googleAuth.accessToken,
+                              idToken: googleAuth.idToken,
+                            );
+                            userCred = await FirebaseAuth.instance
+                                .signInWithCredential(credential);
+                          }
 
                           final doc = await FirebaseFirestore.instance
                               .collection('users')
