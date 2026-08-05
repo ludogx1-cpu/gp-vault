@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -99,6 +100,8 @@ class _ProfileSetupDialogState extends State<ProfileSetupDialog> {
                   .doc(uid)
                   .set({'setupComplete': true}, SetOptions(merge: true));
             }
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setBool('profile_setup_skipped', true);
           } catch (_) {}
           if (mounted) {
             Navigator.pop(context, true);
@@ -177,7 +180,11 @@ class _ProfileSetupDialogState extends State<ProfileSetupDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: _isLoading ? null : () => Navigator.pop(context, false),
+          onPressed: _isLoading ? null : () async {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setBool('profile_setup_skipped', true);
+            if (mounted) Navigator.pop(context, false);
+          },
           child: const Text("I'll do this later"),
         ),
         ElevatedButton(
