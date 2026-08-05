@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -214,17 +215,18 @@ class _StakingPageState extends State<StakingPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: SizedBox(
-                          width: 728,
-                          height: 90,
-                          child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
+                      if (kIsWeb)
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: SizedBox(
+                            width: 728,
+                            height: 90,
+                            child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      const BitcotasksAdWidget(),
-                      const SizedBox(height: 20),
+                      if (kIsWeb) const SizedBox(height: 20),
+                      if (kIsWeb) const BitcotasksAdWidget(),
+                      if (kIsWeb) const SizedBox(height: 20),
                       Image.asset('assets/Bank.png', height: 100, width: 100),
                       const SizedBox(height: 15),
                       Text(

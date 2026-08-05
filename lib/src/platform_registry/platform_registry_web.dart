@@ -304,6 +304,26 @@ void registerWebViews() {
       return iframe;
     });
 
+    // 20. AdSense PTC 1
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('adsense-ptc-1', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('src', '/adsense_ptc_1.html');
+      iframe.setAttribute('style', 'border:none; width:100%; height:100%; overflow:hidden;');
+      iframe.setAttribute('scrolling', 'no');
+      return iframe;
+    });
+
+    // 21. AdSense PTC 2
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('adsense-ptc-2', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('src', '/adsense_ptc_2.html');
+      iframe.setAttribute('style', 'border:none; width:100%; height:100%; overflow:hidden;');
+      iframe.setAttribute('scrolling', 'no');
+      return iframe;
+    });
+
   } catch (e) {
     // ignore: empty_catches
   }

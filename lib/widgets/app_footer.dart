@@ -5,7 +5,6 @@ import '../screens/blog_page.dart';
 
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:go_router/go_router.dart';
 import '../src/theme_provider.dart';
 import 'universal_web_view/universal_web_view.dart';
 
@@ -79,11 +78,11 @@ class AppFooter extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () async {
-                  final url = Uri.base.resolve('/terms/');
-                  if (await canLaunchUrl(url)) {
-                    await launchUrl(url);
-                  }
+                onPressed: () {
+                  launchUrl(
+                    Uri.parse('https://goldenpaw.dog/terms/'),
+                    mode: LaunchMode.externalApplication,
+                  );
                 },
                 child: const Text(
                   "Terms of Service",
@@ -95,11 +94,11 @@ class AppFooter extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () async {
-                  final url = Uri.base.resolve('/privacy/');
-                  if (await canLaunchUrl(url)) {
-                    await launchUrl(url);
-                  }
+                onPressed: () {
+                  launchUrl(
+                    Uri.parse('https://goldenpaw.dog/privacy/'),
+                    mode: LaunchMode.externalApplication,
+                  );
                 },
                 child: const Text(
                   "Privacy Policy",
@@ -155,13 +154,13 @@ class AppFooter extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () async {
-                  final Uri url = Uri.parse(
-                    'https://www.trustpilot.com/review/goldenpaw.dog',
+                onPressed: () {
+                  launchUrl(
+                    Uri.parse(
+                      'https://www.trustpilot.com/review/goldenpaw.dog',
+                    ),
+                    mode: LaunchMode.externalApplication,
                   );
-                  if (await canLaunchUrl(url)) {
-                    await launchUrl(url);
-                  }
                 },
                 child: const Text(
                   "Trustpilot Reviews",
@@ -173,13 +172,11 @@ class AppFooter extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () async {
-                  final Uri url = Uri.parse(
-                    'https://www.patreon.com/cw/goldenpawhub',
+                onPressed: () {
+                  launchUrl(
+                    Uri.parse('https://www.patreon.com/cw/goldenpawhub'),
+                    mode: LaunchMode.externalApplication,
                   );
-                  if (await canLaunchUrl(url)) {
-                    await launchUrl(url);
-                  }
                 },
                 child: const Text(
                   "Support us on Patreon",

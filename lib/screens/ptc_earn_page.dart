@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../src/theme_provider.dart';
 import '../widgets/widgets.dart';
+import '../widgets/universal_web_view/universal_web_view.dart';
+import 'package:go_router/go_router.dart';
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
 
@@ -330,6 +332,41 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                           ],
                         ),
                       ),
+                      const SizedBox(height: 15),
+                      // 🚀 PASSIVE DESKTOP MINER 🚀
+                      SizedBox(
+                        width: double.infinity,
+                        height: 60,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            elevation: 4,
+                          ),
+                          icon: const Icon(Icons.desktop_windows, size: 28),
+                          label: const Text(
+                            "EARN PASSIVE CRYPTO (DESKTOP APP)",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 15,
+                              letterSpacing: 1.1,
+                            ),
+                          ),
+                          onPressed: () {
+                            context.go('/bonus-partners');
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      // 🚀 ADSENSE PTC 1 🚀
+                      SizedBox(
+                        width: double.infinity,
+                        height: 250,
+                        child: UniversalWebView.create(viewType: 'adsense-ptc-1'),
+                      ),
                       const SizedBox(height: 20),
                       // 🚀 TIMEWALL CLICKS BUTTON 🚀
                       SizedBox(
@@ -366,6 +403,13 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                       adContent,
                       const SizedBox(height: 25),
                       const Bitcotasks300x250AdWidget(),
+                      const SizedBox(height: 25),
+                      // 🚀 ADSENSE PTC 2 🚀
+                      SizedBox(
+                        width: double.infinity,
+                        height: 250,
+                        child: UniversalWebView.create(viewType: 'adsense-ptc-2'),
+                      ),
                     ],
                   );
                 },

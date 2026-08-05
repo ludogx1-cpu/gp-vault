@@ -11,6 +11,7 @@ import '../src/firebase_service.dart';
 import '../src/cross_tab_listener/cross_tab_listener.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
 
@@ -228,7 +229,8 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
         padding: const EdgeInsets.all(25),
-        height: _showCaptcha ? 350 : 300,
+        width: 400,
+        height: _showCaptcha ? (kIsWeb ? 350 : 550) : 300,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -286,31 +288,31 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
               ),
               const SizedBox(height: 10),
               Container(
-                height: 120,
+                height: kIsWeb ? 120 : 350,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.amber, width: 2),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                   color: Colors.white,
                 ),
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    if (_captchaToken == null && _selectedCaptcha == 'hCaptcha')
-                      UniversalWebView.create(
-                        viewType: 'hcaptcha-widget',
-                        width: 320,
-                        height: 90,
-                        onMessageReceived: _onCaptchaMessage,
-                      )
-                    else if (_captchaToken == null &&
-                        _selectedCaptcha == 'Turnstile')
-                      UniversalWebView.create(
-                        viewType: 'turnstile-widget',
-                        width: 320,
-                        height: 90,
-                        onMessageReceived: _onCaptchaMessage,
-                      ),
+                    if (_captchaToken == null)
+                      if (_selectedCaptcha == 'hCaptcha')
+                        UniversalWebView.create(
+                          viewType: 'hcaptcha-widget',
+                          width: double.infinity,
+                          height: kIsWeb ? 90 : 320,
+                          onMessageReceived: _onCaptchaMessage,
+                        )
+                      else if (_selectedCaptcha == 'Turnstile')
+                        UniversalWebView.create(
+                          viewType: 'turnstile-widget',
+                          width: double.infinity,
+                          height: kIsWeb ? 90 : 320,
+                          onMessageReceived: _onCaptchaMessage,
+                        ),
 
                     if (!_captchaLoading && _captchaToken == null)
                       ElevatedButton(

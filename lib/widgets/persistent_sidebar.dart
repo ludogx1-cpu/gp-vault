@@ -214,7 +214,7 @@ class PersistentSidebar extends StatelessWidget {
                       onTap: () => _navigateTo(context, '/ads'),
                     ),
                     SidebarNavItem(
-                      icon: Icons.link,
+                      icon: Icons.hub,
                       title: 'Bonus Partners',
                       isDark: isDark,
                       isExpanded: isExpanded,

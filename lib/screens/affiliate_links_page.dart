@@ -154,6 +154,15 @@ final partnerList = [
     "Other",
   ),
   PartnerData(
+    "Bright SDK",
+    "Monetize your desktop/mobile apps without ads.",
+    "Developer Monetization",
+    Icons.code,
+    Colors.blueAccent,
+    "https://bright-sdk.com/i/m6inkgvv",
+    "Other",
+  ),
+  PartnerData(
     "YesCoiner",
     "Earn free crypto instantly with high payouts.",
     "Instant Crypto",
