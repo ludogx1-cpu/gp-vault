@@ -161,7 +161,7 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
           <style>body { margin:0; overflow:hidden; background:transparent; display:flex; justify-content:center; align-items:center; height:100vh; width: 100vw; }</style>
         </head>
         <body>
-          <iframe src="https://bitcotasks.com/banner.php?key=0cd9422cecc4ffac20af8a7d&size=\$sizeStr" width="100%" height="100%" style="border:none;" scrolling="no"></iframe>
+          <iframe src="https://bitcotasks.com/banner.php?key=0cd9422cecc4ffac20af8a7d&size=$sizeStr" width="100%" height="100%" style="border:none;" scrolling="no"></iframe>
         </body>
         </html>
       ''';

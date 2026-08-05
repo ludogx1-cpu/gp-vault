@@ -117,7 +117,9 @@ class _ProfileSetupDialogState extends State<ProfileSetupDialog> {
              final d = jsonDecode(petRes.body);
              if (d['error'] != null) errorMsg = d['error'];
            }
-         } catch(e) {}
+         } catch(e) {
+            // Ignore JSON parse errors and use default error message
+          }
          setState(() => _message = errorMsg);
       }
     } catch (e) {
