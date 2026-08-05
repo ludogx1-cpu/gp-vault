@@ -6,6 +6,7 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'dart:io' show Platform;
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../api_constants.dart';
@@ -13,7 +14,7 @@ import '../main.dart';
 
 class FirebaseService {
   static Future<void> initialize() async {
-    if (kIsWeb) {
+    if (kIsWeb || (!kIsWeb && Platform.isWindows)) {
       await Firebase.initializeApp(
         options: const FirebaseOptions(
           apiKey: "AIzaSyCDpj38AVvMY01EGKFtJo1YzNC8oUE6VZo",

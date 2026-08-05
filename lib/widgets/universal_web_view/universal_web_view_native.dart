@@ -1,7 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'universal_web_view.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
 
 class UniversalWebViewNative extends UniversalWebView {
   const UniversalWebViewNative({
@@ -18,17 +18,27 @@ class UniversalWebViewNative extends UniversalWebView {
 }
 
 class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
-  late final WebViewController _controller;
+  late final WebViewController? _controller;
+  late final bool _isSupported;
 
   @override
   void initState() {
     super.initState();
+    // webview_flutter only supports Android and iOS natively.
+    if (defaultTargetPlatform == TargetPlatform.windows ||
+        defaultTargetPlatform == TargetPlatform.macOS ||
+        defaultTargetPlatform == TargetPlatform.linux) {
+      _isSupported = false;
+      _controller = null;
+      return;
+    }
+    _isSupported = true;
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(Colors.transparent);
       
     if (widget.onMessageReceived != null) {
-      _controller.addJavaScriptChannel(
+      _controller!.addJavaScriptChannel(
         'Print',
         onMessageReceived: (JavaScriptMessage message) {
           widget.onMessageReceived!(message.message);
@@ -37,9 +47,12 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
     }
 
     if (widget.initialUrl != null) {
-      _controller.loadRequest(Uri.parse(widget.initialUrl!));
+      _controller!.loadRequest(Uri.parse(widget.initialUrl!));
     } else {
-      _controller.loadHtmlString(_getHtmlForViewType(widget.viewType));
+      _controller!.loadHtmlString(
+        _getHtmlForViewType(widget.viewType), 
+        baseUrl: 'https://goldenpaw.dog/'
+      );
     }
   }
 
@@ -49,7 +62,7 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
         <!DOCTYPE html>
         <html>
         <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta name="viewport" content="width=device-width, initial-scale=0.85, maximum-scale=0.85, user-scalable=no">
           <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
         </head>
         <body style="display:flex; justify-content:center; align-items:center; height:100vh; margin:0; background: transparent;">
@@ -67,7 +80,7 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
         <!DOCTYPE html>
         <html>
         <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta name="viewport" content="width=device-width, initial-scale=0.85, maximum-scale=0.85, user-scalable=no">
           <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
         </head>
         <body style="display:flex; justify-content:center; align-items:center; height:100vh; margin:0; background: transparent;">
@@ -138,8 +151,21 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
         </body>
         </html>
       ''';
+    } else if (viewType.startsWith('bitcotasks-')) {
+      final sizeStr = viewType.replaceFirst('bitcotasks-', '');
+      return '''
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>body { margin:0; overflow:hidden; background:transparent; display:flex; justify-content:center; align-items:center; height:100vh; width: 100vw; }</style>
+        </head>
+        <body>
+          <iframe src="https://bitcotasks.com/banner.php?key=0cd9422cecc4ffac20af8a7d&size=\$sizeStr" width="100%" height="100%" style="border:none;" scrolling="no"></iframe>
+        </body>
+        </html>
+      ''';
     } else if (viewType.startsWith('adsterra-')) {
-       // A generalized adsterra loader
        return '''
         <!DOCTYPE html>
         <html>
@@ -185,7 +211,14 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
 
   @override
   Widget build(BuildContext context) {
-    Widget child = WebViewWidget(controller: _controller);
+    if (!_isSupported) {
+      // Return a blank box for unsupported desktop platforms
+      return SizedBox(
+        width: widget.width,
+        height: widget.height,
+      );
+    }
+    Widget child = WebViewWidget(controller: _controller!);
     if (widget.width != null || widget.height != null) {
       child = SizedBox(
         width: widget.width,

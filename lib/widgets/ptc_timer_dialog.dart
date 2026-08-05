@@ -12,6 +12,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import '../src/cross_tab_listener/cross_tab_listener.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
 
@@ -209,7 +210,8 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
         padding: const EdgeInsets.all(25),
-        height: _showCaptcha ? 350 : 250,
+        width: 400,
+        height: _showCaptcha ? (kIsWeb ? 350 : 550) : 250,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -266,11 +268,11 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
               ),
               const SizedBox(height: 10),
               Container(
-                height: 120,
+                height: kIsWeb ? 120 : 350,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.amber, width: 2),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                   color: Colors.white,
                 ),
                 child: Stack(
@@ -279,16 +281,16 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
                     if (_captchaToken == null && _selectedCaptcha == 'hCaptcha')
                       UniversalWebView.create(
                         viewType: 'hcaptcha-widget',
-                        width: 320,
-                        height: 90,
+                        width: double.infinity,
+                        height: kIsWeb ? 90 : 320,
                         onMessageReceived: _onCaptchaMessage,
                       )
                     else if (_captchaToken == null &&
                         _selectedCaptcha == 'Turnstile')
                       UniversalWebView.create(
                         viewType: 'turnstile-widget',
-                        width: 320,
-                        height: 90,
+                        width: double.infinity,
+                        height: kIsWeb ? 90 : 320,
                         onMessageReceived: _onCaptchaMessage,
                       ),
 

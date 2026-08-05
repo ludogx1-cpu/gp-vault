@@ -41,15 +41,22 @@ class CaptchaSelectorWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
               decoration: BoxDecoration(
-                color: isDark ? themeProvider.darkGreyBoxColor : Colors.amber.shade50,
+                color: isDark
+                    ? themeProvider.darkGreyBoxColor
+                    : Colors.amber.shade50,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: isDark ? themeProvider.darkGreyBorder : Colors.amber.shade200,
+                  color: isDark
+                      ? themeProvider.darkGreyBorder
+                      : Colors.amber.shade200,
                 ),
               ),
               child: DropdownButton<String>(
                 value: selectedCaptcha,
-                icon: Icon(Icons.arrow_drop_down, color: isDark ? Colors.amber : Colors.black87),
+                icon: Icon(
+                  Icons.arrow_drop_down,
+                  color: isDark ? Colors.amber : Colors.black87,
+                ),
                 elevation: 16,
                 style: TextStyle(
                   color: isDark ? Colors.amber : Colors.black87,
@@ -59,7 +66,10 @@ class CaptchaSelectorWidget extends StatelessWidget {
                 onChanged: secondsRemaining > 0 ? null : onChanged,
                 items: const [
                   DropdownMenuItem(value: 'hCaptcha', child: Text('hCaptcha')),
-                  DropdownMenuItem(value: 'Turnstile', child: Text('Turnstile')),
+                  DropdownMenuItem(
+                    value: 'Turnstile',
+                    child: Text('Turnstile'),
+                  ),
                 ],
               ),
             ),
@@ -81,7 +91,10 @@ class CaptchaSelectorWidget extends StatelessWidget {
                 const Center(
                   child: Text(
                     "Checking Vault Status...",
-                    style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 )
               else if (selectedCaptcha == 'hCaptcha' && secondsRemaining == 0)
@@ -98,7 +111,9 @@ class CaptchaSelectorWidget extends StatelessWidget {
                   height: 90,
                   onMessageReceived: onMessageReceived,
                 ),
-              if (!isCheckingCooldown && captchaLoading && secondsRemaining == 0)
+              if (!isCheckingCooldown &&
+                  captchaLoading &&
+                  secondsRemaining == 0)
                 const CircularProgressIndicator(color: Colors.amber),
               if (secondsRemaining > 0)
                 Center(
@@ -117,7 +132,11 @@ class CaptchaSelectorWidget extends StatelessWidget {
                   bottom: 4,
                   right: 4,
                   child: IconButton(
-                    icon: const Icon(Icons.refresh, size: 24, color: Colors.grey),
+                    icon: const Icon(
+                      Icons.refresh,
+                      size: 24,
+                      color: Colors.grey,
+                    ),
                     onPressed: onForceRender,
                     tooltip: "Reload Captcha",
                   ),

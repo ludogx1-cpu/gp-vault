@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../src/theme_provider.dart';
 import '../widgets/trustpilot_widget.dart';
 import '../widgets/newsletter_subscribe_widget.dart';
@@ -122,15 +123,16 @@ class _LandingPageState extends State<LandingPage> {
       body: PageWithFooter(
         child: Column(
           children: [
-            const SizedBox(height: 20),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: SizedBox(
-                width: 728,
-                height: 90,
-                child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
+            if (kIsWeb) const SizedBox(height: 20),
+            if (kIsWeb)
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: SizedBox(
+                  width: 728,
+                  height: 90,
+                  child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
+                ),
               ),
-            ),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
@@ -293,39 +295,12 @@ class _LandingPageState extends State<LandingPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 50),
-            const Bitcotasks468x60AdWidget(),
+            if (kIsWeb) const SizedBox(height: 50),
+            if (kIsWeb) const Bitcotasks468x60AdWidget(),
             const SizedBox(height: 50),
             const TrustpilotWidget(),
-            const SizedBox(height: 80),
-
-            // --- YOUTUBE EMBED ---
-            Container(
-              width: isMobile ? double.infinity : 560,
-              constraints: const BoxConstraints(maxWidth: 560),
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 10,
-                        offset: Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: const ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                    child: HtmlElementView(viewType: 'youtube-promo'),
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 80),
-            const Bitcotasks300x600AdWidget(),
+            if (kIsWeb) const SizedBox(height: 80),
+            if (kIsWeb) const Bitcotasks300x600AdWidget(),
             const SizedBox(height: 80),
             const NewsletterSubscribeWidget(),
             const SizedBox(height: 50),

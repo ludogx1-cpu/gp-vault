@@ -39,6 +39,10 @@
           {
             "key": "Content-Disposition",
             "value": "attachment; filename=golden-paw.apk"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
           }
         ]
       }

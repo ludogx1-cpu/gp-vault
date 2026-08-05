@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
@@ -71,6 +72,10 @@ class _FaucetPageState extends State<FaucetPage> {
           final cName = data['chat_username']?.toString() ?? '';
           hasUsername = (uName.isNotEmpty && uName != 'Anonymous') || 
                         (cName.isNotEmpty && cName != 'Anonymous');
+                        
+          // Bypass setup for users who already completed it in the past (have a username)
+          if (hasUsername) return;
+
           hasPetName = data.containsKey('pet_name') || data.containsKey('setupComplete');
 
           chatUsername = uName.isNotEmpty ? uName : cName;
@@ -156,34 +161,36 @@ class _FaucetPageState extends State<FaucetPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (!_isProfileSetupShowing) ...[
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: SizedBox(
-                            width: 728,
-                            height: 90,
-                            child: UniversalWebView.create(
-                              viewType: 'adsterra-728x90',
+                        if (kIsWeb)
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: SizedBox(
                               width: 728,
                               height: 90,
+                              child: UniversalWebView.create(
+                                viewType: 'adsterra-728x90',
+                                width: 728,
+                                height: 90,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: SizedBox(
-                            width: 728,
-                            height: 90,
-                            child: UniversalWebView.create(
-                              viewType: 'ccnsad-728x90',
+                        if (kIsWeb) const SizedBox(height: 10),
+                        if (kIsWeb)
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: SizedBox(
                               width: 728,
                               height: 90,
+                              child: UniversalWebView.create(
+                                viewType: 'ccnsad-728x90',
+                                width: 728,
+                                height: 90,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        const BitcotasksAdWidget(),
-                        const SizedBox(height: 20),
+                        if (kIsWeb) const SizedBox(height: 20),
+                        if (kIsWeb) const BitcotasksAdWidget(),
+                        if (kIsWeb) const SizedBox(height: 20),
                       ],
 
                       const SizedBox(
@@ -249,7 +256,7 @@ class _FaucetPageState extends State<FaucetPage> {
                       const BonusTimersCard(),
                       const SizedBox(height: 25),
 
-                      if (!_isProfileSetupShowing) ...[
+                      if (!_isProfileSetupShowing && kIsWeb) ...[
                         const Bitcotasks160x600AdWidget(),
                         const SizedBox(height: 20),
                       ],
