@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/universal_web_view/universal_web_view.dart';
 import '../widgets/widgets.dart';
 import '../widgets/pet_overlay_widget.dart';
@@ -52,6 +53,9 @@ class _FaucetPageState extends State<FaucetPage> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
+        final prefs = await SharedPreferences.getInstance();
+        if (prefs.getBool('profile_setup_skipped') == true) return;
+
         // Fetch chat username from Firestore (force server fetch to avoid stale cache)
         final doc = await FirebaseFirestore.instance
             .collection('users')
