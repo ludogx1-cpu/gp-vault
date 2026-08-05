@@ -24,7 +24,6 @@ class CookiePolicyPage extends StatelessWidget {
               listenable: themeProvider,
               builder: (context, _) {
                 final isDark = themeProvider.isDarkMode;
-                final titleColor = isDark ? Colors.white : Colors.black87;
                 final textColor = isDark ? Colors.white : Colors.black87;
 
                 return Container(

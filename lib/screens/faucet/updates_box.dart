@@ -58,9 +58,7 @@ class UpdatesBox extends StatelessWidget {
                       child: SingleChildScrollView(
                         child: Column(
                           children: snapshot.data!.docs.asMap().entries.map((entry) {
-                            int index = entry.key;
                             var data = entry.value.data() as Map<String, dynamic>;
-                            bool isLatest = index == 0;
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 15, right: 10, left: 10),
                               child: Column(
