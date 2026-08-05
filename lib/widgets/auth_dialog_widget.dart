@@ -442,6 +442,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                       });
                                 }
                                 if (!context.mounted) return;
+                                context.pop();
                                 context.go('/faucet');
                               } catch (e) {
                                 if (!context.mounted) return;
@@ -698,6 +699,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                             });
                       }
                       if (!context.mounted) return;
+                      context.pop();
                       context.go('/faucet');
                     } catch (e) {
                       if (!context.mounted) return;
