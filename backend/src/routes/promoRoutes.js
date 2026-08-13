@@ -95,14 +95,14 @@ router.post('/claim-promo', verifyFirebaseToken, async (req, res) => {
       const rolledNumber = Math.floor(Math.random() * 999) + 1;
       const reward = getPromoReward(rolledNumber);
 
-      const currentBalance = userData.balance || 0;
+      const currentBalance = userData.doge_balance || 0;
       const newBalance = currentBalance + reward;
       
       const currentXp = userData.xp || 0;
       const newXp = currentXp + 50; // Add some XP as bonus
 
       transaction.update(userRef, {
-        balance: newBalance,
+        doge_balance: newBalance,
         xp: newXp,
         last_claimed_promo: activePromo.code
       });
