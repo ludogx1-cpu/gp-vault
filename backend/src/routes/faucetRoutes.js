@@ -369,6 +369,9 @@ router.post('/withdraw', verifyFirebaseToken, async (req, res) => {
 
 router.post('/bank/withdraw', verifyFirebaseToken, async (req, res) => {
   try {
+    // TEMPORARY BLOCK ON OFFERWALL WITHDRAWALS
+    return res.status(403).json({ success: false, error: 'Offerwall withdrawals are temporarily disabled while we configure backend systems. Please check the notice board for updates.' });
+
     if (!req.user) {
       return res.status(401).json({ success: false, error: 'Authentication required for bank withdrawal' });
     }
