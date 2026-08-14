@@ -19,6 +19,7 @@ const { startPromoCronService } = require('./src/services/promoCronService');
 const { startPetCronService } = require('./src/services/petCronService');
 const { startOfferwallCronService } = require('./src/services/offerwallCronService');
 const app = express();
+app.set('trust proxy', 1); // Trust the first proxy (Render) to fix X-Forwarded-For rate limit errors
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
