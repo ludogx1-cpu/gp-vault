@@ -37,7 +37,7 @@ dependencies:
   firebase_messaging_web: ^4.2.3
   firebase_performance: ^0.11.4+5
   firebase_analytics: ^12.4.5
-  firebase_data_connect: ^0.3.0+7
+  showcaseview: ^5.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -4,10 +4,12 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:provider/provider.dart';
 import 'src/platform_registry/platform_registry.dart' if (dart.library.html) 'src/platform_registry/platform_registry_web.dart';
 import 'package:go_router/go_router.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'src/theme_provider.dart';
 import 'src/firebase_service.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'src/user_provider.dart';
+import 'src/doge_price_provider.dart';
 import 'widgets/widgets.dart';
 import 'screens/faucet_page.dart';
 import 'screens/staking_page.dart';
@@ -49,7 +51,9 @@ final _router = GoRouter(
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) {
-        return MainScaffold(child: child);
+        return ShowCaseWidget(
+          builder: (context) => MainScaffold(child: child),
+        );
       },
       routes: [
         GoRoute(
@@ -105,6 +109,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => themeProvider),
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => DogePriceProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, theme, child) => MaterialApp.router(

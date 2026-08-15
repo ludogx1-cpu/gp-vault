@@ -1,0 +1,48 @@
+/* Extracted SDOA Tokens */
+:root {
+  ----size-300px: 300px;
+  ----size-300px: 300px;
+  ----size-300px: 300px;
+  ----size-300px: 300px;
+
+  ----size-300px: {
+    "google.cloud.project": "golden-paw-database",
+    "google.cloud.billingQuotaProject": "golden-paw-database",
+    "security.workspace.trust.untrustedFiles": "open",
+    "dart.openDevTools": "flutter",
+    "python.languageServer": "Default",
+    "jupyter.jupyterLaunchTimeout": 300000,
+    "files.autoSave": "onFocusChange",
+    "workbench.settings.applyToAllProfiles": [
+        "files.autoSave",
+        "google.cloud.billingQuotaProject"
+    ],
+    "editor.fontSize": 16,
+    "editor.tabSize": 6,
+    "editor.wordWrap": "on",
+    "dart.flutterAdbConnectOnChromeOs": true,
+    "git.allowNoVerifyCommit": true,
+    "git.allowForcePush": true,
+    "git.alwaysShowStagedChangesResourceGroup": true,
+    "git.autofetch": "all",
+    "git.autofetchPeriod": 500,
+    "git.enableCommitSigning": true,
+    "git.fetchOnPull": true,
+    "git.followTagsWhenSync": true,
+    "git.postCommitCommand": "push",
+    "git.rememberPostCommitCommand": true,
+    "git.verboseCommit": true,
+    "google.datacloud.composer.environment": "us-central1",
+    "google.datacloud.composer.project": "us-central1",
+    "google.datacloud.composer.region": "us-central1",
+    "google.datacloud.bigqueryRegion": "us-central1",
+    "debug.javascript.autoAttachFilter": "smart",
+    "npm.enableRunFromFolder": true,
+    "google.cloud.region": "us-central1",
+    "google.datacloud.executeCellToolForNotebookMCP": true,
+    "gitlens.ai.model": "gitkraken",
+    "gitlens.ai.gitkraken.model": "gemini:gemini-2.5-flash",
+    "claudeCode.preferredLocation": "panel"
+};
+
+}

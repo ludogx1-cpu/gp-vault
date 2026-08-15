@@ -33,15 +33,21 @@ class FirebaseService {
     // Initialize Firebase App Check
     // - Android: Play Integrity (production) or Debug provider (debug builds)
     // - Web: reCAPTCHA Enterprise
-    await FirebaseAppCheck.instance.activate(
-      providerAndroid: kDebugMode
-          ? AndroidDebugProvider()
-          : AndroidPlayIntegrityProvider(),
-      providerApple: AppleAppAttestProvider(),
-      providerWeb: ReCaptchaEnterpriseProvider(
-        '6LeEKjotAAAAABBcMyZho_GL7pH7HW7YlQ_JowPy',
-      ),
-    );
+    try {
+      FirebaseAppCheck.instance.activate(
+        providerAndroid: kDebugMode
+            ? AndroidDebugProvider()
+            : AndroidPlayIntegrityProvider(),
+        providerApple: AppleAppAttestProvider(),
+        providerWeb: ReCaptchaEnterpriseProvider(
+          '6LeEKjotAAAAABBcMyZho_GL7pH7HW7YlQ_JowPy',
+        ),
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Firebase App Check initialization failed (expected on local dev): $e');
+      }
+    }
 
     // Initialize Performance Monitoring
     FirebasePerformance.instance;

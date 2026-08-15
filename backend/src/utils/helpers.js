@@ -104,8 +104,8 @@ async function verifyCaptchaToken(token, provider) {
     }
 
     if (!secret) {
-      console.warn(`CAPTCHA verification bypassed (Missing secret key for ${provider})`);
-      return true; // We bypass if the secret is missing so the app doesn't break, but we log a warning.
+      console.error(`CAPTCHA verification failed (Missing secret key for ${provider})`);
+      return false; // Fail closed if secret is missing for security
     }
 
     const params = new URLSearchParams({
@@ -161,10 +161,6 @@ function getStreakUpdates(data) {
   return updates;
 }
 
-function getAdminUid() {
-  return process.env.ADMIN_UID || 'P8iffVqbUgetAVA4MdHVZ1CfvUv1';
-}
-
 module.exports = {
   normalizeHttpUrl,
   getBannerCost,
@@ -174,5 +170,4 @@ module.exports = {
   formatAmount,
   verifyCaptchaToken,
   getStreakUpdates,
-  getAdminUid,
 };

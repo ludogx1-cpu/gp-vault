@@ -1,713 +1,98 @@
 const express = require('express');
-const { admin, verifyFirebaseToken } = require('../services/firebaseService');
-const { faucetPaySend } = require('../services/faucetPayService');
-const { getDogePrice } = require('../services/priceService');
-const { calculateDogeReward } = require('../utils/rewardCalculator');
-const { formatAmount, verifyCaptchaToken, getStreakUpdates, getAdminUid } = require('../utils/helpers');
-const { calculateDecay, calculatePetBonusPercent, calculateTrickBonusPercent, getAgeMultiplier } = require('../utils/petMechanics');
-
-const router = express.Router();
+const { verifyFirebaseToken } = require('../services/firebaseService');
+const faucetService = require('../services/faucetService');
 const rateLimit = require('express-rate-limit');
+const router = express.Router();
 
 const faucetLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 20, // limit each IP to 20 requests per windowMs
+  windowMs: 60 * 1000, 
+  max: 20,
   message: { success: false, error: 'Too many requests, please try again later.' }
 });
 
 router.post('/send-doge', faucetLimiter, verifyFirebaseToken, async (req, res) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ success: false, error: 'Authentication required for faucet claim' });
-    }
-
-    if (!req.user.email_verified) {
-      return res.status(403).json({ success: false, error: 'Email verification required.' });
-    }
-
+    if (!req.user) return res.status(401).json({ success: false, error: 'Authentication required for faucet claim' });
     const { address: bodyAddress, user_address, captcha_token, captcha_provider, source } = req.body;
     const address = bodyAddress || user_address;
-    if (!address) {
-      return res.status(400).json({ success: false, error: 'Missing destination address' });
-    }
-
-    if (req.user.uid !== getAdminUid()) {
-      if (!captcha_token || !captcha_provider) {
-        return res.status(400).json({ success: false, error: 'Missing captcha verification data' });
-      }
-      const isCaptchaValid = await verifyCaptchaToken(captcha_token, captcha_provider);
-      if (!isCaptchaValid) {
-        return res.status(400).json({ success: false, error: 'Invalid captcha token' });
-      }
-    }
-
-    const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    const cooldownMs = 5 * 60 * 1000; 
-
-    let ageMult = 1.0;
-
-    await admin.firestore().runTransaction(async (transaction) => {
-      const snapshot = await transaction.get(userRef);
-      if (!snapshot.exists) {
-        throw new Error('User profile not found');
-      }
-
-      const data = snapshot.data() || {};
-      const lastDirectClaim = data.last_direct_faucet_claim;
-
-      if (lastDirectClaim && Date.now() - lastDirectClaim.toDate().getTime() < cooldownMs) {
-        const minutesLeft = Math.ceil((cooldownMs - (Date.now() - lastDirectClaim.toDate().getTime())) / 60000);
-        throw new Error(`Please wait ${minutesLeft} minutes before claiming again.`);
-      }
-
-      const streakUpdates = getStreakUpdates(data);
-
-      if (data.pet_birth_date) {
-        const decayed = calculateDecay(data);
-        ageMult = getAgeMultiplier(data);
-        
-        transaction.update(userRef, {
-          last_direct_faucet_claim: admin.firestore.Timestamp.now(),
-          pet_hunger: decayed.hunger,
-          pet_happiness: decayed.happiness,
-          pet_energy: decayed.energy,
-          pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
-          ...streakUpdates
-        });
-      } else {
-        transaction.update(userRef, {
-          last_direct_faucet_claim: admin.firestore.Timestamp.now(),
-          ...streakUpdates
-        });
-      }
-
-    });
-
-    const priceResult = await getDogePrice();
-    const price = priceResult.price;
-    const baseReward = calculateDogeReward(price);
-    // Note: direct faucet claim doesn't get level/streak bonus, but does get pet bonus!
-    let dogeAmount = baseReward;
-    dogeAmount = dogeAmount * ageMult;
     
-    // Hard cap max Faucet reward
-    dogeAmount = Math.min(dogeAmount, 0.072);
-
-    const faucetPayResponse = await faucetPaySend(address, dogeAmount);
-
-    const resultPayload = {
-      success: true,
-      address,
-      amount: dogeAmount,
-      usdPrice: price,
-      priceSource: priceResult.source,
-      faucetPayResponse,
-      source: source || 'send-doge',
-      captchaToken: captcha_token || 'Admin Bypass',
-      captchaProvider: captcha_provider || 'Admin Bypass',
-      authUser: req.user || null,
-    };
-
-    // Increment lifetime metrics for FaucetPay direct claim
-    try {
-      await userRef.update({
-        total_faucet_claims: admin.firestore.FieldValue.increment(1),
-        total_earned: admin.firestore.FieldValue.increment(dogeAmount)
-      });
-    } catch (metricErr) {
-      console.error('Failed to update lifetime metrics for direct claim:', metricErr);
-    }
-
-    console.log('Send DOGE success:', JSON.stringify({ address, amount: dogeAmount }));
-    res.json(resultPayload);
+    const result = await faucetService.sendDoge(req.user, address, captcha_token, captcha_provider, source);
+    res.json({ success: true, ...result });
   } catch (error) {
-    console.error('send-doge error:', error.response?.data || error.message || error);
-    res.status(500).json({
-      success: false,
-      error: error.message || error.response?.data?.message || 'Failed to send DOGE',
-    });
+    console.error('send-doge error:', error.message);
+    res.status(500).json({ success: false, error: error.message || 'Failed to send DOGE' });
   }
 });
 
 router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ success: false, error: 'Authentication required for vault claim' });
-    }
-
-    console.log('Claim vault request for user:', req.user.uid);
-
-    const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    const now = admin.firestore.Timestamp.now();
-    const cooldownMs = 5 * 60 * 1000; 
-
-    const priceResult = await getDogePrice();
-    const price = priceResult.price;
-    const baseReward = calculateDogeReward(price);
-
-    let finalReward = 0;
-
-    await admin.firestore().runTransaction(async (transaction) => {
-      const snapshot = await transaction.get(userRef);
-      let data = snapshot.data() || {};
-      let isNewUser = false;
-      if (!snapshot.exists) {
-        isNewUser = true;
-        data = {
-          email: req.user.email || 'unknown@example.com',
-          doge_balance: 0.0,
-          staked_balance: 0.0,
-          ads_balance: 0.0,
-          offerwall_balance: 0.0,
-          xp: 0,
-          streak_count: 0,
-          joined_date: new Date().toISOString()
-        };
-      }
-      
-      const lastClaim = data.last_claim_time;
-      if (lastClaim && Date.now() - lastClaim.toDate().getTime() < cooldownMs) {
-        const secondsLeft = Math.ceil((cooldownMs - (Date.now() - lastClaim.toDate().getTime())) / 1000);
-        const cooldownError = new Error(`Cooldown active. Try again in ${secondsLeft} seconds.`);
-        cooldownError.statusCode = 429;
-        throw cooldownError;
-      }
-
-      const xp = Number(data.xp || 0);
-      const streakUpdates = getStreakUpdates(data);
-      const streak = streakUpdates.streak_count !== undefined ? streakUpdates.streak_count : Number(data.streak_count || 0);
-      let level = Math.floor(Math.sqrt(xp / 100));
-      if (level > 100) level = 100;
-      
-      let ageMult = 1.0;
-      
-      // Streak Multiplier Math
-      // Day 1: 1.0, Day 2: 1.1, Day 3: 1.2 ... Day 7: 1.6
-      // It stays at 1.6 until they miss a day.
-      let streakMultiplier = 1.0;
-      if (streak == 2) streakMultiplier = 1.1;
-      else if (streak == 3) streakMultiplier = 1.2;
-      else if (streak == 4) streakMultiplier = 1.3;
-      else if (streak == 5) streakMultiplier = 1.4;
-      else if (streak == 6) streakMultiplier = 1.5;
-      else if (streak >= 7) streakMultiplier = 1.6;
-
-      if (data.pet_birth_date) {
-        const decayed = calculateDecay(data);
-        ageMult = getAgeMultiplier(data);
-        
-        finalReward = baseReward * (1 + (level / 100)) * streakMultiplier;
-        finalReward = finalReward * ageMult;
-        finalReward = Math.min(finalReward, 0.072);
-
-        let history = data.reward_history || [];
-        history.unshift({ sector: 'Vault Faucet', amount: finalReward, timestamp: Date.now() });
-        if (history.length > 15) history = history.slice(0, 15);
-
-        const updates = {
-          doge_balance: Number(data.doge_balance || 0) + finalReward,
-          xp: xp + 10,
-          last_claim_time: now,
-          pet_hunger: decayed.hunger,
-          pet_happiness: decayed.happiness,
-          pet_energy: decayed.energy,
-          pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
-          reward_history: history,
-          total_faucet_claims: admin.firestore.FieldValue.increment(1),
-          total_earned: admin.firestore.FieldValue.increment(finalReward),
-          ...streakUpdates
-        };
-        if (isNewUser) {
-          transaction.set(userRef, { ...data, ...updates });
-        } else {
-          transaction.update(userRef, updates);
-        }
-      } else {
-        finalReward = baseReward * (1 + (level / 100)) * streakMultiplier;
-        finalReward = Math.min(finalReward, 0.072);
-
-        let history = data.reward_history || [];
-        history.unshift({ sector: 'Vault Faucet', amount: finalReward, timestamp: Date.now() });
-        if (history.length > 15) history = history.slice(0, 15);
-
-        const updates = {
-          doge_balance: Number(data.doge_balance || 0) + finalReward,
-          xp: xp + 10,
-          last_claim_time: now,
-          reward_history: history,
-          total_faucet_claims: admin.firestore.FieldValue.increment(1),
-          total_earned: admin.firestore.FieldValue.increment(finalReward),
-          ...streakUpdates
-        };
-        if (isNewUser) {
-          transaction.set(userRef, { ...data, ...updates });
-        } else {
-          transaction.update(userRef, updates);
-        }
-      }
-    });
-
-    res.json({
-      success: true,
-      message: 'Vault claim verified. Your reward has been recorded.',
-      earned: finalReward,
-      authUser: req.user.uid,
-    });
+    if (!req.user) return res.status(401).json({ success: false, error: 'Authentication required for vault claim' });
+    
+    const result = await faucetService.claimVault(req.user);
+    res.json({ success: true, message: 'Vault claim verified. Your reward has been recorded.', ...result });
   } catch (error) {
-    console.error('claim-vault error:', error.response?.data || error.message || error);
-    res.status(error.statusCode || 500).json({
-      success: false,
-      error: error.message || 'Failed to claim vault',
-    });
+    console.error('claim-vault error:', error.message);
+    res.status(error.statusCode || 500).json({ success: false, error: error.message || 'Failed to claim vault' });
   }
 });
 
 router.post('/withdraw', verifyFirebaseToken, async (req, res) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ success: false, error: 'Authentication required for withdrawal' });
-    }
-
-    if (!req.user.email_verified) {
-      return res.status(403).json({ success: false, error: 'Email verification required to withdraw.' });
-    }
-
-    const { user_address, amount } = req.body;
-    if (!user_address) {
-      return res.status(400).json({ success: false, error: 'Missing destination address' });
-    }
-
-    const sendAmount = Number(amount);
+    if (!req.user) return res.status(401).json({ success: false, error: 'Authentication required for withdrawal' });
     
-    const MIN_WITHDRAWAL = 1; 
-    if (!Number.isFinite(sendAmount) || sendAmount < MIN_WITHDRAWAL) {
-      return res.status(400).json({ success: false, error: `Minimum withdrawal is ${MIN_WITHDRAWAL} DOGE` });
-    }
-
-    const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    const cooldownMs = 60 * 1000; 
-
-    await admin.firestore().runTransaction(async (transaction) => {
-      const snapshot = await transaction.get(userRef);
-      if (!snapshot.exists) {
-        throw new Error('User profile not found');
-      }
-
-      const data = snapshot.data();
-      const currentBalance = Number(data.doge_balance || 0);
-      const lastWithdrawal = data.last_withdrawal;
-
-      if (lastWithdrawal && Date.now() - lastWithdrawal.toDate().getTime() < cooldownMs) {
-        throw new Error('Please wait a minute between withdrawals.');
-      }
-
-      if (currentBalance < sendAmount) {
-        throw new Error('Insufficient balance for this withdrawal.');
-      }
-
-      transaction.update(userRef, {
-        doge_balance: currentBalance - sendAmount,
-        last_withdrawal: admin.firestore.Timestamp.now()
-      });
-    });
-
-    let faucetPayResponse;
-    try {
-      const formattedAmount = formatAmount(sendAmount);
-      faucetPayResponse = await faucetPaySend(user_address, formattedAmount);
-    } catch (faucetError) {
-      // If FaucetPay fails, securely refund the user's balance
-      await admin.firestore().runTransaction(async (refundTx) => {
-        const snapshot = await refundTx.get(userRef);
-        if (snapshot.exists) {
-          const data = snapshot.data();
-          refundTx.update(userRef, {
-            doge_balance: Number(data.doge_balance || 0) + sendAmount,
-            // We do not reset last_withdrawal so they still hit the 1 minute anti-spam cooldown
-          });
-        }
-      });
-      console.error('FaucetPay send failed, user refunded:', faucetError.message || faucetError);
-      throw new Error('Payment processor is temporarily down. Your funds have been securely refunded. Please try again later.');
-    }
-
-    // Log the withdrawal receipt and increment total_withdrawn
-    try {
-      await admin.firestore().collection('withdrawals').add({
-        uid: req.user.uid,
-        email: req.user.email,
-        amount: sendAmount,
-        address: user_address,
-        source: 'vault',
-        timestamp: admin.firestore.FieldValue.serverTimestamp()
-      });
-      await userRef.update({
-        total_withdrawn: admin.firestore.FieldValue.increment(sendAmount)
-      });
-    } catch (logErr) {
-      console.error('Failed to log withdrawal receipt:', logErr);
-    }
-
-    const resultPayload = {
-      success: true,
-      address: user_address,
-      amount: formatAmount(sendAmount),
-      faucetPayResponse,
-      authUser: req.user,
-    };
-
-    console.log('Withdraw request:', JSON.stringify(resultPayload));
-    res.json(resultPayload);
+    const result = await faucetService.withdraw(req.user, req.body.user_address, req.body.amount);
+    res.json({ success: true, ...result });
   } catch (error) {
-    console.error('withdraw error:', error.response?.data || error.message || error);
-    res.status(500).json({
-      success: false,
-      error: error.message || error.response?.data || 'Failed to process withdrawal',
-    });
+    console.error('withdraw error:', error.message);
+    res.status(500).json({ success: false, error: error.message || 'Failed to process withdrawal' });
   }
 });
 
 router.post('/bank/withdraw', verifyFirebaseToken, async (req, res) => {
   try {
-    // TEMPORARY BLOCK ON OFFERWALL WITHDRAWALS
-    return res.status(403).json({ success: false, error: 'Offerwall withdrawals are temporarily disabled while we configure backend systems. Please check the notice board for updates.' });
-
-    if (!req.user) {
-      return res.status(401).json({ success: false, error: 'Authentication required for bank withdrawal' });
-    }
-
-    if (!req.user.email_verified) {
-      return res.status(403).json({ success: false, error: 'Email verification required to withdraw.' });
-    }
-
-    const { user_address, amount } = req.body;
-    if (!user_address) {
-      return res.status(400).json({ success: false, error: 'Missing destination address' });
-    }
-
-    const sendAmount = Number(amount);
+    if (!req.user) return res.status(401).json({ success: false, error: 'Authentication required for bank withdrawal' });
     
-    const MIN_WITHDRAWAL = 1; 
-    if (!Number.isFinite(sendAmount) || sendAmount < MIN_WITHDRAWAL) {
-      return res.status(400).json({ success: false, error: `Minimum bank withdrawal is ${MIN_WITHDRAWAL} DOGE` });
-    }
-
-    const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    const cooldownMs = 60 * 1000; 
-
-    await admin.firestore().runTransaction(async (transaction) => {
-      const snapshot = await transaction.get(userRef);
-      if (!snapshot.exists) {
-        throw new Error('User profile not found');
-      }
-
-      const data = snapshot.data();
-      const currentBankBalance = Number(data.bank_balance || 0);
-      const lastWithdrawal = data.last_withdrawal;
-
-      if (lastWithdrawal && Date.now() - lastWithdrawal.toDate().getTime() < cooldownMs) {
-        throw new Error('Please wait a minute between withdrawals.');
-      }
-
-      if (currentBankBalance < sendAmount) {
-        throw new Error('Insufficient Bank balance for this withdrawal.');
-      }
-
-      transaction.update(userRef, {
-        bank_balance: currentBankBalance - sendAmount,
-        last_withdrawal: admin.firestore.Timestamp.now()
-      });
-    });
-
-    let faucetPayResponse;
-    try {
-      const formattedAmount = formatAmount(sendAmount);
-      faucetPayResponse = await faucetPaySend(user_address, formattedAmount);
-    } catch (faucetError) {
-      await admin.firestore().runTransaction(async (refundTx) => {
-        const snapshot = await refundTx.get(userRef);
-        if (snapshot.exists) {
-          const data = snapshot.data();
-          refundTx.update(userRef, {
-            bank_balance: Number(data.bank_balance || 0) + sendAmount,
-          });
-        }
-      });
-      console.error('FaucetPay send failed, user refunded:', faucetError.message || faucetError);
-      throw new Error('Payment processor is temporarily down. Your funds have been securely refunded. Please try again later.');
-    }
-
-    // Log the withdrawal receipt and increment total_withdrawn
-    try {
-      await admin.firestore().collection('withdrawals').add({
-        uid: req.user.uid,
-        email: req.user.email,
-        amount: sendAmount,
-        address: user_address,
-        source: 'bank',
-        timestamp: admin.firestore.FieldValue.serverTimestamp()
-      });
-      await userRef.update({
-        total_withdrawn: admin.firestore.FieldValue.increment(sendAmount)
-      });
-    } catch (logErr) {
-      console.error('Failed to log bank withdrawal receipt:', logErr);
-    }
-
-    const resultPayload = {
-      success: true,
-      address: user_address,
-      amount: formatAmount(sendAmount),
-      faucetPayResponse,
-      authUser: req.user,
-    };
-
-    console.log('Bank withdraw request:', JSON.stringify(resultPayload));
-    res.json(resultPayload);
+    const result = await faucetService.bankWithdraw(req.user, req.body.user_address, req.body.amount);
+    res.json({ success: true, ...result });
   } catch (error) {
-    console.error('bank withdraw error:', error.response?.data || error.message || error);
-    res.status(500).json({
-      success: false,
-      error: error.message || error.response?.data || 'Failed to process bank withdrawal',
-    });
+    console.error('bank withdraw error:', error.message);
+    res.status(403).json({ success: false, error: error.message || 'Failed to process bank withdrawal' });
   }
 });
 
 router.post('/bank/transfer', verifyFirebaseToken, async (req, res) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ success: false, error: 'Authentication required' });
-    }
-
-    const { source, amount } = req.body;
+    if (!req.user) return res.status(401).json({ success: false, error: 'Authentication required' });
     
-    if (!source || !['vault', 'offerwall'].includes(source)) {
-      return res.status(400).json({ success: false, error: 'Invalid transfer source' });
-    }
-
-    const transferAmount = Number(amount);
-    if (!Number.isFinite(transferAmount) || transferAmount <= 0) {
-      return res.status(400).json({ success: false, error: 'Invalid transfer amount' });
-    }
-
-    const userRef = admin.firestore().collection('users').doc(req.user.uid);
-
-    await admin.firestore().runTransaction(async (transaction) => {
-      const snapshot = await transaction.get(userRef);
-      if (!snapshot.exists) {
-        throw new Error('User profile not found');
-      }
-
-      const data = snapshot.data();
-      const currentBankBalance = Number(data.bank_balance || 0);
-
-      if (source === 'vault') {
-        const vaultBalance = Number(data.doge_balance || 0);
-        if (vaultBalance < transferAmount) {
-          throw new Error('Insufficient Vault balance for this transfer.');
-        }
-        transaction.update(userRef, {
-          doge_balance: vaultBalance - transferAmount,
-          bank_balance: currentBankBalance + transferAmount
-        });
-      } else if (source === 'offerwall') {
-        const offerwallBalance = Number(data.offerwall_balance || 0);
-        if (offerwallBalance < transferAmount) {
-          throw new Error('Insufficient Offerwall balance for this transfer.');
-        }
-        transaction.update(userRef, {
-          offerwall_balance: offerwallBalance - transferAmount,
-          bank_balance: currentBankBalance + transferAmount
-        });
-      }
-    });
-
-    console.log(`Internal Transfer: User ${req.user.uid} transferred ${transferAmount} from ${source} to bank.`);
-    res.json({ success: true, message: 'Transfer successful' });
+    const message = await faucetService.bankTransfer(req.user, req.body.source, req.body.amount);
+    res.json({ success: true, message });
   } catch (error) {
-    console.error('bank transfer error:', error.message || error);
-    res.status(500).json({
-      success: false,
-      error: error.message || 'Failed to process internal transfer',
-    });
+    console.error('bank transfer error:', error.message);
+    res.status(500).json({ success: false, error: error.message || 'Failed to process internal transfer' });
   }
 });
 
-
 router.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ success: false, error: 'Authentication required for sponsor bonus claim' });
-    }
-
-    const { captcha_token, captcha_provider } = req.body;
+    if (!req.user) return res.status(401).json({ success: false, error: 'Authentication required for sponsor bonus claim' });
     
-    if (req.user.uid !== getAdminUid()) {
-      if (!captcha_token || !captcha_provider) {
-        return res.status(400).json({ success: false, error: 'Missing captcha verification data' });
-      }
-      const isCaptchaValid = await verifyCaptchaToken(captcha_token, captcha_provider);
-      if (!isCaptchaValid) {
-        return res.status(400).json({ success: false, error: 'Invalid captcha token' });
-      }
-    }
-
-    const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    const rewardAmount = 0.004;
-    const xpReward = 15;
-    const cooldownMs = 15 * 60 * 1000;
-    const now = admin.firestore.Timestamp.now();
-    let finalRewardAmount = rewardAmount;
-
-    await admin.firestore().runTransaction(async (transaction) => {
-      const snapshot = await transaction.get(userRef);
-      let data = snapshot.data() || {};
-      let isNewUser = false;
-      if (!snapshot.exists) {
-        isNewUser = true;
-        data = {
-          email: req.user.email || 'unknown@example.com',
-          doge_balance: 0.0,
-          staked_balance: 0.0,
-          ads_balance: 0.0,
-          offerwall_balance: 0.0,
-          xp: 0,
-          streak_count: 0,
-          joined_date: new Date().toISOString()
-        };
-      }
-
-      const lastClaim = data.last_bonus_sponsor_claim;
-      if (lastClaim && Date.now() - lastClaim.toDate().getTime() < cooldownMs) {
-        const minutesLeft = Math.ceil((cooldownMs - (Date.now() - lastClaim.toDate().getTime())) / 60000);
-        const cooldownError = new Error(`Sponsor bonus cooldown active. Try again in ${minutesLeft} minutes.`);
-        cooldownError.statusCode = 429;
-        throw cooldownError;
-      }
-
-      const trickBonusPercent = calculateTrickBonusPercent(data);
-      finalRewardAmount = rewardAmount * (1 + (trickBonusPercent / 100));
-
-      let history = data.reward_history || [];
-      history.unshift({ sector: 'Bonus Sponsor', amount: finalRewardAmount, timestamp: Date.now() });
-      if (history.length > 15) history = history.slice(0, 15);
-
-      const updates = {
-        doge_balance: Number(data.doge_balance || 0) + finalRewardAmount,
-        xp: Number(data.xp || 0) + xpReward,
-        last_bonus_sponsor_claim: now,
-        active_trick_buffs: [],
-        reward_history: history,
-      };
-
-      if (isNewUser) {
-        transaction.set(userRef, { ...data, ...updates });
-      } else {
-        transaction.update(userRef, updates);
-      }
-    });
-
-    res.json({
-      success: true,
-      message: 'Sponsor bonus claim processed successfully',
-      rewardAmount: finalRewardAmount, // Updated to return actual given amount
-      xpReward,
-    });
+    const result = await faucetService.claimBonusSponsor(req.user, req.body.captcha_token, req.body.captcha_provider);
+    res.json({ success: true, message: 'Sponsor bonus claim processed successfully', ...result });
   } catch (error) {
-    console.error('claim-bonus-sponsor error:', error.message || error);
-    res.status(error.statusCode || 500).json({
-      success: false,
-      error: error.message || 'Failed to process sponsor bonus claim',
-    });
+    console.error('claim-bonus-sponsor error:', error.message);
+    res.status(error.statusCode || 500).json({ success: false, error: error.message || 'Failed to process sponsor bonus claim' });
   }
 });
 
 router.post('/claim-ecosystem-video', verifyFirebaseToken, async (req, res) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ success: false, error: 'Authentication required for ecosystem video claim' });
-    }
-
-    const { captcha_token, captcha_provider } = req.body;
+    if (!req.user) return res.status(401).json({ success: false, error: 'Authentication required for ecosystem video claim' });
     
-    if (req.user.uid !== getAdminUid()) {
-      if (!captcha_token || !captcha_provider) {
-        return res.status(400).json({ success: false, error: 'Missing captcha verification data' });
-      }
-      const isCaptchaValid = await verifyCaptchaToken(captcha_token, captcha_provider);
-      if (!isCaptchaValid) {
-        return res.status(400).json({ success: false, error: 'Invalid captcha token' });
-      }
-    }
-
-    const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    const rewardAmount = 0.003;
-    const xpReward = 15;
-    const cooldownMs = 30 * 60 * 1000; // 30 minutes
-    const now = admin.firestore.Timestamp.now();
-    let finalRewardAmount = rewardAmount;
-
-    await admin.firestore().runTransaction(async (transaction) => {
-      const snapshot = await transaction.get(userRef);
-      let data = snapshot.data() || {};
-      let isNewUser = false;
-      if (!snapshot.exists) {
-        isNewUser = true;
-        data = {
-          email: req.user.email || 'unknown@example.com',
-          doge_balance: 0.0,
-          staked_balance: 0.0,
-          ads_balance: 0.0,
-          offerwall_balance: 0.0,
-          xp: 0,
-          streak_count: 0,
-          joined_date: new Date().toISOString()
-        };
-      }
-
-      const lastClaim = data.last_ecosystem_video_claim;
-      if (lastClaim && Date.now() - lastClaim.toDate().getTime() < cooldownMs) {
-        const minutesLeft = Math.ceil((cooldownMs - (Date.now() - lastClaim.toDate().getTime())) / 60000);
-        const cooldownError = new Error(`Ecosystem video cooldown active. Try again in ${minutesLeft} minutes.`);
-        cooldownError.statusCode = 429;
-        throw cooldownError;
-      }
-
-      // We can apply trick bonus if they have an active trick
-      const trickBonusPercent = calculateTrickBonusPercent(data);
-      finalRewardAmount = rewardAmount * (1 + (trickBonusPercent / 100));
-
-      let history = data.reward_history || [];
-      history.unshift({ sector: 'Ecosystem Video', amount: finalRewardAmount, timestamp: Date.now() });
-      if (history.length > 15) history = history.slice(0, 15);
-
-      const updates = {
-        doge_balance: Number(data.doge_balance || 0) + finalRewardAmount,
-        xp: Number(data.xp || 0) + xpReward,
-        last_ecosystem_video_claim: now,
-        active_trick_buffs: [],
-        reward_history: history,
-      };
-
-      if (isNewUser) {
-        transaction.set(userRef, { ...data, ...updates });
-      } else {
-        transaction.update(userRef, updates);
-      }
-    });
-
-    res.json({
-      success: true,
-      message: 'Ecosystem video claim processed successfully',
-      rewardAmount: finalRewardAmount,
-      xpReward,
-    });
+    const result = await faucetService.claimEcosystemVideo(req.user, req.body.captcha_token, req.body.captcha_provider);
+    res.json({ success: true, message: 'Ecosystem video claim processed successfully', ...result });
   } catch (error) {
-    console.error('claim-ecosystem-video error:', error.message || error);
-    res.status(error.statusCode || 500).json({
-      success: false,
-      error: error.message || 'Failed to process ecosystem video claim',
-    });
+    console.error('claim-ecosystem-video error:', error.message);
+    res.status(error.statusCode || 500).json({ success: false, error: error.message || 'Failed to process ecosystem video claim' });
   }
 });
 

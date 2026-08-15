@@ -13,7 +13,8 @@ import 'walk_treadmill_dialog.dart';
 import '../src/notification_service.dart';
 import '../utils/pet_events.dart';
 import 'pet/pet_tabs_widget.dart';
-
+import 'pet/pet_stats_bar.dart';
+import 'pet/pet_xp_bar.dart';
 class ShibaPetWidget extends StatefulWidget {
   const ShibaPetWidget({super.key});
 
@@ -177,59 +178,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
     }
   }
 
-  Widget _buildStatBar(String label, double value, Color color, IconData icon) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(icon, size: 14, color: color),
-            const SizedBox(width: 4),
-            Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-            const Spacer(),
-            Text('${value.toStringAsFixed(0)}/100', style: const TextStyle(fontSize: 10)),
-          ],
-        ),
-        const SizedBox(height: 4),
-        LinearProgressIndicator(
-          value: value / 100,
-          backgroundColor: color.withValues(alpha: 0.2),
-          valueColor: AlwaysStoppedAnimation<Color>(color),
-          minHeight: 8,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        const SizedBox(height: 8),
-      ],
-    );
-  }
 
-  Widget _buildXPBar() {
-    double progress = _nextStageXp > 0 ? (_xp / _nextStageXp) * 100 : 100;
-    if (progress > 100) progress = 100;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Icon(Icons.star, size: 14, color: Colors.purple),
-            const SizedBox(width: 4),
-            const Text("XP (Next Stage)", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-            const Spacer(),
-            Text('$_xp / $_nextStageXp', style: const TextStyle(fontSize: 10)),
-          ],
-        ),
-        const SizedBox(height: 4),
-        LinearProgressIndicator(
-          value: progress / 100,
-          backgroundColor: Colors.purple.withValues(alpha: 0.2),
-          valueColor: const AlwaysStoppedAnimation<Color>(Colors.purple),
-          minHeight: 8,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        const SizedBox(height: 8),
-      ],
-    );
-  }
 
   Future<void> _forceAgeAdmin(int days) async {
     setState(() => _isLoading = true);
@@ -415,11 +364,12 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                       ],
                     ),
                   const SizedBox(height: 4),
-                    _buildStatBar("Attention", _attention, Colors.green, Icons.waving_hand),
-                    _buildStatBar("Hunger", _hunger, Colors.orange, Icons.restaurant),
-                    _buildStatBar("Happiness", _happiness, Colors.pink, Icons.favorite),
-                    _buildStatBar("Energy", _energy, Colors.blue, Icons.bolt),
-                    _buildXPBar(),
+                    PetStatBar(label: "Attention", value: _attention, color: Colors.green, icon: Icons.waving_hand),
+                    PetStatBar(label: "Hunger", value: _hunger, color: Colors.orange, icon: Icons.restaurant),
+                    PetStatBar(label: "Happiness", value: _happiness, color: Colors.pink, icon: Icons.favorite),
+                    PetStatBar(label: "Energy", value: _energy, color: Colors.blue, icon: Icons.bolt),
+                    const SizedBox(height: 10),
+                    PetXpBar(xp: _xp, nextStageXp: _nextStageXp),
                     if (_isSick)
                       const Padding(
                         padding: EdgeInsets.only(bottom: 8.0),

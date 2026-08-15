@@ -1,7 +1,8 @@
 const express = require('express');
-const { admin, verifyFirebaseToken } = require('../services/firebaseService');
-const { verifyCaptchaToken, getAdminUid } = require('../utils/helpers');
+const { admin, verifyFirebaseToken, isAdmin: checkIsAdmin } = require('../services/firebaseService');
+const { verifyCaptchaToken } = require('../utils/helpers');
 const { calculateShopBonusPercent } = require('../utils/petMechanics');
+const { logTransaction } = require('../services/ledgerService');
 
 const router = express.Router();
 
@@ -41,6 +42,8 @@ router.post('/buy-ptc', verifyFirebaseToken, async (req, res) => {
         doge_balance: currentBalance - cost
       });
 
+      logTransaction(transaction, req.user.uid, -cost, 'create_ad', { ad_tier: tier, clicks });
+
       transaction.set(newAdRef, {
         target_url: target_url,
         title: title || "Sponsored Website",
@@ -71,7 +74,7 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
 
     const { captcha_token, captcha_provider, ad_id } = req.body;
 
-    if (req.user.uid !== getAdminUid()) {
+    if (!(await checkIsAdmin(req.user.uid))) {
       if (!captcha_token || !captcha_provider || !ad_id) {
         return res.status(400).json({ success: false, error: 'Missing required validation data' });
       }
@@ -104,7 +107,7 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
 
       const remainingClicks = Number(adData.clicks_remaining || 0);
 
-      if (req.user.uid !== getAdminUid()) {
+      if (!(await checkIsAdmin(req.user.uid))) {
         if (remainingClicks <= 0) {
           throw new Error('This ad has run out of clicks.');
         }
@@ -136,11 +139,13 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
         ...streakUpdates
       });
 
-      if (req.user.uid !== getAdminUid()) {
+      if (!(await checkIsAdmin(req.user.uid))) {
         transaction.update(adRef, {
           clicks_remaining: remainingClicks - 1
         });
       }
+
+      logTransaction(transaction, req.user.uid, finalRewardAmount, 'ptc_reward', { ad_id });
     });
 
     console.log('Claim PTC request successful for user:', req.user.uid);

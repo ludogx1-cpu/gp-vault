@@ -1,5 +1,5 @@
 const express = require('express');
-const { admin, verifyFirebaseToken } = require('../services/firebaseService');
+const { admin, verifyFirebaseToken, isAdmin: checkIsAdmin } = require('../services/firebaseService');
 const rateLimit = require('express-rate-limit');
 const router = express.Router();
 
@@ -9,7 +9,7 @@ const chatRateLimiter = rateLimit({
   message: { success: false, error: 'You are sending messages too quickly. Please wait a minute.' }
 });
 
-const { getAdminUid } = require('../utils/helpers');
+// Removed getAdminUid
 
 const SWEAR_WORDS = ['fuck', 'shit', 'bitch', 'asshole', 'cunt', 'dick', 'pussy', 'bastard'];
 const BEGGING_PHRASES = ['please send', 'send doge', 'need doge', 'give me', 'im poor'];
@@ -77,7 +77,7 @@ router.post('/send', verifyFirebaseToken, chatRateLimiter, async (req, res) => {
     }
 
     const text = message.trim().toLowerCase();
-    const isAdmin = req.user.uid === getAdminUid();
+    const isAdmin = await checkIsAdmin(req.user.uid);
     
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     let banType = null;
@@ -196,10 +196,10 @@ router.post('/send', verifyFirebaseToken, chatRateLimiter, async (req, res) => {
               .get();
               
             const activeUids = new Set();
-            messagesSnapshot.forEach(d => {
+            for (const d of messagesSnapshot.docs) {
               const dData = d.data();
-              if (dData.uid && dData.uid !== getAdminUid()) activeUids.add(dData.uid);
-            });
+              if (dData.uid && !(await checkIsAdmin(dData.uid))) activeUids.add(dData.uid);
+            }
 
             if (activeUids.size > 0) {
               const payoutPerUser = payoutAmount / activeUids.size;
@@ -255,7 +255,7 @@ router.post('/send', verifyFirebaseToken, chatRateLimiter, async (req, res) => {
 
 router.post('/payout-jar', verifyFirebaseToken, async (req, res) => {
   try {
-    if (!req.user || req.user.uid !== getAdminUid()) {
+    if (!req.user || !(await checkIsAdmin(req.user.uid))) {
       return res.status(401).json({ success: false, error: 'Admin only' });
     }
 
@@ -266,12 +266,12 @@ router.post('/payout-jar', verifyFirebaseToken, async (req, res) => {
       .get();
       
     const activeUids = new Set();
-    messagesSnapshot.forEach(doc => {
+    for (const doc of messagesSnapshot.docs) {
       const data = doc.data();
-      if (data.uid && data.uid !== getAdminUid()) {
+      if (data.uid && !(await checkIsAdmin(data.uid))) {
         activeUids.add(data.uid);
       }
-    });
+    }
 
     if (activeUids.size === 0) {
       return res.json({ success: true, message: 'No active users found in the last 3 hours to payout to.' });
@@ -329,7 +329,7 @@ router.post('/payout-jar', verifyFirebaseToken, async (req, res) => {
 
 router.post('/ban', verifyFirebaseToken, async (req, res) => {
   try {
-    if (!req.user || req.user.uid !== getAdminUid()) {
+    if (!req.user || !(await checkIsAdmin(req.user.uid))) {
       return res.status(401).json({ success: false, error: 'Admin only' });
     }
     const { target_uid, reason } = req.body;
