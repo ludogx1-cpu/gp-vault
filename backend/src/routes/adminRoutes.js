@@ -1,12 +1,10 @@
 const express = require('express');
-const { admin, verifyFirebaseToken } = require('../services/firebaseService');
-const { getAdminUid } = require('../utils/helpers');
-
+const { admin, verifyFirebaseToken, isAdmin } = require('../services/firebaseService');
 const router = express.Router();
 
 router.post('/add-update', verifyFirebaseToken, async (req, res) => {
   try {
-    if (req.user.uid !== getAdminUid()) {
+    if (!(await isAdmin(req.user.uid))) {
       return res.status(403).json({ success: false, error: 'Access Denied: Admins only.' });
     }
 
@@ -31,7 +29,7 @@ router.post('/add-update', verifyFirebaseToken, async (req, res) => {
 
 router.delete('/delete-update/:id', verifyFirebaseToken, async (req, res) => {
   try {
-    if (req.user.uid !== getAdminUid()) {
+    if (!(await isAdmin(req.user.uid))) {
       return res.status(403).json({ success: false, error: 'Admins only.' });
     }
 

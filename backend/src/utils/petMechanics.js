@@ -55,18 +55,7 @@ function calculateDecay(userData) {
   return { hunger, happiness, attention, energy, hoursPassed, hoursAbove40 };
 }
 
-function getGrowthStage(birthDate) {
-  if (!birthDate) return 'baby';
-  const daysOld = (Date.now() - birthDate.toDate().getTime()) / (1000 * 60 * 60 * 24);
-  if (daysOld < 2) return 'baby';
-  if (daysOld < 7) return 'toddler';
-  if (daysOld < 14) return 'puppy';
-  if (daysOld < 30) return 'child';
-  if (daysOld < 90) return 'teen';
-  if (daysOld < 180) return 'young_adult';
-  if (daysOld < 365) return 'adult';
-  return 'old_dog';
-}
+
 
 function calculatePetBonusPercent(decayedStats, userData) {
   if (userData.pet_sick) return 0;

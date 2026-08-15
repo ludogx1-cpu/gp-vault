@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'dart:async';
+import 'package:provider/provider.dart';
+import '../src/doge_price_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:showcaseview/showcaseview.dart';
 import '../widgets/universal_web_view/universal_web_view.dart';
 import '../widgets/widgets.dart';
 import '../widgets/pet_overlay_widget.dart';
@@ -26,18 +27,18 @@ class FaucetPage extends StatefulWidget {
 }
 
 class _FaucetPageState extends State<FaucetPage> {
-  double _currentDogePrice = 0.15;
-  DateTime? _lastPriceUpdate;
-  Timer? _priceTimer;
+
+  final GlobalKey _keyStats = GlobalKey();
+  final GlobalKey _keyClaim = GlobalKey();
+  final GlobalKey _keyPet = GlobalKey();
+  final GlobalKey _keyChat = GlobalKey();
+  
   bool _isProfileSetupShowing = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchDogePrice();
-    _priceTimer = Timer.periodic(const Duration(minutes: 5), (_) {
-      _fetchDogePrice();
-    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkAndShowProfileSetup();
     });
@@ -45,7 +46,7 @@ class _FaucetPageState extends State<FaucetPage> {
 
   @override
   void dispose() {
-    _priceTimer?.cancel();
+
     super.dispose();
   }
 
@@ -109,36 +110,31 @@ class _FaucetPageState extends State<FaucetPage> {
         }
 
       }
+      
+      _startTourIfNeed();
     } catch (e) {
       // Ignore errors so we don't break the page load
     }
   }
 
-  Future<void> _fetchDogePrice() async {
-    try {
-      final res = await http.get(
-        Uri.parse(
-          'https://api.binance.com/api/v3/ticker/price?symbol=DOGEUSDT',
-        ),
-      );
-      if (res.statusCode == 200 && mounted) {
-        setState(() {
-          _currentDogePrice = double.parse(jsonDecode(res.body)['price']);
-          _lastPriceUpdate = DateTime.now();
-        });
-      }
-    } catch (e) {
-      // ignore
+  Future<void> _startTourIfNeed() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('has_seen_tour') != true) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        try {
+          ShowCaseWidget.of(context).startShowCase([_keyStats, _keyClaim, _keyPet, _keyChat]);
+        } catch (e) {
+          // ignore
+        }
+      });
+      await prefs.setBool('has_seen_tour', true);
     }
   }
 
-  bool get _isPriceStale {
-    if (_lastPriceUpdate == null) return true;
-    return DateTime.now().difference(_lastPriceUpdate!).inMinutes >= 10;
-  }
 
   @override
   Widget build(BuildContext context) {
+    final dogePriceProvider = context.watch<DogePriceProvider>();
     return AppScaffold(
       appBar: const GlobalAppBar(),
       body: MouseRegion(
@@ -210,9 +206,13 @@ class _FaucetPageState extends State<FaucetPage> {
                       const WelcomeBanner(),
                       const SizedBox(height: 25),
 
-                      FaucetStatsCard(
-                        currentDogePrice: _currentDogePrice,
-                        isPriceStale: _isPriceStale,
+                      Showcase(
+                        key: _keyStats,
+                        description: 'Here you can see your DOGE balance, current level, and pet stats.',
+                        child: FaucetStatsCard(
+                          currentDogePrice: dogePriceProvider.currentDogePrice,
+                          isPriceStale: dogePriceProvider.isPriceStale,
+                        ),
                       ),
                       const SizedBox(height: 20),
 
@@ -254,7 +254,11 @@ class _FaucetPageState extends State<FaucetPage> {
                       const UpdatesBox(),
                       const SizedBox(height: 25),
 
-                      const FaucetClaimCard(),
+                      Showcase(
+                        key: _keyClaim,
+                        description: 'Click here to claim your free DOGE from the Vault!',
+                        child: const FaucetClaimCard(),
+                      ),
                       const SizedBox(height: 25),
 
                       const BonusTimersCard(),
@@ -272,8 +276,16 @@ class _FaucetPageState extends State<FaucetPage> {
                 ),
               ),
             ),
-            const PetOverlayWidget(),
-            const ChatBoxWidget(),
+            Showcase(
+              key: _keyPet,
+              description: 'This is your pet Shiba! Feed and play with them to boost your earnings.',
+              child: const PetOverlayWidget(),
+            ),
+            Showcase(
+              key: _keyChat,
+              description: 'Chat with other users and catch Rain events here!',
+              child: const ChatBoxWidget(),
+            ),
           ],
         ),
       ),

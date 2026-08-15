@@ -42,7 +42,26 @@ async function verifyFirebaseToken(req, res, next) {
   }
 }
 
+async function isAdmin(uid) {
+  if (process.env.ADMIN_UID && uid === process.env.ADMIN_UID) {
+    return true;
+  }
+  
+  try {
+    const userRef = admin.firestore().collection('users').doc(uid);
+    const doc = await userRef.get();
+    if (doc.exists) {
+      const data = doc.data();
+      return data.role === 'admin';
+    }
+  } catch (error) {
+    console.error('Error checking admin status:', error);
+  }
+  return false;
+}
+
 module.exports = {
   admin,
   verifyFirebaseToken,
+  isAdmin,
 };

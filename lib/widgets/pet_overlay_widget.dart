@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'pet/pet_sprite_widget.dart';
 import 'pet/speech_bubble_widget.dart';
 import 'pet/poo_layer_widget.dart';
+import 'pet/fetch_ball_widget.dart';
 
 double globalMouseX = 0;
 double globalMouseY = 0;
@@ -736,31 +737,14 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
           
         // Fetch Ball
         if (_stage != 'egg')
-          AnimatedPositioned(
-            duration: _isReturning ? const Duration(seconds: 2) : (_isFetching ? const Duration(milliseconds: 500) : Duration.zero),
-            curve: _isReturning ? Curves.easeInOut : Curves.easeOut,
-            left: _ballX,
-            top: _ballY,
-            child: GestureDetector(
-              onPanUpdate: _onBallPanUpdate,
-              onPanEnd: _onBallPanEnd,
-              child: Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: _getBallColor(_equippedBall),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.black, width: 2),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      blurRadius: 4,
-                      offset: const Offset(2, 2),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          FetchBallWidget(
+            ballX: _ballX,
+            ballY: _ballY,
+            isFetching: _isFetching,
+            isReturning: _isReturning,
+            equippedBall: _equippedBall,
+            onPanUpdate: _onBallPanUpdate,
+            onPanEnd: _onBallPanEnd,
           ),
           
         // Debug Text
@@ -768,16 +752,4 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     );
   }
 
-  Color _getBallColor(String colorString) {
-    switch(colorString) {
-      case 'red': return Colors.red;
-      case 'orange': return Colors.orange;
-      case 'yellow': return Colors.yellow;
-      case 'green': return Colors.green;
-      case 'blue': return Colors.blue;
-      case 'indigo': return Colors.indigo;
-      case 'violet': return Colors.purple;
-      default: return Colors.white;
-    }
-  }
 }

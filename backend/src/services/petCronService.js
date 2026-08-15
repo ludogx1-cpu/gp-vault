@@ -7,7 +7,7 @@ const runPetCareLogic = async () => {
     const db = admin.firestore();
     
     // Query users with pets needing attention (pet_hunger < 30 or pet_sick)
-    const snapshot = await db.collection('users')
+    const snapshot = await db.collectionGroup('pet')
       .where('pet_hunger', '<', 45)
       .limit(100)
       .get();
@@ -18,12 +18,16 @@ const runPetCareLogic = async () => {
     }
 
     const tokens = [];
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      if (data.fcm_token) {
-        tokens.push(data.fcm_token);
+    for (const petDoc of snapshot.docs) {
+      const uid = petDoc.ref.parent.parent.id;
+      const userDoc = await db.collection('users').doc(uid).get();
+      if (userDoc.exists) {
+        const data = userDoc.data();
+        if (data.fcm_token) {
+          tokens.push(data.fcm_token);
+        }
       }
-    });
+    }
 
     if (tokens.length > 0) {
       // Send notification to hungry pet owners
