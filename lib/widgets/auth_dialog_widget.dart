@@ -539,33 +539,35 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                 isLoading = true;
                               });
                               try {
-                                UserCredential userCred;
-                                if (kIsWeb) {
-                                  // Web: use popup
-                                  final authProvider = GoogleAuthProvider();
-                                  userCred = await FirebaseAuth.instance
-                                      .signInWithPopup(authProvider);
-                                } else {
-                                  // Android/iOS: use google_sign_in package
-                                  final GoogleSignIn googleSignIn =
-                                      GoogleSignIn();
-                                  final GoogleSignInAccount? googleUser =
-                                      await googleSignIn.signIn();
-                                  if (googleUser == null) {
-                                    // User cancelled
-                                    setState(() => isLoading = false);
-                                    return;
-                                  }
-                                  final GoogleSignInAuthentication googleAuth =
-                                      await googleUser.authentication;
-                                  final credential =
-                                      GoogleAuthProvider.credential(
-                                        accessToken: googleAuth.accessToken,
-                                        idToken: googleAuth.idToken,
-                                      );
-                                  userCred = await FirebaseAuth.instance
-                                      .signInWithCredential(credential);
+                                // Unified Google Sign-in for Web and Mobile
+                                final GoogleSignIn googleSignIn = kIsWeb
+                                    ? GoogleSignIn(
+                                        clientId:
+                                            '163858364889-6b3gurkgtik76jque9ccq1dr9iqju9mb.apps.googleusercontent.com',
+                                      )
+                                    : GoogleSignIn();
+
+                                final GoogleSignInAccount? googleUser =
+                                    await googleSignIn.signIn();
+
+                                if (googleUser == null) {
+                                  // User cancelled
+                                  setState(() => isLoading = false);
+                                  return;
                                 }
+
+                                final GoogleSignInAuthentication googleAuth =
+                                    await googleUser.authentication;
+
+                                final credential =
+                                    GoogleAuthProvider.credential(
+                                  accessToken: googleAuth.accessToken,
+                                  idToken: googleAuth.idToken,
+                                );
+
+                                final UserCredential userCred =
+                                    await FirebaseAuth.instance
+                                        .signInWithCredential(credential);
 
                                 final doc = await FirebaseFirestore.instance
                                     .collection('users')
@@ -589,6 +591,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                       });
                                 }
                                 if (!context.mounted) return;
+                                context.pop();
                                 context.go('/faucet');
                               } catch (e) {
                                 if (!context.mounted) return;
