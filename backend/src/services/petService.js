@@ -60,17 +60,19 @@ function processInvestments(userRef, data, transaction) {
 }
 
 function ensureXP(data) {
-  if (data.pet_xp !== undefined) return Number(data.pet_xp);
-  if (!data.pet_birth_date) return 0;
+  let xp = data.pet_xp !== undefined ? Number(data.pet_xp) : 0;
+  if (!data.pet_birth_date) return xp;
+  
   const daysOld = (Date.now() - data.pet_birth_date.toDate().getTime()) / (1000 * 60 * 60 * 24);
-  if (daysOld < 2) return 0;
-  if (daysOld < 7) return 100;
-  if (daysOld < 14) return 300;
-  if (daysOld < 30) return 700;
-  if (daysOld < 90) return 1500;
-  if (daysOld < 180) return 3000;
-  if (daysOld < 365) return 6000;
-  return 10000;
+  let ageXP = 0;
+  if (daysOld >= 365) ageXP = 6000;
+  else if (daysOld >= 180) ageXP = 3000;
+  else if (daysOld >= 90) ageXP = 1500;
+  else if (daysOld >= 30) ageXP = 700;
+  else if (daysOld >= 14) ageXP = 300;
+  else if (daysOld >= 7) ageXP = 100;
+  
+  return Math.max(xp, ageXP);
 }
 
 function calculateXPGain(data, baseXP) {
