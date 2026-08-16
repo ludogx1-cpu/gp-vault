@@ -174,20 +174,7 @@ class _FaucetPageState extends State<FaucetPage> {
                               ),
                             ),
                           ),
-                        if (kIsWeb) const SizedBox(height: 10),
-                        if (kIsWeb)
-                          FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: SizedBox(
-                              width: 728,
-                              height: 90,
-                              child: UniversalWebView.create(
-                                viewType: 'ccnsad-728x90',
-                                width: 728,
-                                height: 90,
-                              ),
-                            ),
-                          ),
+
                         if (kIsWeb) const SizedBox(height: 20),
                         if (kIsWeb) const BitcotasksAdWidget(),
                         if (kIsWeb) const SizedBox(height: 20),
