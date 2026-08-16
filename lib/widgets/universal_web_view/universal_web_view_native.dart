@@ -177,6 +177,7 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
         </body>
         </html>
        ''';
+    }
 
     return '<html><body>Not found</body></html>';
   }
