@@ -10,7 +10,7 @@ import 'dart:io' show Platform;
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../api_constants.dart';
-import '../main.dart';
+import '../app_router.dart';
 
 class FirebaseService {
   static Future<void> initialize() async {

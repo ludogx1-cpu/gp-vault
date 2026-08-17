@@ -48,6 +48,7 @@ class _ProfileSetupDialogState extends State<ProfileSetupDialog> {
   Future<void> _saveProfile() async {
     final username = _usernameController.text.trim();
     final petName = _petNameController.text.trim();
+    final navigator = Navigator.of(context);
 
     if (username.isEmpty || petName.isEmpty) {
       setState(() => _message = "Please fill in both fields.");
@@ -89,7 +90,7 @@ class _ProfileSetupDialogState extends State<ProfileSetupDialog> {
       if (userRes.statusCode == 200 && petRes.statusCode == 200) {
         final userData = jsonDecode(userRes.body);
         final petData = jsonDecode(petRes.body);
-        
+
         if (userData['success'] == true && petData['success'] == true) {
           // Mark setup as complete in the user's Firestore document
           try {
@@ -103,9 +104,8 @@ class _ProfileSetupDialogState extends State<ProfileSetupDialog> {
             final prefs = await SharedPreferences.getInstance();
             await prefs.setBool('profile_setup_skipped', true);
           } catch (_) {}
-          if (mounted) {
-            Navigator.pop(context, true);
-          }
+          if (!mounted) return;
+          navigator.pop(true);
           return;
         } else {
            setState(() => _message = userData['error'] ?? petData['error'] ?? "Failed to save. Try again.");
@@ -181,9 +181,11 @@ class _ProfileSetupDialogState extends State<ProfileSetupDialog> {
       actions: [
         TextButton(
           onPressed: _isLoading ? null : () async {
+            final navigator = Navigator.of(context);
             final prefs = await SharedPreferences.getInstance();
             await prefs.setBool('profile_setup_skipped', true);
-            if (mounted) Navigator.pop(context, false);
+            if (!mounted) return;
+            navigator.pop(false);
           },
           child: const Text("I'll do this later"),
         ),

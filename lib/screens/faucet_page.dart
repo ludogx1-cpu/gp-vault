@@ -122,7 +122,7 @@ class _FaucetPageState extends State<FaucetPage> {
     if (prefs.getBool('has_seen_tour') != true) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         try {
-          ShowCaseWidget.of(context).startShowCase([_keyStats, _keyClaim, _keyPet, _keyChat]);
+          ShowcaseView.get().startShowCase([_keyStats, _keyClaim, _keyPet, _keyChat]);
         } catch (e) {
           // ignore
         }

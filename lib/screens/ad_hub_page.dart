@@ -6,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import '../src/theme_provider.dart';
 import '../src/user_provider.dart';
-import 'create_ad_page.dart';
 import '../src/firebase_service.dart';
 import '../widgets/widgets.dart';
 import '../api_constants.dart';
