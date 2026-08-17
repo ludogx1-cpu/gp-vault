@@ -20,6 +20,7 @@ import 'screens/staking_page.dart';
 import 'screens/suggestion_box_page.dart';
 import 'screens/terms_of_service_page.dart';
 import 'screens/walk_pet_page.dart';
+import 'screens/reward_history_page.dart';
 import 'src/theme_provider.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -107,6 +108,10 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/terms',
           pageBuilder: (context, state) => const NoTransitionPage(child: TermsOfServicePage()),
+        ),
+        GoRoute(
+          path: '/reward-history',
+          pageBuilder: (context, state) => const NoTransitionPage(child: RewardHistoryPage()),
         ),
       ],
     ),

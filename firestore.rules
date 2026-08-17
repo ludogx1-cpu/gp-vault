@@ -60,6 +60,12 @@ service cloud.firestore {
       allow write: if false; // Only the Python script (Firebase Admin) can write
     }
 
+    // Reward Audits Collection
+    match /reward_audits/{docId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow write: if false; // Only backend writes here
+    }
+
     // Default rule: block all other access
     match /{document=**} {
       allow read, write: if false;

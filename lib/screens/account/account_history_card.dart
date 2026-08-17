@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../widgets/widgets.dart';
 
 class AccountHistoryCard extends StatefulWidget {
@@ -48,6 +49,13 @@ class _AccountHistoryCardState extends State<AccountHistoryCard> {
                     fontWeight: FontWeight.bold,
                     color: widget.isDark ? Colors.white : Colors.black87,
                   ),
+                ),
+                const Spacer(),
+                TextButton(
+                  onPressed: () {
+                    GoRouter.of(context).push('/reward-history');
+                  },
+                  child: const Text('View Full Audit', style: TextStyle(color: Colors.amber)),
                 ),
               ],
             ),

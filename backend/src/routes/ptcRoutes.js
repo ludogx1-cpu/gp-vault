@@ -3,6 +3,7 @@ const { admin, verifyFirebaseToken, isAdmin: checkIsAdmin } = require('../servic
 const { verifyCaptchaToken } = require('../utils/helpers');
 const { calculateShopBonusPercent } = require('../utils/petMechanics');
 const { logTransaction } = require('../services/ledgerService');
+const { logRewardEvent } = require('../utils/rewardAudit');
 
 const router = express.Router();
 
@@ -90,6 +91,7 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
     const adRef = admin.firestore().collection('ptc_ads').doc(ad_id);
     const cooldownMs = 24 * 60 * 60 * 1000; 
     const now = admin.firestore.Timestamp.now();
+    let finalRewardAmount = 0;
 
     await admin.firestore().runTransaction(async (transaction) => {
       const userSnapshot = await transaction.get(userRef);
@@ -121,7 +123,7 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
 
       const baseRewardAmount = Number(adData.reward || 0.0005); 
       const shopBonusPercent = calculateShopBonusPercent(userData);
-      const finalRewardAmount = baseRewardAmount * (1 + (shopBonusPercent / 100));
+      finalRewardAmount = baseRewardAmount * (1 + (shopBonusPercent / 100));
 
       const { getStreakUpdates } = require('../utils/helpers');
       const streakUpdates = getStreakUpdates(userData);
@@ -147,6 +149,8 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
 
       logTransaction(transaction, req.user.uid, finalRewardAmount, 'ptc_reward', { ad_id });
     });
+
+    await logRewardEvent(req.user.uid, 'ptc_reward', finalRewardAmount, { ad_id });
 
     console.log('Claim PTC request successful for user:', req.user.uid);
     res.json({ success: true, message: 'PTC claim processed successfully' });

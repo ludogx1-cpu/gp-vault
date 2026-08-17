@@ -41,14 +41,17 @@ class _AdminRewardMonitorTabState extends State<AdminRewardMonitorTab> {
 
     try {
       final snapshot = await FirebaseFirestore.instance
-          .collection('transactions')
+          .collection('reward_audits')
           .orderBy('timestamp', descending: true)
           .limit(200)
           .get();
 
       final transactions = snapshot.docs
-          .map((doc) => doc.data())
-          .whereType<Map<String, dynamic>>()
+          .map((doc) {
+            final data = doc.data();
+            data['docId'] = doc.id;
+            return data;
+          })
           .toList();
 
       if (!mounted) return;
@@ -182,6 +185,31 @@ class _AdminRewardMonitorTabState extends State<AdminRewardMonitorTab> {
         backgroundColor: Colors.green,
       ),
     );
+  }
+
+  Future<void> _flagUser(String uid) async {
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(uid).update({
+        'is_flagged': true,
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('User $uid has been flagged.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error flagging user: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -391,6 +419,12 @@ class _AdminRewardMonitorTabState extends State<AdminRewardMonitorTab> {
                             Text(
                               '$net DOGE',
                               style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(width: 10),
+                            IconButton(
+                              icon: const Icon(Icons.flag, color: Colors.red),
+                              tooltip: 'Flag User',
+                              onPressed: () => _flagUser(uid),
                             ),
                           ],
                         ),
