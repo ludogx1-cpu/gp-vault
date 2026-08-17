@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import '../src/user_provider.dart';
 import '../src/theme_provider.dart';
@@ -348,6 +349,9 @@ class _AccountPageState extends State<AccountPage> {
                                       height: 50,
                                       child: OutlinedButton.icon(
                                         onPressed: () async {
+                                          try {
+                                            await GoogleSignIn().signOut();
+                                          } catch (_) {}
                                           await FirebaseAuth.instance.signOut();
                                         },
                                         icon: const Icon(
