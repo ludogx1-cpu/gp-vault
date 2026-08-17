@@ -1,6 +1,7 @@
 const { admin } = require('./firebaseService');
 const { calculatePendingInterest } = require('../utils/stakingMath');
 const { logTransaction } = require('./ledgerService');
+const { logRewardEvent } = require('../utils/rewardAudit');
 
 async function stake(user, amount) {
   const amountToStake = Number(amount);
@@ -47,6 +48,7 @@ async function unstake(user, amount) {
   }
 
   const userRef = admin.firestore().collection('users').doc(user.uid);
+  let finalPendingInterest = 0;
 
   await admin.firestore().runTransaction(async (transaction) => {
     const snapshot = await transaction.get(userRef);
@@ -62,6 +64,7 @@ async function unstake(user, amount) {
     }
 
     const pendingInterest = calculatePendingInterest(currentStaked, stakeTime);
+    finalPendingInterest = pendingInterest;
     currentBalance += pendingInterest; 
 
     transaction.update(userRef, {
@@ -74,6 +77,10 @@ async function unstake(user, amount) {
       logTransaction(transaction, user.uid, pendingInterest, 'stake_harvest', { type: 'auto_harvest' });
     }
   });
+
+  if (finalPendingInterest > 0) {
+    await logRewardEvent(user.uid, 'staking_yield', finalPendingInterest, { type: 'auto_harvest' });
+  }
 
   return `Successfully unstaked ${amountToUnstake} DOGE`;
 }
@@ -107,6 +114,8 @@ async function harvest(user) {
     });
     logTransaction(transaction, user.uid, harvested, 'stake_harvest', { type: 'manual_harvest' });
   });
+
+  await logRewardEvent(user.uid, 'staking_yield', harvested, { type: 'manual_harvest' });
 
   return harvested;
 }

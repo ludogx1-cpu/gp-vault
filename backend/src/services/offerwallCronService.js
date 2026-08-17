@@ -88,6 +88,9 @@ async function releasePendingOffers() {
         });
       });
       console.log(`[OfferwallCron] Released ${totalAmountToRelease} DOGE for user ${userId}.`);
+      
+      const { logRewardEvent } = require('../utils/rewardAudit');
+      await logRewardEvent(userId, 'offerwall_completion', totalAmountToRelease, { status: 'released' });
     }
 
     // Mark transactions as released in batches

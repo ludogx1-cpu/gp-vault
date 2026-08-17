@@ -68,4 +68,28 @@ function detectRewardAnomalies(entries = [], options = {}) {
 module.exports = {
   summarizeRewardLedger,
   detectRewardAnomalies,
+  logRewardEvent,
 };
+
+/**
+ * Logs a reward event to the reward_audits collection for trust and safety tracking.
+ * @param {string} uid The user ID
+ * @param {string} eventType The type of reward (e.g., 'faucet_claim', 'staking_yield', 'offerwall_completion')
+ * @param {number} amount The amount earned (or spent, if negative)
+ * @param {object} metadata Additional context (e.g., offerId, petMultiplier, etc.)
+ */
+async function logRewardEvent(uid, eventType, amount, metadata = {}) {
+  const { admin } = require('../services/firebaseService');
+  
+  try {
+    await admin.firestore().collection('reward_audits').add({
+      uid,
+      eventType,
+      amount: Number(amount),
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      metadata,
+    });
+  } catch (error) {
+    console.error(`Failed to log reward event [${eventType}] for user [${uid}]:`, error);
+  }
+}

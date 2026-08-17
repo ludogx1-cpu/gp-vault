@@ -4,7 +4,6 @@ import 'dart:async';
 import 'package:provider/provider.dart';
 import '../src/doge_price_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../widgets/universal_web_view/universal_web_view.dart';
@@ -12,6 +11,7 @@ import '../widgets/widgets.dart';
 import '../widgets/pet_overlay_widget.dart';
 import '../widgets/chat_box_widget.dart';
 import '../widgets/newsletter_subscribe_widget.dart';
+import '../repositories/user_repository.dart';
 import '../widgets/profile_setup_dialog.dart';
 import 'faucet/welcome_banner.dart';
 import 'faucet/updates_box.dart';
@@ -57,19 +57,14 @@ class _FaucetPageState extends State<FaucetPage> {
         final prefs = await SharedPreferences.getInstance();
         if (prefs.getBool('profile_setup_skipped') == true) return;
 
-        // Fetch chat username from Firestore (force server fetch to avoid stale cache)
-        final doc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get(const GetOptions(source: Source.server));
+        // Fetch chat username from Firestore via repository
+        final data = await UserRepository.getUserData(user.uid, forceServer: true);
         String chatUsername = '';
         String petName = 'Golden Paw Shiba';
         bool hasUsername = false;
         bool hasPetName = false;
 
-        if (doc.exists) {
-          final data = doc.data() as Map<String, dynamic>;
-
+        if (data != null) {
           // Primary check: setupComplete flag written by dialog on successful save
           if (data['setupComplete'] == true) return;
           

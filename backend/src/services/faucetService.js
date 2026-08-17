@@ -5,6 +5,7 @@ const { getDogePrice } = require('./priceService');
 const { calculateDogeReward } = require('../utils/rewardCalculator');
 const { formatAmount, verifyCaptchaToken, getStreakUpdates } = require('../utils/helpers');
 const { calculateDecay, calculateTrickBonusPercent, getAgeMultiplier } = require('../utils/petMechanics');
+const { logRewardEvent } = require('../utils/rewardAudit');
 
 function splitUpdates(updates) {
   const petUpdates = {};
@@ -83,6 +84,7 @@ async function sendDoge(user, address, captcha_token, captcha_provider, source) 
       total_faucet_claims: admin.firestore.FieldValue.increment(1),
       total_earned: admin.firestore.FieldValue.increment(dogeAmount)
     });
+    await logRewardEvent(user.uid, 'faucet_claim', dogeAmount, { sector: 'Direct Send', address });
   } catch (metricErr) {
     console.error('Failed to update lifetime metrics for direct claim:', metricErr);
   }
@@ -192,6 +194,8 @@ async function claimVault(user) {
     }
     logTransaction(transaction, user.uid, finalReward, 'faucet_claim', { sector: 'Vault Faucet' });
   });
+
+  await logRewardEvent(user.uid, 'faucet_claim', finalReward, { sector: 'Vault Faucet' });
 
   return { earned: finalReward, authUser: user.uid };
 }
@@ -329,6 +333,8 @@ async function claimBonusSponsor(user, captcha_token, captcha_provider) {
     logTransaction(transaction, user.uid, finalRewardAmount, 'faucet_claim', { sector: 'Ads Faucet' });
   });
 
+  await logRewardEvent(user.uid, 'faucet_claim', finalRewardAmount, { sector: 'Bonus Sponsor' });
+
   return { rewardAmount: finalRewardAmount, xpReward };
 }
 
@@ -369,6 +375,8 @@ async function claimEcosystemVideo(user, captcha_token, captcha_provider) {
     transaction.update(userRef, updates);
     logTransaction(transaction, user.uid, finalRewardAmount, 'faucet_claim', { sector: 'Offerwall Faucet' });
   });
+
+  await logRewardEvent(user.uid, 'faucet_claim', finalRewardAmount, { sector: 'Ecosystem Video' });
 
   return { rewardAmount: finalRewardAmount, xpReward };
 }

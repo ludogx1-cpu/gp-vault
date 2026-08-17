@@ -7,11 +7,11 @@ import '../src/firebase_service.dart';
 import '../api_constants.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'walk_treadmill_dialog.dart';
 import '../src/notification_service.dart';
 import '../utils/pet_events.dart';
+import '../repositories/pet_repository.dart';
 import 'pet/pet_tabs_widget.dart';
 import 'pet/pet_stats_bar.dart';
 import 'pet/pet_xp_bar.dart';
@@ -212,14 +212,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
-          'pet_owned_accessories': [
-            'top_hat', 'sunglasses', 'gold_chain', 'diamond_watch', 'crown',
-            'coat_basic', 'coat_rain', 'coat_winter', 'coat_luxury'
-          ],
-          'active_trick_buffs': ['Spin', 'Jump', 'Roll Over', 'Backflip', 'Moonwalk'],
-          'pet_owned_tricks': ['Spin', 'Jump', 'Roll Over', 'Backflip', 'Moonwalk'],
-        });
+        await PetRepository.unlockAllAdmin(user.uid);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Admin Unlock Successful! Refreshing...'), backgroundColor: Colors.green));
           _fetchPetStatus(); // Refresh UI

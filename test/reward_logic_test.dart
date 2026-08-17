@@ -19,16 +19,15 @@ void main() {
       expect(RewardLogic.getBaseReward(0.11), closeTo(0.0055, 0.00001));
     });
 
-    test('getStreakMultiplier calculates correct multipliers', () {
-      expect(RewardLogic.getStreakMultiplier(0), equals(1.0));
-      expect(RewardLogic.getStreakMultiplier(1), equals(1.0));
-      expect(RewardLogic.getStreakMultiplier(2), equals(1.1));
-      expect(RewardLogic.getStreakMultiplier(3), equals(1.2));
-      expect(RewardLogic.getStreakMultiplier(4), equals(1.3));
-      expect(RewardLogic.getStreakMultiplier(5), equals(1.4));
-      expect(RewardLogic.getStreakMultiplier(6), equals(1.5));
-      expect(RewardLogic.getStreakMultiplier(7), equals(1.6));
-      expect(RewardLogic.getStreakMultiplier(10), equals(1.6));
+    test('getStreakBonusPercent calculates multipliers correctly', () {
+      expect(RewardLogic.getStreakBonusPercent(0), 0.0);
+      expect(RewardLogic.getStreakBonusPercent(1), 1.0);
+      expect(RewardLogic.getStreakBonusPercent(2), 2.0);
+      expect(RewardLogic.getStreakBonusPercent(3), 3.0);
+      expect(RewardLogic.getStreakBonusPercent(4), 4.0);
+      expect(RewardLogic.getStreakBonusPercent(5), 5.0);
+      expect(RewardLogic.getStreakBonusPercent(10), 10.0);
+      expect(RewardLogic.getStreakBonusPercent(11), 10.0);
     });
 
     test('getLevel calculates correct level based on xp', () {
