@@ -123,7 +123,7 @@ class _LandingPageState extends State<LandingPage> {
       body: PageWithFooter(
         child: Column(
           children: [
-            if (kIsWeb) const SizedBox(height: 20),
+            if (kIsWeb) const SizedBox(height: 80), // Push ads below the app header
             if (kIsWeb)
               FittedBox(
                 fit: BoxFit.scaleDown,
