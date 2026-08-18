@@ -156,6 +156,7 @@ class _FaucetPageState extends State<FaucetPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (!_isProfileSetupShowing) ...[
+                        if (kIsWeb) const SizedBox(height: 80), // Push ads below the app header
                         if (kIsWeb)
                           FittedBox(
                             fit: BoxFit.scaleDown,

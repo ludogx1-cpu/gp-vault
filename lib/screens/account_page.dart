@@ -39,6 +39,7 @@ class _AccountPageState extends State<AccountPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          if (kIsWeb) const SizedBox(height: 80), // Push ads below the app header
                           FittedBox(
                             fit: BoxFit.scaleDown,
                             child: SizedBox(
