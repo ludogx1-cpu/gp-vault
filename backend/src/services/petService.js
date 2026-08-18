@@ -44,18 +44,6 @@ function processInvestments(userRef, data, transaction) {
     }
   });
 
-  const updates = {};
-  if (currentInvestments.length !== remainingInvestments.length) {
-    updates.pet_investments = remainingInvestments;
-  }
-  if (matureAmount > 0) {
-    updates.doge_balance = Number(data.doge_balance || 0) + matureAmount;
-  }
-  
-  if (Object.keys(updates).length > 0) {
-    transaction.update(userRef, updates);
-  }
-
   return { matured: matureAmount, locked: lockedAmount, remainingInvestments };
 }
 
@@ -126,7 +114,7 @@ async function petStatus(req) {
       const petData = petSnapshot.data() || {};
       Object.assign(data, petData);
       
-      const { matured, locked } = processInvestments(userRef, data, transaction);
+      const { matured, locked, remainingInvestments } = processInvestments(userRef, data, transaction);
       maturedThisTime = matured;
       
       // Initialize pet if doesn't exist
@@ -245,8 +233,14 @@ async function petStatus(req) {
           pet_energy: decayed.energy,
           active_trick_buffs: validBuffs,
           weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
-        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
+          pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
         };
+
+        if ((data.pet_investments || []).length !== remainingInvestments.length) {
+          updatePayload.pet_investments = remainingInvestments;
+        }
+
+        let newDogeBalance = Number(data.doge_balance || 0) + matured;
 
         if (sickSince !== null && !data.pet_sick_since) {
            updatePayload.pet_sick_since = admin.firestore.Timestamp.fromMillis(sickSince);
@@ -259,7 +253,11 @@ async function petStatus(req) {
 
         if (data.pending_sleep_reward && data.pet_sleeping_until && data.pet_sleeping_until.toDate().getTime() <= now) {
           updatePayload.pending_sleep_reward = admin.firestore.FieldValue.delete();
-          updatePayload.doge_balance = Number(data.doge_balance || 0) + 0.0001;
+          newDogeBalance += 0.0001;
+        }
+
+        if (matured > 0 || (data.pending_sleep_reward && data.pet_sleeping_until && data.pet_sleeping_until.toDate().getTime() <= now)) {
+          updatePayload.doge_balance = newDogeBalance;
         }
 
         // Update DB with decayed stats and clean buffs
