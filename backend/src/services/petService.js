@@ -28,24 +28,7 @@ function splitUpdates(updates) {
 const { admin } = require('./firebaseService');
 
 
-function processInvestments(userRef, data, transaction) {
-  const currentInvestments = data.pet_investments || [];
-  const now = Date.now();
-  let matureAmount = 0;
-  const remainingInvestments = [];
-  let lockedAmount = 0;
 
-  currentInvestments.forEach(inv => {
-    if (now >= inv.unlock_time) {
-      matureAmount += inv.amount;
-    } else {
-      remainingInvestments.push(inv);
-      lockedAmount += inv.amount;
-    }
-  });
-
-  return { matured: matureAmount, locked: lockedAmount, remainingInvestments };
-}
 
 function ensureXP(data) {
   let xp = data.pet_xp !== undefined ? Number(data.pet_xp) : 0;
@@ -90,7 +73,6 @@ module.exports = {
   petBuyBall,
   petEquipBall,
   petFetch,
-  processInvestments,
   ensureXP,
   calculateXPGain
 };
@@ -102,7 +84,6 @@ async function petStatus(req) {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     
     let petStats = null;
-    let maturedThisTime = 0;
 
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
@@ -113,9 +94,6 @@ async function petStatus(req) {
       const petSnapshot = await transaction.get(petRef);
       const petData = petSnapshot.data() || {};
       Object.assign(data, petData);
-      
-      const { matured, locked, remainingInvestments } = processInvestments(userRef, data, transaction);
-      maturedThisTime = matured;
       
       // Initialize pet if doesn't exist
       if (!data.pet_birth_date) {
@@ -128,8 +106,7 @@ async function petStatus(req) {
           pet_energy: 100,
           weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
-          pet_total_distance_walked: 0,
-          pet_investments: []
+          pet_total_distance_walked: 0
         };
         const { userUpdates, petUpdates } = splitUpdates(initData);
         if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
@@ -143,8 +120,6 @@ async function petStatus(req) {
           xp: 0,
           next_stage_xp: getNextStageXP('puppy'),
           total_distance: 0,
-          locked_returns: 0,
-          matured_returns: 0,
           sleeping_until: 0
         };
       } else {
@@ -161,7 +136,6 @@ async function petStatus(req) {
             weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
             pet_total_distance_walked: 0,
-            pet_investments: [],
             pet_owned_accessories: [],
             pet_equipped_accessories: [],
             pet_owned_tricks: [],
@@ -180,8 +154,6 @@ async function petStatus(req) {
             energy: 100,
             stage: 'puppy',
             total_distance: 0,
-            locked_returns: 0,
-            matured_returns: 0,
             pending_poos: 0,
             age_multiplier: 1.0,
             name: data.pet_name || 'Golden Paw Shiba',
@@ -236,12 +208,6 @@ async function petStatus(req) {
           pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
         };
 
-        if ((data.pet_investments || []).length !== remainingInvestments.length) {
-          updatePayload.pet_investments = remainingInvestments;
-        }
-
-        let newDogeBalance = Number(data.doge_balance || 0) + matured;
-
         if (sickSince !== null && !data.pet_sick_since) {
            updatePayload.pet_sick_since = admin.firestore.Timestamp.fromMillis(sickSince);
         } else if (sickSince === null && data.pet_sick_since) {
@@ -253,11 +219,7 @@ async function petStatus(req) {
 
         if (data.pending_sleep_reward && data.pet_sleeping_until && data.pet_sleeping_until.toDate().getTime() <= now) {
           updatePayload.pending_sleep_reward = admin.firestore.FieldValue.delete();
-          newDogeBalance += 0.0001;
-        }
-
-        if (matured > 0 || (data.pending_sleep_reward && data.pet_sleeping_until && data.pet_sleeping_until.toDate().getTime() <= now)) {
-          updatePayload.doge_balance = newDogeBalance;
+          updatePayload.doge_balance = Number(data.doge_balance || 0) + 0.0001;
         }
 
         // Update DB with decayed stats and clean buffs
@@ -289,8 +251,6 @@ async function petStatus(req) {
           age_multiplier: getAgeMultiplier({ ...data, pet_xp: currentXP }),
           total_distance: data.pet_total_distance_walked || 0,
           pending_poos: pendingPoos,
-          locked_returns: locked,
-          matured_returns: matured,
           last_boop_time: data.pet_last_boop_time ? data.pet_last_boop_time.toDate().getTime() : 0,
           last_feed_time: data.pet_last_feed_time ? data.pet_last_feed_time.toDate().getTime() : 0,
           last_play_time: data.pet_last_play_time ? data.pet_last_play_time.toDate().getTime() : 0,
@@ -338,15 +298,11 @@ async function petFeed(req) {
         throw new Error('You can only feed your pet once every 1 hour!');
       }
 
-      const { matured, remainingInvestments } = processInvestments(userRef, data, transaction);
-      const currentDoge = Number(data.doge_balance || 0) + matured;
+      const currentDoge = Number(data.doge_balance || 0);
 
       if (currentDoge < FEED_COST_DOGE) throw new Error(`Insufficient DOGE. Costs ${FEED_COST_DOGE} DOGE to feed.`);
 
-      const petBonus = calculatePetBonusPercent(decayed, data);
-      const investmentAmount = (FEED_COST_DOGE * 2) * (1 + (petBonus / 100));
       const newHunger = MAX_STAT;
-      remainingInvestments.push({ amount: investmentAmount, unlock_time: Date.now() + 24 * 60 * 60 * 1000 });
 
       const currentXP = ensureXP(data);
       const xpGained = calculateXPGain(data, 20);
@@ -358,7 +314,6 @@ async function petFeed(req) {
         pet_hunger: newHunger,
         pet_happiness: decayed.happiness,
         pet_energy: decayed.energy,
-        pet_investments: remainingInvestments,
         weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
         pet_last_feed_time: admin.firestore.FieldValue.serverTimestamp()
@@ -397,15 +352,11 @@ async function petPlay(req) {
         throw new Error('You can only play with your pet once every 5 hours!');
       }
 
-      const { matured, remainingInvestments } = processInvestments(userRef, data, transaction);
-      const currentDoge = Number(data.doge_balance || 0) + matured;
+      const currentDoge = Number(data.doge_balance || 0);
 
       if (currentDoge < PLAY_COST_DOGE) throw new Error(`Insufficient DOGE. Costs ${PLAY_COST_DOGE} DOGE to play.`);
 
-      const petBonus = calculatePetBonusPercent(decayed, data);
-      const investmentAmount = (PLAY_COST_DOGE * 2) * (1 + (petBonus / 100));
       const newHappiness = MAX_STAT;
-      remainingInvestments.push({ amount: investmentAmount, unlock_time: Date.now() + 24 * 60 * 60 * 1000 });
 
       const currentXP = ensureXP(data);
       const xpGained = calculateXPGain(data, 20);
@@ -417,7 +368,6 @@ async function petPlay(req) {
         pet_hunger: decayed.hunger,
         pet_happiness: newHappiness,
         pet_energy: decayed.energy,
-        pet_investments: remainingInvestments,
         weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
         pet_last_play_time: admin.firestore.FieldValue.serverTimestamp()
@@ -456,8 +406,7 @@ async function petSleep(req) {
         throw new Error('Pet is already sleeping!');
       }
 
-      const { matured, remainingInvestments } = processInvestments(userRef, data, transaction);
-      const currentDoge = Number(data.doge_balance || 0) + matured;
+      const currentDoge = Number(data.doge_balance || 0);
 
       const newEnergy = Math.min(MAX_STAT, decayed.energy + 50);
 
@@ -472,7 +421,6 @@ async function petSleep(req) {
         pet_happiness: decayed.happiness,
         pet_attention: decayed.attention,
         pet_energy: newEnergy,
-        pet_investments: remainingInvestments,
         weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
         pet_last_sleep_time: admin.firestore.FieldValue.serverTimestamp(),
