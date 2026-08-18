@@ -31,7 +31,6 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
   double _attention = 50;
   double _totalDistance = 0.0;
   double _ageMultiplier = 1.0;
-  double _lockedReturns = 0.0;
   String _petName = 'Golden Paw Shiba';
   String _stage = 'egg'; // Track stage to lock features
   int _xp = 0;
@@ -92,7 +91,6 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
             _attention = (data['pet']['attention'] as num?)?.toDouble() ?? 50.0;
             _ageMultiplier = (data['pet']['age_multiplier'] as num?)?.toDouble() ?? 1.0;
             _totalDistance = (data['pet']['total_distance'] as num).toDouble();
-            _lockedReturns = (data['pet']['locked_returns'] as num?)?.toDouble() ?? 0.0;
             _petName = data['pet']['name'] ?? 'Golden Paw Shiba';
             _stage = data['pet']['stage'] ?? 'egg'; // Get stage from backend
             _xp = (data['pet']['xp'] as num?)?.toInt() ?? 0;
@@ -109,13 +107,6 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
             _isSick = data['pet']['sick'] ?? false;
             _xpBoostActive = data['pet']['xp_boost_active'] ?? false;
             
-            final matured = (data['pet']['matured_returns'] as num?)?.toDouble() ?? 0.0;
-            if (matured > 0) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('+${matured.toStringAsFixed(4)} DOGE Investment Matured!'), backgroundColor: Colors.green),
-              );
-            }
-
             // Schedule Hunger Notification 1 hour from last feed time
             if (_lastFeedTime > 0) {
               final expectedHungryTime = DateTime.fromMillisecondsSinceEpoch(_lastFeedTime).add(const Duration(hours: 1));
@@ -422,11 +413,6 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget> {
                     ),
                     const SizedBox(height: 10),
                     Text("Age Multiplier: ${_ageMultiplier.toStringAsFixed(2)}x | Walked: ${_totalDistance.toStringAsFixed(0)}m", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green)),
-                    if (_lockedReturns > 0)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
-                        child: Text("Locked Returns: ${_lockedReturns.toStringAsFixed(4)} DOGE (Matures in 24h)", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.purple)),
-                      ),
                     
                     // Tabbed Area (Info, Shop, Items, Balls, Tricks)
                     PetTabsWidget(
