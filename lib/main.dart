@@ -6,6 +6,7 @@ import 'package:showcaseview/showcaseview.dart';
 import 'app_router.dart';
 import 'src/theme_provider.dart';
 import 'src/firebase_service.dart';
+import 'src/presence_service.dart';
 import 'src/user_provider.dart';
 import 'src/doge_price_provider.dart';
 import 'src/notification_service.dart';
@@ -23,6 +24,7 @@ void main() async {
 
   await FirebaseService.initialize();
   await NotificationService().init();
+  PresenceService().initialize();
   ShowcaseView.register();
 
   runApp(
