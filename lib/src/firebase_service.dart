@@ -12,6 +12,8 @@ import 'package:http/http.dart' as http;
 import '../api_constants.dart';
 import '../app_router.dart';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
+
 class FirebaseService {
   static Future<void> initialize() async {
     if (kIsWeb || (!kIsWeb && Platform.isWindows)) {
@@ -51,6 +53,9 @@ class FirebaseService {
 
     // Initialize Performance Monitoring
     FirebasePerformance.instance;
+
+    // Initialize Analytics
+    FirebaseAnalytics.instance;
 
     // Push Notifications setup
     try {
