@@ -279,6 +279,7 @@ router.post('/payout-jar', verifyFirebaseToken, async (req, res) => {
 
     const jarRef = admin.firestore().collection('system').doc('swear_jar');
     
+    let payoutAmount = 0;
     await admin.firestore().runTransaction(async (transaction) => {
       const jarDoc = await transaction.get(jarRef);
       if (!jarDoc.exists) throw new Error('Swear jar not found.');
@@ -286,39 +287,46 @@ router.post('/payout-jar', verifyFirebaseToken, async (req, res) => {
       const balance = Number(jarDoc.data().balance || 0);
       if (balance <= 0) throw new Error('Swear jar is empty.');
 
-      const payoutPerUser = balance / activeUids.size;
-
-      // Update all users
-      for (const uid of activeUids) {
-        const userRef = admin.firestore().collection('users').doc(uid);
-        const userDoc = await transaction.get(userRef);
-        if (userDoc.exists) {
-          const data = userDoc.data();
-          const currentBal = Number(data.doge_balance || 0);
-          
-          let history = data.reward_history || [];
-          history.unshift({ sector: 'Chat Rain', amount: payoutPerUser, timestamp: Date.now() });
-          if (history.length > 15) history = history.slice(0, 15);
-
-          transaction.update(userRef, {
-            doge_balance: currentBal + payoutPerUser,
-            reward_history: history
-          });
-        }
-      }
-
+      payoutAmount = balance;
       // Reset jar
       transaction.update(jarRef, { balance: 0 });
+    });
 
-      // Send system message
-      const msgRef = admin.firestore().collection('chat_messages').doc();
-      transaction.set(msgRef, {
-        uid: 'system',
-        display_name: '🐾 Golden Paw System',
-        message: `The Swear Jar containing ${balance.toFixed(5)} DOGE was just shared equally among ${activeUids.size} active chatters!`,
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-        is_admin: true
-      });
+    const payoutPerUser = payoutAmount / activeUids.size;
+
+    // Update all users OUTSIDE the main transaction to prevent 409 Conflicts
+    for (const uid of activeUids) {
+      const userRef = admin.firestore().collection('users').doc(uid);
+      try {
+        await admin.firestore().runTransaction(async (tx) => {
+          const userDoc = await tx.get(userRef);
+          if (userDoc.exists) {
+            const data = userDoc.data();
+            const currentBal = Number(data.doge_balance || 0);
+            
+            let history = data.reward_history || [];
+            history.unshift({ sector: 'Chat Rain', amount: payoutPerUser, timestamp: Date.now() });
+            if (history.length > 15) history = history.slice(0, 15);
+
+            tx.update(userRef, {
+              doge_balance: currentBal + payoutPerUser,
+              reward_history: history
+            });
+          }
+        });
+      } catch (err) {
+        console.error(`Failed to payout to ${uid}:`, err);
+      }
+    }
+
+    // Send system message
+    const msgRef = admin.firestore().collection('chat_messages').doc();
+    await msgRef.set({
+      uid: 'system',
+      display_name: '🐾 Golden Paw System',
+      message: `The Swear Jar containing ${payoutAmount.toFixed(5)} DOGE was just shared equally among ${activeUids.size} active chatters!`,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      is_admin: true
     });
 
     res.json({ success: true, message: 'Jar paid out successfully!' });
