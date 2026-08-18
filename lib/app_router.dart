@@ -23,6 +23,8 @@ import 'screens/walk_pet_page.dart';
 import 'screens/reward_history_page.dart';
 import 'src/theme_provider.dart';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
+
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -30,7 +32,9 @@ final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<Scaffol
 final GoRouter appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
   initialLocation: '/',
-  observers: const [],
+  observers: [
+    FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+  ],
   errorBuilder: (context, state) => const NotFoundPage(),
   routes: [
     GoRoute(
