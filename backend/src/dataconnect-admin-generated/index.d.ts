@@ -129,6 +129,8 @@ export interface UpdateUserBalancesVariables {
   dogeBalance?: number | null;
   stakedBalance?: number | null;
   bankBalance?: number | null;
+  offerwallBalance?: number | null;
+  adsBalance?: number | null;
   xp?: number | null;
   totalClaims?: number | null;
   faucetClaims?: number | null;

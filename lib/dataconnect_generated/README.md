@@ -239,6 +239,14 @@ class UpdateUserBalancesVariablesBuilder {
    _bankBalance.value = t;
    return this;
   }
+  UpdateUserBalancesVariablesBuilder offerwallBalance(double? t) {
+   _offerwallBalance.value = t;
+   return this;
+  }
+  UpdateUserBalancesVariablesBuilder adsBalance(double? t) {
+   _adsBalance.value = t;
+   return this;
+  }
   UpdateUserBalancesVariablesBuilder xp(int? t) {
    _xp.value = t;
    return this;
@@ -264,6 +272,8 @@ ExampleConnector.instance.updateUserBalances(
 .dogeBalance(dogeBalance)
 .stakedBalance(stakedBalance)
 .bankBalance(bankBalance)
+.offerwallBalance(offerwallBalance)
+.adsBalance(adsBalance)
 .xp(xp)
 .totalClaims(totalClaims)
 .faucetClaims(faucetClaims)
