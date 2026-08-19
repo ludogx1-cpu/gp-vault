@@ -1,5 +1,6 @@
 require('dotenv').config({ path: '../.env' });
 const { admin } = require('./services/firebaseService');
+const { syncUserBalances } = require('./utils/dataConnectSync');
 
 async function main() {
   const email = process.argv[2];
@@ -22,7 +23,7 @@ async function main() {
     
     const userRef = admin.firestore().collection('users').doc(userRecord.uid);
     
-    await admin.firestore().runTransaction(async (transaction) => {
+    const txResult = await admin.firestore().runTransaction(async (transaction) => {
       const snapshot = await transaction.get(userRef);
       if (!snapshot.exists) {
         throw new Error('User document not found in Firestore');
@@ -32,9 +33,15 @@ async function main() {
       const currentBalance = Number(data.doge_balance || 0);
       const newBalance = currentBalance + reward;
       
-      transaction.update(userRef, { doge_balance: newBalance });
+      const updates = { doge_balance: newBalance };
+      transaction.update(userRef, updates);
       console.log(`Added ${reward} DOGE. Old Balance: ${currentBalance}, New Balance: ${newBalance}`);
+      return { data, updates };
     });
+
+    if (txResult && txResult.data) {
+      await syncUserBalances(userRecord.uid, txResult.data, txResult.updates).catch(console.error);
+    }
 
     console.log('Reward successfully added!');
     process.exit(0);

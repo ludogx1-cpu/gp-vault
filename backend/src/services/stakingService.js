@@ -2,6 +2,7 @@ const { admin } = require('./firebaseService');
 const { calculatePendingInterest } = require('../utils/stakingMath');
 const { logTransaction } = require('./ledgerService');
 const { logRewardEvent } = require('../utils/rewardAudit');
+const { syncUserBalances } = require('../utils/dataConnectSync');
 
 async function stake(user, amount) {
   const amountToStake = Number(amount);
@@ -12,7 +13,7 @@ async function stake(user, amount) {
   const userRef = admin.firestore().collection('users').doc(user.uid);
   let newStakedBalance = 0;
 
-  await admin.firestore().runTransaction(async (transaction) => {
+  const txResult = await admin.firestore().runTransaction(async (transaction) => {
     const snapshot = await transaction.get(userRef);
     if (!snapshot.exists) throw new Error('User not found');
     
@@ -30,13 +31,17 @@ async function stake(user, amount) {
 
     newStakedBalance = currentStaked + amountToStake;
 
-    transaction.update(userRef, {
+    const updates = {
       doge_balance: currentBalance - amountToStake,
       staked_balance: newStakedBalance,
       stake_timestamp: admin.firestore.FieldValue.serverTimestamp()
-    });
+    };
+    transaction.update(userRef, updates);
     logTransaction(transaction, user.uid, amountToStake, 'stake', {});
+    return { data, updates };
   });
+
+  if (txResult) syncUserBalances(user.uid, txResult.data, txResult.updates).catch(console.error);
 
   return `Successfully staked ${amountToStake} DOGE`;
 }
@@ -50,7 +55,7 @@ async function unstake(user, amount) {
   const userRef = admin.firestore().collection('users').doc(user.uid);
   let finalPendingInterest = 0;
 
-  await admin.firestore().runTransaction(async (transaction) => {
+  const txResult = await admin.firestore().runTransaction(async (transaction) => {
     const snapshot = await transaction.get(userRef);
     if (!snapshot.exists) throw new Error('User not found');
     
@@ -67,16 +72,20 @@ async function unstake(user, amount) {
     finalPendingInterest = pendingInterest;
     currentBalance += pendingInterest; 
 
-    transaction.update(userRef, {
+    const updates = {
       doge_balance: currentBalance + amountToUnstake,
       staked_balance: currentStaked - amountToUnstake,
       stake_timestamp: admin.firestore.FieldValue.serverTimestamp()
-    });
+    };
+    transaction.update(userRef, updates);
     logTransaction(transaction, user.uid, amountToUnstake, 'unstake', {});
     if (pendingInterest > 0) {
       logTransaction(transaction, user.uid, pendingInterest, 'stake_harvest', { type: 'auto_harvest' });
     }
+    return { data, updates };
   });
+
+  if (txResult) syncUserBalances(user.uid, txResult.data, txResult.updates).catch(console.error);
 
   if (finalPendingInterest > 0) {
     await logRewardEvent(user.uid, 'staking_yield', finalPendingInterest, { type: 'auto_harvest' });
@@ -89,7 +98,7 @@ async function harvest(user) {
   const userRef = admin.firestore().collection('users').doc(user.uid);
   let harvested = 0;
 
-  await admin.firestore().runTransaction(async (transaction) => {
+  const txResult = await admin.firestore().runTransaction(async (transaction) => {
     const snapshot = await transaction.get(userRef);
     if (!snapshot.exists) throw new Error('User not found');
     
@@ -107,13 +116,17 @@ async function harvest(user) {
     history.unshift({ sector: 'Staking Harvest', amount: harvested, timestamp: Date.now() });
     if (history.length > 15) history = history.slice(0, 15);
 
-    transaction.update(userRef, {
+    const updates = {
       doge_balance: currentBalance + harvested,
       stake_timestamp: admin.firestore.FieldValue.serverTimestamp(),
       reward_history: history
-    });
+    };
+    transaction.update(userRef, updates);
     logTransaction(transaction, user.uid, harvested, 'stake_harvest', { type: 'manual_harvest' });
+    return { data, updates };
   });
+
+  if (txResult) syncUserBalances(user.uid, txResult.data, txResult.updates).catch(console.error);
 
   await logRewardEvent(user.uid, 'staking_yield', harvested, { type: 'manual_harvest' });
 

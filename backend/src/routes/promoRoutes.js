@@ -1,5 +1,6 @@
 const express = require('express');
 const { admin, verifyFirebaseToken } = require('../services/firebaseService');
+const { syncUserBalances } = require('../utils/dataConnectSync');
 
 const router = express.Router();
 
@@ -101,14 +102,19 @@ router.post('/claim-promo', verifyFirebaseToken, async (req, res) => {
       const currentXp = userData.xp || 0;
       const newXp = currentXp + 50; // Add some XP as bonus
 
-      transaction.update(userRef, {
+      const updates = {
         doge_balance: newBalance,
         xp: newXp,
         last_claimed_promo: activePromo.code
-      });
+      };
+      transaction.update(userRef, updates);
 
-      return { rolledNumber, reward, xpReward: 50 };
+      return { rolledNumber, reward, xpReward: 50, data: userData, updates };
     });
+
+    if (result && result.data) {
+      syncUserBalances(uid, result.data, result.updates).catch(console.error);
+    }
 
     res.json({
       success: true,

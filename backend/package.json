@@ -11,6 +11,7 @@
     "node": "26.x"
   },
   "dependencies": {
+    "@dataconnect/admin-generated": "file:src/dataconnect-admin-generated",
     "axios": "^1.7.5",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",

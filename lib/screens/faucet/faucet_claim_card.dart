@@ -14,6 +14,7 @@ import '../../widgets/universal_web_view/universal_web_view.dart';
 import '../../widgets/widgets.dart';
 import 'captcha_selector_widget.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import '../../dataconnect_generated/generated.dart';
 
 class FaucetClaimCard extends StatefulWidget {
   const FaucetClaimCard({super.key});
@@ -86,31 +87,68 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
 
   Future<void> _syncCheckLock() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      String? lock = prefs.getString('gp_lock_time');
-      if (lock != null) {
-        int ms = int.tryParse(lock) ?? 0;
-        if (ms > 0) {
-          int passed = DateTime.now()
-              .difference(DateTime.fromMillisecondsSinceEpoch(ms))
-              .inSeconds;
-          if (passed >= 0 && passed < 300) {
-            if (mounted) {
-              setState(() {
-                _secondsRemaining = 300 - passed;
-              });
+      final user = FirebaseAuth.instance.currentUser;
+      bool verifiedFromBackend = false;
+      
+      if (user != null) {
+        try {
+          final result = await ExampleConnector.instance.getUserById(id: user.uid).execute();
+          final lastClaim = result.data.user?.lastClaimTime;
+          if (lastClaim != null) {
+            DateTime dcTime;
+            try {
+              dcTime = (lastClaim as dynamic).toDateTime();
+            } catch (_) {
+              try {
+                dcTime = (lastClaim as dynamic).toDate();
+              } catch (_) {
+                dcTime = DateTime.parse(lastClaim.toString());
+              }
             }
-            _resumeTimer();
-            return;
-          } else {
-            await prefs.remove('gp_lock_time');
+            
+            int passed = DateTime.now().difference(dcTime).inSeconds;
+            if (passed >= 0 && passed < 300) {
+              if (mounted) {
+                setState(() {
+                  _secondsRemaining = 300 - passed;
+                });
+              }
+              _resumeTimer();
+              verifiedFromBackend = true;
+            }
+          }
+        } catch (e) {
+          debugPrint("Data Connect cooldown check failed: $e");
+        }
+      }
+
+      if (!verifiedFromBackend) {
+        final prefs = await SharedPreferences.getInstance();
+        String? lock = prefs.getString('gp_lock_time');
+        if (lock != null) {
+          int ms = int.tryParse(lock) ?? 0;
+          if (ms > 0) {
+            int passed = DateTime.now()
+                .difference(DateTime.fromMillisecondsSinceEpoch(ms))
+                .inSeconds;
+            if (passed >= 0 && passed < 300) {
+              if (mounted) {
+                setState(() {
+                  _secondsRemaining = 300 - passed;
+                });
+              }
+              _resumeTimer();
+              return;
+            } else {
+              await prefs.remove('gp_lock_time');
+            }
           }
         }
       }
     } catch (e) {
       // ignore
     }
-    if (mounted) {
+    if (mounted && _secondsRemaining <= 0) {
       setState(() => _isCheckingCooldown = false);
     }
   }

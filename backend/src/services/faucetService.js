@@ -6,6 +6,7 @@ const { calculateDogeReward } = require('../utils/rewardCalculator');
 const { formatAmount, verifyCaptchaToken, getStreakUpdates } = require('../utils/helpers');
 const { calculateDecay, calculateTrickBonusPercent, getAgeMultiplier } = require('../utils/petMechanics');
 const { logRewardEvent } = require('../utils/rewardAudit');
+const { syncUserBalances } = require('../utils/dataConnectSync');
 
 function splitUpdates(updates) {
   const petUpdates = {};
@@ -41,7 +42,7 @@ async function sendDoge(user, address, captcha_token, captcha_provider, source) 
   const cooldownMs = 5 * 60 * 1000;
   let ageMult = 1.0;
 
-  await admin.firestore().runTransaction(async (transaction) => {
+  const txResult = await admin.firestore().runTransaction(async (transaction) => {
     const snapshot = await transaction.get(userRef);
     if (!snapshot.exists) throw new Error('User profile not found');
     const data = snapshot.data() || {};
@@ -56,21 +57,30 @@ async function sendDoge(user, address, captcha_token, captcha_provider, source) 
     if (data.pet_birth_date) {
       const decayed = calculateDecay(data);
       ageMult = getAgeMultiplier(data);
-      transaction.update(userRef, {
+      const updates = {
         last_direct_faucet_claim: admin.firestore.Timestamp.now(),
         pet_hunger: decayed.hunger,
         pet_happiness: decayed.happiness,
         pet_energy: decayed.energy,
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
         ...streakUpdates
-      });
+      };
+      transaction.update(userRef, updates);
+      return { data, updates };
     } else {
-      transaction.update(userRef, {
+      const updates = {
         last_direct_faucet_claim: admin.firestore.Timestamp.now(),
         ...streakUpdates
-      });
+      };
+      transaction.update(userRef, updates);
+      return { data, updates };
     }
   });
+
+  if (txResult) {
+    syncUserBalances(user.uid, txResult.data, txResult.updates).catch(console.error);
+  }
+
 
   const priceResult = await getDogePrice();
   const price = priceResult.price;
@@ -110,7 +120,7 @@ async function claimVault(user) {
   const baseReward = calculateDogeReward(priceResult.price);
   let finalReward = 0;
 
-  await admin.firestore().runTransaction(async (transaction) => {
+  const txResult = await admin.firestore().runTransaction(async (transaction) => {
     const petRef = userRef.collection('pet').doc('status');
     const snapshot = await transaction.get(userRef);
     let data = snapshot.data() || {};
@@ -193,7 +203,16 @@ async function claimVault(user) {
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
     }
     logTransaction(transaction, user.uid, finalReward, 'faucet_claim', { sector: 'Vault Faucet' });
+    return { data, updates };
   });
+
+  if (txResult && txResult.data) {
+    syncUserBalances(user.uid, txResult.data, txResult.updates).catch(console.error);
+    const petUpdates = splitUpdates(txResult.updates).petUpdates;
+    if (Object.keys(petUpdates).length > 0) {
+      syncPetStats(user.uid, txResult.data, txResult.updates).catch(console.error);
+    }
+  }
 
   await logRewardEvent(user.uid, 'faucet_claim', finalReward, { sector: 'Vault Faucet' });
 
@@ -212,7 +231,7 @@ async function withdraw(user, address, amount) {
   const userRef = admin.firestore().collection('users').doc(user.uid);
   const cooldownMs = 60 * 1000;
 
-  await admin.firestore().runTransaction(async (transaction) => {
+  const txResult = await admin.firestore().runTransaction(async (transaction) => {
     const snapshot = await transaction.get(userRef);
     if (!snapshot.exists) throw new Error('User profile not found');
     const data = snapshot.data();
@@ -224,11 +243,15 @@ async function withdraw(user, address, amount) {
       throw new Error('Insufficient balance for this withdrawal.');
     }
 
-    transaction.update(userRef, {
+    const updates = {
       doge_balance: Number(data.doge_balance || 0) - sendAmount,
       last_withdrawal: admin.firestore.Timestamp.now()
-    });
+    };
+    transaction.update(userRef, updates);
+    return { data, updates };
   });
+
+  if (txResult) syncUserBalances(user.uid, txResult.data, txResult.updates).catch(console.error);
 
   let faucetPayResponse;
   try {
@@ -275,22 +298,27 @@ async function bankTransfer(user, source, amount) {
 
   const userRef = admin.firestore().collection('users').doc(user.uid);
 
-  await admin.firestore().runTransaction(async (transaction) => {
+  const txResult = await admin.firestore().runTransaction(async (transaction) => {
     const snapshot = await transaction.get(userRef);
     if (!snapshot.exists) throw new Error('User profile not found');
     const data = snapshot.data();
     const currentBankBalance = Number(data.bank_balance || 0);
 
+    let updates = {};
     if (source === 'vault') {
       const vaultBalance = Number(data.doge_balance || 0);
       if (vaultBalance < transferAmount) throw new Error('Insufficient Vault balance for this transfer.');
-      transaction.update(userRef, { doge_balance: vaultBalance - transferAmount, bank_balance: currentBankBalance + transferAmount });
+      updates = { doge_balance: vaultBalance - transferAmount, bank_balance: currentBankBalance + transferAmount };
     } else if (source === 'offerwall') {
       const offerwallBalance = Number(data.offerwall_balance || 0);
       if (offerwallBalance < transferAmount) throw new Error('Insufficient Offerwall balance for this transfer.');
-      transaction.update(userRef, { offerwall_balance: offerwallBalance - transferAmount, bank_balance: currentBankBalance + transferAmount });
+      updates = { offerwall_balance: offerwallBalance - transferAmount, bank_balance: currentBankBalance + transferAmount };
     }
+    transaction.update(userRef, updates);
+    return { data, updates };
   });
+
+  if (txResult) syncUserBalances(user.uid, txResult.data, txResult.updates).catch(console.error);
 
   return 'Transfer successful';
 }
@@ -303,7 +331,7 @@ async function claimBonusSponsor(user, captcha_token, captcha_provider) {
   const cooldownMs = 15 * 60 * 1000;
   let finalRewardAmount = rewardAmount;
 
-  await admin.firestore().runTransaction(async (transaction) => {
+  const txResult = await admin.firestore().runTransaction(async (transaction) => {
     const snapshot = await transaction.get(userRef);
     if (!snapshot.exists) throw new Error('User profile not found');
     const data = snapshot.data();
@@ -331,7 +359,10 @@ async function claimBonusSponsor(user, captcha_token, captcha_provider) {
     };
     transaction.update(userRef, updates);
     logTransaction(transaction, user.uid, finalRewardAmount, 'faucet_claim', { sector: 'Ads Faucet' });
+    return { data, updates };
   });
+
+  if (txResult) syncUserBalances(user.uid, txResult.data, txResult.updates).catch(console.error);
 
   await logRewardEvent(user.uid, 'faucet_claim', finalRewardAmount, { sector: 'Bonus Sponsor' });
 
@@ -346,7 +377,7 @@ async function claimEcosystemVideo(user, captcha_token, captcha_provider) {
   const cooldownMs = 30 * 60 * 1000;
   let finalRewardAmount = rewardAmount;
 
-  await admin.firestore().runTransaction(async (transaction) => {
+  const txResult = await admin.firestore().runTransaction(async (transaction) => {
     const snapshot = await transaction.get(userRef);
     if (!snapshot.exists) throw new Error('User profile not found');
     const data = snapshot.data();
@@ -374,7 +405,10 @@ async function claimEcosystemVideo(user, captcha_token, captcha_provider) {
     };
     transaction.update(userRef, updates);
     logTransaction(transaction, user.uid, finalRewardAmount, 'faucet_claim', { sector: 'Offerwall Faucet' });
+    return { data, updates };
   });
+
+  if (txResult) syncUserBalances(user.uid, txResult.data, txResult.updates).catch(console.error);
 
   await logRewardEvent(user.uid, 'faucet_claim', finalRewardAmount, { sector: 'Ecosystem Video' });
 

@@ -4,6 +4,7 @@ const { verifyCaptchaToken } = require('../utils/helpers');
 const { calculateShopBonusPercent } = require('../utils/petMechanics');
 const { logTransaction } = require('../services/ledgerService');
 const { logRewardEvent } = require('../utils/rewardAudit');
+const { syncUserBalances } = require('../utils/dataConnectSync');
 
 const router = express.Router();
 
@@ -28,7 +29,7 @@ router.post('/buy-ptc', verifyFirebaseToken, async (req, res) => {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     const newAdRef = admin.firestore().collection('ptc_ads').doc();
 
-    await admin.firestore().runTransaction(async (transaction) => {
+    const txResult = await admin.firestore().runTransaction(async (transaction) => {
       const userSnapshot = await transaction.get(userRef);
       if (!userSnapshot.exists) throw new Error('User not found');
 
@@ -39,9 +40,10 @@ router.post('/buy-ptc', verifyFirebaseToken, async (req, res) => {
         throw new Error(`Insufficient balance. This ad costs ${cost} DOGE`);
       }
 
-      transaction.update(userRef, {
+      const updates = {
         doge_balance: currentBalance - cost
-      });
+      };
+      transaction.update(userRef, updates);
 
       logTransaction(transaction, req.user.uid, -cost, 'create_ad', { ad_tier: tier, clicks });
 
@@ -57,7 +59,12 @@ router.post('/buy-ptc', verifyFirebaseToken, async (req, res) => {
         status: 'active',
         created_at: admin.firestore.FieldValue.serverTimestamp()
       });
+      return { data: userData, updates };
     });
+
+    if (txResult && txResult.data) {
+      syncUserBalances(req.user.uid, txResult.data, txResult.updates).catch(console.error);
+    }
 
     console.log('Buy PTC request successful:', { user: req.user.uid, target_url, tier, clicks, cost });
     res.json({ success: true, message: 'PTC ad added to the pool successfully' });
@@ -93,7 +100,7 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
     const now = admin.firestore.Timestamp.now();
     let finalRewardAmount = 0;
 
-    await admin.firestore().runTransaction(async (transaction) => {
+    const txResult = await admin.firestore().runTransaction(async (transaction) => {
       const userSnapshot = await transaction.get(userRef);
       const adSnapshot = await transaction.get(adRef);
 
@@ -132,14 +139,15 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
       history.unshift({ sector: 'PTC Ads', amount: finalRewardAmount, timestamp: Date.now() });
       if (history.length > 15) history = history.slice(0, 15);
 
-      transaction.update(userRef, {
+      const updates = {
         doge_balance: Number(userData.doge_balance || 0) + finalRewardAmount,
         [`ptc_history.${ad_id}`]: now,
         reward_history: history,
         total_earned: admin.firestore.FieldValue.increment(finalRewardAmount),
         total_ptc_clicks: admin.firestore.FieldValue.increment(1),
         ...streakUpdates
-      });
+      };
+      transaction.update(userRef, updates);
 
       if (!(await checkIsAdmin(req.user.uid))) {
         transaction.update(adRef, {
@@ -148,7 +156,12 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
       }
 
       logTransaction(transaction, req.user.uid, finalRewardAmount, 'ptc_reward', { ad_id });
+      return { data: userData, updates };
     });
+
+    if (txResult && txResult.data) {
+      syncUserBalances(req.user.uid, txResult.data, txResult.updates).catch(console.error);
+    }
 
     await logRewardEvent(req.user.uid, 'ptc_reward', finalRewardAmount, { ad_id });
 

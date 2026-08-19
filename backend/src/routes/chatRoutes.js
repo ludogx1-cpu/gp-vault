@@ -1,6 +1,7 @@
 const express = require('express');
 const { admin, verifyFirebaseToken, isAdmin: checkIsAdmin } = require('../services/firebaseService');
 const rateLimit = require('express-rate-limit');
+const { syncUserBalances } = require('../utils/dataConnectSync');
 const router = express.Router();
 
 const chatRateLimiter = rateLimit({
@@ -156,7 +157,7 @@ router.post('/send', verifyFirebaseToken, chatRateLimiter, async (req, res) => {
       let shouldPayout = false;
       let payoutAmount = 0;
 
-      await admin.firestore().runTransaction(async (tx) => {
+      const txResult = await admin.firestore().runTransaction(async (tx) => {
         const doc = await tx.get(userRef);
         const jarDoc = await tx.get(jarRef);
         
@@ -171,11 +172,12 @@ router.post('/send', verifyFirebaseToken, chatRateLimiter, async (req, res) => {
         const currentJar = jarDoc.exists ? Number(jarDoc.data().balance || 0) : 0;
         const newJar = currentJar + deduction;
 
-        tx.update(userRef, {
+        const updates = {
           doge_balance: newBalance,
           chat_ban_until: admin.firestore.Timestamp.fromDate(new Date(Date.now() + banDurationMs)),
           chat_ban_count_general: count + 1
-        });
+        };
+        tx.update(userRef, updates);
 
         if (newJar >= 0.05) {
           shouldPayout = true;
@@ -184,7 +186,12 @@ router.post('/send', verifyFirebaseToken, chatRateLimiter, async (req, res) => {
         } else {
           tx.set(jarRef, { balance: newJar });
         }
+        return { data, updates };
       });
+
+      if (txResult && txResult.data) {
+        syncUserBalances(req.user.uid, txResult.data, txResult.updates).catch(console.error);
+      }
 
       if (shouldPayout) {
         // Distribute payout in the background so we don't block the response
@@ -207,19 +214,25 @@ router.post('/send', verifyFirebaseToken, chatRateLimiter, async (req, res) => {
               
               for (const uid of activeUids) {
                 const uRef = admin.firestore().collection('users').doc(uid);
-                await admin.firestore().runTransaction(async (tx) => {
+                const uTxResult = await admin.firestore().runTransaction(async (tx) => {
                   const uDoc = await tx.get(uRef);
                   if (uDoc.exists) {
                     const data = uDoc.data();
                     let history = data.reward_history || [];
                     history.unshift({ sector: 'Chat Rain', amount: payoutPerUser, timestamp: Date.now() });
                     if (history.length > 15) history = history.slice(0, 15);
-                    tx.update(uRef, {
+                    const updates = {
                       doge_balance: Number(data.doge_balance || 0) + payoutPerUser,
                       reward_history: history
-                    });
+                    };
+                    tx.update(uRef, updates);
+                    return { data, updates };
                   }
+                  return null;
                 });
+                if (uTxResult && uTxResult.data) {
+                  syncUserBalances(uid, uTxResult.data, uTxResult.updates).catch(console.error);
+                }
               }
 
               const msgRef = admin.firestore().collection('chat_messages').doc();
@@ -298,7 +311,7 @@ router.post('/payout-jar', verifyFirebaseToken, async (req, res) => {
     for (const uid of activeUids) {
       const userRef = admin.firestore().collection('users').doc(uid);
       try {
-        await admin.firestore().runTransaction(async (tx) => {
+        const uTxResult = await admin.firestore().runTransaction(async (tx) => {
           const userDoc = await tx.get(userRef);
           if (userDoc.exists) {
             const data = userDoc.data();
@@ -308,12 +321,18 @@ router.post('/payout-jar', verifyFirebaseToken, async (req, res) => {
             history.unshift({ sector: 'Chat Rain', amount: payoutPerUser, timestamp: Date.now() });
             if (history.length > 15) history = history.slice(0, 15);
 
-            tx.update(userRef, {
+            const updates = {
               doge_balance: currentBal + payoutPerUser,
               reward_history: history
-            });
+            };
+            tx.update(userRef, updates);
+            return { data, updates };
           }
+          return null;
         });
+        if (uTxResult && uTxResult.data) {
+          syncUserBalances(uid, uTxResult.data, uTxResult.updates).catch(console.error);
+        }
       } catch (err) {
         console.error(`Failed to payout to ${uid}:`, err);
       }
