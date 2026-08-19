@@ -1,0 +1,12 @@
+extend type ChatMessage {
+  """
+  ✨ Implicit foreign key field based on `ChatMessage`.`user`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
+  """
+  userId: String! @fdc_generated(from: "ChatMessage.user", purpose: IMPLICIT_REF_FIELD)
+}
+extend type RewardAudit {
+  """
+  ✨ Implicit foreign key field based on `RewardAudit`.`user`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
+  """
+  userId: String! @fdc_generated(from: "RewardAudit.user", purpose: IMPLICIT_REF_FIELD)
+}

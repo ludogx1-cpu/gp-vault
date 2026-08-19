@@ -1,0 +1,38 @@
+# Fetch a specific user's data (balances, pet stats, etc)
+query GetUserById($id: String!) @auth(level: PUBLIC) {
+  user(id: $id) {
+    id
+    dogeBalance
+    stakedBalance
+    bankBalance
+    role
+    petHunger
+    petHappiness
+    petEnergy
+    petTotalDistanceWalked
+    lastClaimTime
+  }
+}
+
+# Fetch recent chat messages for the global chat
+query GetRecentChatMessages($limit: Int = 50) @auth(level: PUBLIC) {
+  chatMessages(orderBy: { timestamp: DESC }, limit: $limit) {
+    id
+    text
+    timestamp
+    user {
+      id
+      role
+    }
+  }
+}
+
+# Fetch the latest news/updates
+query GetAppUpdates @auth(level: PUBLIC) {
+  appUpdates(orderBy: { timestamp: DESC }) {
+    id
+    title
+    content
+    timestamp
+  }
+}

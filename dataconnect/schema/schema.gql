@@ -1,0 +1,51 @@
+type User @table(name: "app_user") {
+  # Matches the Firebase Auth UID
+  id: String! @col(name: "user_id")
+  
+  # Balances
+  dogeBalance: Float! @default(value: 0.0) @col(name: "doge_balance")
+  stakedBalance: Float! @default(value: 0.0) @col(name: "staked_balance")
+  bankBalance: Float! @default(value: 0.0) @col(name: "bank_balance")
+  offerwallBalance: Float! @default(value: 0.0) @col(name: "offerwall_balance")
+  adsBalance: Float! @default(value: 0.0) @col(name: "ads_balance")
+  
+  # Stats
+  xp: Int! @default(value: 0)
+  role: String! @default(value: "user")
+  totalClaims: Int! @default(value: 0) @col(name: "total_claims")
+  faucetClaims: Int! @default(value: 0) @col(name: "faucet_claims")
+  
+  # Timestamps
+  lastClaimTime: Timestamp @col(name: "last_claim_time")
+  stakeTimestamp: Timestamp @col(name: "stake_timestamp")
+  
+  # Pet Data
+  petBirthDate: Timestamp @col(name: "pet_birth_date")
+  petHunger: Float! @default(value: 100.0) @col(name: "pet_hunger")
+  petHappiness: Float! @default(value: 100.0) @col(name: "pet_happiness")
+  petEnergy: Float! @default(value: 100.0) @col(name: "pet_energy")
+  petLastInteraction: Timestamp @col(name: "pet_last_interaction")
+  petTotalDistanceWalked: Float! @default(value: 0.0) @col(name: "pet_total_distance_walked")
+}
+
+type AppUpdate @table(name: "app_update") {
+  id: UUID! @default(expr: "uuidV4()")
+  title: String!
+  content: String!
+  timestamp: Timestamp! @default(expr: "request.time")
+}
+
+type ChatMessage @table(name: "app_chat_message") {
+  id: UUID! @default(expr: "uuidV4()")
+  user: User!
+  text: String!
+  timestamp: Timestamp! @default(expr: "request.time")
+}
+
+type RewardAudit @table(name: "app_reward_audit") {
+  id: UUID! @default(expr: "uuidV4()")
+  user: User!
+  amount: Float!
+  reason: String!
+  timestamp: Timestamp! @default(expr: "request.time")
+}

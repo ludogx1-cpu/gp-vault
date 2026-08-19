@@ -1,0 +1,460 @@
+extend type Mutation {
+  """
+  ✨ Insert a single `AppUpdate` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  appUpdate_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: AppUpdate_Data!
+  ): AppUpdate_KeyOutput! @fdc_generated(from: "AppUpdate", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `ChatMessage` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  chatMessage_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: ChatMessage_Data!
+  ): ChatMessage_KeyOutput! @fdc_generated(from: "ChatMessage", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `RewardAudit` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  rewardAudit_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: RewardAudit_Data!
+  ): RewardAudit_KeyOutput! @fdc_generated(from: "RewardAudit", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `User` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  user_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: User_Data!
+  ): User_KeyOutput! @fdc_generated(from: "User", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert `AppUpdate` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  appUpdate_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [AppUpdate_Data!]!
+  ): [AppUpdate_KeyOutput!]! @fdc_generated(from: "AppUpdate", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `ChatMessage` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  chatMessage_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [ChatMessage_Data!]!
+  ): [ChatMessage_KeyOutput!]! @fdc_generated(from: "ChatMessage", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `RewardAudit` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  rewardAudit_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [RewardAudit_Data!]!
+  ): [RewardAudit_KeyOutput!]! @fdc_generated(from: "RewardAudit", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `User` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  user_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [User_Data!]!
+  ): [User_KeyOutput!]! @fdc_generated(from: "User", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert or update a single `AppUpdate` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AppUpdate`.
+  """
+  appUpdate_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: AppUpdate_Data!
+  ): AppUpdate_KeyOutput! @fdc_generated(from: "AppUpdate", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `ChatMessage` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ChatMessage`.
+  """
+  chatMessage_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: ChatMessage_Data!
+  ): ChatMessage_KeyOutput! @fdc_generated(from: "ChatMessage", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `RewardAudit` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `RewardAudit`.
+  """
+  rewardAudit_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: RewardAudit_Data!
+  ): RewardAudit_KeyOutput! @fdc_generated(from: "RewardAudit", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `User` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `User`.
+  """
+  user_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: User_Data!
+  ): User_KeyOutput! @fdc_generated(from: "User", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update `AppUpdate` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AppUpdate`.
+  """
+  appUpdate_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [AppUpdate_Data!]!
+  ): [AppUpdate_KeyOutput!]! @fdc_generated(from: "AppUpdate", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `ChatMessage` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ChatMessage`.
+  """
+  chatMessage_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [ChatMessage_Data!]!
+  ): [ChatMessage_KeyOutput!]! @fdc_generated(from: "ChatMessage", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `RewardAudit` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `RewardAudit`.
+  """
+  rewardAudit_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [RewardAudit_Data!]!
+  ): [RewardAudit_KeyOutput!]! @fdc_generated(from: "RewardAudit", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `User` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `User`.
+  """
+  user_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [User_Data!]!
+  ): [User_KeyOutput!]! @fdc_generated(from: "User", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Update a single `AppUpdate` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `AppUpdate` or `null` if not found.
+  """
+  appUpdate_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AppUpdate_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AppUpdate_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: AppUpdate_Data!
+  ): AppUpdate_KeyOutput @fdc_generated(from: "AppUpdate", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `ChatMessage` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `ChatMessage` or `null` if not found.
+  """
+  chatMessage_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ChatMessage_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ChatMessage_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: ChatMessage_Data!
+  ): ChatMessage_KeyOutput @fdc_generated(from: "ChatMessage", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `RewardAudit` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `RewardAudit` or `null` if not found.
+  """
+  rewardAudit_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: RewardAudit_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: RewardAudit_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: RewardAudit_Data!
+  ): RewardAudit_KeyOutput @fdc_generated(from: "RewardAudit", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `User` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `User` or `null` if not found.
+  """
+  user_update(
+    """
+    The unique ID of the object.
+    """
+    id: String
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: String_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: User_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: User_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: User_Data!
+  ): User_KeyOutput @fdc_generated(from: "User", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update `AppUpdate` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  appUpdate_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: AppUpdate_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: AppUpdate_Data!
+  ): Int! @fdc_generated(from: "AppUpdate", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `ChatMessage` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  chatMessage_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: ChatMessage_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: ChatMessage_Data!
+  ): Int! @fdc_generated(from: "ChatMessage", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `RewardAudit` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  rewardAudit_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: RewardAudit_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: RewardAudit_Data!
+  ): Int! @fdc_generated(from: "RewardAudit", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `User` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  user_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: User_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: User_Data!
+  ): Int! @fdc_generated(from: "User", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Delete a single `AppUpdate` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  appUpdate_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AppUpdate_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AppUpdate_FirstRow
+  ): AppUpdate_KeyOutput @fdc_generated(from: "AppUpdate", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `ChatMessage` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  chatMessage_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ChatMessage_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ChatMessage_FirstRow
+  ): ChatMessage_KeyOutput @fdc_generated(from: "ChatMessage", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `RewardAudit` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  rewardAudit_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: RewardAudit_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: RewardAudit_FirstRow
+  ): RewardAudit_KeyOutput @fdc_generated(from: "RewardAudit", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `User` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  user_delete(
+    """
+    The unique ID of the object.
+    """
+    id: String
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: String_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: User_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: User_FirstRow
+  ): User_KeyOutput @fdc_generated(from: "User", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete `AppUpdate` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  appUpdate_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: AppUpdate_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "AppUpdate", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `ChatMessage` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  chatMessage_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: ChatMessage_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "ChatMessage", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `RewardAudit` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  rewardAudit_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: RewardAudit_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "RewardAudit", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `User` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  user_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: User_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "User", purpose: DELETE_MULTIPLE)
+}

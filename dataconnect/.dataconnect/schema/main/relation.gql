@@ -1,0 +1,797 @@
+extend type AppUpdate {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "AppUpdate", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `AppUpdate` table.
+  """
+  _count: Int! @fdc_generated(from: "AppUpdate.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AppUpdate` table where the `content` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  content_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AppUpdate.content", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AppUpdate` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AppUpdate.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AppUpdate` table where the `timestamp` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  timestamp_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AppUpdate.timestamp", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AppUpdate` table where the `title` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  title_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AppUpdate.title", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `timestamp` field in the `AppUpdate` table.
+  """
+  timestamp_min: Timestamp @fdc_generated(from: "AppUpdate.timestamp", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `timestamp` field in the `AppUpdate` table.
+  """
+  timestamp_max: Timestamp @fdc_generated(from: "AppUpdate.timestamp", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "AppUpdate.id", purpose: ENTITY_ID)
+}
+extend type ChatMessage {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "ChatMessage", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `ChatMessage` table.
+  """
+  _count: Int! @fdc_generated(from: "ChatMessage.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ChatMessage` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ChatMessage.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ChatMessage` table where the `text` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  text_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ChatMessage.text", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ChatMessage` table where the `timestamp` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  timestamp_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ChatMessage.timestamp", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ChatMessage` table where the `userId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  userId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ChatMessage.userId", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `timestamp` field in the `ChatMessage` table.
+  """
+  timestamp_min: Timestamp @fdc_generated(from: "ChatMessage.timestamp", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `timestamp` field in the `ChatMessage` table.
+  """
+  timestamp_max: Timestamp @fdc_generated(from: "ChatMessage.timestamp", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "ChatMessage.id", purpose: ENTITY_ID)
+}
+extend type RewardAudit {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "RewardAudit", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `RewardAudit` table.
+  """
+  _count: Int! @fdc_generated(from: "RewardAudit.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `RewardAudit` table where the `amount` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  amount_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "RewardAudit.amount", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `RewardAudit` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "RewardAudit.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `RewardAudit` table where the `reason` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  reason_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "RewardAudit.reason", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `RewardAudit` table where the `timestamp` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  timestamp_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "RewardAudit.timestamp", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `RewardAudit` table where the `userId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  userId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "RewardAudit.userId", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `amount` field in the `RewardAudit` table.
+  """
+  amount_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "RewardAudit.amount", purpose: QUERY_SUM)
+  """
+  ✨ Average the `amount` field in the `RewardAudit` table.
+  """
+  amount_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "RewardAudit.amount", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `amount` field in the `RewardAudit` table.
+  """
+  amount_min: Float @fdc_generated(from: "RewardAudit.amount", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `timestamp` field in the `RewardAudit` table.
+  """
+  timestamp_min: Timestamp @fdc_generated(from: "RewardAudit.timestamp", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `amount` field in the `RewardAudit` table.
+  """
+  amount_max: Float @fdc_generated(from: "RewardAudit.amount", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `timestamp` field in the `RewardAudit` table.
+  """
+  timestamp_max: Timestamp @fdc_generated(from: "RewardAudit.timestamp", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "RewardAudit.id", purpose: ENTITY_ID)
+}
+extend type User {
+  """
+  ✨ List `ChatMessage` objects in a one-to-many relationship (where `ChatMessage`.`user` is this object).
+  """
+  chatMessages_on_user(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ChatMessage_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ChatMessage_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ChatMessage_Having
+  ): [ChatMessage!]! @fdc_generated(from: "ChatMessage.user", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  ✨ List `RewardAudit` objects in a one-to-many relationship (where `RewardAudit`.`user` is this object).
+  """
+  rewardAudits_on_user(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: RewardAudit_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [RewardAudit_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: RewardAudit_Having
+  ): [RewardAudit!]! @fdc_generated(from: "RewardAudit.user", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "User", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `User` table.
+  """
+  _count: Int! @fdc_generated(from: "User.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `adsBalance` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  adsBalance_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.adsBalance", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `bankBalance` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  bankBalance_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.bankBalance", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `dogeBalance` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  dogeBalance_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.dogeBalance", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `faucetClaims` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  faucetClaims_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.faucetClaims", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `lastClaimTime` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  lastClaimTime_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.lastClaimTime", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `offerwallBalance` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  offerwallBalance_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.offerwallBalance", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `petBirthDate` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  petBirthDate_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.petBirthDate", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `petEnergy` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  petEnergy_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.petEnergy", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `petHappiness` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  petHappiness_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.petHappiness", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `petHunger` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  petHunger_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.petHunger", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `petLastInteraction` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  petLastInteraction_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.petLastInteraction", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `petTotalDistanceWalked` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  petTotalDistanceWalked_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.petTotalDistanceWalked", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `role` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  role_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.role", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `stakeTimestamp` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stakeTimestamp_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.stakeTimestamp", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `stakedBalance` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stakedBalance_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.stakedBalance", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `totalClaims` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  totalClaims_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.totalClaims", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `xp` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  xp_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.xp", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `adsBalance` field in the `User` table.
+  """
+  adsBalance_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.adsBalance", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `bankBalance` field in the `User` table.
+  """
+  bankBalance_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.bankBalance", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `dogeBalance` field in the `User` table.
+  """
+  dogeBalance_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.dogeBalance", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `faucetClaims` field in the `User` table.
+  """
+  faucetClaims_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "User.faucetClaims", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `offerwallBalance` field in the `User` table.
+  """
+  offerwallBalance_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.offerwallBalance", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `petEnergy` field in the `User` table.
+  """
+  petEnergy_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.petEnergy", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `petHappiness` field in the `User` table.
+  """
+  petHappiness_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.petHappiness", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `petHunger` field in the `User` table.
+  """
+  petHunger_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.petHunger", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `petTotalDistanceWalked` field in the `User` table.
+  """
+  petTotalDistanceWalked_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.petTotalDistanceWalked", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `stakedBalance` field in the `User` table.
+  """
+  stakedBalance_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.stakedBalance", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `totalClaims` field in the `User` table.
+  """
+  totalClaims_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "User.totalClaims", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `xp` field in the `User` table.
+  """
+  xp_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "User.xp", purpose: QUERY_SUM)
+  """
+  ✨ Average the `adsBalance` field in the `User` table.
+  """
+  adsBalance_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.adsBalance", purpose: QUERY_AVG)
+  """
+  ✨ Average the `bankBalance` field in the `User` table.
+  """
+  bankBalance_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.bankBalance", purpose: QUERY_AVG)
+  """
+  ✨ Average the `dogeBalance` field in the `User` table.
+  """
+  dogeBalance_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.dogeBalance", purpose: QUERY_AVG)
+  """
+  ✨ Average the `faucetClaims` field in the `User` table.
+  """
+  faucetClaims_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.faucetClaims", purpose: QUERY_AVG)
+  """
+  ✨ Average the `offerwallBalance` field in the `User` table.
+  """
+  offerwallBalance_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.offerwallBalance", purpose: QUERY_AVG)
+  """
+  ✨ Average the `petEnergy` field in the `User` table.
+  """
+  petEnergy_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.petEnergy", purpose: QUERY_AVG)
+  """
+  ✨ Average the `petHappiness` field in the `User` table.
+  """
+  petHappiness_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.petHappiness", purpose: QUERY_AVG)
+  """
+  ✨ Average the `petHunger` field in the `User` table.
+  """
+  petHunger_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.petHunger", purpose: QUERY_AVG)
+  """
+  ✨ Average the `petTotalDistanceWalked` field in the `User` table.
+  """
+  petTotalDistanceWalked_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.petTotalDistanceWalked", purpose: QUERY_AVG)
+  """
+  ✨ Average the `stakedBalance` field in the `User` table.
+  """
+  stakedBalance_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.stakedBalance", purpose: QUERY_AVG)
+  """
+  ✨ Average the `totalClaims` field in the `User` table.
+  """
+  totalClaims_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.totalClaims", purpose: QUERY_AVG)
+  """
+  ✨ Average the `xp` field in the `User` table.
+  """
+  xp_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.xp", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `adsBalance` field in the `User` table.
+  """
+  adsBalance_min: Float @fdc_generated(from: "User.adsBalance", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `bankBalance` field in the `User` table.
+  """
+  bankBalance_min: Float @fdc_generated(from: "User.bankBalance", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `dogeBalance` field in the `User` table.
+  """
+  dogeBalance_min: Float @fdc_generated(from: "User.dogeBalance", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `faucetClaims` field in the `User` table.
+  """
+  faucetClaims_min: Int @fdc_generated(from: "User.faucetClaims", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `lastClaimTime` field in the `User` table.
+  """
+  lastClaimTime_min: Timestamp @fdc_generated(from: "User.lastClaimTime", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `offerwallBalance` field in the `User` table.
+  """
+  offerwallBalance_min: Float @fdc_generated(from: "User.offerwallBalance", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `petBirthDate` field in the `User` table.
+  """
+  petBirthDate_min: Timestamp @fdc_generated(from: "User.petBirthDate", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `petEnergy` field in the `User` table.
+  """
+  petEnergy_min: Float @fdc_generated(from: "User.petEnergy", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `petHappiness` field in the `User` table.
+  """
+  petHappiness_min: Float @fdc_generated(from: "User.petHappiness", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `petHunger` field in the `User` table.
+  """
+  petHunger_min: Float @fdc_generated(from: "User.petHunger", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `petLastInteraction` field in the `User` table.
+  """
+  petLastInteraction_min: Timestamp @fdc_generated(from: "User.petLastInteraction", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `petTotalDistanceWalked` field in the `User` table.
+  """
+  petTotalDistanceWalked_min: Float @fdc_generated(from: "User.petTotalDistanceWalked", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `stakeTimestamp` field in the `User` table.
+  """
+  stakeTimestamp_min: Timestamp @fdc_generated(from: "User.stakeTimestamp", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `stakedBalance` field in the `User` table.
+  """
+  stakedBalance_min: Float @fdc_generated(from: "User.stakedBalance", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `totalClaims` field in the `User` table.
+  """
+  totalClaims_min: Int @fdc_generated(from: "User.totalClaims", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `xp` field in the `User` table.
+  """
+  xp_min: Int @fdc_generated(from: "User.xp", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `adsBalance` field in the `User` table.
+  """
+  adsBalance_max: Float @fdc_generated(from: "User.adsBalance", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `bankBalance` field in the `User` table.
+  """
+  bankBalance_max: Float @fdc_generated(from: "User.bankBalance", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `dogeBalance` field in the `User` table.
+  """
+  dogeBalance_max: Float @fdc_generated(from: "User.dogeBalance", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `faucetClaims` field in the `User` table.
+  """
+  faucetClaims_max: Int @fdc_generated(from: "User.faucetClaims", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `lastClaimTime` field in the `User` table.
+  """
+  lastClaimTime_max: Timestamp @fdc_generated(from: "User.lastClaimTime", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `offerwallBalance` field in the `User` table.
+  """
+  offerwallBalance_max: Float @fdc_generated(from: "User.offerwallBalance", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `petBirthDate` field in the `User` table.
+  """
+  petBirthDate_max: Timestamp @fdc_generated(from: "User.petBirthDate", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `petEnergy` field in the `User` table.
+  """
+  petEnergy_max: Float @fdc_generated(from: "User.petEnergy", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `petHappiness` field in the `User` table.
+  """
+  petHappiness_max: Float @fdc_generated(from: "User.petHappiness", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `petHunger` field in the `User` table.
+  """
+  petHunger_max: Float @fdc_generated(from: "User.petHunger", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `petLastInteraction` field in the `User` table.
+  """
+  petLastInteraction_max: Timestamp @fdc_generated(from: "User.petLastInteraction", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `petTotalDistanceWalked` field in the `User` table.
+  """
+  petTotalDistanceWalked_max: Float @fdc_generated(from: "User.petTotalDistanceWalked", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `stakeTimestamp` field in the `User` table.
+  """
+  stakeTimestamp_max: Timestamp @fdc_generated(from: "User.stakeTimestamp", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `stakedBalance` field in the `User` table.
+  """
+  stakedBalance_max: Float @fdc_generated(from: "User.stakedBalance", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `totalClaims` field in the `User` table.
+  """
+  totalClaims_max: Int @fdc_generated(from: "User.totalClaims", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `xp` field in the `User` table.
+  """
+  xp_max: Int @fdc_generated(from: "User.xp", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "User.id", purpose: ENTITY_ID)
+}
