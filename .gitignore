@@ -50,6 +50,9 @@ backend/.env
 android/app/google-services.json
 # User Data
 backend/subscribers.csv
+backend/scripts/firestore_users_backup.json
+backend/serviceAccountKey.json
+serviceAccountKey.json
 
 # AI tool configs (local, machine-specific)
 .agents/

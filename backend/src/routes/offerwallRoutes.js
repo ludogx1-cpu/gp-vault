@@ -7,6 +7,36 @@ const router = express.Router();
 const multer = require('multer');
 const upload = multer();
 
+function getConfiguredSecret(name) {
+  const secret = process.env[name];
+  if (!secret) {
+    throw new Error(`${name} is not configured`);
+  }
+  return secret;
+}
+
+function normalizeProxyIp(value) {
+  const firstIp = String(value || '').split(',')[0].trim();
+  return firstIp.startsWith('::ffff:') ? firstIp.slice(7) : firstIp;
+}
+
+function requestIp(req) {
+  return normalizeProxyIp(req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress);
+}
+
+function isAllowedIp(req, allowedIps) {
+  const reqIp = requestIp(req);
+  return allowedIps.includes(reqIp);
+}
+
+function signaturesMatch(expected, provided) {
+  if (typeof provided !== 'string') return false;
+  const expectedBuffer = Buffer.from(expected, 'hex');
+  const providedBuffer = Buffer.from(provided.trim().toLowerCase(), 'hex');
+  return expectedBuffer.length === providedBuffer.length
+    && crypto.timingSafeEqual(expectedBuffer, providedBuffer);
+}
+
 // Offerwall Postback Routes
 // Use this endpoint to receive conversion notifications from offerwalls
 // Example: https://your-backend.onrender.com/api/offerwall/postback/bitcotasks
@@ -16,12 +46,12 @@ router.all('/postback/bitcotasks', upload.none(), async (req, res) => {
     // BitcoTasks sometimes places parameters in the URL even during a POST request
     const data = { ...req.query, ...req.body };
 
-    // Temporary Debug Log
+    // Keep diagnostics, but do not persist headers or signed payload material.
     await admin.firestore().collection('debug_logs').add({
       route: 'bitcotasks',
       method: req.method,
-      headers: req.headers,
-      data: data,
+      dataKeys: Object.keys(data),
+      remoteAddress: requestIp(req),
       timestamp: admin.firestore.FieldValue.serverTimestamp()
     });
 
@@ -36,29 +66,20 @@ router.all('/postback/bitcotasks', upload.none(), async (req, res) => {
     }
 
     // IP Whitelisting for Bitcotasks
-    let reqIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    if (reqIp && reqIp.includes(',')) {
-      reqIp = reqIp.split(',')[0].trim();
-    }
     const allowedIps = ['45.14.135.48'];
-    const isIpAllowed = allowedIps.some(ip => reqIp && reqIp.includes(ip));
     
-    if (!isIpAllowed) {
-      console.warn(`BitcoTasks Postback rejected from unauthorized IP: ${reqIp}`);
+    if (!isAllowedIp(req, allowedIps)) {
+      console.warn(`BitcoTasks Postback rejected from unauthorized IP: ${requestIp(req)}`);
       return res.status(403).send("ERROR: Unauthorized IP");
     }
 
-    const secret = process.env.BITCOTASKS_SECRET || '855c7cf45fb8566c3382e5eddacbbc1d';
-    if (!secret) {
-      console.error("BITCOTASKS_SECRET is not configured in environment variables");
-      return res.status(500).send("ERROR: Server configuration error");
-    }
+    const secret = getConfiguredSecret('BITCOTASKS_SECRET');
 
     // Verify signature: md5(subId . transId . reward . secret)
     const hashInput = `${subId}${transId}${reward}${secret}`;
     const expectedSignature = crypto.createHash('md5').update(hashInput).digest('hex');
 
-    if (expectedSignature !== signature) {
+    if (!signaturesMatch(expectedSignature, signature)) {
       return res.status(401).send("ERROR: Signature doesn't match");
     }
 
@@ -145,24 +166,18 @@ router.all('/postback/timewall', async (req, res) => {
     }
 
     // IP Whitelisting
-    let reqIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    if (reqIp && reqIp.includes(',')) {
-      reqIp = reqIp.split(',')[0].trim();
-    }
     const allowedIps = ['18.156.132.55', '51.81.120.73', '142.111.248.18'];
-    const isIpAllowed = allowedIps.some(ip => reqIp && reqIp.includes(ip));
     
-    // We log IP for debugging but enforce it
-    if (!isIpAllowed) {
-      console.warn(`TimeWall Postback rejected from unauthorized IP: ${reqIp}`);
+    if (!isAllowedIp(req, allowedIps)) {
+      console.warn(`TimeWall Postback rejected from unauthorized IP: ${requestIp(req)}`);
       return res.status(403).send("ERROR: Unauthorized IP");
     }
 
-    const secret = "b25e22749832cf3689f957c6a683020b";
+    const secret = getConfiguredSecret('TIMEWALL_SECRET');
     const hashInput = `${userID}${revenue}${secret}`;
     const expectedHash = crypto.createHash('sha256').update(hashInput).digest('hex');
 
-    if (expectedHash !== hash) {
+    if (!signaturesMatch(expectedHash, hash)) {
       return res.status(401).send("ERROR: Hash doesn't match");
     }
 

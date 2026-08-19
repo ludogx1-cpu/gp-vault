@@ -22,4 +22,13 @@ describe('Backend route smoke tests', () => {
     expect(response.body).toHaveProperty('usdPrice');
     expect(response.body).toHaveProperty('source');
   });
+
+  it('should reject anonymous admin update requests with 401', async () => {
+    const response = await request(app)
+      .post('/admin/add-update')
+      .send({ title: 'Test', message: 'Test message' });
+
+    expect(response.status).toBe(401);
+    expect(response.body.success).toBe(false);
+  });
 });

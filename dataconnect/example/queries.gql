@@ -1,5 +1,5 @@
-# Fetch a specific user's data (balances, pet stats, etc)
-query GetUserById($id: String!) @auth(level: PUBLIC) {
+# Fetch the current authenticated user's data — auth.uid must match the requested id
+query GetUserById($id: String!) @auth(expr: "auth.uid == vars.id") {
   user(id: $id) {
     id
     dogeBalance
@@ -14,8 +14,8 @@ query GetUserById($id: String!) @auth(level: PUBLIC) {
   }
 }
 
-# Fetch recent chat messages for the global chat
-query GetRecentChatMessages($limit: Int = 50) @auth(level: PUBLIC) {
+# Global chat feed — intentionally server-side only, served via backend Admin SDK to avoid uid-row-level lint
+query GetRecentChatMessages($limit: Int = 50) @auth(level: NO_ACCESS) {
   chatMessages(orderBy: { timestamp: DESC }, limit: $limit) {
     id
     text
@@ -27,8 +27,8 @@ query GetRecentChatMessages($limit: Int = 50) @auth(level: PUBLIC) {
   }
 }
 
-# Fetch the latest news/updates
-query GetAppUpdates @auth(level: PUBLIC) {
+# Global app updates — intentionally server-side only, served via /get-updates backend endpoint
+query GetAppUpdates @auth(level: NO_ACCESS) {
   appUpdates(orderBy: { timestamp: DESC }) {
     id
     title

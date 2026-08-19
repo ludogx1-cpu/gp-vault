@@ -4,6 +4,10 @@ const router = express.Router();
 
 router.post('/add-update', verifyFirebaseToken, async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+
     if (!(await isAdmin(req.user.uid))) {
       return res.status(403).json({ success: false, error: 'Access Denied: Admins only.' });
     }
@@ -29,6 +33,10 @@ router.post('/add-update', verifyFirebaseToken, async (req, res) => {
 
 router.delete('/delete-update/:id', verifyFirebaseToken, async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+
     if (!(await isAdmin(req.user.uid))) {
       return res.status(403).json({ success: false, error: 'Admins only.' });
     }

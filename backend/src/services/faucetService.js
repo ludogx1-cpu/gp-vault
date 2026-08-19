@@ -6,7 +6,7 @@ const { calculateDogeReward } = require('../utils/rewardCalculator');
 const { formatAmount, verifyCaptchaToken, getStreakUpdates } = require('../utils/helpers');
 const { calculateDecay, calculateTrickBonusPercent, getAgeMultiplier } = require('../utils/petMechanics');
 const { logRewardEvent } = require('../utils/rewardAudit');
-const { syncUserBalances } = require('../utils/dataConnectSync');
+const { syncUserBalances, syncPetStats } = require('../utils/dataConnectSync');
 
 function splitUpdates(updates) {
   const petUpdates = {};
@@ -257,14 +257,18 @@ async function withdraw(user, address, amount) {
   try {
     faucetPayResponse = await faucetPaySend(address, formatAmount(sendAmount));
   } catch (faucetError) {
-    await admin.firestore().runTransaction(async (refundTx) => {
+    const refundResult = await admin.firestore().runTransaction(async (refundTx) => {
       const snapshot = await refundTx.get(userRef);
       if (snapshot.exists) {
-        refundTx.update(userRef, {
+        const refundUpdates = {
           doge_balance: Number(snapshot.data().doge_balance || 0) + sendAmount,
-        });
+        };
+        refundTx.update(userRef, refundUpdates);
+        return { data: snapshot.data(), updates: refundUpdates };
       }
+      return null;
     });
+    if (refundResult) syncUserBalances(user.uid, refundResult.data, refundResult.updates).catch(console.error);
     throw new Error('Payment processor is temporarily down. Your funds have been securely refunded.');
   }
 
