@@ -1,0 +1,8 @@
+query GetUser($id: String!) @auth(level: NO_ACCESS) {
+  user(id: $id) {
+    id
+    dogeBalance
+    xp
+    lastClaimTime
+  }
+}

@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Flutter: Web (gp-vault-main)",
+            "request": "launch",
+            "type": "dart",
+            "cwd": "${workspaceFolder}/gp-vault-main",
+            "program": "${workspaceFolder}/gp-vault-main/lib/main.dart",
+            "args": [
+                "-d",
+                "chrome",
+                "--web-port",
+                "8080"
+            ]
+        }
+    ]
+}
