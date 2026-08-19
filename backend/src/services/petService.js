@@ -1,6 +1,7 @@
 
 const { calculateDecay, getGrowthStage, getAgeMultiplier, getNextStageXP, MAX_STAT, calculatePetBonusPercent } = require('../utils/petMechanics');
 const { getDogePrice } = require('./priceService');
+const { syncUserBalances, syncPetStats } = require('../utils/dataConnectSync');
 
 const FEED_COST_DOGE = 0.0001;
 const PLAY_COST_DOGE = 0.0001;
@@ -85,6 +86,9 @@ async function petStatus(req) {
     
     let petStats = null;
 
+    
+    let dualWriteUpdates = {};
+    let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -108,7 +112,9 @@ async function petStatus(req) {
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
           pet_total_distance_walked: 0
         };
-        const { userUpdates, petUpdates } = splitUpdates(initData);
+        Object.assign(dualWriteUpdates, initData);
+      initialData = data || {};
+      const { userUpdates, petUpdates } = splitUpdates(initData);
         if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
         if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
         petStats = {
@@ -144,7 +150,9 @@ async function petStatus(req) {
             pet_equipped_ball: 'white',
             fetch_click_count: 0
           };
-          const { userUpdates, petUpdates } = splitUpdates(initData);
+          Object.assign(dualWriteUpdates, initData);
+      initialData = data || {};
+      const { userUpdates, petUpdates } = splitUpdates(initData);
         if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
         if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
           petStats = {
@@ -223,7 +231,9 @@ async function petStatus(req) {
         }
 
         // Update DB with decayed stats and clean buffs
-        const { userUpdates, petUpdates } = splitUpdates(updatePayload);
+        Object.assign(dualWriteUpdates, updatePayload);
+      initialData = data || {};
+      const { userUpdates, petUpdates } = splitUpdates(updatePayload);
         if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
         if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
 
@@ -235,6 +245,8 @@ async function petStatus(req) {
         } else {
           // If no last poo time, initialize it
           const updates = { pet_last_poo_time: admin.firestore.FieldValue.serverTimestamp() };
+      Object.assign(dualWriteUpdates, updates);
+      initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
       if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
@@ -282,6 +294,9 @@ async function petFeed(req) {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     let newStats = null;
 
+    
+    let dualWriteUpdates = {};
+    let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -318,6 +333,8 @@ async function petFeed(req) {
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
         pet_last_feed_time: admin.firestore.FieldValue.serverTimestamp()
       };
+      Object.assign(dualWriteUpdates, updates);
+      initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
       if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
@@ -336,6 +353,9 @@ async function petPlay(req) {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     let newStats = null;
 
+    
+    let dualWriteUpdates = {};
+    let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -372,6 +392,8 @@ async function petPlay(req) {
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
         pet_last_play_time: admin.firestore.FieldValue.serverTimestamp()
       };
+      Object.assign(dualWriteUpdates, updates);
+      initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
       if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
@@ -390,6 +412,9 @@ async function petSleep(req) {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     let newStats = null;
 
+    
+    let dualWriteUpdates = {};
+    let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -427,6 +452,8 @@ async function petSleep(req) {
         pet_sleeping_until: admin.firestore.Timestamp.fromMillis(Date.now() + 10 * 60 * 1000),
         pending_sleep_reward: true
       };
+      Object.assign(dualWriteUpdates, updates);
+      initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
       if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
@@ -445,6 +472,9 @@ async function petStroke(req) {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     let newStats = null;
 
+    
+    let dualWriteUpdates = {};
+    let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -476,6 +506,8 @@ async function petStroke(req) {
         weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp()
       };
+      Object.assign(dualWriteUpdates, updates);
+      initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
       if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
@@ -502,6 +534,9 @@ async function petWalkSync(req) {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     let result = null;
 
+    
+    let dualWriteUpdates = {};
+    let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -560,6 +595,8 @@ async function petWalkSync(req) {
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
         reward_history: history
       };
+      Object.assign(dualWriteUpdates, updates);
+      initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
       if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
@@ -579,6 +616,9 @@ async function petCleanPoo(req) {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     let reward = 0.00025;
 
+    
+    let dualWriteUpdates = {};
+    let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -623,6 +663,8 @@ async function petCleanPoo(req) {
         pet_last_poo_time: admin.firestore.Timestamp.fromMillis(newLastPooTimeMs),
         reward_history: history
       };
+      Object.assign(dualWriteUpdates, updates);
+      initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
       if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
@@ -639,6 +681,9 @@ async function petBoop(req) {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     let reward = 0.004;
 
+    
+    let dualWriteUpdates = {};
+    let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -673,6 +718,8 @@ async function petBoop(req) {
         pet_last_boop_time: admin.firestore.FieldValue.serverTimestamp(),
         reward_history: history
       };
+      Object.assign(dualWriteUpdates, updates);
+      initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
       if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
@@ -714,6 +761,9 @@ async function petAdminAgeUp(req) {
     const daysNumber = Number(days);
 
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    
+    let dualWriteUpdates = {};
+    let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -730,6 +780,8 @@ async function petAdminAgeUp(req) {
       const updates = {
         pet_birth_date: admin.firestore.Timestamp.fromMillis(newBirthTime)
       };
+      Object.assign(dualWriteUpdates, updates);
+      initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
       if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
@@ -751,6 +803,9 @@ async function petBuyAccessory(req) {
     const cost = currency === 'usdt' ? ACCESSORY_PRICES_USDT[accessoryId] : ACCESSORY_PRICES_DOGE[accessoryId];
 
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    
+    let dualWriteUpdates = {};
+    let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -784,6 +839,8 @@ async function petBuyAccessory(req) {
         updates.doge_balance = Number(data.doge_balance || 0) - cost;
       }
 
+      Object.assign(dualWriteUpdates, updates);
+      initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
         if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
         if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
@@ -801,6 +858,9 @@ async function petEquipAccessory(req) {
     const { accessoryId, equip } = req.body; // equip boolean
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
 
+    
+    let dualWriteUpdates = {};
+    let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -824,6 +884,8 @@ async function petEquipAccessory(req) {
       const updates = {
         pet_equipped_accessories: equipped
       };
+      Object.assign(dualWriteUpdates, updates);
+      initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
       if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
@@ -845,6 +907,9 @@ async function petBuyTrick(req) {
     const cost = currency === 'usdt' ? TRICK_PRICES_USDT[trickName] : TRICK_PRICES_DOGE[trickName];
 
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    
+    let dualWriteUpdates = {};
+    let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -878,6 +943,8 @@ async function petBuyTrick(req) {
         updates.doge_balance = Number(data.doge_balance || 0) - cost;
       }
 
+      Object.assign(dualWriteUpdates, updates);
+      initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
         if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
         if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
@@ -896,6 +963,9 @@ async function petTrick(req) {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     let newStats = null;
 
+    
+    let dualWriteUpdates = {};
+    let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -933,6 +1003,8 @@ async function petTrick(req) {
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
         active_trick_buffs: activeBuffs
       };
+      Object.assign(dualWriteUpdates, updates);
+      initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
       if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
@@ -956,6 +1028,9 @@ async function petBuyConsumable(req) {
     const cost = currency === 'usdt' ? CONSUMABLE_PRICES_USDT[itemId] : CONSUMABLE_PRICES_DOGE[itemId];
 
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    
+    let dualWriteUpdates = {};
+    let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -986,6 +1061,8 @@ async function petBuyConsumable(req) {
         updates.doge_balance = Number(data.doge_balance || 0) - cost;
       }
 
+      Object.assign(dualWriteUpdates, updates);
+      initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
         if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
         if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
@@ -1005,6 +1082,9 @@ async function petUseConsumable(req) {
     let newStats = null;
     let message = '';
 
+    
+    let dualWriteUpdates = {};
+    let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -1059,6 +1139,8 @@ async function petUseConsumable(req) {
       owned[itemId] -= 1;
       updates.pet_owned_consumables = owned;
 
+      Object.assign(dualWriteUpdates, updates);
+      initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
         if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
         if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
@@ -1091,6 +1173,9 @@ async function petBuyBall(req) {
 
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
 
+    
+    let dualWriteUpdates = {};
+    let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -1120,6 +1205,8 @@ async function petBuyBall(req) {
       ownedBalls.push(color);
       updates.pet_owned_balls = ownedBalls;
 
+      Object.assign(dualWriteUpdates, updates);
+      initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
         if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
         if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
@@ -1136,6 +1223,9 @@ async function petEquipBall(req) {
     const { color } = req.body;
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
 
+    
+    let dualWriteUpdates = {};
+    let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -1162,6 +1252,9 @@ async function petFetch(req) {
     let newStats = null;
     let currentClicks = 0;
 
+    
+    let dualWriteUpdates = {};
+    let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -1222,6 +1315,8 @@ async function petFetch(req) {
         updates.reward_history = history;
       }
 
+      Object.assign(dualWriteUpdates, updates);
+      initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
         if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
         if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });

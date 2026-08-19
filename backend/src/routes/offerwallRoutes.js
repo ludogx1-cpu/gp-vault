@@ -1,6 +1,7 @@
 const express = require('express');
 const crypto = require('crypto');
 const { admin } = require('../services/firebaseService');
+const { syncUserBalances } = require('../utils/dataConnectSync');
 const router = express.Router();
 
 const multer = require('multer');
@@ -64,7 +65,7 @@ router.all('/postback/bitcotasks', upload.none(), async (req, res) => {
     // Process the conversion
     const userRef = admin.firestore().collection('users').doc(subId);
     
-    await admin.firestore().runTransaction(async (transaction) => {
+    const txResult = await admin.firestore().runTransaction(async (transaction) => {
       const userDoc = await transaction.get(userRef);
       if (!userDoc.exists) {
         throw new Error("User not found");
@@ -102,12 +103,18 @@ router.all('/postback/bitcotasks', upload.none(), async (req, res) => {
       history.unshift({ sector: 'Offerwalls (Pending)', amount: Number(reward), timestamp: Date.now() });
       if (history.length > 15) history = history.slice(0, 15);
 
-      transaction.update(userRef, {
+      const updates = {
         pending_offer_balance: currentPending + Number(reward),
         reward_history: history,
         total_offerwalls_completed: admin.firestore.FieldValue.increment(1)
-      });
+      };
+      transaction.update(userRef, updates);
+      return { data: userData, updates };
     });
+
+    if (txResult && txResult.data) {
+      syncUserBalances(subId, txResult.data, txResult.updates).catch(console.error);
+    }
 
     // BitcoTasks expects exactly "ok"
     return res.status(200).send("ok");
@@ -162,7 +169,7 @@ router.all('/postback/timewall', async (req, res) => {
     const userRef = admin.firestore().collection('users').doc(userID);
     const txRef = admin.firestore().collection('offerwall_transactions').doc(transactionID);
 
-    await admin.firestore().runTransaction(async (transaction) => {
+    const txResult = await admin.firestore().runTransaction(async (transaction) => {
       // 1. Transaction Deduplication (If we already processed this exact transaction, skip)
       const txDoc = await transaction.get(txRef);
       if (txDoc.exists) {
@@ -212,9 +219,15 @@ router.all('/postback/timewall', async (req, res) => {
         }
 
         transaction.update(userRef, updatePayload);
+        return { data: userData, updates: updatePayload };
       }
+      return null;
       // If type is 'hold' or 'hold_cancelled', we just record the transaction (done above) but don't touch balances.
     });
+
+    if (txResult && txResult.data) {
+      syncUserBalances(userID, txResult.data, txResult.updates).catch(console.error);
+    }
 
     return res.status(200).send("ok");
   } catch (error) {

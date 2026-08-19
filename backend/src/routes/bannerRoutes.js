@@ -1,6 +1,7 @@
 const express = require('express');
 const { admin, verifyFirebaseToken } = require('../services/firebaseService');
 const { formatAmount } = require('../utils/helpers');
+const { syncUserBalances } = require('../utils/dataConnectSync');
 
 const router = express.Router();
 
@@ -24,7 +25,7 @@ router.post('/swap-doge', verifyFirebaseToken, async (req, res) => {
 
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
 
-    await admin.firestore().runTransaction(async (transaction) => {
+    const txResult = await admin.firestore().runTransaction(async (transaction) => {
       const snapshot = await transaction.get(userRef);
       if (!snapshot.exists) throw new Error('User not found');
 
@@ -35,11 +36,17 @@ router.post('/swap-doge', verifyFirebaseToken, async (req, res) => {
         throw new Error('Insufficient DOGE balance to swap');
       }
 
-      transaction.update(userRef, {
+      const updates = {
         doge_balance: currentDogeBalance - swapAmount,
         ads_balance: Number(data.ads_balance || 0) + finalUsdtCredit
-      });
+      };
+      transaction.update(userRef, updates);
+      return { data, updates };
     });
+
+    if (txResult && txResult.data) {
+      syncUserBalances(req.user.uid, txResult.data, txResult.updates).catch(console.error);
+    }
 
     console.log('Swap DOGE request:', { user: req.user.uid, amount: swapAmount, credited: finalUsdtCredit });
     res.json({ success: true, message: 'Swap completed successfully', swappedAmount: formatAmount(swapAmount) });
@@ -70,7 +77,7 @@ router.post('/buy-banner', verifyFirebaseToken, async (req, res) => {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     const newBannerRef = admin.firestore().collection('banners').doc();
 
-    await admin.firestore().runTransaction(async (transaction) => {
+    const txResult = await admin.firestore().runTransaction(async (transaction) => {
       const snapshot = await transaction.get(userRef);
       if (!snapshot.exists) throw new Error('User not found');
 
@@ -81,9 +88,10 @@ router.post('/buy-banner', verifyFirebaseToken, async (req, res) => {
         throw new Error(`Insufficient Ad Balance. Need $${cost} USDT`);
       }
 
-      transaction.update(userRef, {
+      const updates = {
         ads_balance: currentAdsBalance - cost
-      });
+      };
+      transaction.update(userRef, updates);
 
       transaction.set(newBannerRef, {
         slot: doc_id,
@@ -93,7 +101,12 @@ router.post('/buy-banner', verifyFirebaseToken, async (req, res) => {
         status: 'active',
         created_at: admin.firestore.FieldValue.serverTimestamp()
       });
+      return { data, updates };
     });
+
+    if (txResult && txResult.data) {
+      syncUserBalances(req.user.uid, txResult.data, txResult.updates).catch(console.error);
+    }
 
     console.log('Buy banner request successful:', { user: req.user.uid, doc_id, image_url, target_url, cost });
     res.json({ success: true, message: 'Banner campaign registered successfully' });

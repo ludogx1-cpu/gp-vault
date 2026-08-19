@@ -1,5 +1,6 @@
 const cron = require('node-cron');
 const { admin } = require('./firebaseService');
+const { syncUserBalances } = require('../utils/dataConnectSync');
 
 async function releasePendingOffers() {
   console.log('[OfferwallCron] Starting check for mature pending offers...');
@@ -60,7 +61,7 @@ async function releasePendingOffers() {
       const totalAmountToRelease = userUpdates[userId];
       const userRef = db.collection('users').doc(userId);
 
-      await db.runTransaction(async (transaction) => {
+      const txResult = await db.runTransaction(async (transaction) => {
         const userDoc = await transaction.get(userRef);
         if (!userDoc.exists) return; // Skip if user deleted
 
@@ -80,13 +81,18 @@ async function releasePendingOffers() {
         });
         if (history.length > 15) history = history.slice(0, 15);
 
-        transaction.update(userRef, {
+        const updates = {
           pending_offer_balance: newPending,
           offerwall_balance: newOfferwall,
           reward_history: history,
           total_earned: admin.firestore.FieldValue.increment(totalAmountToRelease)
-        });
+        };
+        transaction.update(userRef, updates);
+        return { data: userData, updates };
       });
+      if (txResult && txResult.data) {
+        syncUserBalances(userId, txResult.data, txResult.updates).catch(console.error);
+      }
       console.log(`[OfferwallCron] Released ${totalAmountToRelease} DOGE for user ${userId}.`);
       
       const { logRewardEvent } = require('../utils/rewardAudit');
