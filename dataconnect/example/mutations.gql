@@ -5,7 +5,7 @@ mutation CreateUser($id: String!) @auth(expr: "auth.uid == vars.id") {
   })
 }
 
-# Update a user's balances — only the authenticated user can update their own row
+# Server-only balance sync. Clients must earn or move balances through backend routes.
 mutation UpdateUserBalances(
   $id: String!, 
   $dogeBalance: Float, 
@@ -17,7 +17,7 @@ mutation UpdateUserBalances(
   $totalClaims: Int,
   $faucetClaims: Int,
   $lastClaimTime: Timestamp
-) @auth(expr: "auth.uid == vars.id") {
+) @auth(level: NO_ACCESS) {
   user_update(id: $id, data: {
     dogeBalance: $dogeBalance,
     stakedBalance: $stakedBalance,
@@ -31,13 +31,13 @@ mutation UpdateUserBalances(
   })
 }
 
-# Update pet stats — only the authenticated user can update their own pet
+# Server-only pet stat sync. Clients must update pet state through backend routes.
 mutation UpdatePetStats(
   $id: String!,
   $petHunger: Float,
   $petHappiness: Float,
   $petEnergy: Float
-) @auth(expr: "auth.uid == vars.id") {
+) @auth(level: NO_ACCESS) {
   user_update(id: $id, data: {
     petHunger: $petHunger,
     petHappiness: $petHappiness,
@@ -53,7 +53,7 @@ mutation SendChatMessage($userId: String!, $text: String!) @auth(expr: "auth.uid
   })
 }
 
-# Migrate a user with all their data — only the authenticated user can upsert their own row
+# Server-only migration path. This can set balances and roles.
 mutation MigrateUser(
   $id: String!,
   $dogeBalance: Float,
@@ -73,7 +73,7 @@ mutation MigrateUser(
   $petEnergy: Float,
   $petLastInteraction: Timestamp,
   $petTotalDistanceWalked: Float
-) @auth(expr: "auth.uid == vars.id") {
+) @auth(level: NO_ACCESS) {
   user_upsert(data: {
     id: $id,
     dogeBalance: $dogeBalance,
