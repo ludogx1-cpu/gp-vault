@@ -5,6 +5,8 @@ class UpdateUserBalancesVariablesBuilder {
   Optional<double> _dogeBalance = Optional.optional(nativeFromJson, nativeToJson);
   Optional<double> _stakedBalance = Optional.optional(nativeFromJson, nativeToJson);
   Optional<double> _bankBalance = Optional.optional(nativeFromJson, nativeToJson);
+  Optional<double> _offerwallBalance = Optional.optional(nativeFromJson, nativeToJson);
+  Optional<double> _adsBalance = Optional.optional(nativeFromJson, nativeToJson);
   Optional<int> _xp = Optional.optional(nativeFromJson, nativeToJson);
   Optional<int> _totalClaims = Optional.optional(nativeFromJson, nativeToJson);
   Optional<int> _faucetClaims = Optional.optional(nativeFromJson, nativeToJson);
@@ -20,6 +22,14 @@ class UpdateUserBalancesVariablesBuilder {
   }
   UpdateUserBalancesVariablesBuilder bankBalance(double? t) {
    _bankBalance.value = t;
+   return this;
+  }
+  UpdateUserBalancesVariablesBuilder offerwallBalance(double? t) {
+   _offerwallBalance.value = t;
+   return this;
+  }
+  UpdateUserBalancesVariablesBuilder adsBalance(double? t) {
+   _adsBalance.value = t;
    return this;
   }
   UpdateUserBalancesVariablesBuilder xp(int? t) {
@@ -47,7 +57,7 @@ class UpdateUserBalancesVariablesBuilder {
   }
 
   MutationRef<UpdateUserBalancesData, UpdateUserBalancesVariables> ref() {
-    UpdateUserBalancesVariables vars= UpdateUserBalancesVariables(id: id,dogeBalance: _dogeBalance,stakedBalance: _stakedBalance,bankBalance: _bankBalance,xp: _xp,totalClaims: _totalClaims,faucetClaims: _faucetClaims,lastClaimTime: _lastClaimTime,);
+    UpdateUserBalancesVariables vars= UpdateUserBalancesVariables(id: id,dogeBalance: _dogeBalance,stakedBalance: _stakedBalance,bankBalance: _bankBalance,offerwallBalance: _offerwallBalance,adsBalance: _adsBalance,xp: _xp,totalClaims: _totalClaims,faucetClaims: _faucetClaims,lastClaimTime: _lastClaimTime,);
     return _dataConnect.mutation("UpdateUserBalances", dataDeserializer, varsSerializer, vars);
   }
 }
@@ -128,6 +138,8 @@ class UpdateUserBalancesVariables {
   late final Optional<double>dogeBalance;
   late final Optional<double>stakedBalance;
   late final Optional<double>bankBalance;
+  late final Optional<double>offerwallBalance;
+  late final Optional<double>adsBalance;
   late final Optional<int>xp;
   late final Optional<int>totalClaims;
   late final Optional<int>faucetClaims;
@@ -149,6 +161,14 @@ class UpdateUserBalancesVariables {
   
     bankBalance = Optional.optional(nativeFromJson, nativeToJson);
     bankBalance.value = json['bankBalance'] == null ? null : nativeFromJson<double>(json['bankBalance']);
+  
+  
+    offerwallBalance = Optional.optional(nativeFromJson, nativeToJson);
+    offerwallBalance.value = json['offerwallBalance'] == null ? null : nativeFromJson<double>(json['offerwallBalance']);
+  
+  
+    adsBalance = Optional.optional(nativeFromJson, nativeToJson);
+    adsBalance.value = json['adsBalance'] == null ? null : nativeFromJson<double>(json['adsBalance']);
   
   
     xp = Optional.optional(nativeFromJson, nativeToJson);
@@ -181,6 +201,8 @@ class UpdateUserBalancesVariables {
     dogeBalance == otherTyped.dogeBalance && 
     stakedBalance == otherTyped.stakedBalance && 
     bankBalance == otherTyped.bankBalance && 
+    offerwallBalance == otherTyped.offerwallBalance && 
+    adsBalance == otherTyped.adsBalance && 
     xp == otherTyped.xp && 
     totalClaims == otherTyped.totalClaims && 
     faucetClaims == otherTyped.faucetClaims && 
@@ -188,7 +210,7 @@ class UpdateUserBalancesVariables {
     
   }
   @override
-  int get hashCode => Object.hashAll([id.hashCode, dogeBalance.hashCode, stakedBalance.hashCode, bankBalance.hashCode, xp.hashCode, totalClaims.hashCode, faucetClaims.hashCode, lastClaimTime.hashCode]);
+  int get hashCode => Object.hashAll([id.hashCode, dogeBalance.hashCode, stakedBalance.hashCode, bankBalance.hashCode, offerwallBalance.hashCode, adsBalance.hashCode, xp.hashCode, totalClaims.hashCode, faucetClaims.hashCode, lastClaimTime.hashCode]);
   
 
   Map<String, dynamic> toJson() {
@@ -202,6 +224,12 @@ class UpdateUserBalancesVariables {
     }
     if(bankBalance.state == OptionalState.set) {
       json['bankBalance'] = bankBalance.toJson();
+    }
+    if(offerwallBalance.state == OptionalState.set) {
+      json['offerwallBalance'] = offerwallBalance.toJson();
+    }
+    if(adsBalance.state == OptionalState.set) {
+      json['adsBalance'] = adsBalance.toJson();
     }
     if(xp.state == OptionalState.set) {
       json['xp'] = xp.toJson();
@@ -223,6 +251,8 @@ class UpdateUserBalancesVariables {
     required this.dogeBalance,
     required this.stakedBalance,
     required this.bankBalance,
+    required this.offerwallBalance,
+    required this.adsBalance,
     required this.xp,
     required this.totalClaims,
     required this.faucetClaims,

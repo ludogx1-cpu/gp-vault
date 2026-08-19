@@ -1,25 +1,29 @@
-# Create a new user upon signup
-mutation CreateUser($id: String!) @auth(level: PUBLIC) {
+# Create a new user upon signup — only the authenticated user can create their own row
+mutation CreateUser($id: String!) @auth(expr: "auth.uid == vars.id") {
   user_insert(data: {
     id: $id
   })
 }
 
-# Update a user's balances (used by the Faucet/Vault backend)
+# Update a user's balances — only the authenticated user can update their own row
 mutation UpdateUserBalances(
   $id: String!, 
   $dogeBalance: Float, 
   $stakedBalance: Float,
   $bankBalance: Float,
+  $offerwallBalance: Float,
+  $adsBalance: Float,
   $xp: Int,
   $totalClaims: Int,
   $faucetClaims: Int,
   $lastClaimTime: Timestamp
-) @auth(level: PUBLIC) {
+) @auth(expr: "auth.uid == vars.id") {
   user_update(id: $id, data: {
     dogeBalance: $dogeBalance,
     stakedBalance: $stakedBalance,
     bankBalance: $bankBalance,
+    offerwallBalance: $offerwallBalance,
+    adsBalance: $adsBalance,
     xp: $xp,
     totalClaims: $totalClaims,
     faucetClaims: $faucetClaims,
@@ -27,13 +31,13 @@ mutation UpdateUserBalances(
   })
 }
 
-# Update pet stats (used by the Node-cron backend task)
+# Update pet stats — only the authenticated user can update their own pet
 mutation UpdatePetStats(
   $id: String!,
   $petHunger: Float,
   $petHappiness: Float,
   $petEnergy: Float
-) @auth(level: PUBLIC) {
+) @auth(expr: "auth.uid == vars.id") {
   user_update(id: $id, data: {
     petHunger: $petHunger,
     petHappiness: $petHappiness,
@@ -41,15 +45,15 @@ mutation UpdatePetStats(
   })
 }
 
-# Send a chat message
-mutation SendChatMessage($userId: String!, $text: String!) @auth(level: PUBLIC) {
+# Send a chat message — only the authenticated user can insert as themselves
+mutation SendChatMessage($userId: String!, $text: String!) @auth(expr: "auth.uid == vars.userId") {
   chatMessage_insert(data: {
     userId: $userId,
     text: $text
   })
 }
 
-# Migrate a user with all their data
+# Migrate a user with all their data — only the authenticated user can upsert their own row
 mutation MigrateUser(
   $id: String!,
   $dogeBalance: Float,
@@ -69,7 +73,7 @@ mutation MigrateUser(
   $petEnergy: Float,
   $petLastInteraction: Timestamp,
   $petTotalDistanceWalked: Float
-) @auth(level: PUBLIC) {
+) @auth(expr: "auth.uid == vars.id") {
   user_upsert(data: {
     id: $id,
     dogeBalance: $dogeBalance,

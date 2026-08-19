@@ -17,7 +17,10 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import '../../dataconnect_generated/generated.dart';
 
 class FaucetClaimCard extends StatefulWidget {
-  const FaucetClaimCard({super.key});
+  final ExampleConnector? connector;
+  final User? mockUser; // Added for testing
+
+  const FaucetClaimCard({super.key, this.connector, this.mockUser});
 
   @override
   State<FaucetClaimCard> createState() => _FaucetClaimCardState();
@@ -87,12 +90,13 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
 
   Future<void> _syncCheckLock() async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
+      final user = widget.mockUser ?? FirebaseAuth.instance.currentUser;
       bool verifiedFromBackend = false;
       
       if (user != null) {
         try {
-          final result = await ExampleConnector.instance.getUserById(id: user.uid).execute();
+          final connector = widget.connector ?? ExampleConnector.instance;
+          final result = await connector.getUserById(id: user.uid).execute();
           final lastClaim = result.data.user?.lastClaimTime;
           if (lastClaim != null) {
             DateTime dcTime;
@@ -259,7 +263,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
   }
 
   Future<void> _claimDoge() async {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = widget.mockUser ?? FirebaseAuth.instance.currentUser;
     if (!_saveToVault && _addressController.text.isEmpty) {
       setState(() => _status = "Address Required!");
       return;
@@ -418,7 +422,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
       child: Column(
         children: [
         StreamBuilder<User?>(
-          stream: FirebaseAuth.instance.authStateChanges(),
+          stream: widget.mockUser != null ? Stream.value(widget.mockUser) : FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
             final user = snapshot.data;
             if (user != null) {
