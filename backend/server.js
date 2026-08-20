@@ -18,6 +18,7 @@ const { startWeeklyResetService } = require('./src/services/weeklyResetService')
 const { startPromoCronService } = require('./src/services/promoCronService');
 const { startPetCronService } = require('./src/services/petCronService');
 const { startOfferwallCronService } = require('./src/services/offerwallCronService');
+const { startDataconnectRetryCronService } = require('./src/services/dataconnectRetryCron');
 const app = express();
 app.set('trust proxy', 1); // Trust the first proxy (Render) to fix X-Forwarded-For rate limit errors
 app.use(express.json({ limit: '1mb' }));
@@ -79,6 +80,12 @@ app.get('/cron/trigger-offerwall-release', cronAuth, async (req, res) => {
   res.json({ success: true, message: 'Offerwall release logic executed' });
 });
 
+app.get('/cron/trigger-dataconnect-retry', cronAuth, async (req, res) => {
+  const { retryFailedDataConnectSyncs } = require('./src/services/dataconnectRetryCron');
+  await retryFailedDataConnectSyncs();
+  res.json({ success: true, message: 'Data Connect DLQ retry logic executed' });
+});
+
 app.get('/price', async (req, res) => {
   try {
     const priceResult = await getDogePrice();
@@ -136,6 +143,7 @@ if (require.main === module) {
   startPromoCronService(); // Start the Daily Promo Cron
   startPetCronService(); // Start the Pet Care Reminder Cron
   startOfferwallCronService(); // Start the Offerwall Release Cron
+  startDataconnectRetryCronService(); // Start the Data Connect DLQ Retry Cron
 
   app.listen(port, '0.0.0.0', () => {
     console.log(`GoldenPaw faucet backend listening on port ${port}`);
