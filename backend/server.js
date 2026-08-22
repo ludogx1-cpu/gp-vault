@@ -19,6 +19,8 @@ const { startPromoCronService } = require('./src/services/promoCronService');
 const { startPetCronService } = require('./src/services/petCronService');
 const { startOfferwallCronService } = require('./src/services/offerwallCronService');
 const { startDataconnectRetryCronService } = require('./src/services/dataconnectRetryCron');
+const { startStakingCronService } = require('./src/services/stakingCronService');
+const { startTreasuryMonitorService } = require('./src/services/treasuryMonitorService');
 const app = express();
 app.set('trust proxy', 1); // Trust the first proxy (Render) to fix X-Forwarded-For rate limit errors
 app.use(express.json({ limit: '1mb' }));
@@ -144,6 +146,8 @@ if (require.main === module) {
   startPetCronService(); // Start the Pet Care Reminder Cron
   startOfferwallCronService(); // Start the Offerwall Release Cron
   startDataconnectRetryCronService(); // Start the Data Connect DLQ Retry Cron
+  startStakingCronService(); // Start Staking Daily Reminders
+  startTreasuryMonitorService(); // Start Treasury Monitoring
 
   app.listen(port, '0.0.0.0', () => {
     console.log(`GoldenPaw faucet backend listening on port ${port}`);

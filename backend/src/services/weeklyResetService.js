@@ -67,7 +67,8 @@ async function processWeeklyReset() {
       username: data.username || 'Anonymous',
       weekly_time_above_40: data.weekly_time_above_40,
       doge_balance: data.doge_balance || 0,
-      reward_history: data.reward_history || []
+      reward_history: data.reward_history || [],
+      fcm_token: data.fcm_token
     });
   });
 
@@ -90,6 +91,20 @@ async function processWeeklyReset() {
         reward_history: history
       });
       console.log(`Awarded ${prize} DOGE to ${winner.username} for rank ${i+1}`);
+
+      if (winner.fcm_token) {
+        try {
+          await admin.messaging().send({
+            token: winner.fcm_token,
+            notification: {
+              title: 'Leaderboard Winner! 🏆',
+              body: `Congratulations ${winner.username}! You ranked #${i+1} and won ${prize} DOGE!`
+            }
+          });
+        } catch (err) {
+          console.error(`Failed to send FCM to ${winner.username}:`, err);
+        }
+      }
     } else {
       console.log(`AI Bot ${winner.username} took rank ${i+1}, no payout required.`);
     }

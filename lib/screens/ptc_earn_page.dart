@@ -410,6 +410,9 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                         height: 250,
                         child: UniversalWebView.create(viewType: 'adsense-ptc-2'),
                       ),
+                      const SizedBox(height: 25),
+                      const PwaInstallWidget(),
+                      const SizedBox(height: 25),
                     ],
                   );
                 },

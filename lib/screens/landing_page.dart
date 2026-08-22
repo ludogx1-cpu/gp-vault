@@ -194,7 +194,7 @@ class _LandingPageState extends State<LandingPage> {
                     listenable: themeProvider,
                     builder: (context, child) {
                       return Text(
-                        "Golden Paw is a crypto-reward application designed to help you earn and grow Dogecoin. Our purpose is to provide a fun, zero-investment platform where users can claim free DOGE every 5 minutes, stake earnings in our 8.5% APY Vault, and raise a virtual pet.\n\nBy signing in with your Google account, you can securely save your balance, protect your progress, and access your account across all your devices.",
+                        "Golden Paw is a crypto-reward application designed to help you earn and grow Dogecoin. Our purpose is to provide a fun, zero-investment platform where users can claim free DOGE every 5 minutes, stake earnings in our 33% APY Vault, and raise a virtual pet.\n\nBy signing in with your Google account, you can securely save your balance, protect your progress, and access your account across all your devices.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: isMobile ? 16 : 18,
@@ -276,7 +276,7 @@ class _LandingPageState extends State<LandingPage> {
                   icon: Icons.bolt,
                   title: "The Vault Staking",
                   desc:
-                      "Lock your Doge in The Vault and earn 8.5% APY interest, calculated every single second.",
+                      "Lock your Doge in The Vault and earn 33% APY interest, calculated every single second.",
                   color: Colors.green,
                 ),
                 FeatureCard(

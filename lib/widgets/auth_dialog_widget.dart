@@ -449,8 +449,18 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                 setState(() {
                                   isLoading = false;
                                 });
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(e.toString())),
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text("Sign In Error"),
+                                    content: Text(e.toString()),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(ctx),
+                                        child: const Text("OK"),
+                                      )
+                                    ],
+                                  ),
                                 );
                               }
                             },
@@ -598,8 +608,18 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                 setState(() {
                                   isLoading = false;
                                 });
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(e.toString())),
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text("Sign In Error"),
+                                    content: Text(e.toString()),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(ctx),
+                                        child: const Text("OK"),
+                                      )
+                                    ],
+                                  ),
                                 );
                               }
                             },
@@ -704,13 +724,25 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                       if (!context.mounted) return;
                       context.pop();
                       context.go('/faucet');
-                    } catch (e) {
-                      if (!context.mounted) return;
-                      setState(() => isLoading = false);
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text(e.toString())));
-                    }
+                              } catch (e) {
+                                if (!context.mounted) return;
+                                setState(() {
+                                  isLoading = false;
+                                });
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text("Sign In Error"),
+                                    content: Text(e.toString()),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(ctx),
+                                        child: const Text("OK"),
+                                      )
+                                    ],
+                                  ),
+                                );
+                              }
                   },
           ),
         ),

@@ -118,7 +118,7 @@ class FAQPage extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.all(15),
                             child: Text(
-                              "You can lock your available DOGE into the Vault to earn an 8.5% Annual Percentage Yield (APY). Interest is calculated and distributed every single second.",
+                              "You can lock your available DOGE into the Vault to earn a 33% Annual Percentage Yield (APY). Interest is calculated and distributed every single second.",
                               style: TextStyle(color: textColor),
                             ),
                           ),

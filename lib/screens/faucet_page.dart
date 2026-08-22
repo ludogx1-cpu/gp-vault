@@ -66,7 +66,7 @@ class _FaucetPageState extends State<FaucetPage> {
 
         if (data != null) {
           // Primary check: setupComplete flag written by dialog on successful save
-          if (data['setupComplete'] == true) return;
+          if (data['setupComplete'] == true || data['profile_setup_skipped'] == true) return;
           
           final uName = data['username']?.toString() ?? '';
           final cName = data['chat_username']?.toString() ?? '';
@@ -115,6 +115,9 @@ class _FaucetPageState extends State<FaucetPage> {
   Future<void> _startTourIfNeed() async {
     final prefs = await SharedPreferences.getInstance();
     if (prefs.getBool('has_seen_tour') != true) {
+      await prefs.setBool('has_seen_tour', true);
+      await Future.delayed(const Duration(seconds: 3));
+      if (!mounted) return;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         try {
           ShowcaseView.get().startShowCase([_keyStats, _keyClaim, _keyPet, _keyChat]);
@@ -122,7 +125,6 @@ class _FaucetPageState extends State<FaucetPage> {
           // ignore
         }
       });
-      await prefs.setBool('has_seen_tour', true);
     }
   }
 
@@ -253,7 +255,9 @@ class _FaucetPageState extends State<FaucetPage> {
                       ],
 
                       const NewsletterSubscribeWidget(),
-                      const SizedBox(height: 60),
+                      const SizedBox(height: 50),
+                      const PwaInstallWidget(),
+                      const SizedBox(height: 100),
                     ],
                   ),
                 ),

@@ -1,7 +1,7 @@
 name: gp_faucet
 description: "Golden Paw - Dogecoin faucet, staking, and pet ecosystem."
 publish_to: 'none' 
-version: 1.1.0+2
+version: 1.1.1+3
 
 environment:
   sdk: ^3.11.5
@@ -86,3 +86,4 @@ flutter:
     - assets/shiba_coat_rain.png
     - assets/shiba_coat_winter.png
     - assets/shiba_coat_luxury.png
+    - assets/shiba_egg.png

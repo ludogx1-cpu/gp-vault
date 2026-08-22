@@ -2,8 +2,6 @@ import '../api_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
-import 'package:flutter/foundation.dart';
-import '../src/pwa_interop.dart' if (dart.library.html) '../src/pwa_interop_web.dart';
 import 'package:go_router/go_router.dart';
 
 final ValueNotifier<bool> sidebarExpandedNotifier = ValueNotifier(false);
@@ -150,41 +148,7 @@ class PersistentSidebar extends StatelessWidget {
                         context.go('/ptc');
                       },
                     ),
-                    SidebarNavItem(
-                      icon: Icons.install_mobile,
-                      title: 'Install App to Device',
-                      isDark: isDark,
-                      isExpanded: isExpanded,
-                      onTap: () {
-                        if (MediaQuery.of(context).size.width < 600) {
-                          sidebarExpandedNotifier.value = false;
-                        }
-                        if (kIsWeb) {
-                          try {
-                            bool canPrompt = canInstallPwa();
-                            if (canPrompt) {
-                              triggerPwaInstall();
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("To install: tap your browser menu (⋮ or Share) and select 'Add to Home screen' or 'Install App'!"),
-                                  backgroundColor: Colors.orange,
-                                  duration: Duration(seconds: 5),
-                                ),
-                              );
-                            }
-                          } catch (_) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("To install: tap your browser menu (⋮ or Share) and select 'Add to Home screen' or 'Install App'!"),
-                                backgroundColor: Colors.orange,
-                                duration: Duration(seconds: 5),
-                              ),
-                            );
-                          }
-                        }
-                      },
-                    ),
+
                     SidebarNavItem(
                       icon: Icons.pets,
                       title: 'Dogeogotcha Guide',

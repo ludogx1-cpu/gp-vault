@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../src/theme_provider.dart';
 import 'persistent_sidebar.dart';
+
 class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackArrow;
   final List<Widget>? actions;
@@ -55,13 +56,14 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
                       },
                     )
                   : showMenuIcon
-                      ? IconButton(
-                          icon: const Icon(Icons.menu),
-                          onPressed: () {
-                            sidebarExpandedNotifier.value = !sidebarExpandedNotifier.value;
-                          },
-                        )
-                      : const SizedBox.shrink(),
+                  ? IconButton(
+                      icon: const Icon(Icons.menu),
+                      onPressed: () {
+                        sidebarExpandedNotifier.value =
+                            !sidebarExpandedNotifier.value;
+                      },
+                    )
+                  : const SizedBox.shrink(),
               leadingWidth: (showBackArrow || showMenuIcon) ? 56.0 : 0.0,
               title: InkWell(
                 onTap: () => context.go('/'),
@@ -78,7 +80,9 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
                     Flexible(
                       child: Image.asset(
                         'assets/Golen Paw Title.png',
-                        height: isMobile ? ((showBackArrow || showMenuIcon) ? 44 : 52) : 52,
+                        height: isMobile
+                            ? ((showBackArrow || showMenuIcon) ? 44 : 52)
+                            : 52,
                         fit: BoxFit.contain,
                       ),
                     ),
@@ -86,7 +90,7 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
               actions: [
-                if (actions != null) ...actions!,
+                ...?actions,
                 if (showWallet)
                   const Padding(
                     padding: EdgeInsets.only(right: 8.0),

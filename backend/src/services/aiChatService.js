@@ -9,7 +9,7 @@ const AI_USERNAMES = [
 const AI_MESSAGES = [
   "Just claimed my 5 min faucet, the rewards are so good here!",
   "Has anyone tried the new blog page? It looks amazing.",
-  "I'm staking my DOGE in the Vault, the 8.5% APY is crazy 🚀",
+  "I'm staking my DOGE in the Vault, the 33% APY is crazy 🚀",
   "Doge to the moon! 🐕🌕",
   "Remember to feed your Shiba so it doesn't get sick guys.",
   "I just got a 20% referral bonus from my friend claiming! Easiest passive income.",
