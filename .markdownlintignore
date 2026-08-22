@@ -1,3 +1,9 @@
-**/dataconnect_generated/**
-**/.guides/**
-**/.dataconnect/**
+node_modules/
+backend/node_modules/
+.git/
+build/
+ios/
+android/
+web/
+.dart_tool/
+lib/dataconnect_generated/

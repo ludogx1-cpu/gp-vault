@@ -301,7 +301,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
         "Did you know? You get 20% of your friends' claims for life!",
         "Boop my nose every 30 mins for free DOGE!",
         "Check the Updates Board to stay informed.",
-        "You can stake DOGE in The Vault for 8.5% APY!",
+        "You can stake DOGE in The Vault for 33% APY!",
         "Don't forget to walk me every 3 hours."
       ];
       text = gpInfo[_random.nextInt(gpInfo.length)];

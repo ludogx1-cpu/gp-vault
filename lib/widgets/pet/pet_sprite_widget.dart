@@ -64,7 +64,7 @@ class PetSpriteWidget extends StatelessWidget {
       case 'old_dog':
         return 'assets/old_dog.png';
       default:
-        return 'assets/shiba_toddler.png';
+        return 'assets/shiba_baby.png';
     }
   }
 

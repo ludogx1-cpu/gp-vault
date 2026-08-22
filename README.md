@@ -40,6 +40,7 @@ gp-vault-main/
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - [Flutter SDK](https://docs.flutter.dev/get-started/install) `^3.11.5`
 - [Node.js](https://nodejs.org/) `26.x` (backend)
 - A Firebase project with Firestore, Auth, and Firebase Messaging enabled
@@ -120,6 +121,7 @@ Firestore Database ◄───────────────────�
 ## 🧪 CI / CD
 
 Every push and pull request triggers the GitHub Actions workflow (`.github/workflows/ci.yml`) which:
+
 1. Runs `flutter analyze` (zero-tolerance for issues)
 2. Runs `flutter test`
 3. Runs `npm audit` on the backend dependencies
@@ -129,7 +131,7 @@ Every push and pull request triggers the GitHub Actions workflow (`.github/workf
 ## 📦 Key Dependencies
 
 | Package | Purpose |
-|--------|---------|
+| -------- | --------- |
 | `go_router` | Declarative client-side routing |
 | `provider` | Theme state management |
 | `firebase_core` / `firebase_auth` | Authentication |

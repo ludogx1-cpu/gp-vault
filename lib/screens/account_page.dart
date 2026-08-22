@@ -385,7 +385,7 @@ class _AccountPageState extends State<AccountPage> {
                             ),
                           ],
                           const SizedBox(height: 30),
-                          const PwaInstallWidget(),
+
                           const SizedBox(height: 30),
                           const EnableNotificationsWidget(),
                           const SizedBox(height: 30),

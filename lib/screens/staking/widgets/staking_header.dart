@@ -21,7 +21,7 @@ class StakingHeader extends StatelessWidget {
         Image.asset('assets/Bank.png', height: 100, width: 100),
         const SizedBox(height: 15),
         Text(
-          "Earn 8.5% APY on your DOGE",
+          "Earn 33% APY on your DOGE",
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,

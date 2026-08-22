@@ -184,6 +184,15 @@ class _ProfileSetupDialogState extends State<ProfileSetupDialog> {
             final navigator = Navigator.of(context);
             final prefs = await SharedPreferences.getInstance();
             await prefs.setBool('profile_setup_skipped', true);
+            try {
+              final uid = FirebaseAuth.instance.currentUser?.uid;
+              if (uid != null) {
+                await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(uid)
+                    .set({'profile_setup_skipped': true}, SetOptions(merge: true));
+              }
+            } catch (_) {}
             if (!mounted) return;
             navigator.pop(false);
           },

@@ -103,7 +103,7 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
                   Icon(Icons.get_app_rounded, color: Colors.white, size: 28),
                   SizedBox(width: 10),
                   Text(
-                    "Install Golden Paw App",
+                    "Choose Your Version",
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -122,8 +122,8 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
           const SizedBox(height: 8),
           Text(
             _isIOS
-                ? "Install the app to receive notifications and daily promo codes to get up to 0.1 Doge. Tap the Share button in Safari, then select 'Add to Home Screen'."
-                : "Install the app to receive notifications and daily promo codes to get up to 0.1 Doge.",
+                ? "Install the Web App or Android APK to receive notifications and daily promo codes! For iOS Web App: Tap Share ➔ 'Add to Home Screen'."
+                : "Install the Web App or Android APK to receive notifications and daily promo codes!",
             style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.3),
           ),
           const SizedBox(height: 14),
@@ -135,7 +135,7 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
                 onPressed: _triggerInstall,
                 icon: const Icon(Icons.add_to_home_screen, color: Colors.amber, size: 18),
                 label: const Text(
-                  "INSTALL APP TO DEVICE",
+                  "INSTALL WEB APP",
                   style: TextStyle(
                     color: Colors.black87,
                     fontWeight: FontWeight.bold,
@@ -171,6 +171,32 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
                 ],
               ),
             ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            height: 42,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                downloadApk('downloads/goldenpaw.apk');
+              },
+              icon: const Icon(Icons.android, color: Colors.white, size: 18),
+              label: const Text(
+                "DOWNLOAD ANDROID APK",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green.shade600,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                elevation: 2,
+              ),
+            ),
+          ),
         ],
       ),
     )));
