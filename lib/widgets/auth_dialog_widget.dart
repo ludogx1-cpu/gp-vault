@@ -427,19 +427,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                   await FirebaseFirestore.instance
                                       .collection('users')
                                       .doc(userCred.user!.uid)
-                                      .set({
-                                        'email': userCred.user!.email,
-                                        'doge_balance': 0.0,
-                                        'staked_balance': 0.0,
-                                        'bank_balance': 0.0,
-                                        'ads_balance': 0.0,
-                                        'offerwall_balance':
-                                            0.0, // 🔑 FIXED: Added missing init to prevent null errors in Wallet
-                                        'xp': 0,
-                                        'streak_count': 0,
-                                        'joined_date': DateTime.now()
-                                            .toIso8601String(),
-                                      });
+                                      .set({'email': userCred.user!.email, 'joined_date': DateTime.now().toIso8601String()}, SetOptions(merge: true));
                                 }
                                 if (!context.mounted) return;
                                 context.pop();
@@ -587,18 +575,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                   await FirebaseFirestore.instance
                                       .collection('users')
                                       .doc(userCred.user!.uid)
-                                      .set({
-                                        'email': userCred.user!.email,
-                                        'doge_balance': 0.0,
-                                        'staked_balance': 0.0,
-                                        'bank_balance': 0.0,
-                                        'ads_balance': 0.0,
-                                        'offerwall_balance': 0.0,
-                                        'xp': 0,
-                                        'streak_count': 0,
-                                        'joined_date': DateTime.now()
-                                            .toIso8601String(),
-                                      });
+                                      .set({'email': userCred.user!.email, 'joined_date': DateTime.now().toIso8601String()}, SetOptions(merge: true));
                                 }
                                 if (!context.mounted) return;
                                 context.pop();
@@ -709,17 +686,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                         await FirebaseFirestore.instance
                             .collection('users')
                             .doc(userCred.user!.uid)
-                            .set({
-                              'email': userCred.user!.email,
-                              'doge_balance': 0.0,
-                              'staked_balance': 0.0,
-                              'bank_balance': 0.0,
-                              'ads_balance': 0.0,
-                              'offerwall_balance': 0.0,
-                              'xp': 0,
-                              'streak_count': 0,
-                              'joined_date': DateTime.now().toIso8601String(),
-                            });
+                            .set({'email': userCred.user!.email, 'joined_date': DateTime.now().toIso8601String()}, SetOptions(merge: true));
                       }
                       if (!context.mounted) return;
                       context.pop();

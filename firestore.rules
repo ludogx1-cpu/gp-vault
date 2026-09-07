@@ -13,8 +13,21 @@ service cloud.firestore {
         'photo_url',
         'fcm_token',
         'notifications_enabled',
-        'profile_setup_skipped'
+        'profile_setup_skipped',
+        'setupComplete',
+        'joined_date'
       ];
+    }
+
+    function validProfileFields(data, changed) {
+      return (!changed.hasAny(['email']) || data.get('email', null) == null || (data.email is string && data.email.size() <= 320))
+        && (!changed.hasAny(['display_name']) || data.get('display_name', null) == null || (data.display_name is string && data.display_name.size() <= 100))
+        && (!changed.hasAny(['photo_url']) || data.get('photo_url', null) == null || (data.photo_url is string && data.photo_url.size() <= 2048))
+        && (!changed.hasAny(['fcm_token']) || data.get('fcm_token', null) == null || (data.fcm_token is string && data.fcm_token.size() <= 4096))
+        && (!changed.hasAny(['joined_date']) || data.get('joined_date', null) == null || (data.joined_date is string && data.joined_date.size() <= 40))
+        && (!changed.hasAny(['notifications_enabled']) || data.get('notifications_enabled', false) is bool)
+        && (!changed.hasAny(['profile_setup_skipped']) || data.get('profile_setup_skipped', false) is bool)
+        && (!changed.hasAny(['setupComplete']) || data.get('setupComplete', false) is bool);
     }
 
     match /users/{userId} {
@@ -24,11 +37,16 @@ service cloud.firestore {
       // Users may only create a lightweight profile shell. Reward, balance,
       // role, and pet fields are server-owned and must not be client-created.
       allow create: if request.auth != null && request.auth.uid == userId
-                    && request.resource.data.keys().hasOnly(userSafeProfileFields());
+                    && request.resource.data.keys().hasOnly(userSafeProfileFields())
+                    && validProfileFields(request.resource.data, request.resource.data.keys());
       
-      // Users can update their own data, but CANNOT modify sensitive fields like balances, xp, or roles
+      // New server-owned fields are protected by default. Preserve the existing
+      // admin-only pet unlock action without allowing clients to change roles.
       allow update: if request.auth != null && request.auth.uid == userId
-                   && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['doge_balance', 'staked_balance', 'bank_balance', 'offerwall_balance', 'ads_balance', 'xp', 'role', 'last_claim_time', 'total_claims', 'faucet_claims', 'stake_timestamp', 'pet_birth_date', 'pet_hunger', 'pet_happiness', 'pet_energy', 'pet_last_interaction', 'pet_total_distance_walked']);
+                   && ((request.resource.data.diff(resource.data).affectedKeys().hasOnly(userSafeProfileFields())
+                         && validProfileFields(request.resource.data, request.resource.data.diff(resource.data).affectedKeys()))
+                       || (isAdmin() && request.resource.data.diff(resource.data).affectedKeys()
+                           .hasOnly(['pet_owned_accessories', 'pet_owned_tricks', 'active_trick_buffs'])));
       allow delete: if false;
     }
     
@@ -48,7 +66,7 @@ service cloud.firestore {
     // Dynamic Content Collections (Ads, Partners, Sponsors, Placeholders)
     match /chat_messages/{messageId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if false; // Chat mutations use the authenticated, moderated backend.
     }
     match /ptc_ads/{docId} {
       allow read: if true;

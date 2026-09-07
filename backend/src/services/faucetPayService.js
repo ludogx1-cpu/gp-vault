@@ -2,10 +2,15 @@ const axios = require('axios');
 
 async function faucetPaySend(address, amountInDecimal) {
   if (!process.env.FAUCETPAY_API_KEY) {
-    throw new Error('Missing FAUCETPAY_API_KEY environment variable');
+    const error = new Error('Missing FAUCETPAY_API_KEY environment variable');
+    error.paymentDefinitelyNotSent = true;
+    throw error;
   }
 
-  const amountInSatoshis = Math.floor(Number(amountInDecimal) * 100000000);
+  // Parse the formatted decimal exactly; floating-point multiplication followed
+  // by floor can silently send one smallest unit less than was debited.
+  const decimal = Number(amountInDecimal).toFixed(8);
+  const amountInSatoshis = BigInt(decimal.replace('.', ''));
 
   const params = new URLSearchParams({
     api_key: process.env.FAUCETPAY_API_KEY,
@@ -25,7 +30,11 @@ async function faucetPaySend(address, amountInDecimal) {
   }
 
   if (response.data.status !== 200 || response.data.success === false) {
-    throw new Error(`FaucetPay API Error: ${response.data.message || 'Unknown error'}`);
+    const error = new Error(`FaucetPay API Error: ${response.data.message || 'Unknown error'}`);
+    // Documented v1 rejection codes; unknown outcomes require reconciliation.
+    error.paymentDefinitelyNotSent = [401, 402, 403, 404, 405, 410, 450, 456, 457]
+      .includes(Number(response.data.status));
+    throw error;
   }
 
   return response.data;

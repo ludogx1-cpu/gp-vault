@@ -475,7 +475,7 @@ class _AccountBankCardState extends State<AccountBankCard> {
             ),
             const SizedBox(height: 12),
             Text(
-              "Note: This transfers your available earnings FROM your Vault or Offerwall INTO your Bank Wallet.",
+              "Bank and offerwall withdrawals are temporarily paused. Transfers into the Bank do not become withdrawable while this pause is active. Check the notice board for updates.",
               style: TextStyle(
                 color: Colors.grey.shade400,
                 fontSize: 12,

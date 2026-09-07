@@ -11,15 +11,8 @@ function resolveNumber(updateValue, currentValue, defaultValue = 0) {
   return Number.isFinite(numeric) ? numeric : defaultValue;
 }
 
-/**
- * Syncs user balances to Data Connect.
- * @param {string} uid User ID
- * @param {object} data Current user data from Firestore (before updates)
- * @param {object} updates Updates being applied to Firestore
- */
-async function syncUserBalances(uid, data, updates) {
-  try {
-    const payload = {
+function buildBalancePayload(uid, data, updates = {}) {
+  return {
       id: uid,
       dogeBalance: resolveNumber(updates.doge_balance, data.doge_balance),
       stakedBalance: resolveNumber(updates.staked_balance, data.staked_balance),
@@ -30,7 +23,27 @@ async function syncUserBalances(uid, data, updates) {
       totalClaims: resolveNumber(updates.total_claims, data.total_claims),
       faucetClaims: resolveNumber(updates.total_faucet_claims, data.total_faucet_claims),
       lastClaimTime: (updates.last_claim_time ?? data.last_claim_time)?.toDate?.()?.toISOString() || null
-    };
+  };
+}
+
+function buildPetPayload(uid, data, updates = {}) {
+  return {
+      id: uid,
+      petHunger: resolveNumber(updates.pet_hunger, data.pet_hunger, 100),
+      petHappiness: resolveNumber(updates.pet_happiness, data.pet_happiness, 100),
+      petEnergy: resolveNumber(updates.pet_energy, data.pet_energy, 100)
+  };
+}
+
+/**
+ * Syncs user balances to Data Connect.
+ * @param {string} uid User ID
+ * @param {object} data Current user data from Firestore (before updates)
+ * @param {object} updates Updates being applied to Firestore
+ */
+async function syncUserBalances(uid, data, updates) {
+  try {
+    const payload = buildBalancePayload(uid, data, updates);
     await updateUserBalances(payload);
     console.log(`[Dual-Write] Data Connect balances updated successfully for user ${uid}`);
   } catch (error) {
@@ -41,17 +54,7 @@ async function syncUserBalances(uid, data, updates) {
       await admin.firestore().collection('failed_dataconnect_syncs').add({
         uid,
         mutationType: 'UpdateUserBalances',
-        payload: {
-          dogeBalance: resolveNumber(updates.doge_balance, data.doge_balance),
-          stakedBalance: resolveNumber(updates.staked_balance, data.staked_balance),
-          bankBalance: resolveNumber(updates.bank_balance, data.bank_balance),
-          offerwallBalance: resolveNumber(updates.offerwall_balance, data.offerwall_balance),
-          adsBalance: resolveNumber(updates.ads_balance, data.ads_balance),
-          xp: resolveNumber(updates.xp ?? updates.pet_xp, data.xp ?? data.pet_xp),
-          totalClaims: resolveNumber(updates.total_claims, data.total_claims),
-          faucetClaims: resolveNumber(updates.total_faucet_claims, data.total_faucet_claims),
-          lastClaimTime: (updates.last_claim_time ?? data.last_claim_time)?.toDate?.()?.toISOString() || null
-        },
+        payload: buildBalancePayload(uid, data, updates),
         retryCount: 0,
         status: 'pending',
         timestamp: admin.firestore.FieldValue.serverTimestamp()
@@ -70,12 +73,7 @@ async function syncUserBalances(uid, data, updates) {
  */
 async function syncPetStats(uid, data, updates) {
   try {
-    const payload = {
-      id: uid,
-      petHunger: resolveNumber(updates.pet_hunger, data.pet_hunger, 100),
-      petHappiness: resolveNumber(updates.pet_happiness, data.pet_happiness, 100),
-      petEnergy: resolveNumber(updates.pet_energy, data.pet_energy, 100)
-    };
+    const payload = buildPetPayload(uid, data, updates);
     await updatePetStats(payload);
     console.log(`[Dual-Write] Data Connect pet stats updated successfully for user ${uid}`);
   } catch (error) {
@@ -86,11 +84,7 @@ async function syncPetStats(uid, data, updates) {
       await admin.firestore().collection('failed_dataconnect_syncs').add({
         uid,
         mutationType: 'UpdatePetStats',
-        payload: {
-          petHunger: resolveNumber(updates.pet_hunger, data.pet_hunger, 100),
-          petHappiness: resolveNumber(updates.pet_happiness, data.pet_happiness, 100),
-          petEnergy: resolveNumber(updates.pet_energy, data.pet_energy, 100)
-        },
+        payload: buildPetPayload(uid, data, updates),
         retryCount: 0,
         status: 'pending',
         timestamp: admin.firestore.FieldValue.serverTimestamp()
@@ -103,5 +97,7 @@ async function syncPetStats(uid, data, updates) {
 
 module.exports = {
   syncUserBalances,
-  syncPetStats
+  syncPetStats,
+  buildBalancePayload,
+  buildPetPayload
 };

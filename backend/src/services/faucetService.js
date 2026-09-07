@@ -7,6 +7,7 @@ const { formatAmount, verifyCaptchaToken, getStreakUpdates } = require('../utils
 const { calculateDecay, calculateTrickBonusPercent, getAgeMultiplier } = require('../utils/petMechanics');
 const { logRewardEvent } = require('../utils/rewardAudit');
 const { syncUserBalances, syncPetStats } = require('../utils/dataConnectSync');
+const { withdraw } = require('./withdrawalService');
 
 function splitUpdates(updates) {
   const petUpdates = {};
@@ -217,77 +218,6 @@ async function claimVault(user) {
   await logRewardEvent(user.uid, 'faucet_claim', finalReward, { sector: 'Vault Faucet' });
 
   return { earned: finalReward, authUser: user.uid };
-}
-
-async function withdraw(user, address, amount) {
-  if (!user.email_verified) throw new Error('Email verification required to withdraw.');
-  if (!address) throw new Error('Missing destination address');
-  
-  const sendAmount = Number(amount);
-  if (!Number.isFinite(sendAmount) || sendAmount < 1) {
-    throw new Error(`Minimum withdrawal is 1 DOGE`);
-  }
-
-  const userRef = admin.firestore().collection('users').doc(user.uid);
-  const cooldownMs = 60 * 1000;
-
-  const txResult = await admin.firestore().runTransaction(async (transaction) => {
-    const snapshot = await transaction.get(userRef);
-    if (!snapshot.exists) throw new Error('User profile not found');
-    const data = snapshot.data();
-    
-    if (data.last_withdrawal && Date.now() - data.last_withdrawal.toDate().getTime() < cooldownMs) {
-      throw new Error('Please wait a minute between withdrawals.');
-    }
-    if (Number(data.doge_balance || 0) < sendAmount) {
-      throw new Error('Insufficient balance for this withdrawal.');
-    }
-
-    const updates = {
-      doge_balance: Number(data.doge_balance || 0) - sendAmount,
-      last_withdrawal: admin.firestore.Timestamp.now()
-    };
-    transaction.update(userRef, updates);
-    return { data, updates };
-  });
-
-  if (txResult) syncUserBalances(user.uid, txResult.data, txResult.updates).catch(console.error);
-
-  let faucetPayResponse;
-  try {
-    faucetPayResponse = await faucetPaySend(address, formatAmount(sendAmount));
-  } catch (faucetError) {
-    const refundResult = await admin.firestore().runTransaction(async (refundTx) => {
-      const snapshot = await refundTx.get(userRef);
-      if (snapshot.exists) {
-        const refundUpdates = {
-          doge_balance: Number(snapshot.data().doge_balance || 0) + sendAmount,
-        };
-        refundTx.update(userRef, refundUpdates);
-        return { data: snapshot.data(), updates: refundUpdates };
-      }
-      return null;
-    });
-    if (refundResult) syncUserBalances(user.uid, refundResult.data, refundResult.updates).catch(console.error);
-    throw new Error('Payment processor is temporarily down. Your funds have been securely refunded.');
-  }
-
-  try {
-    await admin.firestore().collection('withdrawals').add({
-      uid: user.uid,
-      email: user.email,
-      amount: sendAmount,
-      address,
-      source: 'vault',
-      timestamp: admin.firestore.FieldValue.serverTimestamp()
-    });
-    logTransaction(null, user.uid, -sendAmount, 'withdrawal', { faucetPayResponse, address });
-    await userRef.update({ total_withdrawn: admin.firestore.FieldValue.increment(sendAmount) });
-  } catch (err) {
-    console.error('Failed to log withdrawal:', err);
-  }
-
-  return { address, amount: formatAmount(sendAmount), faucetPayResponse, authUser: user };
 }
 
 async function bankWithdraw(user, address, amount) {

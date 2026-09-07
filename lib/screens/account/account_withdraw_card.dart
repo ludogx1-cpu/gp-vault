@@ -50,7 +50,7 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
     double? amountToWithdraw = double.tryParse(
       _withdrawAmountController.text.trim(),
     );
-    if (amountToWithdraw == null) {
+    if (amountToWithdraw == null || !amountToWithdraw.isFinite) {
       setState(() => _withdrawMessage = "Please enter a valid number.");
       return;
     }
@@ -84,7 +84,7 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
             "user_address": _withdrawAddressController.text.trim(),
             "amount": amountToWithdraw,
           }),
-        );
+        ).timeout(const Duration(seconds: 45));
 
         if (!mounted) {
           return;
@@ -103,17 +103,18 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
           try {
             final errorData = jsonDecode(response.body);
             setState(() {
-              _withdrawMessage = "Declined: ${errorData['error'] ?? 'Unknown error'}";
+              _withdrawMessage = "Withdrawal status: ${errorData['error'] ?? 'Unable to confirm'}";
             });
           } catch (_) {
             setState(() {
-              _withdrawMessage = "Server Error ${response.statusCode}: The server is still updating. Try again in a few mins!";
+              _withdrawMessage = "Unable to confirm the withdrawal. Check your balance and FaucetPay history, or contact support.";
             });
           }
         }
       }
     } catch (e) {
-      setState(() => _withdrawMessage = "Bug: $e");
+      if (!mounted) return;
+      setState(() => _withdrawMessage = "We could not confirm the withdrawal. Check your balance and FaucetPay history before trying again, or contact support.");
     } finally {
       if (mounted) {
         setState(() => _isWithdrawing = false);
