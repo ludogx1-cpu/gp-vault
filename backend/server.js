@@ -77,9 +77,14 @@ app.get('/cron/trigger-pet-reminders', cronAuth, async (req, res) => {
 });
 
 app.get('/cron/trigger-offerwall-release', cronAuth, async (req, res) => {
-  const { releasePendingOffers } = require('./src/services/offerwallCronService');
-  await releasePendingOffers();
-  res.json({ success: true, message: 'Offerwall release logic executed' });
+  try {
+    const { releasePendingOffers } = require('./src/services/offerwallCronService');
+    await releasePendingOffers();
+    res.json({ success: true, message: 'Offerwall release logic executed' });
+  } catch (error) {
+    console.error('Offerwall release trigger failed:', error.message);
+    res.status(503).json({ success: false, error: 'Offerwall release could not run' });
+  }
 });
 
 app.get('/cron/trigger-dataconnect-retry', cronAuth, async (req, res) => {

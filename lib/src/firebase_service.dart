@@ -37,7 +37,7 @@ class FirebaseService {
     // - Android: Play Integrity (production) or Debug provider (debug builds)
     // - Web: reCAPTCHA Enterprise
     try {
-      FirebaseAppCheck.instance.activate(
+      await FirebaseAppCheck.instance.activate(
         providerAndroid: kDebugMode
             ? AndroidDebugProvider()
             : AndroidPlayIntegrityProvider(),

@@ -41,7 +41,7 @@ gp-vault-main/
 
 ### Prerequisites
 
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) `^3.11.5`
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) `3.47.2` (CI); Dart constraint: `^3.11.5`
 - [Node.js](https://nodejs.org/) `26.x` (backend)
 - A Firebase project with Firestore, Auth, and Firebase Messaging enabled
 - A Render account (or any Node host) for the backend
@@ -70,10 +70,15 @@ cd backend
 npm install
 
 # Create a .env file with the following keys:
-# FIREBASE_SERVICE_ACCOUNT=<base64-encoded service account JSON>
-# Any other secrets your routes need
+# FIREBASE_SERVICE_ACCOUNT_JSON=<raw service account JSON, not base64>
+# Alternatively use the individual FIREBASE_* fields from .env.example,
+# or a local backend/serviceAccountKey.json (never commit it).
+# Supply FAUCETPAY_API_KEY, CRON_SECRET and offerwall secrets for the features you run.
+# Load these into the process environment or configure them in your hosting dashboard.
 
-npm start
+# For a local .env file on Node 26:
+node --env-file=.env server.js
+# On a host that supplies environment variables directly, use npm start.
 ```
 
 The backend will start on the port defined in your environment (defaults to `3000`).
@@ -124,7 +129,8 @@ Every push and pull request triggers the GitHub Actions workflow (`.github/workf
 
 1. Runs `flutter analyze` (zero-tolerance for issues)
 2. Runs `flutter test`
-3. Runs `npm audit` on the backend dependencies
+3. Runs backend regression tests and `npm audit` on production dependencies
+4. Builds Flutter web and checks Firestore rules in an isolated demo emulator
 
 ---
 

@@ -1,6 +1,7 @@
 const cron = require('node-cron');
 const { admin } = require('./firebaseService');
 const { updateUserBalances, updatePetStats } = require('../dataconnect-admin-generated');
+const { buildBalancePayload, buildPetPayload } = require('../utils/dataConnectSync');
 
 async function retryFailedDataConnectSyncs() {
   console.log('[DataConnectRetryCron] Checking for failed syncs...');
@@ -20,13 +21,17 @@ async function retryFailedDataConnectSyncs() {
 
     for (const doc of snapshot.docs) {
       const data = doc.data();
-      const { uid, mutationType, payload, retryCount } = data;
+      const { uid, mutationType, retryCount } = data;
 
       try {
+        // Old queue entries omitted id and contain obsolete balances. Never
+        // replay them over more recent Firestore earnings or withdrawals.
+        const user = await db.collection('users').doc(uid).get();
+        if (!user.exists) throw new Error('User no longer exists');
         if (mutationType === 'UpdateUserBalances') {
-          await updateUserBalances(payload);
+          await updateUserBalances(buildBalancePayload(uid, user.data()));
         } else if (mutationType === 'UpdatePetStats') {
-          await updatePetStats(payload);
+          await updatePetStats(buildPetPayload(uid, user.data()));
         } else {
           throw new Error(`Unknown mutationType: ${mutationType}`);
         }

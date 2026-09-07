@@ -1,0 +1,24 @@
+{
+  "score": 1,
+  "summary": "Historical assessment from 6 September 2026, before the fixes in REVIEW_CHANGES.md: reward-control fields were client-writable and authenticated users could modify any chat message. Deployed rules were not inspected.",
+  "findings": [
+    {
+      "check": "The Update Bypass",
+      "severity": "critical",
+      "issue": "User updates use a denylist that omits last_bonus_sponsor_claim, last_ecosystem_video_claim, last_direct_faucet_claim and active_trick_buffs, which backend reward logic consumes.",
+      "recommendation": "Allow only explicitly approved profile fields on update; validate their types and lengths. Add emulator tests proving reward fields cannot be created, changed or deleted by clients."
+    },
+    {
+      "check": "Field-Level vs. Identity-Level Security",
+      "severity": "major",
+      "issue": "Any authenticated user can create, update or delete any chat_messages document, bypassing backend moderation, ownership checks and rate limits.",
+      "recommendation": "Make chat writes server-only and route all chat mutations through validated backend operations."
+    },
+    {
+      "check": "Type Safety and Storage Abuse",
+      "severity": "moderate",
+      "issue": "Allowed profile fields have no type or length validation, and direct chat writes have no field or size validation.",
+      "recommendation": "Validate profile field types and lengths and constrain all server-side chat inputs."
+    }
+  ]
+}
