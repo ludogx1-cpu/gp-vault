@@ -93,15 +93,13 @@ class _RunningPetWidgetState extends State<RunningPetWidget> with SingleTickerPr
               );
             },
             child: SpriteAnimationWidget(
-              // Using a key makes flutter fully recreate the widget instead of updating if we want,
-              // but we added didUpdateWidget to SpriteAnimationWidget so it handles it smoothly.
               key: ValueKey(_animations[_currentIndex]), 
               imagePath: _animations[_currentIndex],
               columns: 11,
               rows: 11,
               frameCount: 121,
               fps: 12,
-              width: 200,
+              width: 355,
               height: 200,
             ),
           ),
