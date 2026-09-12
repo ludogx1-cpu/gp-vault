@@ -10,6 +10,8 @@ class SpriteAnimationWidget extends StatefulWidget {
   final int fps;
   final double width;
   final double height;
+  final int? startFrame;
+  final int? endFrame;
 
   const SpriteAnimationWidget({
     super.key,
@@ -17,9 +19,11 @@ class SpriteAnimationWidget extends StatefulWidget {
     required this.columns,
     required this.rows,
     required this.frameCount,
-    this.fps = 12,
-    this.width = 200,
-    this.height = 200,
+    required this.fps,
+    required this.width,
+    required this.height,
+    this.startFrame,
+    this.endFrame,
   });
 
   @override
@@ -38,10 +42,24 @@ class _SpriteAnimationWidgetState extends State<SpriteAnimationWidget>
     super.initState();
     _loadImage();
     
-    // Calculate how long the entire animation should take based on FPS and frame count
-    final duration = Duration(milliseconds: (1000 * widget.frameCount / widget.fps).round());
-    _controller = AnimationController(vsync: this, duration: duration)..repeat();
-    _animation = IntTween(begin: 0, end: widget.frameCount - 1).animate(_controller);
+    _setupAnimation();
+    _controller.repeat();
+  }
+
+  void _setupAnimation() {
+    final start = widget.startFrame ?? 0;
+    final end = widget.endFrame ?? (widget.frameCount - 1);
+    final count = end - start + 1;
+    final duration = Duration(milliseconds: (1000 * count / widget.fps).round());
+    
+    // We instantiate or update the duration
+    if (!mounted) return;
+    try {
+      _controller.duration = duration;
+    } catch (_) {
+      _controller = AnimationController(vsync: this, duration: duration);
+    }
+    _animation = IntTween(begin: start, end: end).animate(_controller);
   }
 
   @override
@@ -52,6 +70,13 @@ class _SpriteAnimationWidgetState extends State<SpriteAnimationWidget>
         _loading = true;
       });
       _loadImage();
+    }
+    if (oldWidget.startFrame != widget.startFrame || 
+        oldWidget.endFrame != widget.endFrame || 
+        oldWidget.fps != widget.fps || 
+        oldWidget.frameCount != widget.frameCount) {
+      _setupAnimation();
+      _controller.forward(from: 0.0).then((_) => _controller.repeat());
     }
   }
 
