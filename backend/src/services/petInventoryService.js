@@ -13,6 +13,56 @@ const SLEEP_ENERGY_RECOVERY = 40;
 const WALK_ENERGY_COST_PER_100M = 5;
 const WALK_REWARD_PER_100M = 0.0005;
 
+const ACCESSORY_PRICES_USDT = {
+  'top_hat': 1.0,
+  'sunglasses': 2.0,
+  'gold_chain': 3.0,
+  'diamond_watch': 5.0,
+  'crown': 10.0,
+  'coat_basic': 1.5,
+  'coat_rain': 2.5,
+  'coat_winter': 4.0,
+  'coat_luxury': 7.5
+};
+
+const ACCESSORY_PRICES_DOGE = {
+  'top_hat': 8.0,
+  'sunglasses': 16.0,
+  'gold_chain': 24.0,
+  'diamond_watch': 40.0,
+  'crown': 80.0,
+  'coat_basic': 12.0,
+  'coat_rain': 20.0,
+  'coat_winter': 32.0,
+  'coat_luxury': 60.0
+};
+
+const TRICK_PRICES_USDT = {
+  'Spin': 1.0,
+  'Jump': 2.0,
+  'Roll Over': 3.0,
+  'Backflip': 5.0,
+  'Moonwalk': 10.0
+};
+
+const TRICK_PRICES_DOGE = {
+  'Spin': 8.0,
+  'Jump': 16.0,
+  'Roll Over': 24.0,
+  'Backflip': 40.0,
+  'Moonwalk': 80.0
+};
+
+const CONSUMABLE_PRICES_USDT = {
+  'medicine': 0.0,
+  'basic_kibble': 0.01
+};
+
+const CONSUMABLE_PRICES_DOGE = {
+  'medicine': 0.0,
+  'basic_kibble': 0.08
+};
+
 function splitUpdates(updates) {
   const petUpdates = {};
   const userUpdates = {};

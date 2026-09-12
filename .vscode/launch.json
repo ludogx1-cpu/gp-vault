@@ -7,7 +7,11 @@
         {
             "name": "gp_faucet",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "toolArgs": [
+                "--web-port",
+                "5000"
+            ]
         },
         {
             "name": "gp_faucet (profile mode)",
