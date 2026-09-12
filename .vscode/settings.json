@@ -1,5 +1,6 @@
 {
   "explorer.decorations.colors": false,
   "explorer.decorations.badges": false,
-  "gitlens.ai.defaultAgent": "cli:gemini"
+  "gitlens.ai.defaultAgent": "cli:gemini",
+  "dart.flutterRunAdditionalArgs": ["--web-port", "5000"]
 }
