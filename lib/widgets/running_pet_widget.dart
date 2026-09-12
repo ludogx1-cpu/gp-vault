@@ -88,8 +88,7 @@ class _RunningPetWidgetState extends State<RunningPetWidget> with SingleTickerPr
           child: AnimatedBuilder(
             animation: _controller,
             builder: (context, child) {
-              return Align(
-                alignment: Alignment(-1.5 + (_controller.value * 3.0), 0),
+              return Center(
                 child: child,
               );
             },
