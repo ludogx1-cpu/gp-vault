@@ -55,16 +55,21 @@ class _RunningPetWidgetState extends State<RunningPetWidget> with SingleTickerPr
   void initState() {
     super.initState();
     // It takes 8 seconds to run across the screen
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 8))..repeat();
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 8));
     
     _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+      if (status == AnimationStatus.completed) {
         // When it finishes crossing the screen, cycle to the next animation
         setState(() {
           _currentIndex = (_currentIndex + 1) % _animations.length;
         });
+        // restart the animation
+        _controller.forward(from: 0.0);
       }
     });
+    
+    // Start the first run
+    _controller.forward();
   }
 
   @override
