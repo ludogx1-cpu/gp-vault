@@ -44,6 +44,17 @@ class _SpriteAnimationWidgetState extends State<SpriteAnimationWidget>
     _animation = IntTween(begin: 0, end: widget.frameCount - 1).animate(_controller);
   }
 
+  @override
+  void didUpdateWidget(SpriteAnimationWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.imagePath != widget.imagePath) {
+      setState(() {
+        _loading = true;
+      });
+      _loadImage();
+    }
+  }
+
   Future<void> _loadImage() async {
     final ByteData data = await rootBundle.load(widget.imagePath);
     final ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
