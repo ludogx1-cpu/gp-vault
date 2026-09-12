@@ -236,10 +236,7 @@ class _StakingPageState extends State<StakingPage> {
                         dogeBalance: dogeBalance,
                       ),
                       const SizedBox(height: 25),
-                      Image.asset(
-                        'assets/pets/puppy/corgi puppy trans running happily.webp',
-                        height: 200,
-                      ),
+                      const RunningPetWidget(),
                       const SizedBox(height: 25),
                       HarvestCard(
                         stakedBalance: stakedBalance,
