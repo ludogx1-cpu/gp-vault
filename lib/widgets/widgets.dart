@@ -30,3 +30,5 @@ export 'bitcotasks_300x250_ad_widget.dart';
 export 'bitcotasks_300x100_ad_widget.dart';
 export 'bitcotasks_160x600_ad_widget.dart';
 export 'bitcotasks_300x600_ad_widget.dart';
+export 'sprite_animation.dart';
+export 'running_pet_widget.dart';
