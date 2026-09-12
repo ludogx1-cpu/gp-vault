@@ -207,7 +207,7 @@ class _RunningPetWidgetState extends State<RunningPetWidget> {
       builder: (context, constraints) {
         return SizedBox(
           width: constraints.maxWidth,
-          height: constraints.maxHeight > 200 ? constraints.maxHeight : 400,
+          height: constraints.hasBoundedHeight ? constraints.maxHeight : 400,
           child: AnimatedAlign(
             alignment: _targetAlignment,
             duration: Duration(seconds: _moveDurationSeconds),
