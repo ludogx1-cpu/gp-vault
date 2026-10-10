@@ -203,6 +203,53 @@ class _BlogPageState extends State<BlogPage> with SingleTickerProviderStateMixin
   }
 
   Widget _buildPostsList(bool isDark, Color titleColor, String collection, {String? categoryFilter, bool requiresApproval = false, String orderByField = 'created_at'}) {
+    final List<Map<String, dynamic>> defaultPosts = [];
+    if (categoryFilter == 'daily_blog') {
+      defaultPosts.add({
+        'id': 'pinned_timewall_update',
+        'topic': 'Important Status Update: TimeWall Payouts & 2x Pet XP Boost! 🐾',
+        'content': '''## Hello Golden Paw Fam! 🐾
+
+We wanted to post an honest update on what is happening behind the scenes.
+
+### ⏳ TimeWall Payouts Temporarily Suspended
+Our third-party offerwall provider (**TimeWall**) has temporarily paused withdrawal processing while Golden Paw undergoes standard background checks. 
+
+Here is what you need to know:
+* **You can still earn on TimeWall:** You can still complete tasks, click ads, and build up your balance inside TimeWall.
+* **Withdrawals from TimeWall are on hold:** Payouts will resume as soon as the background check verification is finalized.
+* **Golden Paw Faucet, Ads & Daily Promos are 100% active:** You can continue rolling the faucet, watching ads, rolling the daily promo, and withdrawing those funds normally.
+
+### 🎁 2x Pet XP Boost
+To apologize for any inconvenience and thank you for sticking with us, **all pets will receive 2x XP for the next week!**
+
+### 💬 Need Help?
+If you run into any trouble with anything on the site, or spotted something we might have missed, please don't hesitate to reach out to us! You can find our contact details in the footer at the bottom of the page.
+
+Thank you all for your patience and support!''',
+        'date_str': '2026-10-10',
+        'likedBy': <String>[],
+        'dislikedBy': <String>[],
+      });
+    } else if (collection == 'updates') {
+      defaultPosts.add({
+        'id': 'pinned_support_update',
+        'topic': 'Need Help or Found an Issue? 🛠️',
+        'content': "If you are having any trouble with anything on the site, or spotted something we might have missed, please don't hesitate to get in touch with us! Our contact details are located in the footer.",
+        'date_str': '2026-10-10',
+        'likedBy': <String>[],
+        'dislikedBy': <String>[],
+      });
+      defaultPosts.add({
+        'id': 'pinned_timewall_update_short',
+        'topic': 'TimeWall Payout Update & 2x Pet XP Boost ⏳',
+        'content': "TimeWall payouts are temporarily suspended while Golden Paw completes standard background checks. You can still complete tasks and earn from TimeWall, and Golden Paw's faucet, ads, and daily promos are 100% active and withdrawable! To thank you for your patience, all pets get 2x XP this week!",
+        'date_str': '2026-10-10',
+        'likedBy': <String>[],
+        'dislikedBy': <String>[],
+      });
+    }
+
     Query query = FirebaseFirestore.instance.collection(collection).orderBy(orderByField, descending: true);
     
     if (categoryFilter != null) {
@@ -215,31 +262,37 @@ class _BlogPageState extends State<BlogPage> with SingleTickerProviderStateMixin
     return StreamBuilder<QuerySnapshot>(
       stream: query.snapshots(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting && defaultPosts.isEmpty) {
           return const Center(child: CircularProgressIndicator(color: Colors.amber));
         }
 
-        if (snapshot.hasError) {
-          return Center(child: Text('Error loading posts. (Indexes may be building)', style: TextStyle(color: titleColor)));
+        final List<Map<String, dynamic>> allPosts = List.from(defaultPosts);
+        if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+          for (var doc in snapshot.data!.docs) {
+            final data = Map<String, dynamic>.from(doc.data() as Map<String, dynamic>);
+            data['id'] = doc.id;
+            final topic = data['topic'] ?? (data['title'] ?? '');
+            if (!defaultPosts.any((p) => p['topic'] == topic)) {
+              allPosts.add(data);
+            }
+          }
         }
 
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+        if (allPosts.isEmpty) {
           return Center(
             child: Text('No posts found in this section yet.',
                 style: TextStyle(color: titleColor, fontSize: 18)),
           );
         }
 
-        final posts = snapshot.data!.docs;
-
         return ListView.separated(
           padding: const EdgeInsets.all(15),
           physics: const BouncingScrollPhysics(),
-          itemCount: posts.length,
+          itemCount: allPosts.length,
           separatorBuilder: (context, index) => const SizedBox(height: 10),
           itemBuilder: (context, index) {
-            final doc = posts[index];
-            final post = doc.data() as Map<String, dynamic>;
+            final post = allPosts[index];
+            final docId = post['id']?.toString() ?? '';
             final content = post['content'] ?? (post['message'] ?? '');
             final topic = post['topic'] ?? (post['title'] ?? 'Untitled');
             final externalUrl = post['external_url'];
@@ -251,8 +304,8 @@ class _BlogPageState extends State<BlogPage> with SingleTickerProviderStateMixin
             final user = FirebaseAuth.instance.currentUser;
             final uid = user?.uid;
 
-            String dateStr = '';
-            if (createdAt != null && createdAt is Timestamp) {
+            String dateStr = post['date_str'] ?? '';
+            if (dateStr.isEmpty && createdAt != null && createdAt is Timestamp) {
               final dt = createdAt.toDate();
               dateStr = '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
             }
@@ -316,7 +369,13 @@ class _BlogPageState extends State<BlogPage> with SingleTickerProviderStateMixin
                         IconButton(
                           icon: Icon(uid != null && likedBy.contains(uid) ? Icons.thumb_up : Icons.thumb_up_alt_outlined, 
                             color: uid != null && likedBy.contains(uid) ? Colors.green : Colors.grey, size: 18),
-                          onPressed: () => _toggleVote(doc.id, 'like', likedBy, dislikedBy, collection),
+                          onPressed: () {
+                            if (docId.startsWith('pinned_')) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Official announcement!")));
+                              return;
+                            }
+                            _toggleVote(docId, 'like', likedBy, dislikedBy, collection);
+                          },
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
                         ),
@@ -326,7 +385,13 @@ class _BlogPageState extends State<BlogPage> with SingleTickerProviderStateMixin
                         IconButton(
                           icon: Icon(uid != null && dislikedBy.contains(uid) ? Icons.thumb_down : Icons.thumb_down_alt_outlined, 
                             color: uid != null && dislikedBy.contains(uid) ? Colors.red : Colors.grey, size: 18),
-                          onPressed: () => _toggleVote(doc.id, 'dislike', dislikedBy, likedBy, collection),
+                          onPressed: () {
+                            if (docId.startsWith('pinned_')) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Official announcement!")));
+                              return;
+                            }
+                            _toggleVote(docId, 'dislike', dislikedBy, likedBy, collection);
+                          },
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
                         ),
