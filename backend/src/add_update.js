@@ -4,8 +4,8 @@ async function run() {
   try {
     const newUpdateRef = admin.firestore().collection('updates').doc();
     await newUpdateRef.set({
-      title: 'TimeWall Integration is LIVE! 🚀',
-      message: 'Huge news! We have successfully integrated TimeWall into the Offerwall Hub. You can now earn DOGE faster than ever by completing tasks, clicking PTC ads, and playing games through the TimeWall network. Plus, we added quick links for instant access!',
+      title: 'TimeWall Payout Update ⏳',
+      message: 'TimeWall payouts are temporarily suspended for background checks. You can still earn on TimeWall, and all other features (Faucet, Promo) work perfectly! Enjoy a 2x Pet XP boost this week as an apology.',
       timestamp: admin.firestore.FieldValue.serverTimestamp()
     });
     console.log("Added new update successfully!");
