@@ -5,6 +5,17 @@ import '../../src/theme_provider.dart';
 class UpdatesBox extends StatelessWidget {
   const UpdatesBox({super.key});
 
+  static const List<Map<String, String>> pinnedUpdates = [
+    {
+      'title': 'Need Help or Found an Issue? 🛠️',
+      'message': "If you are having any trouble with anything on the site, or spotted something we might have missed, please don't hesitate to get in touch with us! Our contact details are located in the footer.",
+    },
+    {
+      'title': 'TimeWall Payout Update & 2x Pet XP Boost ⏳',
+      'message': "TimeWall payouts are temporarily suspended while Golden Paw completes standard background checks. You can still complete tasks and earn from TimeWall, and Golden Paw's faucet, ads, and daily promos are 100% active and withdrawable! To thank you for your patience, all pets get 2x XP this week!",
+    },
+  ];
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -14,9 +25,20 @@ class UpdatesBox extends StatelessWidget {
           .limit(10)
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const SizedBox.shrink();
+        final List<Map<String, dynamic>> allUpdates = [
+          ...pinnedUpdates,
+        ];
+
+        if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+          for (var doc in snapshot.data!.docs) {
+            final data = doc.data() as Map<String, dynamic>;
+            final title = data['title'] ?? '';
+            if (!pinnedUpdates.any((p) => p['title'] == title)) {
+              allUpdates.add(data);
+            }
+          }
         }
+
         return ListenableBuilder(
           listenable: themeProvider,
           builder: (context, _) {
@@ -57,8 +79,8 @@ class UpdatesBox extends StatelessWidget {
                     child: Scrollbar(
                       child: SingleChildScrollView(
                         child: Column(
-                          children: snapshot.data!.docs.asMap().entries.map((entry) {
-                            var data = entry.value.data() as Map<String, dynamic>;
+                          children: allUpdates.asMap().entries.map((entry) {
+                            var data = entry.value;
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 15, right: 10, left: 10),
                               child: Column(
