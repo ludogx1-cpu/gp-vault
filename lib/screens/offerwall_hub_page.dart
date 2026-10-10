@@ -347,6 +347,32 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                 
                 // 🚀 TIMEWALL QUICK LINKS 🚀
                 if (selectedNetwork == "TIMEWALL") ...[
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 15),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade50,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.orange.shade300),
+                    ),
+                    child: const Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            "Notice: You can still earn from TimeWall, but payouts are temporarily suspended while Golden Paw undergoes a background check with the provider. Payouts will resume once completed.",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.deepOrange,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   TimewallQuickLinksWidget(uid: user.uid),
                 ],
 
