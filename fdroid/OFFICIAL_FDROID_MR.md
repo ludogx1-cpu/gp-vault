@@ -50,6 +50,7 @@ AuthorWebSite: https://goldenpaw.dog
 SourceCode: https://github.com/ludogx1-cpu/gp-vault
 IssueTracker: https://github.com/ludogx1-cpu/gp-vault/issues
 Changelog: https://github.com/ludogx1-cpu/gp-vault/releases
+Donate: https://github.com/sponsors/ludogx1-cpu
 
 AutoName: Golden Paw
 
