@@ -42,21 +42,25 @@ jobs:
           fi
           test -f android/app/google-services.json || { echo "Error: android/app/google-services.json is missing"; exit 1; }
 
-      - name: Setup Keystore (if secrets provided)
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+      - name: Setup Keystore (if secret provided)
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS || 'upload' }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || 'goldenpaw2026' }}
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD || 'goldenpaw2026' }}
         run: |
-          echo "$KEYSTORE_BASE64" | base64 -d > android/app/release.keystore
-          cat <<EOF > android/key.properties
-          storePassword=$STORE_PASSWORD
-          keyPassword=$KEY_PASSWORD
-          keyAlias=$KEY_ALIAS
-          storeFile=release.keystore
-          EOF
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "Setting up keystore from secret..."
+            echo "$KEYSTORE_BASE64" | base64 -d > android/app/release.keystore
+            cat <<EOF > android/key.properties
+            storePassword=$STORE_PASSWORD
+            keyPassword=$KEY_PASSWORD
+            keyAlias=$KEY_ALIAS
+            storeFile=release.keystore
+            EOF
+          else
+            echo "No KEYSTORE_BASE64 secret provided; using debug signing configuration."
+          fi
 
       - name: Build Android Release APKs
         run: |
