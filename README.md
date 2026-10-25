@@ -2,6 +2,10 @@
 
 > Earn DOGE, stake in The Vault, grow your Shiba Inu companion, and watch the Golden Paw ecosystem reward you every step of the way.
 
+[![GitHub Sponsors](https://img.shields.io/badge/Sponsor-💖%20GitHub%20Sponsors-ff69b4?style=for-the-badge&logo=github)](https://github.com/sponsors/ludogx1-cpu)
+[![Release](https://img.shields.io/github/v/release/ludogx1-cpu/gp-vault?style=for-the-badge&color=blue)](https://github.com/ludogx1-cpu/gp-vault/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+
 ---
 
 ## 🗂️ Project Structure
