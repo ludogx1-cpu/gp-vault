@@ -113,7 +113,7 @@ Assisted with UI component layout, Fastlane metadata structuring, code refactori
 
 ### 6. Further Notices (Optional)
 ```markdown
-* Official release APKs are compiled via GitHub Actions (`.github/workflows/release-apk.yml`) with `--split-per-abi` and attached to release tags (`v*`). The `GoldenPaw-arm64-v8a.apk` binary is ~22 MB, well within the 30 MB limit.
+* Official release APKs are automatically built via GitHub Actions (`.github/workflows/release-apk.yml`) with `--split-per-abi` and published on GitHub Releases for release tags (`v*`). The primary target `GoldenPaw-arm64-v8a.apk` binary is attached to https://github.com/ludogx1-cpu/gp-vault/releases/tag/v1.1.1 (~36.5 MB, containing Flutter runtime, Google Maps/Firebase services, and graphic assets).
 * Fastlane metadata (512x512 app icon, 1024x500 feature banner, phone screenshots, title, and descriptions) is included in the source repo under `fastlane/metadata/android/en-US/`.
 * Anti-features note: The app utilizes Firebase for push notifications and account data synchronization, and interacts with Dogecoin payout networks (`NonFreeNet`, `Tracking`).
 ```
