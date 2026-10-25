@@ -1,0 +1,47 @@
+Categories:
+  - Money
+  - Games
+License: MIT
+AuthorName: Golden Paw Team
+AuthorEmail: support@goldenpaw.dog
+AuthorWebSite: https://goldenpaw.dog
+SourceCode: https://github.com/ludogx1-cpu/gp-vault
+IssueTracker: https://github.com/ludogx1-cpu/gp-vault/issues
+Changelog: https://github.com/ludogx1-cpu/gp-vault/releases
+
+AutoName: Golden Paw
+
+Summary: Dogecoin faucet, staking vault, and virtual Shiba Inu companion.
+Description: |-
+  Golden Paw is a crypto-reward and virtual pet companion ecosystem.
+
+  Features:
+  * Adopt, feed, and grow your virtual Shiba Inu pet companion.
+  * Claim DOGE regularly from the faucet.
+  * Deposit DOGE into The Vault to earn daily staking interest yields.
+  * Complete tasks and offerwalls to earn bonus Dogecoin.
+  * Real-time balance synchronization and direct withdrawals.
+
+RepoType: git
+Repo: https://github.com/ludogx1-cpu/gp-vault.git
+
+AntiFeatures:
+  - NonFreeNet
+  - Tracking
+
+Builds:
+  - versionName: 1.1.1
+    versionCode: 3
+    commit: v1.1.1
+    output: build/app/outputs/flutter-apk/app-release.apk
+    srclibs:
+      - flutter@3.47.2
+    prebuild:
+      - $$flutter$$/bin/flutter pub get
+    build:
+      - $$flutter$$/bin/flutter build apk --release
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: 1.1.1
+CurrentVersionCode: 3
