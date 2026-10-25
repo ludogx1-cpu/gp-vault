@@ -173,10 +173,22 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
         </head>
         <body style="margin:0; display:flex; justify-content:center; align-items:center; height:100vh;">
-          <p>Ad Placeholder for \$viewType</p>
         </body>
         </html>
        ''';
+    } else if (viewType == 'github-sponsors-iframe') {
+      return '''
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>body { margin:0; padding:0; display:flex; justify-content:center; align-items:center; background: transparent; overflow:hidden; }</style>
+        </head>
+        <body>
+          <iframe src="https://github.com/sponsors/ludogx1-cpu/button" title="Sponsor ludogx1-cpu" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe>
+        </body>
+        </html>
+      ''';
     }
 
     return '<html><body>Not found</body></html>';
