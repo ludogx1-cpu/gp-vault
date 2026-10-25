@@ -1,0 +1,27 @@
+Welcome to Golden Paw — the ultimate Dogecoin faucet, staking vault, and virtual Shiba Inu companion ecosystem!
+
+🐾 RAISE YOUR VIRTUAL SHIBA INU
+• Adopt your very own digital Shiba Inu companion.
+• Feed, bathe, pet, and play with your Shiba to keep its happiness and energy high.
+• Level up your pet through multiple evolution stages from puppyhood to majestic adult.
+• Equip stylish accessories, sunglasses, luxury coats, and royal crowns.
+• Earn companion bonuses as your Shiba grows happier and stronger!
+
+🪙 DOGECOIN FAUCET & REWARDS
+• Claim DOGE directly from the faucet at regular intervals.
+• Daily check-in bonuses and milestone multiplier rewards.
+• Complete quick tasks and offerwalls to supercharge your earnings.
+• Clean, transparent transactions with fast payouts to FaucetPay and personal Dogecoin wallets.
+
+🔒 THE GOLDEN VAULT & STAKING
+• Stake your DOGE in The Vault to earn competitive daily interest yields.
+• Flexible compounding options to grow your holdings over time.
+• Live yield calculations and transparent staking performance analytics.
+
+✨ FEATURES AT A GLANCE
+• Seamless multi-platform synchronization across Android, Web, and Mobile.
+• Interactive pet animations and responsive sound effects.
+• Community leaderboards, achievements, and social quests.
+• Safe, lightweight, and modern Flutter interface.
+
+Join the Golden Paw community today, raise your Shiba, and watch your Dogecoin rewards grow!
