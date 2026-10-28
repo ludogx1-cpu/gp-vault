@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../api_constants.dart';
@@ -10,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'pet/pet_sprite_widget.dart';
 import 'pet/pet_collar_painter.dart';
+import 'pet/pet_depth_perspective.dart';
 import 'pet/speech_bubble_widget.dart';
 import 'pet/poo_layer_widget.dart';
 import 'pet/fetch_ball_widget.dart';
@@ -39,9 +41,16 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   String _petName = 'Golden Paw Shiba';
   List<String> _equippedAccessories = [];
 
-  // Position & Animation
-  double _petX = 100;
-  double _petY = 100;
+  // 2.5D Continuous Position & Camera Depth Interpolation
+  double _startX = 120;
+  double _startY = 220;
+  double _petX = 120;
+  double _petY = 220;
+  double _startCloseUpFactor = 0.0;
+  double _targetCloseUpFactor = 0.0;
+  Curve _moveCurve = Curves.easeInOut;
+  bool _positionInitialized = false;
+
   bool _facingRight = true;
   bool _isWandering = false;
   bool _isCloseUp = false;
@@ -53,6 +62,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   int _lastStrokeTime = 0;
 
   // Animations
+  late AnimationController _moveController;
+  late AnimationController _ballFlightController;
   late AnimationController _shakeController;
   late AnimationController _walkController;
   late AnimationController _boopController;
@@ -69,10 +80,12 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   StreamSubscription? _refreshSubscription;
   StreamSubscription? _reactionSubscription;
 
-  // Fetch Mechanics
+  // Fetch Mechanics (with 2.5D flight & perspective)
   String _equippedBall = 'white';
   bool _isFetching = false;
   bool _isReturning = false;
+  double _ballStartX = 400;
+  double _ballStartY = 400;
   double _ballX = 400;
   double _ballY = 400;
   bool _ballInitialized = false;
@@ -85,10 +98,48 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   final List<PooData> _poos = [];
   final Random _random = Random();
 
+  double get _moveProgress =>
+      _moveController.isAnimating
+          ? _moveCurve.transform(_moveController.value)
+          : (_moveController.status == AnimationStatus.completed ? 1.0 : 0.0);
+
+  double get _currentPetX =>
+      lerpDouble(_startX, _petX, _moveProgress) ?? _petX;
+
+  double get _currentPetY =>
+      lerpDouble(_startY, _petY, _moveProgress) ?? _petY;
+
+  double get _currentCloseUpFactor =>
+      lerpDouble(_startCloseUpFactor, _targetCloseUpFactor, _moveProgress) ??
+      _targetCloseUpFactor;
+
+  double get _ballFlightProgress =>
+      _ballFlightController.isAnimating
+          ? Curves.easeOutCubic.transform(_ballFlightController.value)
+          : (_ballFlightController.status == AnimationStatus.completed
+                ? 1.0
+                : 0.0);
+
+  double get _currentBallX =>
+      lerpDouble(_ballStartX, _ballX, _ballFlightProgress) ?? _ballX;
+
+  double get _currentBallY =>
+      lerpDouble(_ballStartY, _ballY, _ballFlightProgress) ?? _ballY;
+
   @override
   void initState() {
     super.initState();
 
+    _moveController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 3500),
+      value: 1.0,
+    );
+    _ballFlightController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 520),
+      value: 1.0,
+    );
     _shakeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 220),
@@ -122,9 +173,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
       (_) => _fetchPetStatus(),
     );
 
-    // Start movement loop
+    // Start 2.5D wandering loop
     _moveTimer = Timer.periodic(
-      const Duration(seconds: 8),
+      const Duration(seconds: 7),
       (_) => _movePetRandomly(),
     );
 
@@ -156,6 +207,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     _collarSubscription?.cancel();
     _refreshSubscription?.cancel();
     _reactionSubscription?.cancel();
+    _moveController.dispose();
+    _ballFlightController.dispose();
     _shakeController.dispose();
     _walkController.dispose();
     _boopController.dispose();
@@ -163,6 +216,66 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     _idleController.dispose();
     _reactionController.dispose();
     super.dispose();
+  }
+
+  /// Smoothly walks the Shiba from its exact current 2.5D coordinates & depth
+  /// to `(targetX, targetY)`, syncing step bounces, facing direction, and DoF focus.
+  void _animatePetTo(
+    double targetX,
+    double targetY, {
+    required Duration duration,
+    bool closeUp = false,
+    Curve curve = Curves.easeInOut,
+  }) {
+    if (!mounted) return;
+    final curX = _currentPetX;
+    final curY = _currentPetY;
+    final curCloseUp = _currentCloseUpFactor;
+
+    setState(() {
+      if ((targetX - curX).abs() > 4.0) {
+        _facingRight = targetX >= curX;
+      }
+      _startX = curX;
+      _startY = curY;
+      _petX = targetX;
+      _petY = targetY;
+      _isCloseUp = closeUp;
+      _startCloseUpFactor = curCloseUp;
+      _targetCloseUpFactor = closeUp ? 1.0 : 0.0;
+      _moveCurve = curve;
+    });
+
+    _moveController.duration = duration;
+    if (!_walkController.isAnimating) {
+      _walkController.repeat(reverse: true);
+    }
+
+    _moveController.forward(from: 0.0).then((_) {
+      if (mounted &&
+          !_moveController.isAnimating &&
+          !_isChasing &&
+          !_isFetching &&
+          !_isReturning) {
+        _walkController.stop();
+        setState(() {});
+      }
+    });
+  }
+
+  (double, double) _horizontalBounds(Size size) {
+    double minX = 24.0;
+    double maxX = max(minX + 40.0, size.width - 124.0);
+    if (size.width >= 1000) {
+      final sideMargin = ((size.width - 600) / 2 - 160) / 2 + 165;
+      minX = max(minX, sideMargin);
+      maxX = min(maxX, size.width - sideMargin - 95);
+      if (maxX <= minX) {
+        minX = 40.0;
+        maxX = max(80.0, size.width - 140.0);
+      }
+    }
+    return (minX, maxX);
   }
 
   void _triggerReaction(String emoji) {
@@ -242,6 +355,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success'] && data['pet'] != null && mounted) {
+          final wasEgg = _stage == 'egg';
           setState(() {
             _stage = data['pet']['stage'];
             _hunger = (data['pet']['hunger'] as num).toDouble();
@@ -288,19 +402,16 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
               }
             });
 
-            // Add missing poos randomly across the screen
+            // Spawn poos across the 2.5D ground plane
             if (pendingPoos > _poos.length) {
               final size = MediaQuery.of(context).size;
+              final (minX, maxX) = _horizontalBounds(size);
+              final minY = PetDepthPerspective.minYForScreen(size.height) + 40;
+              final maxY = PetDepthPerspective.maxYForScreen(size.height);
               int toAdd = pendingPoos - _poos.length;
               for (int i = 0; i < toAdd; i++) {
-                double px =
-                    50 +
-                    _random.nextDouble() *
-                        (size.width > 100 ? size.width - 100 : 100);
-                double py =
-                    100 +
-                    _random.nextDouble() *
-                        (size.height > 200 ? size.height - 200 : 200);
+                double px = minX + _random.nextDouble() * max(40.0, maxX - minX);
+                double py = minY + _random.nextDouble() * max(60.0, maxY - minY);
                 _poos.add(
                   PooData(
                     id:
@@ -315,6 +426,12 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
               _poos.removeRange(0, _poos.length - pendingPoos);
             }
           });
+
+          if (wasEgg && _stage != 'egg' && mounted) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) _movePetRandomly();
+            });
+          }
         }
       }
     } catch (e) {
@@ -380,63 +497,99 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     if (!_isCloseUp &&
         !_isChasing &&
         _stage != 'egg' &&
+        (globalMouseX > 0 || globalMouseY > 0) &&
         _random.nextDouble() < 0.15) {
       _startChasingMouse();
       return;
     }
 
     final size = MediaQuery.of(context).size;
+    final minY = PetDepthPerspective.minYForScreen(size.height);
+    final maxY = PetDepthPerspective.maxYForScreen(size.height);
+    final (minX, maxX) = _horizontalBounds(size);
+
     final now = DateTime.now().millisecondsSinceEpoch;
-    bool boopReady = (now - _lastBoopTime) >= 1800000;
+    bool boopReady = !_isSick && (now - _lastBoopTime) >= 1800000;
 
     if (boopReady) {
-      _isCloseUp = true;
-      final targetX = (size.width / 2) - 50;
-      final targetY = size.height - 250;
-
-      setState(() {
-        _facingRight = targetX > _petX;
-        _petX = targetX;
-        _petY = targetY;
-      });
+      // Walk right up to the front-center camera lens for a close-up Boop!
+      final targetX = ((size.width / 2) - 50).clamp(minX, maxX);
+      final targetY = maxY;
+      if (_isCloseUp &&
+          !_moveController.isAnimating &&
+          (_petX - targetX).abs() < 8 &&
+          (_petY - targetY).abs() < 8) {
+        // Already arrived at the camera lens waiting for a boop
+        return;
+      }
+      final dist = Offset(
+        targetX - _currentPetX,
+        targetY - _currentPetY,
+      ).distance;
+      final ms = (dist * 8.5).round().clamp(1800, 4200);
+      _animatePetTo(
+        targetX,
+        targetY,
+        duration: Duration(milliseconds: ms),
+        closeUp: true,
+        curve: Curves.easeInOutCubic,
+      );
       return;
-    } else {
-      _isCloseUp = false;
-      final targetX =
-          50 +
-          _random.nextDouble() * (size.width > 150 ? size.width - 150 : 100);
-      final targetY =
-          100 +
-          _random.nextDouble() * (size.height > 300 ? size.height - 300 : 200);
-
-      setState(() {
-        _facingRight = targetX > _petX;
-        _petX = targetX;
-        _petY = targetY;
-      });
     }
 
-    _walkController.repeat(reverse: true);
-    Future.delayed(const Duration(seconds: 4), () {
-      if (mounted && !_isChasing && !_isFetching && !_isReturning) {
-        _walkController.stop();
-      }
-      if (mounted) setState(() {});
-    });
+    // Varied 2.5D depth waypoints:
+    // ~34% far background (small + soft DoF blur),
+    // ~34% close foreground (large + crisp focus),
+    // ~32% midground roam.
+    final spanY = max(80.0, maxY - minY);
+    final zoneRoll = _random.nextDouble();
+    double targetY;
+    if (zoneRoll < 0.34) {
+      targetY = minY + _random.nextDouble() * (spanY * 0.30);
+    } else if (zoneRoll < 0.68) {
+      targetY = minY + (spanY * 0.70) + _random.nextDouble() * (spanY * 0.30);
+    } else {
+      targetY = minY + (spanY * 0.28) + _random.nextDouble() * (spanY * 0.44);
+    }
+
+    final targetX = minX + _random.nextDouble() * max(20.0, maxX - minX);
+    final dist = Offset(
+      targetX - _currentPetX,
+      targetY - _currentPetY,
+    ).distance;
+    final ms = (dist * 9.0).round().clamp(2200, 4800);
+
+    _animatePetTo(
+      targetX,
+      targetY,
+      duration: Duration(milliseconds: ms),
+      closeUp: false,
+      curve: Curves.easeInOut,
+    );
   }
 
   void _startChasingMouse() {
     _isChasing = true;
     _moveTimer?.cancel();
-    _walkController.repeat(reverse: true);
 
-    _chaseTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _chaseTimer = Timer.periodic(const Duration(milliseconds: 950), (timer) {
       if (!mounted) return;
-      setState(() {
-        _facingRight = globalMouseX > _petX;
-        _petX = globalMouseX - 50;
-        _petY = globalMouseY - 50;
-      });
+      final size = MediaQuery.of(context).size;
+      final minY = PetDepthPerspective.minYForScreen(size.height);
+      final maxY = PetDepthPerspective.maxYForScreen(size.height);
+      final targetX = (globalMouseX - 50.0)
+          .clamp(15.0, max(20.0, size.width - 115.0))
+          .toDouble();
+      final targetY = (globalMouseY - 50.0).clamp(minY, maxY).toDouble();
+
+      _animatePetTo(
+        targetX,
+        targetY,
+        duration: const Duration(milliseconds: 900),
+        closeUp: false,
+        curve: Curves.easeOutCubic,
+      );
+
       if (timer.tick >= 10) {
         _stopChasingMouse();
       }
@@ -449,7 +602,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     if (mounted) {
       _walkController.stop();
       _moveTimer = Timer.periodic(
-        const Duration(seconds: 8),
+        const Duration(seconds: 7),
         (_) => _movePetRandomly(),
       );
     }
@@ -516,6 +669,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
       _isCloseUp = false;
     });
 
+    // Trot happily off into the room after being booped!
     _movePetRandomly();
 
     try {
@@ -555,76 +709,100 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   }
 
   void _onBallPanUpdate(DragUpdateDetails details) {
-    if (_isFetching || _stage == 'egg') return;
+    if (_isFetching || _isReturning || _stage == 'egg') return;
+    _ballFlightController.stop();
     setState(() {
       _ballX += details.delta.dx;
       _ballY += details.delta.dy;
+      _ballStartX = _ballX;
+      _ballStartY = _ballY;
     });
   }
 
   void _onBallPanEnd(DragEndDetails details) {
-    if (_isFetching || _stage == 'egg') return;
+    if (_isFetching || _isReturning || _stage == 'egg') return;
 
-    if (details.velocity.pixelsPerSecond.distance > 400) {
+    if (details.velocity.pixelsPerSecond.distance > 350) {
       _startFetchSequence(details.velocity.pixelsPerSecond);
     }
   }
 
   Future<void> _startFetchSequence(Offset velocity) async {
     if (!mounted) return;
-    setState(() => _isFetching = true);
-
     final size = MediaQuery.of(context).size;
+    final minY = PetDepthPerspective.minYForScreen(size.height) + 15.0;
+    final maxY = PetDepthPerspective.maxYForScreen(size.height) + 45.0;
+    final (minX, maxX) = _horizontalBounds(size);
+
+    final curBX = _currentBallX;
+    final curBY = _currentBallY;
+    final projectedX = (curBX + (velocity.dx * 1.15)).clamp(minX, maxX + 60.0);
+    final projectedY = (curBY + (velocity.dy * 1.15)).clamp(minY, maxY);
 
     setState(() {
-      double projectedX = (_ballX + (velocity.dx * 1.2)).clamp(
-        30.0,
-        size.width - 50.0,
-      );
-      double projectedY = (_ballY + (velocity.dy * 1.2)).clamp(
-        60.0,
-        size.height - 60.0,
-      );
-
+      _isFetching = true;
+      _ballStartX = curBX;
+      _ballStartY = curBY;
       _ballX = projectedX;
       _ballY = projectedY;
     });
+    _ballFlightController.duration = const Duration(milliseconds: 520);
+    _ballFlightController.forward(from: 0.0);
 
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 520));
     if (!mounted) return;
 
-    // Pet chases the ball with active hop animation
-    _walkController.repeat(reverse: true);
-    setState(() {
-      _facingRight = _ballX > _petX;
-      _petX = _ballX;
-      _petY = _ballY;
-      _isChasing = true;
-    });
+    // Shiba sprints to the ball's 2.5D depth location (shrinking & blurring if thrown far away!)
+    final targetPetX = (projectedX - 34.0).clamp(minX, maxX);
+    final targetPetY = (projectedY - 58.0).clamp(
+      PetDepthPerspective.minYForScreen(size.height),
+      PetDepthPerspective.maxYForScreen(size.height),
+    );
+    _isChasing = true;
+    _animatePetTo(
+      targetPetX,
+      targetPetY,
+      duration: const Duration(milliseconds: 1050),
+      closeUp: false,
+      curve: Curves.easeOutCubic,
+    );
 
-    await Future.delayed(const Duration(milliseconds: 1000));
+    await Future.delayed(const Duration(milliseconds: 1080));
     if (!mounted) return;
 
     _triggerReaction('🎾');
-    await Future.delayed(const Duration(milliseconds: 400));
+    await Future.delayed(const Duration(milliseconds: 360));
     if (!mounted) return;
 
-    // Return to screen center (pet brings ball back)
+    // Shiba trots back toward midground carrying the ball!
+    final returnX = ((size.width / 2) - 50.0).clamp(minX, maxX);
+    final returnY =
+        PetDepthPerspective.minYForScreen(size.height) +
+        (PetDepthPerspective.maxYForScreen(size.height) -
+                PetDepthPerspective.minYForScreen(size.height)) *
+            0.58;
+
     setState(() {
       _isChasing = false;
       _isReturning = true;
-      _facingRight = (size.width / 2) > _petX;
-      _petX = size.width / 2;
-      _petY = size.height / 2;
-      _ballX = _petX;
-      _ballY = _petY;
     });
+    _animatePetTo(
+      returnX,
+      returnY,
+      duration: const Duration(milliseconds: 1900),
+      closeUp: false,
+      curve: Curves.easeInOut,
+    );
 
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(milliseconds: 1920));
     if (!mounted) return;
 
     _walkController.stop();
     setState(() {
+      _ballX = _currentPetX + (_facingRight ? 62.0 : 12.0);
+      _ballY = _currentPetY + 66.0;
+      _ballStartX = _ballX;
+      _ballStartY = _ballY;
       _isFetching = false;
       _isReturning = false;
       _isWandering = true;
@@ -688,24 +866,29 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    if (!_ballInitialized && size.width > 0) {
-      _ballX = size.width / 2 + 60;
-      _ballY = size.height / 2 + 80;
+    final minY = PetDepthPerspective.minYForScreen(size.height);
+    final maxY = PetDepthPerspective.maxYForScreen(size.height);
+    final (minX, maxX) = _horizontalBounds(size);
+
+    if (!_positionInitialized && size.width > 0 && size.height > 0) {
+      _petX = ((size.width / 2) - 50).clamp(minX, maxX);
+      _petY = minY + (maxY - minY) * 0.54;
+      _startX = _petX;
+      _startY = _petY;
+      _positionInitialized = true;
+    }
+
+    if (!_ballInitialized && size.width > 0 && size.height > 0) {
+      _ballX = (size.width / 2 + 65).clamp(minX, maxX + 50);
+      _ballY = (minY + (maxY - minY) * 0.62 + 55).clamp(minY, maxY + 45);
+      _ballStartX = _ballX;
+      _ballStartY = _ballY;
       _ballInitialized = true;
     } else if (_ballInitialized && !_isFetching && !_isReturning) {
-      if (_ballX < 0) _ballX = 20;
-      if (_ballX > size.width - 30) _ballX = size.width - 30;
-      if (_ballY < 0) _ballY = 20;
-      if (_ballY > size.height - 30) _ballY = size.height - 30;
-
-      if (size.width >= 1000) {
-        double leftAdEnd = ((size.width - 600) / 2 - 160) / 2 + 160;
-        double rightAdStart =
-            size.width - (((size.width - 600) / 2 - 160) / 2) - 160;
-
-        if (_ballX < leftAdEnd + 10) _ballX = leftAdEnd + 10;
-        if (_ballX > rightAdStart - 40) _ballX = rightAdStart - 40;
-      }
+      _ballX = _ballX.clamp(minX, maxX + 60);
+      _ballY = _ballY.clamp(minY + 10, maxY + 50);
+      _ballStartX = _ballX;
+      _ballStartY = _ballY;
     }
 
     String emotion = '';
@@ -726,90 +909,138 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
       return PooLayerWidget(poos: _poos, onClean: _cleanPoo);
     }
 
-    return Stack(
-      children: [
-        // Poos
-        PooLayerWidget(poos: _poos, onClean: _cleanPoo),
+    return AnimatedBuilder(
+      animation: Listenable.merge([_moveController, _ballFlightController]),
+      builder: (context, _) {
+        final curPetX = _currentPetX;
+        final curPetY = _currentPetY;
+        final curCloseUp = _currentCloseUpFactor;
 
-        // Speech Bubble
-        if (_currentSpeech.isNotEmpty && !_isSleepingOverlay && _stage != 'egg')
-          SpeechBubbleWidget(
-            text: _currentSpeech,
-            x: _petX,
-            y: _petY,
-            isChasing: _isChasing,
-            isReturning: _isReturning,
-          ),
+        final petPerspective = PetDepthPerspective.fromScreenY(
+          y: curPetY,
+          screenHeight: size.height,
+          closeUpFactor: curCloseUp,
+        );
 
-        // Pet
-        if (_isSleepingOverlay && _stage != 'egg')
-          const SizedBox.shrink()
-        else
-          AnimatedPositioned(
-            duration: Duration(
-              seconds: _isChasing ? 1 : (_isReturning ? 2 : 4),
+        // Parabolic throw arc when ball is flying, or carried by Shiba when returning!
+        final throwArc =
+            (_ballFlightController.isAnimating && !_isReturning)
+                ? -sin(_ballFlightController.value * pi) * 26.0
+                : 0.0;
+        final stageScale = PetSpriteWidget.stageScaleFor(_stage);
+        final combinedPetScale = stageScale * petPerspective.scale;
+
+        final liveBallX = _isReturning
+            ? (curPetX + (_facingRight ? 58.0 : 12.0))
+            : _currentBallX;
+        final liveBallY = _isReturning
+            ? (curPetY + 62.0)
+            : (_currentBallY + throwArc);
+
+        final ballPerspective = PetDepthPerspective.fromScreenY(
+          y: liveBallY - 58.0,
+          screenHeight: size.height,
+          cameraCloseUpFactor: curCloseUp,
+        );
+
+        final petWidget =
+            (_isSleepingOverlay && _stage != 'egg')
+                ? const SizedBox.shrink()
+                : Positioned(
+                    left: curPetX,
+                    top: curPetY,
+                    child: PetSpriteWidget(
+                      stage: _stage,
+                      petName: _petName,
+                      isSick: _isSick,
+                      isSleeping:
+                          _sleepingUntil >
+                          DateTime.now().millisecondsSinceEpoch,
+                      facingRight: _facingRight,
+                      equippedAccessories: _equippedAccessories,
+                      emotion: emotion,
+                      reactionEmoji: _reactionEmoji,
+                      isCloseUp: _isCloseUp,
+                      isWalkAnimating: _walkController.isAnimating,
+                      isChasing: _isChasing,
+                      perspective: petPerspective,
+                      shakeController: _shakeController,
+                      walkController: _walkController,
+                      boopController: _boopController,
+                      trickController: _trickController,
+                      idleController: _idleController,
+                      reactionController: _reactionController,
+                      currentTrick: _currentTrick,
+                      onBoopDown: () {
+                        if (_isSleepingOverlay || _isSick) return;
+                        if (_stage != 'egg') _boopController.forward();
+                      },
+                      onBoopUp: () {
+                        if (_isSleepingOverlay || _isSick) return;
+                        if (_stage != 'egg') _boopController.reverse();
+                        if (_isCloseUp) {
+                          _boopPet();
+                        } else if (_stage != 'egg') {
+                          _strokePet();
+                        }
+                      },
+                      onBoopCancel: () {
+                        if (_isSleepingOverlay || _isSick) return;
+                        if (_stage != 'egg') _boopController.reverse();
+                      },
+                      onStroke: () {
+                        if (_isSleepingOverlay || _isSick) return;
+                        if (_stage != 'egg') {
+                          _strokePet();
+                        }
+                      },
+                    ),
+                  );
+
+        final ballWidget = (_stage != 'egg')
+            ? FetchBallWidget(
+                ballX: liveBallX,
+                ballY: liveBallY,
+                equippedBall: _equippedBall,
+                perspective: ballPerspective,
+                onPanUpdate: _onBallPanUpdate,
+                onPanEnd: _onBallPanEnd,
+              )
+            : null;
+
+        // 2.5D Painter's Algorithm Z-ordering: object closer to bottom renders in front!
+        final petGroundY = curPetY + 95.0;
+        final ballGroundY = _currentBallY + 34.0;
+        final ballInFrontOfPet =
+            _isReturning || (ballGroundY >= petGroundY && !_isCloseUp);
+
+        return Stack(
+          children: [
+            // Ground layer Poos (with 2.5D perspective & background DoF)
+            PooLayerWidget(
+              poos: _poos,
+              onClean: _cleanPoo,
+              cameraCloseUpFactor: curCloseUp,
             ),
-            curve: Curves.easeInOut,
-            left: _petX,
-            top: _petY,
-            child: PetSpriteWidget(
-              stage: _stage,
-              petName: _petName,
-              isSick: _isSick,
-              isSleeping:
-                  _sleepingUntil > DateTime.now().millisecondsSinceEpoch,
-              facingRight: _facingRight,
-              equippedAccessories: _equippedAccessories,
-              emotion: emotion,
-              reactionEmoji: _reactionEmoji,
-              isCloseUp: _isCloseUp,
-              isWalkAnimating: _walkController.isAnimating,
-              isChasing: _isChasing,
-              shakeController: _shakeController,
-              walkController: _walkController,
-              boopController: _boopController,
-              trickController: _trickController,
-              idleController: _idleController,
-              reactionController: _reactionController,
-              currentTrick: _currentTrick,
-              onBoopDown: () {
-                if (_isSleepingOverlay || _isSick) return;
-                if (_stage != 'egg') _boopController.forward();
-              },
-              onBoopUp: () {
-                if (_isSleepingOverlay || _isSick) return;
-                if (_stage != 'egg') _boopController.reverse();
-                if (_isCloseUp) {
-                  _boopPet();
-                } else if (_stage != 'egg') {
-                  _strokePet();
-                }
-              },
-              onBoopCancel: () {
-                if (_isSleepingOverlay || _isSick) return;
-                if (_stage != 'egg') _boopController.reverse();
-              },
-              onStroke: () {
-                if (_isSleepingOverlay || _isSick) return;
-                if (_stage != 'egg') {
-                  _strokePet();
-                }
-              },
-            ),
-          ),
 
-        // Fetch Ball
-        if (_stage != 'egg')
-          FetchBallWidget(
-            ballX: _ballX,
-            ballY: _ballY,
-            isFetching: _isFetching,
-            isReturning: _isReturning,
-            equippedBall: _equippedBall,
-            onPanUpdate: _onBallPanUpdate,
-            onPanEnd: _onBallPanEnd,
-          ),
-      ],
+            if (ballWidget != null && !ballInFrontOfPet) ballWidget,
+            petWidget,
+            if (ballWidget != null && ballInFrontOfPet) ballWidget,
+
+            // Speech Bubble anchored cleanly above the scaled Shiba's head
+            if (_currentSpeech.isNotEmpty &&
+                !_isSleepingOverlay &&
+                _stage != 'egg')
+              SpeechBubbleWidget(
+                text: _currentSpeech,
+                x: curPetX,
+                y: curPetY,
+                combinedPetScale: combinedPetScale,
+                perspective: petPerspective,
+              ),
+          ],
+        );
+      },
     );
   }
 }
