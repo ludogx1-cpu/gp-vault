@@ -1,4 +1,4 @@
-const { calculateDecay, getGrowthStage, getAgeMultiplier, getNextStageXP, MAX_STAT, calculatePetBonusPercent } = require('../utils/petMechanics');
+const { calculateDecay, getGrowthStage, getAgeMultiplier, getNextStageXP, normalizeAccessoryIds, MAX_STAT, calculatePetBonusPercent } = require('../utils/petMechanics');
 const { getDogePrice } = require('./priceService');
 const { syncUserBalances, syncPetStats } = require('../utils/dataConnectSync');
 const { logTransaction } = require('./ledgerService');
@@ -286,8 +286,8 @@ async function petStatus(req) {
           last_sleep_time: data.pet_last_sleep_time ? data.pet_last_sleep_time.toDate().getTime() : 0,
           last_walk_time: data.pet_last_walk_sync ? data.pet_last_walk_sync.toDate().getTime() : 0,
           name: data.pet_name || 'Golden Paw Shiba',
-          owned_accessories: data.pet_owned_accessories || [],
-          equipped_accessories: data.pet_equipped_accessories || [],
+          owned_accessories: normalizeAccessoryIds(data.pet_owned_accessories || []),
+          equipped_accessories: normalizeAccessoryIds(data.pet_equipped_accessories || []),
           owned_tricks: data.pet_owned_tricks || [],
           owned_consumables: data.pet_owned_consumables || {},
           sick: isSick,

@@ -17,6 +17,7 @@ import 'pet/pet_tabs_widget.dart';
 import 'pet/pet_stats_bar.dart';
 import 'pet/pet_xp_bar.dart';
 import 'pet/pet_sprite_widget.dart';
+import 'pet/pet_collar_painter.dart';
 
 class ShibaPetWidget extends StatefulWidget {
   const ShibaPetWidget({super.key});
@@ -145,11 +146,11 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                 (data['pet']['last_boop_time'] as num?)?.toInt() ?? 0;
             _sleepingUntil =
                 (data['pet']['sleeping_until'] as num?)?.toInt() ?? 0;
-            _ownedAccessories = List<String>.from(
-              data['pet']['owned_accessories'] ?? [],
+            _ownedAccessories = PetCollars.normalizeList(
+              List<String>.from(data['pet']['owned_accessories'] ?? []),
             );
-            _equippedAccessories = List<String>.from(
-              data['pet']['equipped_accessories'] ?? [],
+            _equippedAccessories = PetCollars.normalizeList(
+              List<String>.from(data['pet']['equipped_accessories'] ?? []),
             );
             _ownedTricks = List<String>.from(data['pet']['owned_tricks'] ?? []);
             _ownedConsumables = Map<String, int>.from(
@@ -404,6 +405,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
   }
 
   Widget _buildLivePetAvatar(bool isDark, bool isSleeping, bool boopReady) {
+    final activeCollar = PetCollars.resolveActiveCollar(_equippedAccessories);
     return GestureDetector(
       onTap: () {
         if (isSleeping || _isSick) return;
@@ -414,7 +416,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
         }
       },
       child: Container(
-        width: 115,
+        width: 118,
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -428,8 +430,10 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
           border: Border.all(
             color: boopReady
                 ? Colors.pinkAccent
-                : Colors.amber.withValues(alpha: 0.6),
-            width: boopReady ? 2.0 : 1.0,
+                : (activeCollar?.primaryColor ?? Colors.amber).withValues(
+                    alpha: 0.72,
+                  ),
+            width: boopReady ? 2.0 : 1.3,
           ),
         ),
         child: Column(
@@ -441,14 +445,34 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                 color: Colors.amber.withValues(alpha: 0.25),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(
-                _stage.replaceAll('_', ' ').toUpperCase(),
-                style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w900,
-                  color: isDark ? Colors.amber : Colors.brown.shade800,
-                  letterSpacing: 0.6,
-                ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (activeCollar != null && _stage != 'egg') ...[
+                    Container(
+                      width: 7,
+                      height: 7,
+                      decoration: BoxDecoration(
+                        color: activeCollar.primaryColor,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.black54, width: 0.8),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                  ],
+                  Flexible(
+                    child: Text(
+                      _stage.replaceAll('_', ' ').toUpperCase(),
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w900,
+                        color: isDark ? Colors.amber : Colors.brown.shade800,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 8),
@@ -461,18 +485,31 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                   _cardReactionController,
                 ]),
                 builder: (context, _) {
+                  final nowMs = DateTime.now().millisecondsSinceEpoch;
                   final t = _cardIdleController.value;
                   final wave = sin(t * pi * 2);
                   final scaleY = isSleeping
                       ? 1.0 + (wave * 0.02)
-                      : 1.0 + (wave * 0.045);
+                      : 1.0 + (wave * 0.042);
                   final scaleX = isSleeping
                       ? 1.0 - (wave * 0.015)
-                      : 1.0 - (wave * 0.03);
-                  final liftY = isSleeping ? 0.0 : -wave.abs() * 4.0;
+                      : 1.0 - (wave * 0.028);
+                  final liftY = isSleeping ? 0.0 : -wave.abs() * 3.5;
+                  final curiousTilt =
+                      (isSleeping || _isSick || _stage == 'egg')
+                      ? 0.0
+                      : PetSpriteWidget.computeCuriousHeadTilt(nowMs);
                   final tilt = (isSleeping || _stage == 'egg')
                       ? 0.0
-                      : sin(t * pi * 2) * 0.035;
+                      : (sin(t * pi * 2) * 0.030) + curiousTilt;
+                  final reactionBurst = _cardReactionController.isAnimating
+                      ? sin(_cardReactionController.value * pi * 4) * 0.26
+                      : 0.0;
+                  final collarSwing = (isSleeping || _stage == 'egg')
+                      ? 0.0
+                      : (cos(t * pi * 2) * 0.09) -
+                            (curiousTilt * 1.4) +
+                            reactionBurst;
 
                   return Stack(
                     clipBehavior: Clip.none,
@@ -502,7 +539,10 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                               stage: _stage,
                               isSick: _isSick,
                               equippedAccessories: _equippedAccessories,
-                              size: 86,
+                              size: 88,
+                              isSleeping: isSleeping,
+                              isHappy: _cardReactionController.isAnimating,
+                              collarSwingAngle: collarSwing,
                             ),
                           ),
                         ),
@@ -901,7 +941,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
             callbacks: PetTabsCallbacks(
               onEquipAccessory: (id, equip) => _equipAccessory(id, equip),
               onBuyAccessory: (id, price) => _showPurchaseDialog(
-                id,
+                PetCollars.byId(id).name,
                 price,
                 (currency) => _buyAccessory(id, currency),
               ),
@@ -919,7 +959,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
               },
               onEquipBall: (color) => _equipBall(color),
               onBuyBall: (color, price) => _showPurchaseDialog(
-                color,
+                '${color[0].toUpperCase()}${color.substring(1)} Ball',
                 price,
                 (currency) => _buyBall(color, currency),
               ),
@@ -1132,13 +1172,20 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
       final data = jsonDecode(response.body);
       if (data['success'] && mounted) {
         setState(() {
-          _ownedAccessories.add(id);
+          if (!_ownedAccessories.contains(id)) {
+            _ownedAccessories.add(id);
+          }
+          _equippedAccessories = [id];
           _isLoading = false;
         });
-        PetEvents.notifyStatusChanged(reactionEmoji: '🛍️');
+        _showCardReaction('✨');
+        PetEvents.equipCollar(_equippedAccessories);
+        PetEvents.notifyStatusChanged(reactionEmoji: '✨');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(data['message'] ?? 'Purchased!'),
+            content: Text(
+              data['message'] ?? '${PetCollars.byId(id).name} equipped!',
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -1229,16 +1276,6 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
   }
 
   Future<void> _equipAccessory(String id, bool equip) async {
-    if (equip && _equippedAccessories.length >= 3) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Max 3 items equipped! Unequip something first.'),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      return;
-    }
-
     setState(() => _isLoading = true);
     try {
       final headers = await getAuthHeaders();
@@ -1250,18 +1287,21 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
       final data = jsonDecode(response.body);
       if (data['success'] && mounted) {
         setState(() {
-          if (equip) {
-            _equippedAccessories.add(id);
-          } else {
-            _equippedAccessories.remove(id);
-          }
+          _equippedAccessories = equip ? [id] : [];
           _isLoading = false;
         });
         _showCardReaction('✨');
+        PetEvents.equipCollar(_equippedAccessories);
         PetEvents.notifyStatusChanged(reactionEmoji: '✨');
       } else {
         if (mounted) {
           setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(data['error'] ?? 'Failed to update collar'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       }
     } catch (e) {

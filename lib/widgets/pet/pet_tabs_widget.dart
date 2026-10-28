@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'pet_collar_painter.dart';
 
 /// The data model passed into the pet tabs so it stays stateless.
 class PetTabsData {
@@ -46,7 +47,7 @@ class PetTabsCallbacks {
   });
 }
 
-/// The tabbed area inside [ShibaPetWidget]: Info, Shop, Items, Balls, Tricks.
+/// The tabbed area inside [ShibaPetWidget]: Info, Collars, Items, Balls, Tricks.
 class PetTabsWidget extends StatelessWidget {
   final PetTabsData data;
   final PetTabsCallbacks callbacks;
@@ -62,7 +63,7 @@ class PetTabsWidget extends StatelessWidget {
     return DefaultTabController(
       length: 5,
       child: Container(
-        height: 180,
+        height: 185,
         margin: const EdgeInsets.only(top: 15),
         decoration: BoxDecoration(
           color: data.isDark
@@ -81,11 +82,12 @@ class PetTabsWidget extends StatelessWidget {
               isScrollable: true,
               tabs: const [
                 Tab(icon: Icon(Icons.info, size: 20), text: 'Info'),
-                Tab(icon: Icon(Icons.shopping_cart, size: 20), text: 'Shop'),
+                Tab(icon: Icon(Icons.loyalty, size: 20), text: 'Collars'),
                 Tab(icon: Icon(Icons.fastfood, size: 20), text: 'Items'),
                 Tab(
-                    icon: Icon(Icons.sports_baseball, size: 20),
-                    text: 'Balls'),
+                  icon: Icon(Icons.sports_baseball, size: 20),
+                  text: 'Balls',
+                ),
                 Tab(icon: Icon(Icons.star, size: 20), text: 'Tricks'),
               ],
             ),
@@ -93,7 +95,7 @@ class PetTabsWidget extends StatelessWidget {
               child: TabBarView(
                 children: [
                   _buildInfoTab(),
-                  _buildShopTab(),
+                  _buildCollarsTab(),
                   _buildConsumablesTab(),
                   _buildBallsTab(),
                   _buildTricksTab(),
@@ -113,88 +115,110 @@ class PetTabsWidget extends StatelessWidget {
       child: SingleChildScrollView(
         child: Text(
           '• Feed & Play: Costs 0.005 DOGE and returns 2x (0.01 DOGE) in 24 hours! If your balance is under 0.005 DOGE, it\'s FREE and returns 1.5x (0.0075 DOGE) after 24 hours!\n'
-          '• Stroke: Stroke your pet to raise Attention & get 5 XP!\n'
-          '• Fetch: Swipe the ball! Costs Energy & Hunger but boosts Happiness.\n'
-          '• Boop: Every 30 mins, it walks to the camera. Boop its nose for 0.004 DOGE!\n'
-          '• Walk: Walk your pet every 3 hours for up to 0.005 DOGE.\n'
-          '• Sickness: Keep stats above 0! Sick pets can\'t walk and lose faucet bonuses.\n'
+          '• Collars: Equip coloured collars to style your Shiba across every growth phase and boost PTC rewards up to +100%!\n'
+          '• Stroke: Tap or stroke your Shiba to raise Attention & earn 5 XP!\n'
+          '• Fetch: Swipe the ball! Costs Energy & Hunger, boosts Happiness & earns DOGE.\n'
+          '• Boop: Every 30 mins, boop your Shiba\'s nose for +0.004 DOGE!\n'
+          '• Walk: Walk your Shiba every 3 hours for up to 0.005 DOGE.\n'
           '• Items: Buy Medicine to cure sickness for FREE.',
           style: TextStyle(
-              fontSize: 12,
-              height: 1.4,
-              color: data.isDark ? Colors.white70 : Colors.black87),
+            fontSize: 12,
+            height: 1.4,
+            color: data.isDark ? Colors.white70 : Colors.black87,
+          ),
         ),
       ),
     );
   }
 
-  // ─── Shop ─────────────────────────────────────────────────────────────────
-  Widget _buildShopTab() {
+  // ─── Collars ──────────────────────────────────────────────────────────────
+  Widget _buildCollarsTab() {
     if (data.stage == 'egg') {
       return const Center(
-          child: Text(
-              'Shop unlocks at Baby stage!\n(Wait 2 days or use Admin controls)',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.bold)));
+        child: Text(
+          'Collars unlock at Baby stage!\n(Wait 2 days or use Admin controls)',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      );
     }
+
+    final ownedNormalized = PetCollars.normalizeList(data.ownedAccessories);
+    final activeCollarId = PetCollars.resolveActiveCollar(
+      data.equippedAccessories,
+    )?.id;
+
     return ListView(
       padding: const EdgeInsets.all(8),
       children: [
-        _buildShopItem('top_hat', 'Fancy Top Hat', 1.0, '+10% PTC Bonus'),
-        _buildShopItem('sunglasses', 'Cool Shades', 2.0, '+20% PTC Bonus'),
-        _buildShopItem('gold_chain', 'Gold Chain', 3.0, '+30% PTC Bonus'),
-        _buildShopItem(
-            'diamond_watch', 'Diamond Watch', 5.0, '+50% PTC Bonus'),
-        _buildShopItem('crown', 'Royal Crown', 10.0, '+100% PTC Bonus'),
-        _buildShopItem('coat_basic', 'Basic Coat', 1.5, '+15% PTC Bonus'),
-        _buildShopItem('coat_rain', 'Rain Coat', 2.5, '+25% PTC Bonus'),
-        _buildShopItem('coat_winter', 'Winter Coat', 4.0, '+40% PTC Bonus'),
-        _buildShopItem(
-            'coat_luxury', 'Luxury Coat', 7.5, '+75% PTC Bonus'),
+        for (final collar in PetCollars.all)
+          _buildCollarItem(
+            collar,
+            isOwned: ownedNormalized.contains(collar.id),
+            isEquipped: activeCollarId == collar.id,
+          ),
       ],
     );
   }
 
-  Widget _buildShopItem(
-      String id, String name, double price, String bonus) {
-    final isOwned = data.ownedAccessories.contains(id);
-    final isEquipped = data.equippedAccessories.contains(id);
-
+  Widget _buildCollarItem(
+    CollarStyle collar, {
+    required bool isOwned,
+    required bool isEquipped,
+  }) {
+    final dogePrice = (collar.usdtPrice * 8.0).toStringAsFixed(0);
     return ListTile(
       visualDensity: VisualDensity.compact,
-      leading: Image.asset('assets/shiba_$id.png',
-          width: 30,
-          height: 30,
-          errorBuilder: (c, e, s) => const Icon(Icons.checkroom)),
-      title: Text(name,
-          style:
-              const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+      leading: CollarPreviewIcon(collarId: collar.id, size: 32),
+      title: Text(
+        collar.name,
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+      ),
       subtitle: isOwned
-          ? Text(bonus,
-              style: const TextStyle(fontSize: 10, color: Colors.green))
-          : Text('\$$price USDT (Ad Credit)\n$bonus',
-              style: const TextStyle(fontSize: 10, color: Colors.amber)),
+          ? Text(
+              isEquipped
+                  ? '${collar.bonusLabel} • Wearing'
+                  : collar.bonusLabel,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: isEquipped ? FontWeight.bold : FontWeight.normal,
+                color: isEquipped ? Colors.amber : Colors.green,
+              ),
+            )
+          : Text(
+              '\$${collar.usdtPrice.toStringAsFixed(2)} USDT | $dogePrice DOGE\n${collar.bonusLabel}',
+              style: const TextStyle(fontSize: 10, color: Colors.amber),
+            ),
       trailing: isOwned
           ? ElevatedButton(
-              onPressed: () => callbacks.onEquipAccessory(id, !isEquipped),
+              onPressed: () =>
+                  callbacks.onEquipAccessory(collar.id, !isEquipped),
               style: ElevatedButton.styleFrom(
-                backgroundColor: isEquipped ? Colors.grey : Colors.blue,
+                backgroundColor: isEquipped ? Colors.grey.shade700 : Colors.blue,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                minimumSize: const Size(60, 30),
+                minimumSize: const Size(64, 30),
               ),
-              child: Text(isEquipped ? 'Unequip' : 'Equip',
-                  style:
-                      const TextStyle(fontSize: 10, color: Colors.white)),
+              child: Text(
+                isEquipped ? 'Unequip' : 'Equip',
+                style: const TextStyle(fontSize: 10, color: Colors.white),
+              ),
             )
           : ElevatedButton(
-              onPressed: () => callbacks.onBuyAccessory(id, price),
+              onPressed: () =>
+                  callbacks.onBuyAccessory(collar.id, collar.usdtPrice),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.amber,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                minimumSize: const Size(60, 30),
+                minimumSize: const Size(64, 30),
               ),
-              child: const Text('Buy',
-                  style: TextStyle(fontSize: 10, color: Colors.black)),
+              child: const Text(
+                'Buy',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
             ),
     );
   }
@@ -203,32 +227,47 @@ class PetTabsWidget extends StatelessWidget {
   Widget _buildConsumablesTab() {
     if (data.stage == 'egg') {
       return const Center(
-          child: Text(
-              'Items unlock at Baby stage!\n(Wait 2 days or use Admin controls)',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.bold)));
+        child: Text(
+          'Items unlock at Baby stage!\n(Wait 2 days or use Admin controls)',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      );
     }
     return ListView(
       padding: const EdgeInsets.all(8),
       children: [
         _buildConsumableItem(
-            'medicine', 'Medicine', 0.0, 'Cures Sickness (FREE)', Icons.local_hospital),
+          'medicine',
+          'Medicine',
+          0.0,
+          'Cures Sickness (FREE)',
+          Icons.local_hospital,
+        ),
       ],
     );
   }
 
   Widget _buildConsumableItem(
-      String id, String name, double price, String desc, IconData icon) {
+    String id,
+    String name,
+    double price,
+    String desc,
+    IconData icon,
+  ) {
     final count = data.ownedConsumables[id] ?? 0;
 
     return ListTile(
       visualDensity: VisualDensity.compact,
       leading: Icon(icon, size: 30, color: Colors.amber),
-      title: Text(name,
-          style:
-              const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-      subtitle: Text('Owned: $count\n$desc',
-          style: const TextStyle(fontSize: 10, color: Colors.grey)),
+      title: Text(
+        name,
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+      ),
+      subtitle: Text(
+        'Owned: $count\n$desc',
+        style: const TextStyle(fontSize: 10, color: Colors.grey),
+      ),
       trailing: Wrap(
         spacing: 4,
         children: [
@@ -240,8 +279,10 @@ class PetTabsWidget extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 minimumSize: const Size(50, 30),
               ),
-              child: const Text('Use',
-                  style: TextStyle(fontSize: 10, color: Colors.white)),
+              child: const Text(
+                'Use',
+                style: TextStyle(fontSize: 10, color: Colors.white),
+              ),
             ),
           ElevatedButton(
             onPressed: () => callbacks.onBuyConsumable(id, price),
@@ -250,9 +291,10 @@ class PetTabsWidget extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8),
               minimumSize: const Size(50, 30),
             ),
-            child: Text(price == 0.0 ? 'FREE' : '\$$price',
-                style:
-                    const TextStyle(fontSize: 10, color: Colors.black)),
+            child: Text(
+              price == 0.0 ? 'FREE' : '\$$price',
+              style: const TextStyle(fontSize: 10, color: Colors.black),
+            ),
           ),
         ],
       ),
@@ -263,33 +305,34 @@ class PetTabsWidget extends StatelessWidget {
   Widget _buildBallsTab() {
     if (data.stage == 'egg') {
       return const Center(
-          child: Text('Balls unlock at Baby stage!',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.bold)));
+        child: Text(
+          'Balls unlock at Baby stage!',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      );
     }
     return ListView(
       padding: const EdgeInsets.all(8),
       children: [
         _buildBallItem('white', 'Classic White', 0.0, '0.0 DOGE | 1 XP'),
         _buildBallItem('red', 'Red Ball', 0.25, '0.0001 DOGE | 1 XP'),
-        _buildBallItem(
-            'orange', 'Orange Ball', 0.75, '0.0002 DOGE | 2 XP'),
-        _buildBallItem(
-            'yellow', 'Yellow Ball', 1.25, '0.0003 DOGE | 3 XP'),
-        _buildBallItem(
-            'green', 'Green Ball', 1.75, '0.0004 DOGE | 4 XP'),
-        _buildBallItem(
-            'blue', 'Blue Ball', 2.25, '0.0005 DOGE | 5 XP'),
-        _buildBallItem(
-            'indigo', 'Indigo Ball', 2.75, '0.0006 DOGE | 6 XP'),
-        _buildBallItem(
-            'violet', 'Violet Ball', 3.25, '0.0007 DOGE | 7 XP'),
+        _buildBallItem('orange', 'Orange Ball', 0.75, '0.0002 DOGE | 2 XP'),
+        _buildBallItem('yellow', 'Yellow Ball', 1.25, '0.0003 DOGE | 3 XP'),
+        _buildBallItem('green', 'Green Ball', 1.75, '0.0004 DOGE | 4 XP'),
+        _buildBallItem('blue', 'Blue Ball', 2.25, '0.0005 DOGE | 5 XP'),
+        _buildBallItem('indigo', 'Indigo Ball', 2.75, '0.0006 DOGE | 6 XP'),
+        _buildBallItem('violet', 'Violet Ball', 3.25, '0.0007 DOGE | 7 XP'),
       ],
     );
   }
 
   Widget _buildBallItem(
-      String color, String name, double price, String bonus) {
+    String color,
+    String name,
+    double price,
+    String bonus,
+  ) {
     final isOwned = data.ownedBalls.contains(color);
     final isEquipped = data.equippedBall == color;
 
@@ -321,42 +364,56 @@ class PetTabsWidget extends StatelessWidget {
     return ListTile(
       visualDensity: VisualDensity.compact,
       leading: Container(
-          width: 20,
-          height: 20,
-          decoration: BoxDecoration(
-              color: ballColor,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.black))),
-      title: Text(name,
-          style:
-              const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+        width: 22,
+        height: 22,
+        decoration: BoxDecoration(
+          color: ballColor,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.black, width: 1.2),
+        ),
+      ),
+      title: Text(
+        name,
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+      ),
       subtitle: isOwned
-          ? Text(bonus,
-              style: const TextStyle(fontSize: 10, color: Colors.green))
-          : Text('\$$price USDT (Ad Credit)\n$bonus',
-              style: const TextStyle(fontSize: 10, color: Colors.amber)),
+          ? Text(
+              bonus,
+              style: const TextStyle(fontSize: 10, color: Colors.green),
+            )
+          : Text(
+              '\$${price.toStringAsFixed(2)} USDT | ${(price * 8.0).toStringAsFixed(0)} DOGE\n$bonus',
+              style: const TextStyle(fontSize: 10, color: Colors.amber),
+            ),
       trailing: isOwned
           ? ElevatedButton(
-              onPressed: isEquipped ? null : () => callbacks.onEquipBall(color),
+              onPressed:
+                  isEquipped ? null : () => callbacks.onEquipBall(color),
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    isEquipped ? Colors.grey : Colors.blue,
+                backgroundColor: isEquipped ? Colors.grey : Colors.blue,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                minimumSize: const Size(60, 30),
+                minimumSize: const Size(64, 30),
               ),
-              child: Text(isEquipped ? 'Equipped' : 'Equip',
-                  style:
-                      const TextStyle(fontSize: 10, color: Colors.white)),
+              child: Text(
+                isEquipped ? 'Equipped' : 'Equip',
+                style: const TextStyle(fontSize: 10, color: Colors.white),
+              ),
             )
           : ElevatedButton(
               onPressed: () => callbacks.onBuyBall(color, price),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.amber,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                minimumSize: const Size(60, 30),
+                minimumSize: const Size(64, 30),
               ),
-              child: const Text('Buy',
-                  style: TextStyle(fontSize: 10, color: Colors.black)),
+              child: const Text(
+                'Buy',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
             ),
     );
   }
@@ -365,10 +422,12 @@ class PetTabsWidget extends StatelessWidget {
   Widget _buildTricksTab() {
     if (data.stage == 'egg') {
       return const Center(
-          child: Text(
-              'Tricks unlock at Baby stage!\n(Wait 2 days or use Admin controls)',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.bold)));
+        child: Text(
+          'Tricks unlock at Baby stage!\n(Wait 2 days or use Admin controls)',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      );
     }
     return Center(
       child: SingleChildScrollView(
@@ -377,12 +436,36 @@ class PetTabsWidget extends StatelessWidget {
           runSpacing: 10,
           alignment: WrapAlignment.center,
           children: [
-            _buildTrickButton('Spin', Icons.rotate_right, 1.0, '+10% Sponsor Bonus'),
-            _buildTrickButton('Jump', Icons.arrow_upward, 2.0, '+20% Sponsor Bonus'),
-            _buildTrickButton('Roll Over', Icons.replay, 3.0, '+30% Sponsor Bonus'),
-            _buildTrickButton('Backflip', Icons.loop, 5.0, '+50% Sponsor Bonus'),
             _buildTrickButton(
-                'Moonwalk', Icons.directions_walk, 10.0, '+100% Sponsor Bonus'),
+              'Spin',
+              Icons.rotate_right,
+              1.0,
+              '+10% Sponsor Bonus',
+            ),
+            _buildTrickButton(
+              'Jump',
+              Icons.arrow_upward,
+              2.0,
+              '+20% Sponsor Bonus',
+            ),
+            _buildTrickButton(
+              'Roll Over',
+              Icons.replay,
+              3.0,
+              '+30% Sponsor Bonus',
+            ),
+            _buildTrickButton(
+              'Backflip',
+              Icons.loop,
+              5.0,
+              '+50% Sponsor Bonus',
+            ),
+            _buildTrickButton(
+              'Moonwalk',
+              Icons.directions_walk,
+              10.0,
+              '+100% Sponsor Bonus',
+            ),
           ],
         ),
       ),
@@ -390,7 +473,11 @@ class PetTabsWidget extends StatelessWidget {
   }
 
   Widget _buildTrickButton(
-      String name, IconData icon, double price, String bonus) {
+    String name,
+    IconData icon,
+    double price,
+    String bonus,
+  ) {
     final isOwned = data.ownedTricks.contains(name);
     return Tooltip(
       message: isOwned

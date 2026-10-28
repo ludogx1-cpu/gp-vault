@@ -13,6 +13,11 @@ class PetEvents {
       StreamController<String>.broadcast();
   static Stream<String> get equipBallStream => _equipBallController.stream;
 
+  static final StreamController<List<String>> _equipCollarController =
+      StreamController<List<String>>.broadcast();
+  static Stream<List<String>> get equipCollarStream =>
+      _equipCollarController.stream;
+
   static final StreamController<void> _refreshController =
       StreamController<void>.broadcast();
   static Stream<void> get refreshStream => _refreshController.stream;
@@ -31,6 +36,10 @@ class PetEvents {
 
   static void equipBall(String color) {
     _equipBallController.add(color);
+  }
+
+  static void equipCollar(List<String> equippedCollars) {
+    _equipCollarController.add(equippedCollars);
   }
 
   static void notifyStatusChanged({String? reactionEmoji}) {

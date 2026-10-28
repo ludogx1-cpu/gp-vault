@@ -20,19 +20,44 @@ class PetRepository {
   static Future<void> walkPet(String uid, double distance) async {
     await _db.collection('users').doc(uid).update({
       'pet_total_distance_walked': FieldValue.increment(distance),
-      'pet_energy': FieldValue.increment(-10), // Assuming walking costs energy
+      'pet_energy': FieldValue.increment(-10),
       'pet_last_interaction': FieldValue.serverTimestamp(),
     });
   }
 
   static Future<void> unlockAllAdmin(String uid) async {
-    await _db.collection('users').doc(uid).update({
-      'pet_owned_accessories': [
-        'top_hat', 'sunglasses', 'gold_chain', 'diamond_watch', 'crown',
-        'coat_basic', 'coat_rain', 'coat_winter', 'coat_luxury'
-      ],
-      'active_trick_buffs': ['Spin', 'Jump', 'Roll Over', 'Backflip', 'Moonwalk'],
-      'pet_owned_tricks': ['Spin', 'Jump', 'Roll Over', 'Backflip', 'Moonwalk'],
-    });
+    const collars = [
+      'collar_red',
+      'collar_orange',
+      'collar_yellow',
+      'collar_green',
+      'collar_blue',
+      'collar_indigo',
+      'collar_violet',
+      'collar_gold',
+      'collar_diamond',
+    ];
+    const tricks = ['Spin', 'Jump', 'Roll Over', 'Backflip', 'Moonwalk'];
+    const balls = [
+      'white',
+      'red',
+      'orange',
+      'yellow',
+      'green',
+      'blue',
+      'indigo',
+      'violet',
+    ];
+    final userRef = _db.collection('users').doc(uid);
+    final payload = {
+      'pet_owned_accessories': collars,
+      'pet_owned_tricks': tricks,
+      'pet_owned_balls': balls,
+    };
+    await userRef.set(payload, SetOptions(merge: true));
+    await userRef
+        .collection('pet')
+        .doc('status')
+        .set(payload, SetOptions(merge: true));
   }
 }

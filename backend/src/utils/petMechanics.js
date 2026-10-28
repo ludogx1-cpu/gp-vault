@@ -1,6 +1,32 @@
 const DECAY_RATE_PER_HOUR = 2.5;
 const MAX_STAT = 100;
 
+const LEGACY_TO_COLLAR_MAP = {
+  'top_hat': 'collar_red',
+  'coat_basic': 'collar_orange',
+  'sunglasses': 'collar_yellow',
+  'coat_rain': 'collar_green',
+  'gold_chain': 'collar_blue',
+  'coat_winter': 'collar_indigo',
+  'diamond_watch': 'collar_violet',
+  'coat_luxury': 'collar_gold',
+  'crown': 'collar_diamond'
+};
+
+function normalizeAccessoryIds(list) {
+  if (!Array.isArray(list)) return [];
+  const seen = new Set();
+  const result = [];
+  for (const id of list) {
+    const mapped = LEGACY_TO_COLLAR_MAP[id] || id;
+    if (typeof mapped === 'string' && !seen.has(mapped)) {
+      seen.add(mapped);
+      result.push(mapped);
+    }
+  }
+  return result;
+}
+
 function calculateDecay(userData) {
   const now = Date.now();
   const lastInteraction = userData.pet_last_interaction ? userData.pet_last_interaction.toDate().getTime() : now;
@@ -55,8 +81,6 @@ function calculateDecay(userData) {
   return { hunger, happiness, attention, energy, hoursPassed, hoursAbove40 };
 }
 
-
-
 function calculatePetBonusPercent(decayedStats, userData) {
   if (userData.pet_sick) return 0;
   // If stats average > 80%, give +10% bonus
@@ -73,15 +97,26 @@ function calculatePetBonusPercent(decayedStats, userData) {
 function calculateShopBonusPercent(userData) {
   if (userData.pet_sick) return 0;
   const accessoryBonuses = {
+    // Collar Tiers
+    'collar_red': 10,
+    'collar_orange': 15,
+    'collar_yellow': 20,
+    'collar_green': 25,
+    'collar_blue': 30,
+    'collar_indigo': 40,
+    'collar_violet': 50,
+    'collar_gold': 75,
+    'collar_diamond': 100,
+    // Legacy Accessory Compatibility
     'top_hat': 10,
-    'sunglasses': 20,
-    'gold_chain': 30,
-    'diamond_watch': 50,
-    'crown': 100,
     'coat_basic': 15,
+    'sunglasses': 20,
     'coat_rain': 25,
+    'gold_chain': 30,
     'coat_winter': 40,
-    'coat_luxury': 75
+    'diamond_watch': 50,
+    'coat_luxury': 75,
+    'crown': 100
   };
 
   let shopBonus = 0;
@@ -155,7 +190,7 @@ function getGrowthStage(userData) {
 }
 
 function getNextStageXP(currentStage) {
-  switch(currentStage) {
+  switch (currentStage) {
     case 'baby': return XP_THRESHOLDS.toddler;
     case 'toddler': return XP_THRESHOLDS.puppy;
     case 'puppy': return XP_THRESHOLDS.child;
@@ -191,5 +226,7 @@ module.exports = {
   calculateTrickBonusPercent,
   getAgeMultiplier,
   getNextStageXP,
+  normalizeAccessoryIds,
+  LEGACY_TO_COLLAR_MAP,
   MAX_STAT
 };
