@@ -62,10 +62,6 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
     if (controller == null) return;
     if (widget.initialUrl != null) {
       controller.loadRequest(Uri.parse(widget.initialUrl!));
-    } else if (widget.viewType == 'turnstile-widget') {
-      controller.loadRequest(Uri.parse('https://goldenpaw.dog/captcha.html?provider=turnstile'));
-    } else if (widget.viewType == 'hcaptcha-widget') {
-      controller.loadRequest(Uri.parse('https://goldenpaw.dog/captcha.html?provider=hcaptcha'));
     } else {
       controller.loadHtmlString(
         _getHtmlForViewType(widget.viewType),
@@ -109,24 +105,45 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
         <html>
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-          <style>html, body { margin:0; padding:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; background:transparent; overflow:hidden; }</style>
-          <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoaded" async defer></script>
+          <style>
+            * { box-sizing: border-box; }
+            html, body { margin:0; padding:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; background:transparent; overflow:hidden; }
+            #cf-container { display:flex; justify-content:center; align-items:center; width:100%; height:100%; }
+          </style>
+          <script>
+            function notifyFlutter(token) {
+              if (window.Print && window.Print.postMessage) {
+                window.Print.postMessage(JSON.stringify({"token": token, "captcha_token": token, "turnstile_token": token}));
+              }
+            }
+            function onTurnstileLoaded() {
+              if (typeof turnstile !== 'undefined') {
+                turnstile.ready(function() {
+                  try {
+                    const el = document.getElementById('cf-container');
+                    if (el && !el.hasChildNodes()) {
+                      turnstile.render('#cf-container', {
+                        sitekey: '0x4AAAAAADN3brAhvXC8xH0X',
+                        callback: function(token) {
+                          notifyFlutter(token);
+                        }
+                      });
+                    }
+                  } catch(e) {
+                    console.error('Turnstile render error:', e);
+                  }
+                });
+              } else {
+                setTimeout(onTurnstileLoaded, 200);
+              }
+            }
+          </script>
+          <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoaded&render=explicit" async defer></script>
         </head>
         <body>
           <div id="cf-container"></div>
           <script>
-            function onTurnstileLoaded() {
-              try {
-                turnstile.render('#cf-container', {
-                  sitekey: '0x4AAAAAADN3brAhvXC8xH0X',
-                  callback: function(token) {
-                    Print.postMessage(JSON.stringify({"token": token, "captcha_token": token, "turnstile_token": token}));
-                  }
-                });
-              } catch(e) {
-                console.error('Error rendering Turnstile:', e);
-              }
-            }
+            window.addEventListener('load', onTurnstileLoaded);
           </script>
         </body>
         </html>

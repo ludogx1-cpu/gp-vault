@@ -65,11 +65,11 @@ class CaptchaSelectorWidget extends StatelessWidget {
                 underline: Container(),
                 onChanged: secondsRemaining > 0 ? null : onChanged,
                 items: const [
-                  DropdownMenuItem(value: 'hCaptcha', child: Text('hCaptcha')),
                   DropdownMenuItem(
                     value: 'Turnstile',
-                    child: Text('Turnstile'),
+                    child: Text('Turnstile (Fast)'),
                   ),
+                  DropdownMenuItem(value: 'hCaptcha', child: Text('hCaptcha')),
                 ],
               ),
             ),
@@ -77,7 +77,7 @@ class CaptchaSelectorWidget extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Container(
-          height: 120,
+          height: 135,
           width: 340,
           decoration: BoxDecoration(
             border: Border.all(color: Colors.amber, width: 2),
@@ -97,20 +97,20 @@ class CaptchaSelectorWidget extends StatelessWidget {
                     ),
                   ),
                 )
-              else if (selectedCaptcha == 'hCaptcha' && secondsRemaining == 0)
-                UniversalWebView.create(
-                  key: const ValueKey('hcaptcha-widget-key'),
-                  viewType: 'hcaptcha-widget',
-                  width: 320,
-                  height: 90,
-                  onMessageReceived: onMessageReceived,
-                )
               else if (selectedCaptcha == 'Turnstile' && secondsRemaining == 0)
                 UniversalWebView.create(
                   key: const ValueKey('turnstile-widget-key'),
                   viewType: 'turnstile-widget',
                   width: 320,
-                  height: 90,
+                  height: 95,
+                  onMessageReceived: onMessageReceived,
+                )
+              else if (selectedCaptcha == 'hCaptcha' && secondsRemaining == 0)
+                UniversalWebView.create(
+                  key: const ValueKey('hcaptcha-widget-key'),
+                  viewType: 'hcaptcha-widget',
+                  width: 320,
+                  height: 95,
                   onMessageReceived: onMessageReceived,
                 ),
               if (!isCheckingCooldown &&
