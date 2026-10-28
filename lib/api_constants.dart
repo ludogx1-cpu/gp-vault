@@ -7,4 +7,7 @@ class ApiConstants {
       : 'https://golden-paw-vault.onrender.com';
       
   static const String adminUid = 'P8iffVqbUgetAVA4MdHVZ1CfvUv1';
+
+  static const String apkDownloadUrl =
+      'https://github.com/ludogx1-cpu/gp-vault/releases/latest/download/GoldenPaw-universal.apk';
 }
