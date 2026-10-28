@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class AppUpdateBanner extends StatefulWidget {
-  static const String currentVersion = 'v1.2.1';
+  static const String currentVersion = 'v1.2.2';
 
   const AppUpdateBanner({super.key});
 
