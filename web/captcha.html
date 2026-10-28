@@ -50,41 +50,32 @@
     }
 
     if (provider === 'turnstile') {
-      // ONLY load Turnstile - zero cookies, zero consent popups!
-      const script = document.createElement('script');
-      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-      script.async = true;
-      script.defer = true;
-      script.onload = function() {
+      window.onTurnstileLoaded = function() {
         if (typeof turnstile !== 'undefined') {
-          turnstile.ready(function() {
-            try {
-              turnstile.render('#captcha-container', {
-                sitekey: '0x4AAAAAADN3brAhvXC8xH0X',
-                theme: isDark ? 'dark' : 'light',
-                callback: function(token) {
-                  notifyFlutter(token);
-                },
-                'error-callback': function(code) {
-                  console.warn('Turnstile error:', code);
-                }
-              });
-            } catch(e) {
-              console.error('Turnstile render error:', e);
-            }
-          });
+          try {
+            turnstile.render('#captcha-container', {
+              sitekey: '0x4AAAAAADN3brAhvXC8xH0X',
+              theme: isDark ? 'dark' : 'light',
+              callback: function(token) {
+                notifyFlutter(token);
+              },
+              'error-callback': function(code) {
+                console.warn('Turnstile error:', code);
+              }
+            });
+          } catch(e) {
+            console.error('Turnstile render error:', e);
+          }
         }
       };
-      document.head.appendChild(script);
-    } else {
-      // hCaptcha fallback
       const script = document.createElement('script');
-      script.src = 'https://js.hcaptcha.com/1/api.js?render=explicit';
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoaded&render=explicit';
       script.async = true;
       script.defer = true;
-      script.onload = function() {
+      document.head.appendChild(script);
+    } else {
+      window.onHcaptchaLoaded = function() {
         if (typeof hcaptcha !== 'undefined') {
-          const container = document.getElementById('captcha-container');
           try {
             hcaptcha.render('captcha-container', {
               sitekey: 'e47877ca-d0f0-44d0-aa70-7e06f3a2848e',
@@ -98,6 +89,10 @@
           }
         }
       };
+      const script = document.createElement('script');
+      script.src = 'https://js.hcaptcha.com/1/api.js?onload=onHcaptchaLoaded&render=explicit';
+      script.async = true;
+      script.defer = true;
       document.head.appendChild(script);
     }
   </script>

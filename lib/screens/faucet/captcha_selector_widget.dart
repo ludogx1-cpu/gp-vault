@@ -11,6 +11,7 @@ class CaptchaSelectorWidget extends StatelessWidget {
   final ValueChanged<String?> onChanged;
   final void Function(String) onMessageReceived;
   final VoidCallback onForceRender;
+  final int reloadCounter;
 
   const CaptchaSelectorWidget({
     super.key,
@@ -21,12 +22,14 @@ class CaptchaSelectorWidget extends StatelessWidget {
     required this.onChanged,
     required this.onMessageReceived,
     required this.onForceRender,
+    this.reloadCounter = 0,
   });
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isDark = themeProvider.isDarkMode;
+    final isHcaptcha = selectedCaptcha == 'hCaptcha';
 
     return Column(
       children: [
@@ -77,7 +80,7 @@ class CaptchaSelectorWidget extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Container(
-          height: 135,
+          height: isHcaptcha ? 240 : 135,
           width: 340,
           decoration: BoxDecoration(
             border: Border.all(color: Colors.amber, width: 2),
@@ -99,7 +102,7 @@ class CaptchaSelectorWidget extends StatelessWidget {
                 )
               else if (selectedCaptcha == 'Turnstile' && secondsRemaining == 0)
                 UniversalWebView.create(
-                  key: const ValueKey('turnstile-widget-key'),
+                  key: ValueKey('turnstile-widget-key-$reloadCounter'),
                   viewType: 'turnstile-widget',
                   width: 320,
                   height: 95,
@@ -107,10 +110,10 @@ class CaptchaSelectorWidget extends StatelessWidget {
                 )
               else if (selectedCaptcha == 'hCaptcha' && secondsRemaining == 0)
                 UniversalWebView.create(
-                  key: const ValueKey('hcaptcha-widget-key'),
+                  key: ValueKey('hcaptcha-widget-key-$reloadCounter'),
                   viewType: 'hcaptcha-widget',
                   width: 320,
-                  height: 95,
+                  height: 200,
                   onMessageReceived: onMessageReceived,
                 ),
               if (!isCheckingCooldown &&

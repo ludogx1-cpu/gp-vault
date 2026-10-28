@@ -77,25 +77,38 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
         <html>
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-          <style>html, body { margin:0; padding:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; background:transparent; overflow:hidden; }</style>
+          <style>
+            * { box-sizing: border-box; }
+            html, body { margin:0; padding:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; background:transparent; overflow:hidden; }
+            #hcaptcha-container { display:flex; justify-content:center; align-items:center; width:100%; height:100%; }
+            dialog, [id*="zaraz"], [class*="zaraz"] { display: none !important; }
+          </style>
+          <script>
+            function notifyFlutter(token) {
+              if (window.Print && window.Print.postMessage) {
+                window.Print.postMessage(JSON.stringify({"token": token, "captcha_token": token, "hcaptcha_token": token, "provider": "hcaptcha"}));
+              }
+            }
+            window.onHcaptchaLoaded = function() {
+              try {
+                const el = document.getElementById('hcaptcha-container');
+                if (el && !el.hasChildNodes()) {
+                  hcaptcha.render('hcaptcha-container', {
+                    sitekey: 'e47877ca-d0f0-44d0-aa70-7e06f3a2848e',
+                    callback: function(token) {
+                      notifyFlutter(token);
+                    }
+                  });
+                }
+              } catch(e) {
+                console.error('Error rendering hCaptcha:', e);
+              }
+            };
+          </script>
           <script src="https://js.hcaptcha.com/1/api.js?onload=onHcaptchaLoaded&render=explicit" async defer></script>
         </head>
         <body>
           <div id="hcaptcha-container"></div>
-          <script>
-            function onHcaptchaLoaded() {
-              try {
-                hcaptcha.render('hcaptcha-container', {
-                  sitekey: 'e47877ca-d0f0-44d0-aa70-7e06f3a2848e',
-                  callback: function(token) {
-                    Print.postMessage(JSON.stringify({"token": token, "captcha_token": token, "turnstile_token": token}));
-                  }
-                });
-              } catch(e) {
-                console.error('Error rendering hCaptcha:', e);
-              }
-            }
-          </script>
         </body>
         </html>
       ''';
@@ -108,43 +121,46 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
           <style>
             * { box-sizing: border-box; }
             html, body { margin:0; padding:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; background:transparent; overflow:hidden; }
-            #cf-container { display:flex; justify-content:center; align-items:center; width:100%; height:100%; }
+            #cf-container { display:flex; justify-content:center; align-items:center; width:100%; height:100%; min-height:65px; }
+            dialog, #zaraz-consent-modal, [id*="zaraz"], [class*="zaraz"] {
+              display: none !important;
+              visibility: hidden !important;
+              opacity: 0 !important;
+              pointer-events: none !important;
+            }
           </style>
           <script>
             function notifyFlutter(token) {
               if (window.Print && window.Print.postMessage) {
-                window.Print.postMessage(JSON.stringify({"token": token, "captcha_token": token, "turnstile_token": token}));
+                window.Print.postMessage(JSON.stringify({"token": token, "captcha_token": token, "turnstile_token": token, "provider": "turnstile"}));
               }
             }
-            function onTurnstileLoaded() {
+            window.onTurnstileLoaded = function() {
               if (typeof turnstile !== 'undefined') {
-                turnstile.ready(function() {
-                  try {
-                    const el = document.getElementById('cf-container');
-                    if (el && !el.hasChildNodes()) {
-                      turnstile.render('#cf-container', {
-                        sitekey: '0x4AAAAAADN3brAhvXC8xH0X',
-                        callback: function(token) {
-                          notifyFlutter(token);
-                        }
-                      });
-                    }
-                  } catch(e) {
-                    console.error('Turnstile render error:', e);
+                try {
+                  const el = document.getElementById('cf-container');
+                  if (el && !el.hasChildNodes()) {
+                    turnstile.render('#cf-container', {
+                      sitekey: '0x4AAAAAADN3brAhvXC8xH0X',
+                      theme: 'auto',
+                      callback: function(token) {
+                        notifyFlutter(token);
+                      },
+                      'error-callback': function(code) {
+                        console.warn('Turnstile error:', code);
+                      }
+                    });
                   }
-                });
-              } else {
-                setTimeout(onTurnstileLoaded, 200);
+                } catch(e) {
+                  console.error('Turnstile render error:', e);
+                }
               }
-            }
+            };
           </script>
           <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoaded&render=explicit" async defer></script>
         </head>
         <body>
           <div id="cf-container"></div>
-          <script>
-            window.addEventListener('load', onTurnstileLoaded);
-          </script>
         </body>
         </html>
       ''';

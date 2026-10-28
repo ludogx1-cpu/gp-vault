@@ -31,6 +31,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
   String _status = "Ready to Claim";
   bool _isLoading = false;
   bool _captchaLoading = false;
+  int _captchaReloadCounter = 0;
   String? _captchaToken;
   String _selectedCaptcha = 'Turnstile';
   bool _saveToVault = false;
@@ -239,7 +240,11 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
   }
 
   void _forceRenderCaptcha() {
-    setState(() => _captchaLoading = true);
+    setState(() {
+      _captchaReloadCounter++;
+      _captchaLoading = true;
+      _captchaToken = null;
+    });
     Timer(const Duration(milliseconds: 200), () {
       try {
         if (_selectedCaptcha == 'hCaptcha') {
@@ -253,7 +258,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
       
       // Give the widget time to load, then hide the spinner
       if (mounted) {
-        Timer(const Duration(milliseconds: 1500), () {
+        Timer(const Duration(milliseconds: 800), () {
           if (mounted) {
             setState(() => _captchaLoading = false);
           }
@@ -570,9 +575,11 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
           secondsRemaining: _secondsRemaining,
           isCheckingCooldown: _isCheckingCooldown,
           captchaLoading: _captchaLoading,
+          reloadCounter: _captchaReloadCounter,
           onChanged: (String? value) {
             setState(() {
               _selectedCaptcha = value!;
+              _captchaReloadCounter++;
               _captchaToken = null;
               _captchaLoading = false;
               _status = "Ready to Claim";
