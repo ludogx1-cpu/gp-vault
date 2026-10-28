@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "163858364889-9sgq7tsuhqs58pl508b11cjcmofijfsn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.goldenpaw.app",
+            "certificate_hash": "69b4333570401f96aa89bcb2203ab40a6e4e7aad"
+          }
+        },
+        {
+          "client_id": "163858364889-lf61u0mlkhubr37l32v9p6l4jlv8mas3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.goldenpaw.app",
+            "certificate_hash": "a9eed5177014a8fcbd60da2f0d5a2865bbf87c1e"
+          }
+        },
+        {
           "client_id": "163858364889-v3cf59l3murhkqfcg8igqv27om64gti6.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
