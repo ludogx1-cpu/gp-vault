@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Golden Paw Captcha</title>
+  <title>Golden Paw Verification</title>
   <style>
     * { box-sizing: border-box; }
     html, body {
@@ -23,10 +23,9 @@
       align-items: center;
       width: 100%;
       height: 100%;
+      min-height: 70px;
     }
   </style>
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoaded&render=explicit" async defer></script>
-  <script src="https://js.hcaptcha.com/1/api.js?onload=onHcaptchaLoaded&render=explicit" async defer></script>
 </head>
 <body>
   <div id="captcha-container"></div>
@@ -50,56 +49,57 @@
       }
     }
 
-    function onTurnstileLoaded() {
-      if (provider === 'turnstile') {
-        const container = document.getElementById('captcha-container');
-        try {
-          container.innerHTML = '';
-          turnstile.render('#captcha-container', {
-            sitekey: '0x4AAAAAADN3brAhvXC8xH0X',
-            theme: isDark ? 'dark' : 'light',
-            callback: function(token) {
-              notifyFlutter(token);
-            },
-            'error-callback': function(code) {
-              console.warn('Turnstile error:', code);
+    if (provider === 'turnstile') {
+      // ONLY load Turnstile - zero cookies, zero consent popups!
+      const script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.defer = true;
+      script.onload = function() {
+        if (typeof turnstile !== 'undefined') {
+          turnstile.ready(function() {
+            try {
+              turnstile.render('#captcha-container', {
+                sitekey: '0x4AAAAAADN3brAhvXC8xH0X',
+                theme: isDark ? 'dark' : 'light',
+                callback: function(token) {
+                  notifyFlutter(token);
+                },
+                'error-callback': function(code) {
+                  console.warn('Turnstile error:', code);
+                }
+              });
+            } catch(e) {
+              console.error('Turnstile render error:', e);
             }
           });
-        } catch(e) {
-          console.error('Turnstile render error:', e);
         }
-      }
-    }
-
-    function onHcaptchaLoaded() {
-      if (provider === 'hcaptcha') {
-        const container = document.getElementById('captcha-container');
-        try {
-          container.innerHTML = '';
-          hcaptcha.render(container, {
-            sitekey: 'e47877ca-d0f0-44d0-aa70-7e06f3a2848e',
-            theme: isDark ? 'dark' : 'light',
-            callback: function(token) {
-              notifyFlutter(token);
-            },
-            'error-callback': function(error) {
-              console.warn('hCaptcha error:', error);
-            }
-          });
-        } catch(e) {
-          console.error('hCaptcha render error:', e);
+      };
+      document.head.appendChild(script);
+    } else {
+      // hCaptcha fallback
+      const script = document.createElement('script');
+      script.src = 'https://js.hcaptcha.com/1/api.js?render=explicit';
+      script.async = true;
+      script.defer = true;
+      script.onload = function() {
+        if (typeof hcaptcha !== 'undefined') {
+          const container = document.getElementById('captcha-container');
+          try {
+            hcaptcha.render('captcha-container', {
+              sitekey: 'e47877ca-d0f0-44d0-aa70-7e06f3a2848e',
+              theme: isDark ? 'dark' : 'light',
+              callback: function(token) {
+                notifyFlutter(token);
+              }
+            });
+          } catch(e) {
+            console.error('hCaptcha render error:', e);
+          }
         }
-      }
+      };
+      document.head.appendChild(script);
     }
-
-    // In case scripts loaded before callback hooks were registered
-    window.addEventListener('load', function() {
-      if (provider === 'turnstile' && typeof turnstile !== 'undefined') {
-        onTurnstileLoaded();
-      } else if (provider === 'hcaptcha' && typeof hcaptcha !== 'undefined') {
-        onHcaptchaLoaded();
-      }
-    });
   </script>
 </body>
 </html>

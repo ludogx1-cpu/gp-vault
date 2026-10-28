@@ -32,7 +32,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
   bool _isLoading = false;
   bool _captchaLoading = false;
   String? _captchaToken;
-  String _selectedCaptcha = 'hCaptcha';
+  String _selectedCaptcha = 'Turnstile';
   bool _saveToVault = false;
   Timer? _countdownTimer;
   int _secondsRemaining = 0;
