@@ -99,6 +99,7 @@ class CaptchaSelectorWidget extends StatelessWidget {
                 )
               else if (selectedCaptcha == 'hCaptcha' && secondsRemaining == 0)
                 UniversalWebView.create(
+                  key: const ValueKey('hcaptcha-widget-key'),
                   viewType: 'hcaptcha-widget',
                   width: 320,
                   height: 90,
@@ -106,6 +107,7 @@ class CaptchaSelectorWidget extends StatelessWidget {
                 )
               else if (selectedCaptcha == 'Turnstile' && secondsRemaining == 0)
                 UniversalWebView.create(
+                  key: const ValueKey('turnstile-widget-key'),
                   viewType: 'turnstile-widget',
                   width: 320,
                   height: 90,

@@ -46,12 +46,30 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
       );
     }
 
+    _loadContent();
+  }
+
+  @override
+  void didUpdateWidget(covariant UniversalWebViewNative oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.viewType != widget.viewType || oldWidget.initialUrl != widget.initialUrl) {
+      _loadContent();
+    }
+  }
+
+  void _loadContent() {
+    final controller = _controller;
+    if (controller == null) return;
     if (widget.initialUrl != null) {
-      _controller!.loadRequest(Uri.parse(widget.initialUrl!));
+      controller.loadRequest(Uri.parse(widget.initialUrl!));
+    } else if (widget.viewType == 'turnstile-widget') {
+      controller.loadRequest(Uri.parse('https://goldenpaw.dog/captcha.html?provider=turnstile'));
+    } else if (widget.viewType == 'hcaptcha-widget') {
+      controller.loadRequest(Uri.parse('https://goldenpaw.dog/captcha.html?provider=hcaptcha'));
     } else {
-      _controller!.loadHtmlString(
+      controller.loadHtmlString(
         _getHtmlForViewType(widget.viewType),
-        baseUrl: 'https://goldenpaw.dog'
+        baseUrl: 'https://goldenpaw.dog',
       );
     }
   }
@@ -72,9 +90,9 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
             function onHcaptchaLoaded() {
               try {
                 hcaptcha.render('hcaptcha-container', {
-                  sitekey: '1d5b3c3b-252d-4d7a-8f43-7f2a1b9b12a8',
+                  sitekey: 'e47877ca-d0f0-44d0-aa70-7e06f3a2848e',
                   callback: function(token) {
-                    Print.postMessage(JSON.stringify({"captcha_token": token}));
+                    Print.postMessage(JSON.stringify({"token": token, "captcha_token": token, "turnstile_token": token}));
                   }
                 });
               } catch(e) {
@@ -100,9 +118,9 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
             function onTurnstileLoaded() {
               try {
                 turnstile.render('#cf-container', {
-                  sitekey: '0x4AAAAAAAcj2U6Z7j1z3QWq',
+                  sitekey: '0x4AAAAAADN3brAhvXC8xH0X',
                   callback: function(token) {
-                    Print.postMessage(JSON.stringify({"turnstile_token": token}));
+                    Print.postMessage(JSON.stringify({"token": token, "captcha_token": token, "turnstile_token": token}));
                   }
                 });
               } catch(e) {
