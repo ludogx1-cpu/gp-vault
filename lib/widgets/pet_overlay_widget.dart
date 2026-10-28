@@ -56,11 +56,16 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   late AnimationController _walkController;
   late AnimationController _boopController;
   late AnimationController _trickController;
+  late AnimationController _idleController;
+  late AnimationController _reactionController;
 
   String _currentTrick = '';
+  String _reactionEmoji = '';
   StreamSubscription? _trickSubscription;
   StreamSubscription? _sleepSubscription;
   StreamSubscription? _ballSubscription;
+  StreamSubscription? _refreshSubscription;
+  StreamSubscription? _reactionSubscription;
 
   // Fetch Mechanics
   String _equippedBall = 'white';
@@ -84,11 +89,11 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
 
     _shakeController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 100),
+      duration: const Duration(milliseconds: 220),
     );
     _walkController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 280),
     );
     _boopController = AnimationController(
       vsync: this,
@@ -97,6 +102,14 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     _trickController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
+    );
+    _idleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat();
+    _reactionController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
     );
 
     _listenForEvents();
@@ -115,12 +128,13 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
 
     // Start speech loop
     _speechTimer = Timer.periodic(
-      const Duration(seconds: 25), 
+      const Duration(seconds: 25),
       (_) => _updateSpeech(),
     );
 
     // Load saved sleep state
     SharedPreferences.getInstance().then((prefs) {
+      if (!mounted) return;
       setState(() {
         _userWantsSleep = prefs.getBool('pet_sleeping') ?? false;
         _isSleepingOverlay = _userWantsSleep;
@@ -137,16 +151,29 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     _trickSubscription?.cancel();
     _sleepSubscription?.cancel();
     _ballSubscription?.cancel();
+    _refreshSubscription?.cancel();
+    _reactionSubscription?.cancel();
     _shakeController.dispose();
     _walkController.dispose();
     _boopController.dispose();
     _trickController.dispose();
+    _idleController.dispose();
+    _reactionController.dispose();
     super.dispose();
+  }
+
+  void _triggerReaction(String emoji) {
+    if (!mounted) return;
+    setState(() => _reactionEmoji = emoji);
+    _reactionController.forward(from: 0.0).then((_) {
+      if (mounted) setState(() => _reactionEmoji = '');
+    });
   }
 
   void _listenForEvents() {
     _trickSubscription = PetEvents.trickStream.listen((trickName) {
       _playTrickAnimation(trickName);
+      _triggerReaction('✨');
     });
 
     _sleepSubscription = PetEvents.sleepStream.listen((sleep) {
@@ -154,8 +181,11 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
         setState(() {
           _userWantsSleep = sleep;
 
-          bool boopReady = (DateTime.now().millisecondsSinceEpoch - _lastBoopTime) >= 1800000;
-          bool isNapping = _sleepingUntil > DateTime.now().millisecondsSinceEpoch;
+          bool boopReady =
+              (DateTime.now().millisecondsSinceEpoch - _lastBoopTime) >=
+              1800000;
+          bool isNapping =
+              _sleepingUntil > DateTime.now().millisecondsSinceEpoch;
 
           if (_poos.isNotEmpty || boopReady || _isSick) {
             _isSleepingOverlay = false;
@@ -170,6 +200,17 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
 
     _ballSubscription = PetEvents.equipBallStream.listen((color) {
       if (mounted) setState(() => _equippedBall = color);
+    });
+
+    _refreshSubscription = PetEvents.refreshStream.listen((_) {
+      if (mounted) _fetchPetStatus();
+    });
+
+    _reactionSubscription = PetEvents.reactionStream.listen((emoji) {
+      if (mounted) {
+        _triggerReaction(emoji);
+        _shakeController.forward(from: 0.0);
+      }
     });
   }
 
@@ -208,7 +249,6 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
               _isWandering = true;
             } else {
               _isWandering = false;
-              // Occasionally shake the egg
               if (_random.nextDouble() > 0.5) {
                 _shakeController.forward(from: 0.0);
               }
@@ -275,38 +315,33 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
 
   void _updateSpeech() {
     if (!mounted || _isSleepingOverlay || _stage == 'egg') return;
-    
-    // 50% chance to say nothing this cycle to prevent it from being too spammy
+
     if (_random.nextDouble() > 0.5) {
       setState(() => _currentSpeech = '');
       return;
     }
 
     String text = '';
-    // Determine tier based on stats
     double avgStats = (_hunger + _happiness + _energy) / 3;
-    
+
     if (_isSick || avgStats < 30) {
-      // Tier 1: Needy
       const needy = [
         "I'm hungry! Please feed me.",
         "I need a nap... zZz",
         "Can we play fetch?",
-        "I'm feeling a bit neglected..."
+        "I'm feeling a bit neglected...",
       ];
       text = needy[_random.nextInt(needy.length)];
     } else if (avgStats >= 30 && avgStats < 75) {
-      // Tier 2: Golden Paw info
       const gpInfo = [
         "Did you know? You get 20% of your friends' claims for life!",
         "Boop my nose every 30 mins for free DOGE!",
         "Check the Updates Board to stay informed.",
         "You can stake DOGE in The Vault for 33% APY!",
-        "Don't forget to walk me every 3 hours."
+        "Don't forget to walk me every 3 hours.",
       ];
       text = gpInfo[_random.nextInt(gpInfo.length)];
     } else {
-      // Tier 3: Financial/Crypto advice
       const cryptoInfo = [
         "Crypto Tip: Diversify your portfolio!",
         "Remember to do your own research (DYOR) before investing.",
@@ -314,14 +349,13 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
         "Never invest more than you can afford to lose.",
         "Golden Paw is the best place to earn crypto in 2026!",
         "Keep holding! Diamond hands 💎🐾",
-        "Market moving? Stay calm and earn passive income."
+        "Market moving? Stay calm and earn passive income.",
       ];
       text = cryptoInfo[_random.nextInt(cryptoInfo.length)];
     }
-    
+
     setState(() => _currentSpeech = text);
-    
-    // Clear after 8 seconds
+
     Future.delayed(const Duration(seconds: 8), () {
       if (mounted && _currentSpeech == text) {
         setState(() => _currentSpeech = '');
@@ -332,8 +366,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   void _movePetRandomly() {
     if (!_isWandering || !mounted) return;
     if (_isSleepingOverlay && _stage != 'egg') return;
+    if (_isFetching || _isReturning) return;
 
-    // 15% chance to start chasing the mouse if not already close up or chasing
     if (!_isCloseUp &&
         !_isChasing &&
         _stage != 'egg' &&
@@ -346,18 +380,16 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     final now = DateTime.now().millisecondsSinceEpoch;
     bool boopReady = (now - _lastBoopTime) >= 1800000;
 
-    // Check if 30 mins passed since last boop
     if (boopReady) {
       _isCloseUp = true;
-      final targetX = (size.width / 2) - 50; // Center horizontal
-      final targetY = size.height - 250; // Bottom center
+      final targetX = (size.width / 2) - 50;
+      final targetY = size.height - 250;
 
       setState(() {
         _facingRight = targetX > _petX;
         _petX = targetX;
         _petY = targetY;
       });
-      // Do not walk away if waiting for a boop
       return;
     } else {
       _isCloseUp = false;
@@ -375,27 +407,27 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
       });
     }
 
-    // Start waddle animation while moving
     _walkController.repeat(reverse: true);
     Future.delayed(const Duration(seconds: 4), () {
-      if (mounted && !_isChasing) _walkController.stop();
-      if (mounted) setState(() {}); // Refresh to show emotion if stopped
+      if (mounted && !_isChasing && !_isFetching && !_isReturning) {
+        _walkController.stop();
+      }
+      if (mounted) setState(() {});
     });
   }
 
   void _startChasingMouse() {
     _isChasing = true;
     _moveTimer?.cancel();
-    _walkController.repeat(reverse: true); // Constantly walk while chasing
+    _walkController.repeat(reverse: true);
 
     _chaseTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) return;
       setState(() {
         _facingRight = globalMouseX > _petX;
-        _petX = globalMouseX - 50; // Center on mouse
+        _petX = globalMouseX - 50;
         _petY = globalMouseY - 50;
       });
-      // Stop chasing after 10 seconds
       if (timer.tick >= 10) {
         _stopChasingMouse();
       }
@@ -418,6 +450,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     setState(() {
       _poos.removeWhere((p) => p.id == pooId);
     });
+    _triggerReaction('✨');
 
     try {
       final headers = await getAuthHeaders();
@@ -428,10 +461,14 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
 
       final data = jsonDecode(response.body);
       if (response.statusCode == 200 && data['success']) {
+        PetEvents.notifyStatusChanged();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Cleaned up! +${data['reward']} DOGE', style: const TextStyle(color: Colors.white)),
+              content: Text(
+                'Cleaned up! +${data['reward']} DOGE',
+                style: const TextStyle(color: Colors.white),
+              ),
               backgroundColor: Colors.green,
             ),
           );
@@ -455,6 +492,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     if (!_isCloseUp) return;
 
     _boopController.forward().then((_) => _boopController.reverse());
+    _triggerReaction('💖');
 
     final now = DateTime.now().millisecondsSinceEpoch;
     if (now - _lastBoopTime < 30 * 60 * 1000) {
@@ -464,13 +502,11 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
       return;
     }
 
-    // Optimistic UI update
     setState(() {
       _lastBoopTime = now;
       _isCloseUp = false;
     });
 
-    // Walk away happily
     _movePetRandomly();
 
     try {
@@ -482,10 +518,14 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
 
       final data = jsonDecode(response.body);
       if (response.statusCode == 200 && data['success']) {
+        PetEvents.notifyStatusChanged();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Boop! +${data['reward']} DOGE ❤️', style: const TextStyle(color: Colors.white)),
+              content: Text(
+                'Boop! +${data['reward']} DOGE ❤️',
+                style: const TextStyle(color: Colors.white),
+              ),
               backgroundColor: Colors.green,
             ),
           );
@@ -505,8 +545,6 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     }
   }
 
-// the methods _getImageAsset and _getScaleForStage were moved to pet_sprite_widget.dart
-
   void _onBallPanUpdate(DragUpdateDetails details) {
     if (_isFetching || _stage == 'baby') return;
     setState(() {
@@ -517,8 +555,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
 
   void _onBallPanEnd(DragEndDetails details) {
     if (_isFetching || _stage == 'baby') return;
-    
-    if (details.velocity.pixelsPerSecond.distance > 500) {
+
+    if (details.velocity.pixelsPerSecond.distance > 400) {
       _startFetchSequence(details.velocity.pixelsPerSecond);
     }
   }
@@ -528,10 +566,16 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     setState(() => _isFetching = true);
 
     final size = MediaQuery.of(context).size;
-    
+
     setState(() {
-      double projectedX = _ballX + (velocity.dx * 1.5);
-      double projectedY = _ballY + (velocity.dy * 1.5);
+      double projectedX = (_ballX + (velocity.dx * 1.2)).clamp(
+        30.0,
+        size.width - 50.0,
+      );
+      double projectedY = (_ballY + (velocity.dy * 1.2)).clamp(
+        60.0,
+        size.height - 60.0,
+      );
 
       _ballX = projectedX;
       _ballY = projectedY;
@@ -539,8 +583,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
 
     await Future.delayed(const Duration(milliseconds: 500));
     if (!mounted) return;
-    
-    // Pet chases the ball
+
+    // Pet chases the ball with active hop animation
+    _walkController.repeat(reverse: true);
     setState(() {
       _facingRight = _ballX > _petX;
       _petX = _ballX;
@@ -548,12 +593,11 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
       _isChasing = true;
     });
 
-    // Pet is away for 1 second
     await Future.delayed(const Duration(milliseconds: 1000));
     if (!mounted) return;
 
-    // Pause to pick up
-    await Future.delayed(const Duration(milliseconds: 500));
+    _triggerReaction('🎾');
+    await Future.delayed(const Duration(milliseconds: 400));
     if (!mounted) return;
 
     // Return to screen center (pet brings ball back)
@@ -567,14 +611,14 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
       _ballY = _petY;
     });
 
-    // Wait for the return journey to finish
     await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
 
+    _walkController.stop();
     setState(() {
       _isFetching = false;
       _isReturning = false;
-      _isWandering = true; // Resume wandering
+      _isWandering = true;
     });
 
     _recordFetchResult();
@@ -593,7 +637,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
         if (clicks % 5 == 0) {
           _launchSmartlink();
         }
-        _fetchPetStatus(); 
+        _fetchPetStatus();
+        PetEvents.notifyStatusChanged();
       }
     } catch (e) {
       // ignore
@@ -601,7 +646,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   }
 
   Future<void> _launchSmartlink() async {
-    final url = Uri.parse('https://landslidegraphsystems.com/yb0uurni?key=a7a2f7a7dae98e1083902b1e7285bdad');
+    final url = Uri.parse(
+      'https://landslidegraphsystems.com/yb0uurni?key=a7a2f7a7dae98e1083902b1e7285bdad',
+    );
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     }
@@ -609,12 +656,12 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
 
   Future<void> _strokePet() async {
     final now = DateTime.now().millisecondsSinceEpoch;
-    if (now - _lastStrokeTime < 2000) return; // throttle locally 
+    if (now - _lastStrokeTime < 2000) return;
     if (_isSleepingOverlay || _isSick) return;
-    
+
     _lastStrokeTime = now;
-    // Play animation
     _shakeController.forward(from: 0.0);
+    _triggerReaction('❤️');
 
     try {
       final headers = await getAuthHeaders();
@@ -622,7 +669,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
         Uri.parse('${ApiConstants.baseUrl}/pet-stroke'),
         headers: headers,
       );
-      _fetchPetStatus(); // get new attention
+      _fetchPetStatus();
+      PetEvents.notifyStatusChanged();
     } catch (e) {
       // ignore
     }
@@ -636,17 +684,16 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
       _ballY = size.height / 2 + 80;
       _ballInitialized = true;
     } else if (_ballInitialized && !_isFetching && !_isReturning) {
-      // Clamp to screen bounds to ensure it never gets lost
       if (_ballX < 0) _ballX = 20;
       if (_ballX > size.width - 30) _ballX = size.width - 30;
       if (_ballY < 0) _ballY = 20;
       if (_ballY > size.height - 30) _ballY = size.height - 30;
 
-      // Prevent ball from getting stuck under the Adsterra ads on wide screens
       if (size.width >= 1000) {
         double leftAdEnd = ((size.width - 600) / 2 - 160) / 2 + 160;
-        double rightAdStart = size.width - (((size.width - 600) / 2 - 160) / 2) - 160;
-        
+        double rightAdStart =
+            size.width - (((size.width - 600) / 2 - 160) / 2) - 160;
+
         if (_ballX < leftAdEnd + 10) _ballX = leftAdEnd + 10;
         if (_ballX > rightAdStart - 40) _ballX = rightAdStart - 40;
       }
@@ -690,7 +737,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
           const SizedBox.shrink()
         else
           AnimatedPositioned(
-            duration: Duration(seconds: _isChasing ? 1 : (_isReturning ? 2 : 4)),
+            duration: Duration(
+              seconds: _isChasing ? 1 : (_isReturning ? 2 : 4),
+            ),
             curve: Curves.easeInOut,
             left: _petX,
             top: _petY,
@@ -701,6 +750,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
               facingRight: _facingRight,
               equippedAccessories: _equippedAccessories,
               emotion: emotion,
+              reactionEmoji: _reactionEmoji,
               isCloseUp: _isCloseUp,
               isWalkAnimating: _walkController.isAnimating,
               isChasing: _isChasing,
@@ -708,6 +758,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
               walkController: _walkController,
               boopController: _boopController,
               trickController: _trickController,
+              idleController: _idleController,
+              reactionController: _reactionController,
               currentTrick: _currentTrick,
               onBoopDown: () {
                 if (_isSleepingOverlay || _isSick) return;
@@ -719,7 +771,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
                 if (_isCloseUp) {
                   _boopPet();
                 } else if (_stage != 'egg') {
-                  _startChasingMouse();
+                  _strokePet();
                 }
               },
               onBoopCancel: () {
@@ -732,9 +784,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
                   _strokePet();
                 }
               },
-            ), // PetSpriteWidget
-          ), // closes AnimatedPositioned
-          
+            ),
+          ),
+
         // Fetch Ball
         if (_stage != 'egg')
           FetchBallWidget(
@@ -746,10 +798,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
             onPanUpdate: _onBallPanUpdate,
             onPanEnd: _onBallPanEnd,
           ),
-          
-        // Debug Text
       ],
     );
   }
-
 }
