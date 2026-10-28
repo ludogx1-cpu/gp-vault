@@ -543,7 +543,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                         clientId:
                                             '163858364889-6b3gurkgtik76jque9ccq1dr9iqju9mb.apps.googleusercontent.com',
                                       )
-                                    : GoogleSignIn();
+                                    : GoogleSignIn(serverClientId: '163858364889-6b3gurkgtik76jque9ccq1dr9iqju9mb.apps.googleusercontent.com');
 
                                 final GoogleSignInAccount? googleUser =
                                     await googleSignIn.signIn();
@@ -662,7 +662,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                 : () async {
                     setState(() => isLoading = true);
                     try {
-                      final GoogleSignIn googleSignIn = GoogleSignIn();
+                      final GoogleSignIn googleSignIn = GoogleSignIn(serverClientId: '163858364889-6b3gurkgtik76jque9ccq1dr9iqju9mb.apps.googleusercontent.com');
                       final GoogleSignInAccount? googleUser = await googleSignIn
                           .signIn();
                       if (googleUser == null) {
