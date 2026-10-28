@@ -24,7 +24,6 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
   @override
   void initState() {
     super.initState();
-    // webview_flutter only supports Android and iOS natively.
     if (defaultTargetPlatform == TargetPlatform.windows ||
         defaultTargetPlatform == TargetPlatform.macOS ||
         defaultTargetPlatform == TargetPlatform.linux) {
@@ -35,8 +34,9 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
     _isSupported = true;
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setUserAgent('Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36')
       ..setBackgroundColor(Colors.transparent);
-      
+
     if (widget.onMessageReceived != null) {
       _controller!.addJavaScriptChannel(
         'Print',
@@ -50,8 +50,8 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
       _controller!.loadRequest(Uri.parse(widget.initialUrl!));
     } else {
       _controller!.loadHtmlString(
-        _getHtmlForViewType(widget.viewType), 
-        baseUrl: 'https://goldenpaw.dog/'
+        _getHtmlForViewType(widget.viewType),
+        baseUrl: 'https://goldenpaw.dog'
       );
     }
   }
@@ -62,14 +62,24 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
         <!DOCTYPE html>
         <html>
         <head>
-          <meta name="viewport" content="width=device-width, initial-scale=0.85, maximum-scale=0.85, user-scalable=no">
-          <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+          <style>html, body { margin:0; padding:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; background:transparent; overflow:hidden; }</style>
+          <script src="https://js.hcaptcha.com/1/api.js?onload=onHcaptchaLoaded&render=explicit" async defer></script>
         </head>
-        <body style="display:flex; justify-content:center; align-items:center; height:100vh; margin:0; background: transparent;">
-          <div class="h-captcha" data-sitekey="1d5b3c3b-252d-4d7a-8f43-7f2a1b9b12a8" data-callback="onSuccess"></div>
+        <body>
+          <div id="hcaptcha-container"></div>
           <script>
-            function onSuccess(token) {
-              Print.postMessage(JSON.stringify({"captcha_token": token}));
+            function onHcaptchaLoaded() {
+              try {
+                hcaptcha.render('hcaptcha-container', {
+                  sitekey: '1d5b3c3b-252d-4d7a-8f43-7f2a1b9b12a8',
+                  callback: function(token) {
+                    Print.postMessage(JSON.stringify({"captcha_token": token}));
+                  }
+                });
+              } catch(e) {
+                console.error('Error rendering hCaptcha:', e);
+              }
             }
           </script>
         </body>
@@ -80,14 +90,24 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
         <!DOCTYPE html>
         <html>
         <head>
-          <meta name="viewport" content="width=device-width, initial-scale=0.85, maximum-scale=0.85, user-scalable=no">
-          <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+          <style>html, body { margin:0; padding:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; background:transparent; overflow:hidden; }</style>
+          <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoaded" async defer></script>
         </head>
-        <body style="display:flex; justify-content:center; align-items:center; height:100vh; margin:0; background: transparent;">
-          <div class="cf-turnstile" data-sitekey="0x4AAAAAAAcj2U6Z7j1z3QWq" data-callback="onSuccess"></div>
+        <body>
+          <div id="cf-container"></div>
           <script>
-            function onSuccess(token) {
-              Print.postMessage(JSON.stringify({"turnstile_token": token}));
+            function onTurnstileLoaded() {
+              try {
+                turnstile.render('#cf-container', {
+                  sitekey: '0x4AAAAAAAcj2U6Z7j1z3QWq',
+                  callback: function(token) {
+                    Print.postMessage(JSON.stringify({"turnstile_token": token}));
+                  }
+                });
+              } catch(e) {
+                console.error('Error rendering Turnstile:', e);
+              }
             }
           </script>
         </body>
@@ -165,17 +185,6 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
         </body>
         </html>
       ''';
-    } else if (viewType.startsWith('adsterra-')) {
-       return '''
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-        <body style="margin:0; display:flex; justify-content:center; align-items:center; height:100vh;">
-        </body>
-        </html>
-       ''';
     } else if (viewType == 'github-sponsors-iframe') {
       return '''
         <!DOCTYPE html>
@@ -197,7 +206,6 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
   @override
   Widget build(BuildContext context) {
     if (!_isSupported) {
-      // Return a blank box for unsupported desktop platforms
       return SizedBox(
         width: widget.width,
         height: widget.height,
