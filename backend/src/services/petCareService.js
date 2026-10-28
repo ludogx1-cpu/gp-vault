@@ -5,9 +5,9 @@ const { logTransaction } = require('./ledgerService');
 const { logRewardEvent } = require('../utils/rewardAudit');
 const { admin } = require('./firebaseService');
 
-const FEED_COST_DOGE = 0.0001;
-const PLAY_COST_DOGE = 0.0001;
-const SLEEP_COST_DOGE = 0.0001;
+const FEED_COST_DOGE = 0.005;
+const PLAY_COST_DOGE = 0.005;
+const SLEEP_COST_DOGE = 0.005;
 const FEED_HUNGER_RECOVERY = 30;
 const PLAY_ENERGY_COST = 15;
 const PLAY_HAPPINESS_RECOVERY = 25;

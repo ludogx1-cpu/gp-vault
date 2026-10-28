@@ -114,7 +114,7 @@ class PetTabsWidget extends StatelessWidget {
         child: Text(
           '• Stroke: Stroke your pet to raise Attention & get 5 XP!\n'
           '• Fetch: Swipe the ball! Costs Energy & Hunger but boosts Happiness.\n'
-          '• Boop: Every 30 mins, it walks to the camera. Boop its nose for 0.002 DOGE!\n'
+          '• Boop: Every 30 mins, it walks to the camera. Boop its nose for 0.004 DOGE!\n'
           '• Walk: Walk your pet every 3 hours for up to 0.005 DOGE.\n'
           '• Sickness: Keep stats above 0! Sick pets can\'t walk and lose faucet bonuses.\n'
           '• Items: Buy Medicine to cure sickness for FREE.',
