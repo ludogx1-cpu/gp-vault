@@ -13,6 +13,7 @@ import '../widgets/chat_box_widget.dart';
 import '../widgets/newsletter_subscribe_widget.dart';
 import '../repositories/user_repository.dart';
 import '../widgets/profile_setup_dialog.dart';
+import '../widgets/app_update_banner.dart';
 import 'faucet/welcome_banner.dart';
 import 'faucet/updates_box.dart';
 import 'faucet/faucet_claim_card.dart';
@@ -187,6 +188,8 @@ class _FaucetPageState extends State<FaucetPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
+
+                      const AppUpdateBanner(),
 
                       const WelcomeBanner(),
                       const SizedBox(height: 25),

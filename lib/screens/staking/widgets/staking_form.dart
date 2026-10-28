@@ -7,6 +7,8 @@ class StakingForm extends StatelessWidget {
   final Function(double) onStake;
   final Function(double) onUnstake;
   final BuildContext context;
+  final double availableBalance;
+  final double stakedBalance;
 
   const StakingForm({
     super.key,
@@ -16,6 +18,8 @@ class StakingForm extends StatelessWidget {
     required this.onStake,
     required this.onUnstake,
     required this.context,
+    this.availableBalance = 0.0,
+    this.stakedBalance = 0.0,
   });
 
   @override
@@ -38,6 +42,46 @@ class StakingForm extends StatelessWidget {
             prefixIcon: const Icon(
               Icons.monetization_on,
               color: Colors.amber,
+            ),
+            suffixIcon: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    amountController.text = availableBalance.toStringAsFixed(8);
+                  },
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size(45, 30),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                  ),
+                  child: const Text(
+                    "MAX STAKE",
+                    style: TextStyle(
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    amountController.text = stakedBalance.toStringAsFixed(8);
+                  },
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size(45, 30),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                  ),
+                  child: const Text(
+                    "MAX UNSTAKE",
+                    style: TextStyle(
+                      color: Colors.amber,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4),
+              ],
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

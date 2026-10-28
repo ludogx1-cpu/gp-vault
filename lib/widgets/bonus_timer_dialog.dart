@@ -4,31 +4,28 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'universal_web_view/universal_web_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
 import '../src/cross_tab_listener/cross_tab_listener.dart';
+import '../api_constants.dart';
+import '../screens/faucet/captcha_selector_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-
-// --- GLOBAL THEME CONSTANTS 🚀 ---
-
-// --- CAPTCHA JS BINDINGS ---
 
 // ==========================================
 // 1. THE SHELL
 // ==========================================
 
 class BonusTimerDialog extends StatefulWidget {
-  final String endpoint;
+  final String? endpoint;
   final int durationSeconds;
   final String? targetUrl;
 
   const BonusTimerDialog({
     super.key,
-    this.endpoint = 'https://golden-paw-vault.onrender.com/claim-bonus-sponsor',
+    this.endpoint,
     this.durationSeconds = 20,
     this.targetUrl,
   });
@@ -41,6 +38,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
   late int _timeLeft;
   late final Stopwatch _stopwatch = Stopwatch();
   Timer? _timer;
+  Timer? _coldStartTimer;
   CrossTabListener? _crossTabListener;
   bool _claimed = false;
   bool _isProcessing = false;
@@ -48,10 +46,10 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
 
   bool _showCaptcha = false;
   bool _timerStarted = false;
-  String _selectedCaptcha = 'hCaptcha';
+  String _selectedCaptcha = 'Turnstile';
   bool _captchaLoading = false;
+  int _captchaReloadCounter = 0;
   String? _captchaToken;
-  
 
   DateTime _lastClickTime = DateTime.now();
 
@@ -71,24 +69,35 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
     } catch (e) {
       // ignore on unsupported platforms
     }
+
+    // Auto-start timer on mobile or for external video links that don't post cross-tab messages
+    if (!kIsWeb ||
+        (widget.targetUrl != null &&
+            widget.targetUrl!.contains('youtube.com'))) {
+      _timerStarted = true;
+      _lastClickTime = DateTime.now();
+      _stopwatch.start();
+      _startTimer();
+    }
   }
 
-    void _onCaptchaMessage(String messageStr) {
+  void _onCaptchaMessage(String messageStr) {
     if (!mounted) return;
     try {
       if (messageStr.contains("start_bonus_timer")) {
         if (!_timerStarted) {
           setState(() {
             _timerStarted = true;
-
             _lastClickTime = DateTime.now();
           });
           _stopwatch.start();
           _startTimer();
         }
-      } else if (messageStr.contains("captcha") || messageStr.contains("token")) {
+      } else if (messageStr.contains("captcha") ||
+          messageStr.contains("token")) {
         final data = jsonDecode(messageStr) as Map<String, dynamic>;
-        final token = data["token"] ?? data["captcha_token"] ?? data["turnstile_token"];
+        final token =
+            data["token"] ?? data["captcha_token"] ?? data["turnstile_token"];
         if (token != null) {
           setState(() {
             _captchaToken = token;
@@ -134,7 +143,9 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
           HapticFeedback.vibrate();
         }
       } else {
-        if (mounted && remaining != _timeLeft && remaining <= widget.durationSeconds) {
+        if (mounted &&
+            remaining != _timeLeft &&
+            remaining <= widget.durationSeconds) {
           setState(() {
             _timeLeft = remaining;
             _message = "Watching Ad... $_timeLeft seconds left";
@@ -146,12 +157,23 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
   }
 
   void _forceRenderCaptcha() {
-    setState(() => _captchaLoading = true);
+    setState(() {
+      _captchaReloadCounter++;
+      _captchaLoading = true;
+      _captchaToken = null;
+    });
     Timer(const Duration(milliseconds: 200), () {
       if (_selectedCaptcha == 'hCaptcha') {
         _crossTabListener?.renderHCaptcha();
       } else if (_selectedCaptcha == 'Turnstile') {
         _crossTabListener?.renderTurnstile();
+      }
+      if (mounted) {
+        Timer(const Duration(milliseconds: 800), () {
+          if (mounted) {
+            setState(() => _captchaLoading = false);
+          }
+        });
       }
     });
   }
@@ -162,18 +184,29 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
     setState(() => _message = "Verifying...");
     _updateBrowserTitle("Verifying");
 
+    _coldStartTimer?.cancel();
+    _coldStartTimer = Timer(const Duration(seconds: 4), () {
+      if (mounted && _isProcessing) {
+        setState(() => _message = "Waking up Vault server... please wait 🐾");
+      }
+    });
+
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
+    final targetEndpoint =
+        widget.endpoint ?? '${ApiConstants.baseUrl}/claim-bonus-sponsor';
+
     try {
       final response = await http.post(
-        Uri.parse(widget.endpoint),
+        Uri.parse(targetEndpoint),
         headers: await getAuthHeaders(),
         body: jsonEncode({
           'captcha_token': _captchaToken,
           'captcha_provider': _selectedCaptcha,
         }),
       );
+      _coldStartTimer?.cancel();
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body) as Map<String, dynamic>;
@@ -199,6 +232,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
         }
       }
     } catch (e) {
+      _coldStartTimer?.cancel();
       if (mounted) {
         setState(() {
           _message = "Connection error. Try again.";
@@ -213,6 +247,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
   @override
   void dispose() {
     _timer?.cancel();
+    _coldStartTimer?.cancel();
     _crossTabListener?.cancel();
     _stopwatch.stop();
     // Revert title
@@ -228,202 +263,152 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
       backgroundColor: isDark ? themeProvider.darkGreyBoxColor : Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
-        padding: const EdgeInsets.all(25),
+        padding: const EdgeInsets.all(20),
         width: 400,
-        height: _showCaptcha ? (kIsWeb ? 350 : 550) : 300,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (_showCaptcha && !_claimed) ...[
-              const SizedBox(height: 15),
-              Text(
-                "Almost done! Verify you are human.",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: gpBrownText(context),
-                ),
-              ),
-              const SizedBox(height: 15),
-              Container(
-                height: 30,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  color: isDark ? themeProvider.darkGreyBoxColor : Colors.white,
-                  borderRadius: BorderRadius.circular(5),
-                  border: Border.all(color: Colors.amber.shade200),
-                ),
-                child: DropdownButton<String>(
-                  value: _selectedCaptcha,
-                  icon: Icon(
-                    Icons.arrow_drop_down,
-                    color: isDark ? Colors.grey.shade400 : Colors.black87,
-                    size: 16,
-                  ),
-                  elevation: 16,
-                  dropdownColor: isDark ? Colors.grey.shade900 : Colors.white,
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (_showCaptcha && !_claimed) ...[
+                const SizedBox(height: 10),
+                Text(
+                  "Almost done! Verify you are human.",
                   style: TextStyle(
-                    color: isDark ? Colors.grey.shade300 : Colors.black87,
                     fontWeight: FontWeight.bold,
-                    fontSize: 13,
+                    color: gpBrownText(context),
                   ),
-                  underline: Container(),
+                ),
+                const SizedBox(height: 15),
+                CaptchaSelectorWidget(
+                  selectedCaptcha: _selectedCaptcha,
+                  secondsRemaining: 0,
+                  isCheckingCooldown: false,
+                  captchaLoading: _captchaLoading,
+                  reloadCounter: _captchaReloadCounter,
                   onChanged: (String? value) {
                     setState(() {
                       _selectedCaptcha = value!;
+                      _captchaReloadCounter++;
                       _captchaToken = null;
                       _captchaLoading = false;
                     });
                   },
-                  items: const [
-                    DropdownMenuItem(
-                      value: 'hCaptcha',
-                      child: Text('hCaptcha'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'Turnstile',
-                      child: Text('Turnstile'),
-                    ),
-                  ],
+                  onMessageReceived: _onCaptchaMessage,
+                  onForceRender: _forceRenderCaptcha,
                 ),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                height: kIsWeb ? 120 : 350,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.amber, width: 2),
-                  borderRadius: BorderRadius.circular(12),
-                  color: Colors.white,
+                const SizedBox(height: 15),
+                Text(
+                  _message,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: _isProcessing ? Colors.blue : Colors.red,
+                    fontSize: 14,
+                  ),
                 ),
-                child: Stack(
-                  alignment: Alignment.center,
+              ] else if (!_claimed) ...[
+                const CircularProgressIndicator(color: Colors.amber),
+                const SizedBox(height: 25),
+                Text(
+                  _message,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: _message.contains("Paused")
+                        ? Colors.red
+                        : gpBrownText(context),
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (_captchaToken == null)
-                      if (_selectedCaptcha == 'hCaptcha')
-                        UniversalWebView.create(
-                          viewType: 'hcaptcha-widget',
-                          width: double.infinity,
-                          height: kIsWeb ? 90 : 320,
-                          onMessageReceived: _onCaptchaMessage,
-                        )
-                      else if (_selectedCaptcha == 'Turnstile')
-                        UniversalWebView.create(
-                          viewType: 'turnstile-widget',
-                          width: double.infinity,
-                          height: kIsWeb ? 90 : 320,
-                          onMessageReceived: _onCaptchaMessage,
-                        ),
-
-                    if (!_captchaLoading && _captchaToken == null)
-                      ElevatedButton(
-                        onPressed: _forceRenderCaptcha,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.amber.shade100,
-                          elevation: 0,
-                        ),
-                        child: const Text(
-                          "Tap to Verify",
-                          style: TextStyle(color: Colors.black87),
+                    TextButton(
+                      onPressed: () =>
+                          Navigator.of(context, rootNavigator: true).pop(),
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(
+                          color: isDark
+                              ? Colors.grey.shade400
+                              : Colors.grey.shade600,
                         ),
                       ),
+                    ),
+                    if (_message.contains("Paused") &&
+                        widget.targetUrl != null) ...[
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amber,
+                        ),
+                        onPressed: () {
+                          setState(() {});
+                          launchUrl(Uri.parse(widget.targetUrl!));
+                        },
+                        child: const Text(
+                          "Resume Ad",
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
-              ),
-              const SizedBox(height: 15),
-              Text(
-                _message,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: _isProcessing ? Colors.blue : Colors.red,
-                  fontSize: 14,
-                ),
-              ),
-            ] else if (!_claimed) ...[
-              const CircularProgressIndicator(color: Colors.amber),
-              const SizedBox(height: 25),
-              Text(
-                _message,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: _message.contains("Paused")
-                      ? Colors.red
-                      : gpBrownText(context),
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 15),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                if (!_timerStarted) ...[
+                  const SizedBox(height: 15),
                   TextButton(
-                    onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-                    child: Text(
-                      "Cancel",
-                      style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600),
+                    onPressed: () {
+                      _onCaptchaMessage('{"type":"start_bonus_timer"}');
+                    },
+                    child: const Text(
+                      "Timer didn't start? Click here",
+                      style: TextStyle(
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                      ),
                     ),
                   ),
-                  if (_message.contains("Paused") && widget.targetUrl != null) ...[
-                    const SizedBox(width: 10),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
-                      onPressed: () {
-                        setState(() {
-
-                        });
-                        launchUrl(Uri.parse(widget.targetUrl!));
-                      },
-                      child: const Text("Resume Ad", style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
-                    ),
-                  ],
                 ],
-              ),
-              if (!_timerStarted) ...[
+              ] else ...[
+                const Icon(Icons.check_circle, color: Colors.green, size: 60),
                 const SizedBox(height: 15),
-                TextButton(
-                  onPressed: () {
-                    _onCaptchaMessage('{"type":"start_bonus_timer"}');
-                  },
-                  child: const Text(
-                    "Timer didn't start? Click here",
-                    style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+                Text(
+                  _message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber,
+                  ),
+                  onPressed: () =>
+                      Navigator.of(context, rootNavigator: true).pop(),
+                  child: Text(
+                    "CLOSE",
+                    style: TextStyle(
+                      color: isDark ? Colors.grey.shade300 : Colors.black87,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
-            ] else ...[
-              const Icon(Icons.check_circle, color: Colors.green, size: 60),
-              const SizedBox(height: 15),
-              Text(
-                _message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
-                onPressed: () =>
-                    Navigator.of(context, rootNavigator: true).pop(),
-                child: Text(
-                  "CLOSE",
-                  style: TextStyle(
-                    color: isDark ? Colors.grey.shade300 : Colors.black87,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
             ],
-          ],
+          ),
         ),
       ),
     );
   }
 }
-
-// ==========================================
-// 📋 SECURE DEDICATED OFFERWALL HUB
-// ==========================================

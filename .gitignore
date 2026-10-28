@@ -61,3 +61,6 @@ serviceAccountKey.json
 .codex-temp-work/
 skills-lock.json
 web/*.apk
+
+web/downloads/*.apk
+web/*.exe

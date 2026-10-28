@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -24,9 +25,12 @@ class AccountWithdrawCard extends StatefulWidget {
 }
 
 class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
-  final TextEditingController _withdrawAddressController = TextEditingController();
-  final TextEditingController _withdrawAmountController = TextEditingController();
-  
+  final TextEditingController _withdrawAddressController =
+      TextEditingController();
+  final TextEditingController _withdrawAmountController =
+      TextEditingController();
+  Timer? _coldStartTimer;
+
   bool _isWithdrawing = false;
   String _withdrawMessage = "";
 
@@ -74,17 +78,30 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
       _withdrawMessage = "Processing withdrawal...";
     });
 
+    _coldStartTimer?.cancel();
+    _coldStartTimer = Timer(const Duration(seconds: 4), () {
+      if (mounted && _isWithdrawing) {
+        setState(
+          () => _withdrawMessage =
+              "Waking up Vault server & connecting to FaucetPay... 🐾",
+        );
+      }
+    });
+
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        final response = await http.post(
-          Uri.parse('${ApiConstants.baseUrl}/withdraw'),
-          headers: await getAuthHeaders(),
-          body: jsonEncode({
-            "user_address": _withdrawAddressController.text.trim(),
-            "amount": amountToWithdraw,
-          }),
-        ).timeout(const Duration(seconds: 45));
+        final response = await http
+            .post(
+              Uri.parse('${ApiConstants.baseUrl}/withdraw'),
+              headers: await getAuthHeaders(),
+              body: jsonEncode({
+                "user_address": _withdrawAddressController.text.trim(),
+                "amount": amountToWithdraw,
+              }),
+            )
+            .timeout(const Duration(seconds: 45));
+        _coldStartTimer?.cancel();
 
         if (!mounted) {
           return;
@@ -96,26 +113,34 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
             parameters: {'amount': amountToWithdraw},
           );
           setState(() {
-            _withdrawMessage = "Success! $amountToWithdraw DOGE sent to FaucetPay.";
+            _withdrawMessage =
+                "Success! $amountToWithdraw DOGE sent to FaucetPay.";
             _withdrawAmountController.clear();
           });
         } else {
           try {
             final errorData = jsonDecode(response.body);
             setState(() {
-              _withdrawMessage = "Withdrawal status: ${errorData['error'] ?? 'Unable to confirm'}";
+              _withdrawMessage =
+                  "Withdrawal status: ${errorData['error'] ?? 'Unable to confirm'}";
             });
           } catch (_) {
             setState(() {
-              _withdrawMessage = "Unable to confirm the withdrawal. Check your balance and FaucetPay history, or contact support.";
+              _withdrawMessage =
+                  "Unable to confirm the withdrawal. Check your balance and FaucetPay history, or contact support.";
             });
           }
         }
       }
     } catch (e) {
+      _coldStartTimer?.cancel();
       if (!mounted) return;
-      setState(() => _withdrawMessage = "We could not confirm the withdrawal. Check your balance and FaucetPay history before trying again, or contact support.");
+      setState(
+        () => _withdrawMessage =
+            "We could not confirm the withdrawal. Check your balance and FaucetPay history before trying again, or contact support.",
+      );
     } finally {
+      _coldStartTimer?.cancel();
       if (mounted) {
         setState(() => _isWithdrawing = false);
       }
@@ -124,6 +149,7 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
 
   @override
   void dispose() {
+    _coldStartTimer?.cancel();
     _withdrawAddressController.dispose();
     _withdrawAmountController.dispose();
     super.dispose();
@@ -134,10 +160,7 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
     return AnimatedHoverCard(
       backgroundColor: widget.isDark ? Colors.grey.shade900 : Colors.white,
       borderRadius: BorderRadius.circular(15),
-      border: Border.all(
-        color: Colors.amber,
-        width: 0.5,
-      ),
+      border: Border.all(color: Colors.amber, width: 0.5),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -162,7 +185,9 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
             ),
             Divider(
               height: 20,
-              color: widget.isDark ? Colors.amber.withValues(alpha: 0.3) : Colors.grey,
+              color: widget.isDark
+                  ? Colors.amber.withValues(alpha: 0.3)
+                  : Colors.grey,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -200,20 +225,14 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
               ),
               onChanged: (value) async {
                 final prefs = await SharedPreferences.getInstance();
-                await prefs.setString(
-                  'doge_address',
-                  value.trim(),
-                );
+                await prefs.setString('doge_address', value.trim());
               },
               decoration: InputDecoration(
                 labelText: "FaucetPay Dogecoin Address",
                 labelStyle: TextStyle(
                   color: widget.isDark ? Colors.white70 : Colors.black87,
                 ),
-                prefixIcon: const Icon(
-                  Icons.account_balance_wallet,
-                  size: 20,
-                ),
+                prefixIcon: const Icon(Icons.account_balance_wallet, size: 20),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -226,15 +245,41 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
               style: TextStyle(
                 color: widget.isDark ? Colors.white : Colors.black,
               ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: InputDecoration(
                 labelText: "Amount (DOGE)",
                 labelStyle: TextStyle(
                   color: widget.isDark ? Colors.white70 : Colors.black87,
                 ),
-                prefixIcon: const Icon(
-                  Icons.monetization_on,
-                  size: 20,
+                prefixIcon: const Icon(Icons.monetization_on, size: 20),
+                suffixIcon: Padding(
+                  padding: const EdgeInsets.only(right: 6.0),
+                  child: TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _withdrawAmountController.text = widget.currentBalance
+                            .toStringAsFixed(8);
+                      });
+                    },
+                    style: TextButton.styleFrom(
+                      minimumSize: const Size(50, 32),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      backgroundColor: Colors.amber.withValues(alpha: 0.2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      "MAX",
+                      style: TextStyle(
+                        color: Colors.amber,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -280,7 +325,11 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: _withdrawMessage.contains("Success") ? Colors.green : Colors.red,
+                    color: _withdrawMessage.contains("Success")
+                        ? Colors.green
+                        : (_withdrawMessage.contains("Waking")
+                              ? Colors.amber
+                              : Colors.red),
                   ),
                 ),
               ),

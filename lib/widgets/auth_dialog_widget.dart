@@ -25,8 +25,9 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
   bool rememberMe = false;
   bool isLoading = false;
 
-  String _selectedCaptcha = 'hCaptcha';
+  String _selectedCaptcha = 'Turnstile';
   bool _captchaLoading = false;
+  int _captchaReloadCounter = 0;
   String? _captchaToken;
 
   @override
@@ -56,10 +57,11 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
 
   Future<void> _loadPrefs() async {
     final prefs = await SharedPreferences.getInstance();
+    // Security hygiene: ensure no legacy plaintext passwords remain stored in SharedPreferences
+    await prefs.remove('vault_password');
     if (mounted) {
       setState(() {
         emailCtrl.text = prefs.getString('vault_email') ?? '';
-        passCtrl.text = prefs.getString('vault_password') ?? '';
         rememberMe = prefs.getString('vault_email') != null;
       });
     }
@@ -73,7 +75,11 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
   }
 
   void _forceRenderCaptcha() {
-    setState(() => _captchaLoading = true);
+    setState(() {
+      _captchaReloadCounter++;
+      _captchaLoading = true;
+      _captchaToken = null;
+    });
     Timer(const Duration(milliseconds: 200), () {
       try {
         if (_selectedCaptcha == 'hCaptcha') {
@@ -83,6 +89,13 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
         }
       } catch (e) {
         // ignore: empty_catches
+      }
+      if (mounted) {
+        Timer(const Duration(milliseconds: 800), () {
+          if (mounted) {
+            setState(() => _captchaLoading = false);
+          }
+        });
       }
     });
   }
@@ -267,18 +280,19 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                 onChanged: (String? value) {
                                   setState(() {
                                     _selectedCaptcha = value!;
+                                    _captchaReloadCounter++;
                                     _captchaToken = null;
                                     _captchaLoading = false;
                                   });
                                 },
                                 items: const [
                                   DropdownMenuItem(
-                                    value: 'hCaptcha',
-                                    child: Text('hCaptcha'),
+                                    value: 'Turnstile',
+                                    child: Text('Turnstile (Fast)'),
                                   ),
                                   DropdownMenuItem(
-                                    value: 'Turnstile',
-                                    child: Text('Turnstile'),
+                                    value: 'hCaptcha',
+                                    child: Text('hCaptcha'),
                                   ),
                                 ],
                               ),
@@ -305,6 +319,9 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                               if (_captchaToken == null &&
                                   _selectedCaptcha == 'hCaptcha')
                                 UniversalWebView.create(
+                                  key: ValueKey(
+                                    'auth-hcaptcha-$_captchaReloadCounter',
+                                  ),
                                   viewType: 'hcaptcha-widget',
                                   width: 320,
                                   height: 90,
@@ -313,22 +330,31 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                               else if (_captchaToken == null &&
                                   _selectedCaptcha == 'Turnstile')
                                 UniversalWebView.create(
+                                  key: ValueKey(
+                                    'auth-turnstile-$_captchaReloadCounter',
+                                  ),
                                   viewType: 'turnstile-widget',
                                   width: 320,
                                   height: 90,
                                   onMessageReceived: _onCaptchaMessage,
                                 ),
 
+                              if (_captchaLoading && _captchaToken == null)
+                                const CircularProgressIndicator(
+                                  color: Colors.amber,
+                                ),
                               if (!_captchaLoading && _captchaToken == null)
-                                ElevatedButton(
-                                  onPressed: _forceRenderCaptcha,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.amber.shade100,
-                                    elevation: 0,
-                                  ),
-                                  child: const Text(
-                                    "Tap to Verify",
-                                    style: TextStyle(color: Colors.black87),
+                                Positioned(
+                                  bottom: 4,
+                                  right: 4,
+                                  child: IconButton(
+                                    icon: const Icon(
+                                      Icons.refresh,
+                                      size: 20,
+                                      color: Colors.grey,
+                                    ),
+                                    onPressed: _forceRenderCaptcha,
+                                    tooltip: "Reload Captcha",
                                   ),
                                 ),
                               if (_captchaToken != null)
@@ -386,14 +412,10 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                     'vault_email',
                                     emailCtrl.text.trim(),
                                   );
-                                  await prefs.setString(
-                                    'vault_password',
-                                    passCtrl.text.trim(),
-                                  );
                                 } else {
                                   await prefs.remove('vault_email');
-                                  await prefs.remove('vault_password');
                                 }
+                                await prefs.remove('vault_password');
 
                                 if (widget.isLogin) {
                                   UserCredential userCred = await FirebaseAuth
@@ -427,7 +449,11 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                   await FirebaseFirestore.instance
                                       .collection('users')
                                       .doc(userCred.user!.uid)
-                                      .set({'email': userCred.user!.email, 'joined_date': DateTime.now().toIso8601String()}, SetOptions(merge: true));
+                                      .set({
+                                        'email': userCred.user!.email,
+                                        'joined_date': DateTime.now()
+                                            .toIso8601String(),
+                                      }, SetOptions(merge: true));
                                 }
                                 if (!context.mounted) return;
                                 context.pop();
@@ -446,7 +472,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                       TextButton(
                                         onPressed: () => Navigator.pop(ctx),
                                         child: const Text("OK"),
-                                      )
+                                      ),
                                     ],
                                   ),
                                 );
@@ -543,7 +569,10 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                         clientId:
                                             '163858364889-6b3gurkgtik76jque9ccq1dr9iqju9mb.apps.googleusercontent.com',
                                       )
-                                    : GoogleSignIn(serverClientId: '163858364889-6b3gurkgtik76jque9ccq1dr9iqju9mb.apps.googleusercontent.com');
+                                    : GoogleSignIn(
+                                        serverClientId:
+                                            '163858364889-6b3gurkgtik76jque9ccq1dr9iqju9mb.apps.googleusercontent.com',
+                                      );
 
                                 final GoogleSignInAccount? googleUser =
                                     await googleSignIn.signIn();
@@ -559,9 +588,9 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
 
                                 final credential =
                                     GoogleAuthProvider.credential(
-                                  accessToken: googleAuth.accessToken,
-                                  idToken: googleAuth.idToken,
-                                );
+                                      accessToken: googleAuth.accessToken,
+                                      idToken: googleAuth.idToken,
+                                    );
 
                                 final UserCredential userCred =
                                     await FirebaseAuth.instance
@@ -575,7 +604,11 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                   await FirebaseFirestore.instance
                                       .collection('users')
                                       .doc(userCred.user!.uid)
-                                      .set({'email': userCred.user!.email, 'joined_date': DateTime.now().toIso8601String()}, SetOptions(merge: true));
+                                      .set({
+                                        'email': userCred.user!.email,
+                                        'joined_date': DateTime.now()
+                                            .toIso8601String(),
+                                      }, SetOptions(merge: true));
                                 }
                                 if (!context.mounted) return;
                                 context.pop();
@@ -594,7 +627,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                       TextButton(
                                         onPressed: () => Navigator.pop(ctx),
                                         child: const Text("OK"),
-                                      )
+                                      ),
                                     ],
                                   ),
                                 );
@@ -662,7 +695,10 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                 : () async {
                     setState(() => isLoading = true);
                     try {
-                      final GoogleSignIn googleSignIn = GoogleSignIn(serverClientId: '163858364889-6b3gurkgtik76jque9ccq1dr9iqju9mb.apps.googleusercontent.com');
+                      final GoogleSignIn googleSignIn = GoogleSignIn(
+                        serverClientId:
+                            '163858364889-6b3gurkgtik76jque9ccq1dr9iqju9mb.apps.googleusercontent.com',
+                      );
                       final GoogleSignInAccount? googleUser = await googleSignIn
                           .signIn();
                       if (googleUser == null) {
@@ -686,30 +722,33 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                         await FirebaseFirestore.instance
                             .collection('users')
                             .doc(userCred.user!.uid)
-                            .set({'email': userCred.user!.email, 'joined_date': DateTime.now().toIso8601String()}, SetOptions(merge: true));
+                            .set({
+                              'email': userCred.user!.email,
+                              'joined_date': DateTime.now().toIso8601String(),
+                            }, SetOptions(merge: true));
                       }
                       if (!context.mounted) return;
                       context.pop();
                       context.go('/faucet');
-                              } catch (e) {
-                                if (!context.mounted) return;
-                                setState(() {
-                                  isLoading = false;
-                                });
-                                showDialog(
-                                  context: context,
-                                  builder: (ctx) => AlertDialog(
-                                    title: const Text("Sign In Error"),
-                                    content: Text(e.toString()),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(ctx),
-                                        child: const Text("OK"),
-                                      )
-                                    ],
-                                  ),
-                                );
-                              }
+                    } catch (e) {
+                      if (!context.mounted) return;
+                      setState(() {
+                        isLoading = false;
+                      });
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text("Sign In Error"),
+                          content: Text(e.toString()),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx),
+                              child: const Text("OK"),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
                   },
           ),
         ),

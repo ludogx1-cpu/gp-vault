@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../src/user_provider.dart';
 import '../../src/theme_provider.dart';
+import '../../api_constants.dart';
 import '../../widgets/bonus_timer_dialog.dart';
 
 class BonusTimersCard extends StatelessWidget {
@@ -125,12 +127,18 @@ class BonusTimersCard extends StatelessWidget {
                               ),
                               onPressed: canClaimBonus
                                   ? () {
-                                      launchUrl(Uri.base.resolve('sponsors.html'));
+                                      final sponsorUri = kIsWeb
+                                          ? Uri.base.resolve('sponsors.html')
+                                          : Uri.parse('https://goldenpaw.dog/sponsors.html');
+                                      launchUrl(sponsorUri);
                                       showDialog(
                                         barrierDismissible: false,
                                         context: context,
                                         builder: (context) =>
-                                            const BonusTimerDialog(),
+                                            BonusTimerDialog(
+                                              endpoint: '${ApiConstants.baseUrl}/claim-bonus-sponsor',
+                                              targetUrl: sponsorUri.toString(),
+                                            ),
                                       );
                                     }
                                   : null,
@@ -184,9 +192,9 @@ class BonusTimersCard extends StatelessWidget {
                                         barrierDismissible: false,
                                         context: context,
                                         builder: (context) =>
-                                            const BonusTimerDialog(
+                                            BonusTimerDialog(
                                               durationSeconds: 30,
-                                              endpoint: 'https://golden-paw-vault.onrender.com/claim-ecosystem-video',
+                                              endpoint: '${ApiConstants.baseUrl}/claim-ecosystem-video',
                                               targetUrl: 'https://www.youtube.com/watch?v=_P9YSHwbcC0',
                                             ),
                                       );
