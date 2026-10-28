@@ -1,40 +1,51 @@
-
-const { calculateDecay, getGrowthStage, getAgeMultiplier, getNextStageXP, MAX_STAT, calculatePetBonusPercent } = require('../utils/petMechanics');
-const { getDogePrice } = require('./priceService');
+const { calculateDecay, getGrowthStage, normalizeAccessoryIds, LEGACY_TO_COLLAR_MAP, MAX_STAT } = require('../utils/petMechanics');
 const { syncUserBalances, syncPetStats } = require('../utils/dataConnectSync');
-
-const FEED_COST_DOGE = 0.0001;
-const PLAY_COST_DOGE = 0.0001;
-const SLEEP_COST_DOGE = 0.0001;
-const FEED_HUNGER_RECOVERY = 30;
-const PLAY_ENERGY_COST = 15;
-const PLAY_HAPPINESS_RECOVERY = 25;
-const SLEEP_ENERGY_RECOVERY = 40;
-const WALK_ENERGY_COST_PER_100M = 5;
-const WALK_REWARD_PER_100M = 0.0005;
+const { admin } = require('./firebaseService');
 
 const ACCESSORY_PRICES_USDT = {
+  // Collar Tiers
+  'collar_red': 1.0,
+  'collar_orange': 1.5,
+  'collar_yellow': 2.0,
+  'collar_green': 2.5,
+  'collar_blue': 3.0,
+  'collar_indigo': 4.0,
+  'collar_violet': 5.0,
+  'collar_gold': 7.5,
+  'collar_diamond': 10.0,
+  // Legacy Accessory Compatibility
   'top_hat': 1.0,
-  'sunglasses': 2.0,
-  'gold_chain': 3.0,
-  'diamond_watch': 5.0,
-  'crown': 10.0,
   'coat_basic': 1.5,
+  'sunglasses': 2.0,
   'coat_rain': 2.5,
+  'gold_chain': 3.0,
   'coat_winter': 4.0,
-  'coat_luxury': 7.5
+  'diamond_watch': 5.0,
+  'coat_luxury': 7.5,
+  'crown': 10.0
 };
 
 const ACCESSORY_PRICES_DOGE = {
+  // Collar Tiers (8x USDT)
+  'collar_red': 8.0,
+  'collar_orange': 12.0,
+  'collar_yellow': 16.0,
+  'collar_green': 20.0,
+  'collar_blue': 24.0,
+  'collar_indigo': 32.0,
+  'collar_violet': 40.0,
+  'collar_gold': 60.0,
+  'collar_diamond': 80.0,
+  // Legacy Accessory Compatibility
   'top_hat': 8.0,
-  'sunglasses': 16.0,
-  'gold_chain': 24.0,
-  'diamond_watch': 40.0,
-  'crown': 80.0,
   'coat_basic': 12.0,
+  'sunglasses': 16.0,
   'coat_rain': 20.0,
+  'gold_chain': 24.0,
   'coat_winter': 32.0,
-  'coat_luxury': 60.0
+  'diamond_watch': 40.0,
+  'coat_luxury': 60.0,
+  'crown': 80.0
 };
 
 const TRICK_PRICES_USDT = {
@@ -76,25 +87,15 @@ function splitUpdates(updates) {
   return { userUpdates, petUpdates };
 }
 
-const { admin } = require('./firebaseService');
-
-
-
-
-function ensureXP(data) {
-  let xp = data.pet_xp !== undefined ? Number(data.pet_xp) : 0;
-  if (!data.pet_birth_date) return xp;
-  
-  const daysOld = (Date.now() - data.pet_birth_date.toDate().getTime()) / (1000 * 60 * 60 * 24);
-  let ageXP = 0;
-  if (daysOld >= 365) ageXP = 6000;
-  else if (daysOld >= 180) ageXP = 3000;
-  else if (daysOld >= 90) ageXP = 1500;
-  else if (daysOld >= 30) ageXP = 700;
-  else if (daysOld >= 14) ageXP = 300;
-  else if (daysOld >= 7) ageXP = 100;
-  
-  return Math.max(xp, ageXP);
+function syncAfterInventoryTx(uid, initialData, dualWriteUpdates) {
+  if (!dualWriteUpdates || Object.keys(dualWriteUpdates).length === 0) return;
+  const { userUpdates, petUpdates } = splitUpdates(dualWriteUpdates);
+  if (Object.keys(userUpdates).length > 0) {
+    syncUserBalances(uid, initialData, dualWriteUpdates).catch(console.error);
+  }
+  if (Object.keys(petUpdates).length > 0) {
+    syncPetStats(uid, initialData, dualWriteUpdates).catch(console.error);
+  }
 }
 
 function calculateXPGain(data, baseXP) {
@@ -103,8 +104,6 @@ function calculateXPGain(data, baseXP) {
   }
   return baseXP;
 }
-
-
 
 module.exports = {
   petRename,
@@ -128,20 +127,20 @@ async function petRename(req) {
     }
 
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    await userRef.set({
-      pet_name: newName
-    }, { merge: true });
+    const petRef = userRef.collection('pet').doc('status');
+    await Promise.all([
+      userRef.set({ pet_name: newName }, { merge: true }),
+      petRef.set({ pet_name: newName }, { merge: true })
+    ]);
 
-    return {  success: true, message: 'Pet renamed successfully!'  };
+    return { success: true, message: 'Pet renamed successfully!' };
   } catch (error) {
     throw new Error(error.message);
   }
 }
 
-
 async function petAdminAgeUp(req) {
   try {
-    // Basic admin check (could use custom claims, but hardcoding email is consistent with the frontend for now)
     const userRecord = await admin.auth().getUser(req.user.uid);
     if (userRecord.email !== 'ludogx1@gmail.com') {
       throw new Error('Admin only');
@@ -149,9 +148,8 @@ async function petAdminAgeUp(req) {
 
     const { days = 30 } = req.body;
     const daysNumber = Number(days);
-
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    
+
     let dualWriteUpdates = {};
     let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
@@ -163,10 +161,9 @@ async function petAdminAgeUp(req) {
       Object.assign(data, petData);
       if (!data.pet_birth_date) throw new Error('Pet not initialized');
 
-      // Subtract days from birth date to age it up (or negative to age down)
       const oldBirthTime = data.pet_birth_date.toDate().getTime();
       const newBirthTime = oldBirthTime - (daysNumber * 24 * 60 * 60 * 1000);
-      
+
       const updates = {
         pet_birth_date: admin.firestore.Timestamp.fromMillis(newBirthTime)
       };
@@ -177,24 +174,24 @@ async function petAdminAgeUp(req) {
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
     });
 
-    return {  success: true, message: `Aged by ${daysNumber} days!`  };
+    syncAfterInventoryTx(req.user.uid, initialData, dualWriteUpdates);
+    return { success: true, message: `Aged by ${daysNumber} days!` };
   } catch (error) {
     throw new Error(error.message);
   }
 }
 
-
 async function petBuyAccessory(req) {
   try {
-    const { accessoryId, currency = 'usdt' } = req.body;
-    
-    if (currency === 'usdt' && !ACCESSORY_PRICES_USDT[accessoryId]) throw new Error('Invalid accessory');
-    if (currency === 'doge' && !ACCESSORY_PRICES_DOGE[accessoryId]) throw new Error('Invalid accessory');
+    const { accessoryId: rawId, currency = 'usdt' } = req.body;
+    const accessoryId = LEGACY_TO_COLLAR_MAP[rawId] || rawId;
+
+    if (currency === 'usdt' && !ACCESSORY_PRICES_USDT[accessoryId]) throw new Error('Invalid collar');
+    if (currency === 'doge' && !ACCESSORY_PRICES_DOGE[accessoryId]) throw new Error('Invalid collar');
 
     const cost = currency === 'usdt' ? ACCESSORY_PRICES_USDT[accessoryId] : ACCESSORY_PRICES_DOGE[accessoryId];
-
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    
+
     let dualWriteUpdates = {};
     let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
@@ -205,7 +202,7 @@ async function petBuyAccessory(req) {
       const petData = petSnapshot.data() || {};
       Object.assign(data, petData);
       if (!data.pet_birth_date) throw new Error('Pet not initialized');
-      if (getGrowthStage(data) === 'baby') throw new Error('Pets in the baby stage cannot use the shop.');
+      if (getGrowthStage(data) === 'egg') throw new Error('Hatch your egg before equipping collars.');
 
       if (currency === 'usdt') {
         const currentAdsBalance = Number(data.ads_balance || 0);
@@ -215,13 +212,14 @@ async function petBuyAccessory(req) {
         if (currentDogeBalance < cost) throw new Error(`Insufficient Balance. Costs ${cost.toFixed(2)} DOGE.`);
       }
 
-      const owned = data.pet_owned_accessories || [];
-      if (owned.includes(accessoryId)) throw new Error('You already own this accessory!');
+      const owned = normalizeAccessoryIds(data.pet_owned_accessories || []);
+      if (owned.includes(accessoryId)) throw new Error('You already own this collar!');
 
       owned.push(accessoryId);
 
       const updates = {
-        pet_owned_accessories: owned
+        pet_owned_accessories: owned,
+        pet_equipped_accessories: [accessoryId]
       };
 
       if (currency === 'usdt') {
@@ -233,24 +231,26 @@ async function petBuyAccessory(req) {
       Object.assign(dualWriteUpdates, updates);
       initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
-        if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
-        if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
+      if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
+      if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
     });
 
-    const msg = currency === 'usdt' ? `Accessory purchased for $${cost.toFixed(2)} USDT!` : `Accessory purchased for ${cost.toFixed(2)} DOGE!`;
-    return {  success: true, message: msg  };
+    syncAfterInventoryTx(req.user.uid, initialData, dualWriteUpdates);
+    const msg = currency === 'usdt'
+      ? `Collar purchased & equipped for $${cost.toFixed(2)} USDT!`
+      : `Collar purchased & equipped for ${cost.toFixed(2)} DOGE!`;
+    return { success: true, message: msg };
   } catch (error) {
     throw new Error(error.message);
   }
 }
 
-
 async function petEquipAccessory(req) {
   try {
-    const { accessoryId, equip } = req.body; // equip boolean
+    const { accessoryId: rawId, equip } = req.body;
+    const accessoryId = LEGACY_TO_COLLAR_MAP[rawId] || rawId;
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
 
-    
     let dualWriteUpdates = {};
     let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
@@ -261,19 +261,25 @@ async function petEquipAccessory(req) {
       const petData = petSnapshot.data() || {};
       Object.assign(data, petData);
       if (!data.pet_birth_date) throw new Error('Pet not initialized');
-      if (getGrowthStage(data) === 'baby') throw new Error('Pets in the baby stage cannot use the shop.');
+      if (getGrowthStage(data) === 'egg') throw new Error('Hatch your egg before equipping collars.');
 
-      const owned = data.pet_owned_accessories || [];
-      if (equip && !owned.includes(accessoryId)) throw new Error('You do not own this accessory.');
+      const owned = normalizeAccessoryIds(data.pet_owned_accessories || []);
+      if (equip && !owned.includes(accessoryId)) throw new Error('You do not own this collar.');
 
-      let equipped = data.pet_equipped_accessories || [];
-      if (equip && !equipped.includes(accessoryId)) {
-        equipped.push(accessoryId);
-      } else if (!equip && equipped.includes(accessoryId)) {
+      let equipped = normalizeAccessoryIds(data.pet_equipped_accessories || []);
+      if (equip) {
+        // Collars work like Balls: equipping a collar switches the active collar worn on the neck
+        if (typeof accessoryId === 'string' && accessoryId.startsWith('collar_')) {
+          equipped = [accessoryId];
+        } else if (!equipped.includes(accessoryId)) {
+          equipped.push(accessoryId);
+        }
+      } else {
         equipped = equipped.filter(i => i !== accessoryId);
       }
 
       const updates = {
+        pet_owned_accessories: owned,
         pet_equipped_accessories: equipped
       };
       Object.assign(dualWriteUpdates, updates);
@@ -283,24 +289,23 @@ async function petEquipAccessory(req) {
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
     });
 
-    return {  success: true, message: 'Accessory updated!'  };
+    syncAfterInventoryTx(req.user.uid, initialData, dualWriteUpdates);
+    return { success: true, message: equip ? 'Collar equipped!' : 'Collar unequipped!' };
   } catch (error) {
     throw new Error(error.message);
   }
 }
 
-
 async function petBuyTrick(req) {
   try {
     const { trickName, currency = 'usdt' } = req.body;
-    
+
     if (currency === 'usdt' && !TRICK_PRICES_USDT[trickName]) throw new Error('Invalid trick');
     if (currency === 'doge' && !TRICK_PRICES_DOGE[trickName]) throw new Error('Invalid trick');
 
     const cost = currency === 'usdt' ? TRICK_PRICES_USDT[trickName] : TRICK_PRICES_DOGE[trickName];
-
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    
+
     let dualWriteUpdates = {};
     let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
@@ -311,7 +316,7 @@ async function petBuyTrick(req) {
       const petData = petSnapshot.data() || {};
       Object.assign(data, petData);
       if (!data.pet_birth_date) throw new Error('Pet not initialized');
-      if (getGrowthStage(data) === 'baby') throw new Error('Pets in the baby stage cannot learn tricks.');
+      if (getGrowthStage(data) === 'egg') throw new Error('Hatch your egg before learning tricks.');
 
       if (currency === 'usdt') {
         const currentAdsBalance = Number(data.ads_balance || 0);
@@ -339,17 +344,17 @@ async function petBuyTrick(req) {
       Object.assign(dualWriteUpdates, updates);
       initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
-        if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
-        if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
+      if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
+      if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
     });
 
+    syncAfterInventoryTx(req.user.uid, initialData, dualWriteUpdates);
     const msg = currency === 'usdt' ? `Trick purchased for $${cost.toFixed(2)} USDT!` : `Trick purchased for ${cost.toFixed(2)} DOGE!`;
-    return {  success: true, message: msg  };
+    return { success: true, message: msg };
   } catch (error) {
     throw new Error(error.message);
   }
 }
-
 
 async function petTrick(req) {
   try {
@@ -357,7 +362,6 @@ async function petTrick(req) {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     let newStats = null;
 
-    
     let dualWriteUpdates = {};
     let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
@@ -369,7 +373,7 @@ async function petTrick(req) {
       Object.assign(data, petData);
 
       if (!data.pet_birth_date) throw new Error('Pet not initialized');
-      if (getGrowthStage(data) === 'baby') throw new Error('Pets in the baby stage cannot perform tricks.');
+      if (getGrowthStage(data) === 'egg') throw new Error('Hatch your egg before performing tricks.');
 
       const owned = data.pet_owned_tricks || [];
       if (!owned.includes(trickName)) throw new Error('You do not own this trick!');
@@ -385,7 +389,7 @@ async function petTrick(req) {
 
       const existing = activeBuffs.find(b => b.name === trickName);
       if (existing) {
-        existing.expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
+        existing.expiresAt = Date.now() + 5 * 60 * 1000;
       } else {
         activeBuffs.push({ name: trickName, expiresAt: Date.now() + 5 * 60 * 1000 });
       }
@@ -406,24 +410,23 @@ async function petTrick(req) {
       newStats = { hunger: decayed.hunger, happiness: newHappiness, energy: newEnergy };
     });
 
-    return {  success: true, message: 'Trick performed!', stats: newStats  };
+    syncAfterInventoryTx(req.user.uid, initialData, dualWriteUpdates);
+    return { success: true, message: 'Trick performed!', stats: newStats };
   } catch (error) {
     throw new Error(error.message);
   }
 }
 
-
 async function petBuyConsumable(req) {
   try {
     const { itemId, currency = 'usdt' } = req.body;
-    
+
     if (currency === 'usdt' && CONSUMABLE_PRICES_USDT[itemId] === undefined) throw new Error('Invalid consumable');
     if (currency === 'doge' && CONSUMABLE_PRICES_DOGE[itemId] === undefined) throw new Error('Invalid consumable');
 
     const cost = currency === 'usdt' ? CONSUMABLE_PRICES_USDT[itemId] : CONSUMABLE_PRICES_DOGE[itemId];
-
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    
+
     let dualWriteUpdates = {};
     let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
@@ -459,17 +462,17 @@ async function petBuyConsumable(req) {
       Object.assign(dualWriteUpdates, updates);
       initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
-        if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
-        if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
+      if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
+      if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
     });
 
+    syncAfterInventoryTx(req.user.uid, initialData, dualWriteUpdates);
     const msg = currency === 'usdt' ? `Item purchased for $${cost.toFixed(2)} USDT!` : `Item purchased for ${cost.toFixed(2)} DOGE!`;
-    return {  success: true, message: msg  };
+    return { success: true, message: msg };
   } catch (error) {
     throw new Error(error.message);
   }
 }
-
 
 async function petUseConsumable(req) {
   try {
@@ -478,7 +481,6 @@ async function petUseConsumable(req) {
     let newStats = null;
     let message = '';
 
-    
     let dualWriteUpdates = {};
     let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
@@ -526,7 +528,7 @@ async function petUseConsumable(req) {
         }
         updates.pet_energy = MAX_STAT;
         updates.last_energy_drink_time = admin.firestore.FieldValue.serverTimestamp();
-        updates.pet_last_walk_sync = null; // Reset walk cooldown
+        updates.pet_last_walk_sync = null;
         message = 'Energy is maxed and Walk Cooldown has been reset!';
       } else {
         throw new Error('Unknown item');
@@ -538,21 +540,21 @@ async function petUseConsumable(req) {
       Object.assign(dualWriteUpdates, updates);
       initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
-        if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
-        if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
-      newStats = { 
-        hunger: updates.pet_hunger || decayed.hunger, 
-        happiness: updates.pet_happiness || decayed.happiness, 
-        energy: updates.pet_energy || decayed.energy 
+      if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
+      if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
+      newStats = {
+        hunger: updates.pet_hunger || decayed.hunger,
+        happiness: updates.pet_happiness || decayed.happiness,
+        energy: updates.pet_energy || decayed.energy
       };
     });
 
-    return {  success: true, message, stats: newStats  };
+    syncAfterInventoryTx(req.user.uid, initialData, dualWriteUpdates);
+    return { success: true, message, stats: newStats };
   } catch (error) {
     throw new Error(error.message);
   }
 }
-
 
 async function petBuyBall(req) {
   try {
@@ -567,17 +569,15 @@ async function petBuyBall(req) {
 
     const usdtPrice = prices[color];
     const dogePrice = usdtPrice * 8.0;
-
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
 
-    
     let dualWriteUpdates = {};
     let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
       if (!snapshot.exists) throw new Error('User not found');
-      const data = snapshot.data();
+      const data = snapshot.data() || {};
       const petSnapshot = await transaction.get(petRef);
       const petData = petSnapshot.data() || {};
       Object.assign(data, petData);
@@ -592,58 +592,61 @@ async function petBuyBall(req) {
         if (balance < dogePrice) throw new Error('Insufficient DOGE balance');
         updates.doge_balance = balance - dogePrice;
       } else if (currency === 'usdt') {
-        const balance = Number(data.ad_credit_balance || 0);
+        const balance = Number(data.ads_balance || 0);
         if (balance < usdtPrice) throw new Error('Insufficient USDT (Ad Credit) balance');
-        updates.ad_credit_balance = balance - usdtPrice;
+        updates.ads_balance = balance - usdtPrice;
       } else {
         throw new Error('Invalid currency');
       }
 
       ownedBalls.push(color);
       updates.pet_owned_balls = ownedBalls;
+      updates.pet_equipped_ball = color;
 
       Object.assign(dualWriteUpdates, updates);
       initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
-        if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
-        if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
+      if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
+      if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
     });
 
-    return {  success: true, message: 'Ball purchased!'  };
+    syncAfterInventoryTx(req.user.uid, initialData, dualWriteUpdates);
+    return { success: true, message: 'Ball purchased & equipped!' };
   } catch (error) {
     throw new Error(error.message);
   }
 }
-
 
 async function petEquipBall(req) {
   try {
     const { color } = req.body;
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
 
-    
     let dualWriteUpdates = {};
     let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
       if (!snapshot.exists) throw new Error('User not found');
-      const data = snapshot.data();
+      const data = snapshot.data() || {};
       const petSnapshot = await transaction.get(petRef);
       const petData = petSnapshot.data() || {};
       Object.assign(data, petData);
       const ownedBalls = data.pet_owned_balls || ['white'];
 
       if (!ownedBalls.includes(color)) throw new Error('You do not own this ball!');
-      transaction.set(petRef, { pet_equipped_ball: color }, { merge: true });
+      const updates = { pet_equipped_ball: color };
+      Object.assign(dualWriteUpdates, updates);
+      initialData = data || {};
+      transaction.set(petRef, updates, { merge: true });
     });
 
-    return {  success: true, message: 'Ball equipped!'  };
+    syncAfterInventoryTx(req.user.uid, initialData, dualWriteUpdates);
+    return { success: true, message: 'Ball equipped!' };
   } catch (error) {
     throw new Error(error.message);
   }
 }
-
 
 async function petFetch(req) {
   try {
@@ -651,14 +654,13 @@ async function petFetch(req) {
     let newStats = null;
     let currentClicks = 0;
 
-    
     let dualWriteUpdates = {};
     let initialData = {};
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
       if (!snapshot.exists) throw new Error('User not found');
-      const data = snapshot.data();
+      const data = snapshot.data() || {};
       const petSnapshot = await transaction.get(petRef);
       const petData = petSnapshot.data() || {};
       Object.assign(data, petData);
@@ -678,21 +680,21 @@ async function petFetch(req) {
         'white': 0, 'red': 0.0001, 'orange': 0.0002, 'yellow': 0.0003,
         'green': 0.0004, 'blue': 0.0005, 'indigo': 0.0006, 'violet': 0.0007
       };
-      
+
       const xpRewards = {
         'white': 1, 'red': 1, 'orange': 2, 'yellow': 3,
         'green': 4, 'blue': 5, 'indigo': 6, 'violet': 7
       };
-      
+
       const dogeReward = rewards[ballColor] || 0;
       const baseXP = xpRewards[ballColor] || 0;
       const xpReward = calculateXPGain(data, baseXP);
 
       const decayed = calculateDecay(data);
-      let newEnergy = Math.max(0, decayed.energy - 5); // Fetch costs 5 energy
-      let newHunger = Math.max(0, decayed.hunger - 5); // Fetch costs 5 hunger
-      let newHappiness = Math.min(MAX_STAT, decayed.happiness + 20); // Fetch gives +20 happiness
-      
+      let newEnergy = Math.max(0, decayed.energy - 5);
+      let newHunger = Math.max(0, decayed.hunger - 5);
+      let newHappiness = Math.min(MAX_STAT, decayed.happiness + 20);
+
       currentClicks = (data.fetch_click_count || 0) + 1;
 
       let updates = {
@@ -717,20 +719,19 @@ async function petFetch(req) {
       Object.assign(dualWriteUpdates, updates);
       initialData = data || {};
       const { userUpdates, petUpdates } = splitUpdates(updates);
-        if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
-        if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
+      if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
+      if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
       newStats = { hunger: decayed.hunger, happiness: newHappiness, energy: newEnergy };
     });
 
-    return {  
-      success: true, 
-      message: 'Good fetch!', 
-      stats: newStats, 
-      clicks: currentClicks 
-     };
+    syncAfterInventoryTx(req.user.uid, initialData, dualWriteUpdates);
+    return {
+      success: true,
+      message: 'Good fetch!',
+      stats: newStats,
+      clicks: currentClicks
+    };
   } catch (error) {
     throw new Error(error.message);
   }
 }
-
-

@@ -9,6 +9,7 @@ import '../utils/pet_events.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'pet/pet_sprite_widget.dart';
+import 'pet/pet_collar_painter.dart';
 import 'pet/speech_bubble_widget.dart';
 import 'pet/poo_layer_widget.dart';
 import 'pet/fetch_ball_widget.dart';
@@ -64,6 +65,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   StreamSubscription? _trickSubscription;
   StreamSubscription? _sleepSubscription;
   StreamSubscription? _ballSubscription;
+  StreamSubscription? _collarSubscription;
   StreamSubscription? _refreshSubscription;
   StreamSubscription? _reactionSubscription;
 
@@ -151,6 +153,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     _trickSubscription?.cancel();
     _sleepSubscription?.cancel();
     _ballSubscription?.cancel();
+    _collarSubscription?.cancel();
     _refreshSubscription?.cancel();
     _reactionSubscription?.cancel();
     _shakeController.dispose();
@@ -202,6 +205,12 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
       if (mounted) setState(() => _equippedBall = color);
     });
 
+    _collarSubscription = PetEvents.equipCollarStream.listen((collars) {
+      if (mounted) {
+        setState(() => _equippedAccessories = List<String>.from(collars));
+      }
+    });
+
     _refreshSubscription = PetEvents.refreshStream.listen((_) {
       if (mounted) _fetchPetStatus();
     });
@@ -241,8 +250,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
             _lastBoopTime = data['pet']['last_boop_time'] ?? 0;
             _petName = data['pet']['name'] ?? 'Golden Paw Shiba';
             _equippedBall = data['pet']['equipped_ball'] ?? 'white';
-            _equippedAccessories = List<String>.from(
-              data['pet']['equipped_accessories'] ?? [],
+            _equippedAccessories = PetCollars.normalizeList(
+              List<String>.from(data['pet']['equipped_accessories'] ?? []),
             );
 
             if (_stage != 'egg') {
@@ -546,7 +555,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   }
 
   void _onBallPanUpdate(DragUpdateDetails details) {
-    if (_isFetching || _stage == 'baby') return;
+    if (_isFetching || _stage == 'egg') return;
     setState(() {
       _ballX += details.delta.dx;
       _ballY += details.delta.dy;
@@ -554,7 +563,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   }
 
   void _onBallPanEnd(DragEndDetails details) {
-    if (_isFetching || _stage == 'baby') return;
+    if (_isFetching || _stage == 'egg') return;
 
     if (details.velocity.pixelsPerSecond.distance > 400) {
       _startFetchSequence(details.velocity.pixelsPerSecond);
@@ -747,6 +756,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
               stage: _stage,
               petName: _petName,
               isSick: _isSick,
+              isSleeping:
+                  _sleepingUntil > DateTime.now().millisecondsSinceEpoch,
               facingRight: _facingRight,
               equippedAccessories: _equippedAccessories,
               emotion: emotion,

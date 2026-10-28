@@ -95,13 +95,15 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
     }
 
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
+    const petRef = userRef.collection('pet').doc('status');
     const adRef = admin.firestore().collection('ptc_ads').doc(ad_id);
-    const cooldownMs = 24 * 60 * 60 * 1000; 
+    const cooldownMs = 24 * 60 * 60 * 1000;
     const now = admin.firestore.Timestamp.now();
     let finalRewardAmount = 0;
 
     const txResult = await admin.firestore().runTransaction(async (transaction) => {
       const userSnapshot = await transaction.get(userRef);
+      const petSnapshot = await transaction.get(petRef);
       const adSnapshot = await transaction.get(adRef);
 
       if (!userSnapshot.exists) {
@@ -111,7 +113,7 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
         throw new Error('Ad not found in database (ID: ' + ad_id + ')');
       }
 
-      const userData = userSnapshot.data() || {};
+      const userData = { ...(userSnapshot.data() || {}), ...(petSnapshot.data() || {}) };
       const adData = adSnapshot.data() || {};
 
       const remainingClicks = Number(adData.clicks_remaining || 0);
@@ -128,7 +130,7 @@ router.post('/claim-ptc', verifyFirebaseToken, async (req, res) => {
         throw new Error('Cooldown active. You can view this ad again tomorrow.');
       }
 
-      const baseRewardAmount = Number(adData.reward || 0.0005); 
+      const baseRewardAmount = Number(adData.reward || 0.0005);
       const shopBonusPercent = calculateShopBonusPercent(userData);
       finalRewardAmount = baseRewardAmount * (1 + (shopBonusPercent / 100));
 

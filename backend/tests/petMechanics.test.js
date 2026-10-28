@@ -1,12 +1,12 @@
-const { 
-  getGrowthStage, 
-  getAgeMultiplier, 
+const {
+  getGrowthStage,
+  getAgeMultiplier,
   calculatePetBonusPercent,
-  calculateShopBonusPercent 
+  calculateShopBonusPercent,
+  normalizeAccessoryIds
 } = require('../src/utils/petMechanics');
 
 describe('petMechanics', () => {
-  
   describe('getGrowthStage', () => {
     it('should determine stage based on xp thresholds', () => {
       expect(getGrowthStage({ pet_xp: 50 })).toBe('baby');
@@ -42,14 +42,16 @@ describe('petMechanics', () => {
       expect(calculatePetBonusPercent({ hunger: 30, happiness: 30, energy: 30 }, {})).toBe(0);
     });
   });
-  
+
   describe('calculateShopBonusPercent', () => {
-    it('should calculate bonus based on equipped accessories', () => {
-      const userData = {
-        pet_equipped_accessories: ['sunglasses', 'gold_chain'] // 20 + 30 = 50
-      };
-      expect(calculateShopBonusPercent(userData)).toBe(50);
+    it('should calculate bonus based on equipped collars and legacy accessories', () => {
+      expect(calculateShopBonusPercent({ pet_equipped_accessories: ['collar_gold'] })).toBe(75);
+      expect(calculateShopBonusPercent({ pet_equipped_accessories: ['collar_diamond'] })).toBe(100);
+      expect(calculateShopBonusPercent({ pet_equipped_accessories: ['sunglasses', 'gold_chain'] })).toBe(50);
+    });
+
+    it('should normalize legacy accessory ids to collar ids without duplicates', () => {
+      expect(normalizeAccessoryIds(['top_hat', 'collar_red', 'crown'])).toEqual(['collar_red', 'collar_diamond']);
     });
   });
-
 });

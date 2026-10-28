@@ -28,6 +28,7 @@ class _WalkTreadmillDialogState extends State<WalkTreadmillDialog>
   double _dogeEarned = 0;
 
   late AnimationController _stepController;
+  late AnimationController _idleController;
 
   @override
   void initState() {
@@ -36,11 +37,16 @@ class _WalkTreadmillDialogState extends State<WalkTreadmillDialog>
       vsync: this,
       duration: const Duration(milliseconds: 350),
     );
+    _idleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat();
   }
 
   @override
   void dispose() {
     _stepController.dispose();
+    _idleController.dispose();
     super.dispose();
   }
 
@@ -125,7 +131,7 @@ class _WalkTreadmillDialogState extends State<WalkTreadmillDialog>
 
           // Mini Treadmill view
           Container(
-            height: 135,
+            height: 138,
             width: double.infinity,
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -137,11 +143,26 @@ class _WalkTreadmillDialogState extends State<WalkTreadmillDialog>
               border: Border.all(color: Colors.amber, width: 1.5),
             ),
             child: AnimatedBuilder(
-              animation: _stepController,
+              animation: Listenable.merge([_stepController, _idleController]),
               builder: (context, child) {
+                final stepping = _stepController.isAnimating;
                 final t = _stepController.value;
-                final hopY = -sin(t * pi) * 18.0;
-                final waddle = sin(t * pi * 2) * 0.1;
+                final idleWave = sin(_idleController.value * pi * 2);
+                final hopY = stepping
+                    ? (-sin(t * pi) * 18.0)
+                    : (-idleWave.abs() * 2.5);
+                final waddle = stepping
+                    ? (sin(t * pi * 2) * 0.10)
+                    : (idleWave * 0.025);
+                final scaleY = stepping
+                    ? (1.0 + sin(t * pi) * 0.05)
+                    : (1.0 + idleWave * 0.035);
+                final scaleX = stepping
+                    ? (1.0 - sin(t * pi) * 0.03)
+                    : (1.0 - idleWave * 0.022);
+                final collarSwing = stepping
+                    ? (sin(t * pi * 2) * 0.28)
+                    : (cos(_idleController.value * pi * 2) * 0.08);
 
                 return Stack(
                   alignment: Alignment.center,
@@ -155,7 +176,7 @@ class _WalkTreadmillDialogState extends State<WalkTreadmillDialog>
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: List.generate(6, (i) {
                           return Transform.translate(
-                            offset: Offset(-t * 24, 0),
+                            offset: Offset(stepping ? (-t * 24) : 0, 0),
                             child: Container(
                               width: 22,
                               height: 5,
@@ -169,16 +190,42 @@ class _WalkTreadmillDialogState extends State<WalkTreadmillDialog>
                       ),
                     ),
 
-                    // Dressed Shiba hopping along
+                    // Dynamic shadow beneath paws
+                    Positioned(
+                      bottom: 18,
+                      child: Container(
+                        width: 56,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(
+                            alpha: stepping ? 0.14 : 0.20,
+                          ),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                    ),
+
+                    // Dressed Shiba hopping along with swinging collar, wagging tail & paw dust
                     Transform.translate(
                       offset: Offset(0, hopY),
                       child: Transform.rotate(
                         angle: waddle,
-                        child: PetSpriteWidget.buildDressedShiba(
-                          stage: widget.stage == 'egg' ? 'puppy' : widget.stage,
-                          isSick: false,
-                          equippedAccessories: widget.equippedAccessories,
-                          size: 85,
+                        child: Transform.scale(
+                          scaleX: scaleX,
+                          scaleY: scaleY,
+                          alignment: Alignment.bottomCenter,
+                          child: PetSpriteWidget.buildDressedShiba(
+                            stage:
+                                widget.stage == 'egg' ? 'puppy' : widget.stage,
+                            isSick: false,
+                            equippedAccessories: widget.equippedAccessories,
+                            size: 88,
+                            isWalking: stepping,
+                            isHappy: stepping,
+                            isWagging: true,
+                            collarSwingAngle: collarSwing,
+                            motionPhase: t,
+                          ),
                         ),
                       ),
                     ),
