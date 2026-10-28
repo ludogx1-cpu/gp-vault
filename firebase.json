@@ -8,7 +8,6 @@
   },
   "hosting": {
     "site": "golden-paw-database",
-    "site": "golden-paw-database",
     "public": "build/web",
     "ignore": [
       "firebase.json",
@@ -16,6 +15,15 @@
       "**/node_modules/**"
     ],
     "headers": [
+      {
+        "source": "captcha.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
       {
         "source": "dI2bMysU0VopkjiwI24s91JqGMpl_knGpXg32s0Z.html",
         "headers": [
@@ -70,6 +78,10 @@
       }
     ],
     "rewrites": [
+      {
+        "source": "/captcha.html",
+        "destination": "/captcha.html"
+      },
       {
         "source": "/about.html",
         "destination": "/about.html"
