@@ -744,7 +744,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                     ? null
                     : () => _performAction('feed'),
                 icon: const Icon(Icons.restaurant, size: 16),
-                label: const Text("Feed", style: TextStyle(fontSize: 11)),
+                label: const Text("Feed (0.005)", style: TextStyle(fontSize: 11)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: canFeed ? Colors.orange : Colors.grey,
                   foregroundColor: Colors.white,
@@ -759,7 +759,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                     ? null
                     : () => _performAction('play'),
                 icon: const Icon(Icons.sports_tennis, size: 16),
-                label: const Text("Play", style: TextStyle(fontSize: 11)),
+                label: const Text("Play (0.005)", style: TextStyle(fontSize: 11)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: canPlay ? Colors.pink : Colors.grey,
                   foregroundColor: Colors.white,
