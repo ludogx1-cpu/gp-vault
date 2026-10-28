@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
+import '../api_constants.dart';
 import '../src/pwa_interop.dart' if (dart.library.html) '../src/pwa_interop_web.dart';
 
 class PwaInstallWidget extends StatefulWidget {
@@ -177,7 +178,7 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
             height: 42,
             child: ElevatedButton.icon(
               onPressed: () {
-                downloadApk('downloads/goldenpaw.apk');
+                downloadApk(ApiConstants.apkDownloadUrl);
               },
               icon: const Icon(Icons.android, color: Colors.white, size: 18),
               label: const Text(

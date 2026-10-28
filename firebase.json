@@ -7,6 +7,8 @@
     "indexes": "firestore.indexes.json"
   },
   "hosting": {
+    "site": "golden-paw-database",
+    "site": "golden-paw-database",
     "public": "build/web",
     "ignore": [
       "firebase.json",
