@@ -76,8 +76,6 @@ class PetSpriteWidget extends StatelessWidget {
     }
   }
 
-  String _getImageAsset() => getImageAssetForStage(stage);
-
   double _getScaleForStage() {
     switch (stage) {
       case 'egg':
@@ -225,8 +223,8 @@ class PetSpriteWidget extends StatelessWidget {
       walkController,
       boopController,
       trickController,
-      if (idleController != null) idleController!,
-      if (reactionController != null) reactionController!,
+      ?idleController,
+      ?reactionController,
     ];
 
     return AnimatedBuilder(

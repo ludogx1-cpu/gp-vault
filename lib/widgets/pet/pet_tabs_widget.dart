@@ -112,6 +112,7 @@ class PetTabsWidget extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       child: SingleChildScrollView(
         child: Text(
+          '• Feed & Play: Costs 0.005 DOGE and returns 2x (0.01 DOGE) in 24 hours! If your balance is under 0.005 DOGE, it\'s FREE and returns 1.5x (0.0075 DOGE) after 24 hours!\n'
           '• Stroke: Stroke your pet to raise Attention & get 5 XP!\n'
           '• Fetch: Swipe the ball! Costs Energy & Hunger but boosts Happiness.\n'
           '• Boop: Every 30 mins, it walks to the camera. Boop its nose for 0.004 DOGE!\n'

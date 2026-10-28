@@ -54,6 +54,8 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
   int _sleepingUntil = 0;
   bool _xpBoostActive = false;
   bool _userWantsSleep = false;
+  bool _canAffordAction = false;
+  double _pendingReturnTotal = 0.0;
 
   Timer? _refreshTimer;
   StreamSubscription? _refreshSubscription;
@@ -159,6 +161,10 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
             _equippedBall = data['pet']['equipped_ball'] ?? 'white';
             _isSick = data['pet']['sick'] ?? false;
             _xpBoostActive = data['pet']['xp_boost_active'] ?? false;
+            _canAffordAction = data['pet']['can_afford_action'] ?? false;
+            _pendingReturnTotal =
+                (data['pet']['pending_return_total'] as num?)?.toDouble() ??
+                0.0;
 
             if (_lastFeedTime > 0) {
               final expectedHungryTime = DateTime.fromMillisecondsSinceEpoch(
@@ -744,7 +750,12 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                     ? null
                     : () => _performAction('feed'),
                 icon: const Icon(Icons.restaurant, size: 16),
-                label: const Text("Feed (0.005)", style: TextStyle(fontSize: 11)),
+                label: Text(
+                  _canAffordAction
+                      ? "Feed (0.005 → 2x 24h)"
+                      : "Feed (FREE → 1.5x 24h)",
+                  style: const TextStyle(fontSize: 11),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: canFeed ? Colors.orange : Colors.grey,
                   foregroundColor: Colors.white,
@@ -759,7 +770,12 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                     ? null
                     : () => _performAction('play'),
                 icon: const Icon(Icons.sports_tennis, size: 16),
-                label: const Text("Play (0.005)", style: TextStyle(fontSize: 11)),
+                label: Text(
+                  _canAffordAction
+                      ? "Play (0.005 → 2x 24h)"
+                      : "Play (FREE → 1.5x 24h)",
+                  style: const TextStyle(fontSize: 11),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: canPlay ? Colors.pink : Colors.grey,
                   foregroundColor: Colors.white,
@@ -857,6 +873,18 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
               color: Colors.green,
             ),
           ),
+          if (_pendingReturnTotal > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 4.0),
+              child: Text(
+                "⏳ Pending 24h Care Returns: +${_pendingReturnTotal.toStringAsFixed(4)} DOGE",
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.amber,
+                ),
+              ),
+            ),
 
           // Tabbed Area (Info, Shop, Items, Balls, Tricks)
           PetTabsWidget(
