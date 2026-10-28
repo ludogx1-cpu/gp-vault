@@ -44,9 +44,13 @@ async function sendDoge(user, address, captcha_token, captcha_provider, source) 
   let ageMult = 1.0;
 
   const txResult = await admin.firestore().runTransaction(async (transaction) => {
+    const petRef = userRef.collection('pet').doc('status');
     const snapshot = await transaction.get(userRef);
     if (!snapshot.exists) throw new Error('User profile not found');
     const data = snapshot.data() || {};
+    const petSnapshot = await transaction.get(petRef);
+    Object.assign(data, petSnapshot.data() || {});
+
     const lastDirectClaim = data.last_direct_faucet_claim;
 
     if (lastDirectClaim && Date.now() - lastDirectClaim.toDate().getTime() < cooldownMs) {
@@ -55,33 +59,36 @@ async function sendDoge(user, address, captcha_token, captcha_provider, source) 
     }
 
     const streakUpdates = getStreakUpdates(data);
+    let updates = {
+      last_direct_faucet_claim: admin.firestore.Timestamp.now(),
+      ...streakUpdates
+    };
+
     if (data.pet_birth_date) {
       const decayed = calculateDecay(data);
       ageMult = getAgeMultiplier(data);
-      const updates = {
-        last_direct_faucet_claim: admin.firestore.Timestamp.now(),
+      updates = {
+        ...updates,
         pet_hunger: decayed.hunger,
         pet_happiness: decayed.happiness,
         pet_energy: decayed.energy,
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
-        ...streakUpdates
       };
-      transaction.update(userRef, updates);
-      return { data, updates };
-    } else {
-      const updates = {
-        last_direct_faucet_claim: admin.firestore.Timestamp.now(),
-        ...streakUpdates
-      };
-      transaction.update(userRef, updates);
-      return { data, updates };
     }
+
+    const { userUpdates, petUpdates } = splitUpdates(updates);
+    if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
+    if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
+    return { data, updates };
   });
 
   if (txResult) {
     syncUserBalances(user.uid, txResult.data, txResult.updates).catch(console.error);
+    const { petUpdates } = splitUpdates(txResult.updates);
+    if (Object.keys(petUpdates).length > 0) {
+      syncPetStats(user.uid, txResult.data, txResult.updates).catch(console.error);
+    }
   }
-
 
   const priceResult = await getDogePrice();
   const price = priceResult.price;
@@ -167,7 +174,6 @@ async function claimVault(user) {
     else if (streak >= 7) streakMultiplier = 1.6;
 
     if (data.pet_birth_date) {
-      const decayed = calculateDecay(data);
       ageMult = getAgeMultiplier(data);
     }
     
@@ -266,9 +272,12 @@ async function claimBonusSponsor(user, captcha_token, captcha_provider) {
   let finalRewardAmount = rewardAmount;
 
   const txResult = await admin.firestore().runTransaction(async (transaction) => {
+    const petRef = userRef.collection('pet').doc('status');
     const snapshot = await transaction.get(userRef);
     if (!snapshot.exists) throw new Error('User profile not found');
-    const data = snapshot.data();
+    const data = snapshot.data() || {};
+    const petSnapshot = await transaction.get(petRef);
+    Object.assign(data, petSnapshot.data() || {});
 
     if (data.last_bonus_sponsor_claim && Date.now() - data.last_bonus_sponsor_claim.toDate().getTime() < cooldownMs) {
       const minutesLeft = Math.ceil((cooldownMs - (Date.now() - data.last_bonus_sponsor_claim.toDate().getTime())) / 60000);
@@ -291,12 +300,17 @@ async function claimBonusSponsor(user, captcha_token, captcha_provider) {
       active_trick_buffs: [],
       reward_history: history,
     };
-    transaction.update(userRef, updates);
+    const { userUpdates, petUpdates } = splitUpdates(updates);
+    if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
+    if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
     logTransaction(transaction, user.uid, finalRewardAmount, 'faucet_claim', { sector: 'Ads Faucet' });
     return { data, updates };
   });
 
-  if (txResult) syncUserBalances(user.uid, txResult.data, txResult.updates).catch(console.error);
+  if (txResult) {
+    syncUserBalances(user.uid, txResult.data, txResult.updates).catch(console.error);
+    syncPetStats(user.uid, txResult.data, txResult.updates).catch(console.error);
+  }
 
   await logRewardEvent(user.uid, 'faucet_claim', finalRewardAmount, { sector: 'Bonus Sponsor' });
 
@@ -312,9 +326,12 @@ async function claimEcosystemVideo(user, captcha_token, captcha_provider) {
   let finalRewardAmount = rewardAmount;
 
   const txResult = await admin.firestore().runTransaction(async (transaction) => {
+    const petRef = userRef.collection('pet').doc('status');
     const snapshot = await transaction.get(userRef);
     if (!snapshot.exists) throw new Error('User profile not found');
-    const data = snapshot.data();
+    const data = snapshot.data() || {};
+    const petSnapshot = await transaction.get(petRef);
+    Object.assign(data, petSnapshot.data() || {});
 
     if (data.last_ecosystem_video_claim && Date.now() - data.last_ecosystem_video_claim.toDate().getTime() < cooldownMs) {
       const minutesLeft = Math.ceil((cooldownMs - (Date.now() - data.last_ecosystem_video_claim.toDate().getTime())) / 60000);
@@ -337,12 +354,17 @@ async function claimEcosystemVideo(user, captcha_token, captcha_provider) {
       active_trick_buffs: [],
       reward_history: history,
     };
-    transaction.update(userRef, updates);
+    const { userUpdates, petUpdates } = splitUpdates(updates);
+    if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
+    if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
     logTransaction(transaction, user.uid, finalRewardAmount, 'faucet_claim', { sector: 'Offerwall Faucet' });
     return { data, updates };
   });
 
-  if (txResult) syncUserBalances(user.uid, txResult.data, txResult.updates).catch(console.error);
+  if (txResult) {
+    syncUserBalances(user.uid, txResult.data, txResult.updates).catch(console.error);
+    syncPetStats(user.uid, txResult.data, txResult.updates).catch(console.error);
+  }
 
   await logRewardEvent(user.uid, 'faucet_claim', finalRewardAmount, { sector: 'Ecosystem Video' });
 

@@ -40,18 +40,24 @@ class _AccountPageState extends State<AccountPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (kIsWeb) const SizedBox(height: 80), // Push ads below the app header
-                          FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: SizedBox(
-                              width: 728,
-                              height: 90,
-                              child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
+                          if (kIsWeb) ...[
+                            const SizedBox(height: 80), // Push ads below the app header
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: SizedBox(
+                                width: 728,
+                                height: 90,
+                                child: UniversalWebView.create(
+                                  viewType: 'adsterra-728x90',
+                                  width: 728,
+                                  height: 90,
+                                ),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 10),
-                          const BitcotasksAdWidget(),
-                          const SizedBox(height: 20),
+                            const SizedBox(height: 10),
+                            const BitcotasksAdWidget(),
+                            const SizedBox(height: 20),
+                          ],
                           Image.asset(
                             'assets/Goldenpawicon.png',
                             width: 130,
@@ -66,14 +72,20 @@ class _AccountPageState extends State<AccountPage> {
                               style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
-                                color: gpBrownText(context, darkColor: Colors.white),
+                                color: gpBrownText(
+                                  context,
+                                  darkColor: Colors.white,
+                                ),
                               ),
                             ),
                             const SizedBox(height: 10),
                             const Text(
                               "Create a Golden Paw account to unlock the full ecosystem.",
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 16, color: Colors.black54),
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black54,
+                              ),
                             ),
                             const SizedBox(height: 30),
                             ListenableBuilder(
@@ -154,7 +166,8 @@ class _AccountPageState extends State<AccountPage> {
                               width: double.infinity,
                               height: 50,
                               child: ElevatedButton(
-                                onPressed: () => showAuthDialogGlobal(context, true),
+                                onPressed: () =>
+                                    showAuthDialogGlobal(context, true),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.amber,
                                   shape: RoundedRectangleBorder(
@@ -164,7 +177,9 @@ class _AccountPageState extends State<AccountPage> {
                                 child: Text(
                                   "LOG IN",
                                   style: TextStyle(
-                                    color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
+                                    color: themeProvider.isDarkMode
+                                        ? Colors.white
+                                        : Colors.black87,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                   ),
@@ -176,7 +191,8 @@ class _AccountPageState extends State<AccountPage> {
                               width: double.infinity,
                               height: 50,
                               child: OutlinedButton(
-                                onPressed: () => showAuthDialogGlobal(context, false),
+                                onPressed: () =>
+                                    showAuthDialogGlobal(context, false),
                                 style: OutlinedButton.styleFrom(
                                   side: BorderSide(
                                     color: Colors.amber.shade700,
@@ -204,9 +220,15 @@ class _AccountPageState extends State<AccountPage> {
                                 double offerwallBalance = 0.0;
                                 final userData = userProvider.userData;
                                 if (userData != null) {
-                                  vaultBalance = (userData['doge_balance'] ?? 0.0).toDouble();
-                                  bankBalance = (userData['bank_balance'] ?? 0.0).toDouble();
-                                  offerwallBalance = (userData['offerwall_balance'] ?? 0.0).toDouble();
+                                  vaultBalance =
+                                      (userData['doge_balance'] ?? 0.0)
+                                          .toDouble();
+                                  bankBalance =
+                                      (userData['bank_balance'] ?? 0.0)
+                                          .toDouble();
+                                  offerwallBalance =
+                                      (userData['offerwall_balance'] ?? 0.0)
+                                          .toDouble();
                                 }
 
                                 return Column(
@@ -230,14 +252,17 @@ class _AccountPageState extends State<AccountPage> {
                                       ),
                                     ),
                                     const SizedBox(height: 20),
-                                    
+
                                     ListenableBuilder(
                                       listenable: themeProvider,
                                       builder: (context, _) {
                                         final isDark = themeProvider.isDarkMode;
                                         return AccountProfileCard(
                                           isDark: isDark,
-                                          currentUsername: userData?['username'] ?? userData?['chat_username'] ?? 'Anonymous',
+                                          currentUsername:
+                                              userData?['username'] ??
+                                              userData?['chat_username'] ??
+                                              'Anonymous',
                                         );
                                       },
                                     ),
@@ -256,7 +281,9 @@ class _AccountPageState extends State<AccountPage> {
                                             color: isDark
                                                 ? Colors.grey.shade900
                                                 : Colors.white,
-                                            borderRadius: BorderRadius.circular(15),
+                                            borderRadius: BorderRadius.circular(
+                                              15,
+                                            ),
                                             border: Border.all(
                                               color: Colors.amber,
                                               width: 0.5,
@@ -294,9 +321,13 @@ class _AccountPageState extends State<AccountPage> {
                                                 if (!context.mounted) {
                                                   return;
                                                 }
-                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
                                                   const SnackBar(
-                                                    content: Text("2FA Setup coming soon!"),
+                                                    content: Text(
+                                                      "2FA Setup coming soon!",
+                                                    ),
                                                   ),
                                                 );
                                               },
@@ -307,7 +338,7 @@ class _AccountPageState extends State<AccountPage> {
                                     ),
 
                                     const SizedBox(height: 25),
-                                    
+
                                     ListenableBuilder(
                                       listenable: themeProvider,
                                       builder: (context, _) {
@@ -317,9 +348,9 @@ class _AccountPageState extends State<AccountPage> {
                                         );
                                       },
                                     ),
-                                    
+
                                     const SizedBox(height: 25),
-                                    
+
                                     ListenableBuilder(
                                       listenable: themeProvider,
                                       builder: (context, _) {
@@ -331,9 +362,9 @@ class _AccountPageState extends State<AccountPage> {
                                         );
                                       },
                                     ),
-                                    
+
                                     const SizedBox(height: 25),
-                                    
+
                                     ListenableBuilder(
                                       listenable: themeProvider,
                                       builder: (context, _) {
@@ -343,9 +374,9 @@ class _AccountPageState extends State<AccountPage> {
                                         );
                                       },
                                     ),
-                                    
+
                                     const SizedBox(height: 25),
-                                    
+
                                     SizedBox(
                                       width: double.infinity,
                                       height: 50,
@@ -374,7 +405,9 @@ class _AccountPageState extends State<AccountPage> {
                                             width: 2,
                                           ),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(25),
+                                            borderRadius: BorderRadius.circular(
+                                              25,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -395,20 +428,30 @@ class _AccountPageState extends State<AccountPage> {
                   ),
                 ),
               ),
-              if (MediaQuery.of(context).size.width >= 1000) ...[
+              if (kIsWeb && MediaQuery.of(context).size.width >= 1000) ...[
                 Positioned(
-                  left: ((MediaQuery.of(context).size.width - 800) / 2 - 160) / 2,
+                  left:
+                      ((MediaQuery.of(context).size.width - 800) / 2 - 160) / 2,
                   top: 100,
                   width: 160,
                   height: 600,
-                  child: UniversalWebView.create(viewType: 'adsterra-160x600', width: 160, height: 600),
+                  child: UniversalWebView.create(
+                    viewType: 'adsterra-160x600',
+                    width: 160,
+                    height: 600,
+                  ),
                 ),
                 Positioned(
-                  right: ((MediaQuery.of(context).size.width - 800) / 2 - 160) / 2,
+                  right:
+                      ((MediaQuery.of(context).size.width - 800) / 2 - 160) / 2,
                   top: 100,
                   width: 160,
                   height: 300,
-                  child: UniversalWebView.create(viewType: 'adsterra-160x300', width: 160, height: 300),
+                  child: UniversalWebView.create(
+                    viewType: 'adsterra-160x300',
+                    width: 160,
+                    height: 300,
+                  ),
                 ),
               ],
             ],

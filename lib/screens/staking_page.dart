@@ -16,17 +16,6 @@ import 'staking/widgets/staking_header.dart';
 import 'staking/widgets/harvest_card.dart';
 import 'staking/widgets/staking_form.dart';
 
-
-// --- GLOBAL THEME CONSTANTS 🚀 ---
-
-
-// --- CAPTCHA JS BINDINGS ---
-
-
-
-
-
-
 // ==========================================
 // 1. THE SHELL
 // ==========================================
@@ -108,7 +97,9 @@ class _StakingPageState extends State<StakingPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Vault Error: ${e.toString().replaceAll("Exception: ", "")}"),
+          content: Text(
+            "Vault Error: ${e.toString().replaceAll("Exception: ", "")}",
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -134,7 +125,8 @@ class _StakingPageState extends State<StakingPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              data['message'] ?? "Successfully unstaked $amountToUnstake DOGE! 🔓",
+              data['message'] ??
+                  "Successfully unstaked $amountToUnstake DOGE! 🔓",
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             backgroundColor: Colors.blue,
@@ -149,7 +141,9 @@ class _StakingPageState extends State<StakingPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Vault Error: ${e.toString().replaceAll("Exception: ", "")}"),
+          content: Text(
+            "Vault Error: ${e.toString().replaceAll("Exception: ", "")}",
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -200,89 +194,101 @@ class _StakingPageState extends State<StakingPage> {
           return Stack(
             children: [
               PageWithFooter(
-                // 👑 Wrapped the main padding layout in ListenableBuilder
-            child: ListenableBuilder(
-              listenable: themeProvider,
-              builder: (context, _) {
-                final isDark = themeProvider.isDarkMode;
+                child: ListenableBuilder(
+                  listenable: themeProvider,
+                  builder: (context, _) {
+                    final isDark = themeProvider.isDarkMode;
 
-                return Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 800),
-                    child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0,
-                    vertical: 40.0,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (kIsWeb) const SizedBox(height: 80), // Push ads below the app header
-                      if (kIsWeb)
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: SizedBox(
-                            width: 728,
-                            height: 90,
-                            child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
+                    return Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 800),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20.0,
+                            vertical: 40.0,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (kIsWeb) const SizedBox(height: 80),
+                              if (kIsWeb)
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: SizedBox(
+                                    width: 728,
+                                    height: 90,
+                                    child: UniversalWebView.create(
+                                      viewType: 'adsterra-728x90',
+                                      width: 728,
+                                      height: 90,
+                                    ),
+                                  ),
+                                ),
+                              if (kIsWeb) const SizedBox(height: 20),
+                              if (kIsWeb) const BitcotasksAdWidget(),
+                              if (kIsWeb) const SizedBox(height: 20),
+                              StakingHeader(
+                                isDark: isDark,
+                                themeProvider: themeProvider,
+                                dogeBalance: dogeBalance,
+                              ),
+                              const SizedBox(height: 25),
+                              HarvestCard(
+                                stakedBalance: stakedBalance,
+                                stakeTimestamp: stakeTimestamp,
+                                isDark: isDark,
+                                themeProvider: themeProvider,
+                                onHarvest: _harvestInterest,
+                              ),
+                              const SizedBox(height: 40),
+                              StakingForm(
+                                amountController: _amountController,
+                                isProcessing: _isProcessing,
+                                isDark: isDark,
+                                onStake: _stakeDoge,
+                                onUnstake: _unstakeDoge,
+                                context: context,
+                                availableBalance: dogeBalance,
+                                stakedBalance: stakedBalance,
+                              ),
+                            ],
                           ),
                         ),
-                      if (kIsWeb) const SizedBox(height: 20),
-                      if (kIsWeb) const BitcotasksAdWidget(),
-                      if (kIsWeb) const SizedBox(height: 20),
-                      StakingHeader(
-                        isDark: isDark,
-                        themeProvider: themeProvider,
-                        dogeBalance: dogeBalance,
                       ),
-                      const SizedBox(height: 25),
-                      HarvestCard(
-                        stakedBalance: stakedBalance,
-                        stakeTimestamp: stakeTimestamp,
-                        isDark: isDark,
-                        themeProvider: themeProvider,
-                        onHarvest: _harvestInterest,
-                      ),
-                      const SizedBox(height: 40),
-                      StakingForm(
-                        amountController: _amountController,
-                        isProcessing: _isProcessing,
-                        isDark: isDark,
-                        onStake: _stakeDoge,
-                        onUnstake: _unstakeDoge,
-                        context: context,
-                      ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ),
-            );
-          },
-            ),
-          ),
-          if (MediaQuery.of(context).size.width >= 1000) ...[
-            Positioned(
-              left: ((MediaQuery.of(context).size.width - 800) / 2 - 160) / 2,
-              top: 100,
-              width: 160,
-              height: 600,
-              child: UniversalWebView.create(viewType: 'adsterra-160x600', width: 160, height: 600),
-            ),
-            Positioned(
-              right: ((MediaQuery.of(context).size.width - 800) / 2 - 160) / 2,
-              top: 100,
-              width: 160,
-              height: 300,
-              child: UniversalWebView.create(viewType: 'adsterra-160x300', width: 160, height: 300),
-            ),
-          ],
-        ],
-      );
+              if (kIsWeb && MediaQuery.of(context).size.width >= 1000) ...[
+                Positioned(
+                  left:
+                      ((MediaQuery.of(context).size.width - 800) / 2 - 160) / 2,
+                  top: 100,
+                  width: 160,
+                  height: 600,
+                  child: UniversalWebView.create(
+                    viewType: 'adsterra-160x600',
+                    width: 160,
+                    height: 600,
+                  ),
+                ),
+                Positioned(
+                  right:
+                      ((MediaQuery.of(context).size.width - 800) / 2 - 160) / 2,
+                  top: 100,
+                  width: 160,
+                  height: 300,
+                  child: UniversalWebView.create(
+                    viewType: 'adsterra-160x300',
+                    width: 160,
+                    height: 300,
+                  ),
+                ),
+              ],
+            ],
+          );
         },
       ),
     );
   }
 }
-
-
-

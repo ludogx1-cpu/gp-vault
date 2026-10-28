@@ -1,7 +1,9 @@
-
 const { calculateDecay, getGrowthStage, getAgeMultiplier, getNextStageXP, MAX_STAT, calculatePetBonusPercent } = require('../utils/petMechanics');
 const { getDogePrice } = require('./priceService');
 const { syncUserBalances, syncPetStats } = require('../utils/dataConnectSync');
+const { logTransaction } = require('./ledgerService');
+const { logRewardEvent } = require('../utils/rewardAudit');
+const { admin } = require('./firebaseService');
 
 const FEED_COST_DOGE = 0.0001;
 const PLAY_COST_DOGE = 0.0001;
@@ -26,10 +28,16 @@ function splitUpdates(updates) {
   return { userUpdates, petUpdates };
 }
 
-const { admin } = require('./firebaseService');
-
-
-
+function syncAfterPetTx(uid, initialData, dualWriteUpdates) {
+  if (!dualWriteUpdates || Object.keys(dualWriteUpdates).length === 0) return;
+  const { userUpdates, petUpdates } = splitUpdates(dualWriteUpdates);
+  if (Object.keys(userUpdates).length > 0) {
+    syncUserBalances(uid, initialData, dualWriteUpdates).catch(console.error);
+  }
+  if (Object.keys(petUpdates).length > 0) {
+    syncPetStats(uid, initialData, dualWriteUpdates).catch(console.error);
+  }
+}
 
 function ensureXP(data) {
   let xp = data.pet_xp !== undefined ? Number(data.pet_xp) : 0;
@@ -54,8 +62,6 @@ function calculateXPGain(data, baseXP) {
   return baseXP;
 }
 
-
-
 module.exports = {
   petStatus,
   petFeed,
@@ -69,15 +75,11 @@ module.exports = {
 
 async function petStatus(req) {
   try {
-    
-
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
-    
     let petStats = null;
-
-    
     let dualWriteUpdates = {};
     let initialData = {};
+
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -97,13 +99,13 @@ async function petStatus(req) {
           pet_happiness: 50,
           pet_attention: 50,
           pet_energy: 100,
-          weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
-        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
+          weekly_time_above_40: Number(data.weekly_time_above_40 || 0),
+          pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
           pet_total_distance_walked: 0
         };
         Object.assign(dualWriteUpdates, initData);
-      initialData = data || {};
-      const { userUpdates, petUpdates } = splitUpdates(initData);
+        initialData = data || {};
+        const { userUpdates, petUpdates } = splitUpdates(initData);
         if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
         if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
         petStats = {
@@ -129,7 +131,7 @@ async function petStatus(req) {
             pet_attention: 50,
             pet_energy: 100,
             weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
-        pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
+            pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
             pet_total_distance_walked: 0,
             pet_owned_accessories: [],
             pet_equipped_accessories: [],
@@ -140,10 +142,10 @@ async function petStatus(req) {
             fetch_click_count: 0
           };
           Object.assign(dualWriteUpdates, initData);
-      initialData = data || {};
-      const { userUpdates, petUpdates } = splitUpdates(initData);
-        if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
-        if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
+          initialData = data || {};
+          const { userUpdates, petUpdates } = splitUpdates(initData);
+          if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
+          if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
           petStats = {
             hunger: 50,
             happiness: 50,
@@ -165,7 +167,6 @@ async function petStatus(req) {
             fetch_click_count: 0,
             sleeping_until: 0
           };
-          // Return immediately with new stats
           return;
         }
 
@@ -188,9 +189,8 @@ async function petStatus(req) {
             isSick = true;
           }
         } else {
-          // Stats are not 0
           if (sickSince && !isSick) {
-            sickSince = null; // Stats recovered before 24h passed
+            sickSince = null;
           }
         }
 
@@ -217,12 +217,12 @@ async function petStatus(req) {
         if (data.pending_sleep_reward && data.pet_sleeping_until && data.pet_sleeping_until.toDate().getTime() <= now) {
           updatePayload.pending_sleep_reward = admin.firestore.FieldValue.delete();
           updatePayload.doge_balance = Number(data.doge_balance || 0) + 0.0001;
+          logTransaction(transaction, req.user.uid, 0.0001, 'pet_care', { action: 'sleep_reward' });
         }
 
-        // Update DB with decayed stats and clean buffs
         Object.assign(dualWriteUpdates, updatePayload);
-      initialData = data || {};
-      const { userUpdates, petUpdates } = splitUpdates(updatePayload);
+        initialData = data || {};
+        const { userUpdates, petUpdates } = splitUpdates(updatePayload);
         if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
         if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
 
@@ -230,15 +230,14 @@ async function petStatus(req) {
         if (data.pet_last_poo_time) {
           const currentHour = Math.floor(Date.now() / 3600000);
           const lastPooHour = Math.floor(data.pet_last_poo_time.toDate().getTime() / 3600000);
-          pendingPoos = Math.max(0, Math.min(4, currentHour - lastPooHour)); // 1 poo on the hour, max 4
+          pendingPoos = Math.max(0, Math.min(4, currentHour - lastPooHour));
         } else {
-          // If no last poo time, initialize it
           const updates = { pet_last_poo_time: admin.firestore.FieldValue.serverTimestamp() };
-      Object.assign(dualWriteUpdates, updates);
-      initialData = data || {};
-      const { userUpdates, petUpdates } = splitUpdates(updates);
-      if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
-      if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
+          Object.assign(dualWriteUpdates, updates);
+          initialData = data || {};
+          const { userUpdates, petUpdates } = splitUpdates(updates);
+          if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
+          if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
         }
 
         petStats = {
@@ -272,21 +271,20 @@ async function petStatus(req) {
       }
     });
 
-    return {  success: true, pet: petStats  };
+    syncAfterPetTx(req.user.uid, initialData, dualWriteUpdates);
+    return { success: true, pet: petStats };
   } catch (error) {
     throw new Error(error.message);
   }
 }
 
-
 async function petFeed(req) {
   try {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     let newStats = null;
-
-    
     let dualWriteUpdates = {};
     let initialData = {};
+
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -304,11 +302,9 @@ async function petFeed(req) {
       }
 
       const currentDoge = Number(data.doge_balance || 0);
-
       if (currentDoge < FEED_COST_DOGE) throw new Error(`Insufficient DOGE. Costs ${FEED_COST_DOGE} DOGE to feed.`);
 
       const newHunger = MAX_STAT;
-
       const currentXP = ensureXP(data);
       const xpGained = calculateXPGain(data, 20);
       const newXP = currentXP + xpGained;
@@ -328,25 +324,25 @@ async function petFeed(req) {
       const { userUpdates, petUpdates } = splitUpdates(updates);
       if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
+      logTransaction(transaction, req.user.uid, -FEED_COST_DOGE, 'pet_care', { action: 'feed' });
 
       newStats = { hunger: newHunger, happiness: decayed.happiness, energy: decayed.energy, cost: FEED_COST_DOGE, xp: newXP };
     });
 
-    return {  success: true, message: 'Fed the pet!', stats: newStats  };
+    syncAfterPetTx(req.user.uid, initialData, dualWriteUpdates);
+    return { success: true, message: 'Fed the pet!', stats: newStats };
   } catch (error) {
     throw new Error(error.message);
   }
 }
 
-
 async function petPlay(req) {
   try {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     let newStats = null;
-
-    
     let dualWriteUpdates = {};
     let initialData = {};
+
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -364,11 +360,9 @@ async function petPlay(req) {
       }
 
       const currentDoge = Number(data.doge_balance || 0);
-
       if (currentDoge < PLAY_COST_DOGE) throw new Error(`Insufficient DOGE. Costs ${PLAY_COST_DOGE} DOGE to play.`);
 
       const newHappiness = MAX_STAT;
-
       const currentXP = ensureXP(data);
       const xpGained = calculateXPGain(data, 20);
       const newXP = currentXP + xpGained;
@@ -388,25 +382,25 @@ async function petPlay(req) {
       const { userUpdates, petUpdates } = splitUpdates(updates);
       if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
+      logTransaction(transaction, req.user.uid, -PLAY_COST_DOGE, 'pet_care', { action: 'play' });
 
       newStats = { hunger: decayed.hunger, happiness: newHappiness, energy: decayed.energy, xp: newXP };
     });
 
-    return {  success: true, message: 'Played with pet!', stats: newStats  };
+    syncAfterPetTx(req.user.uid, initialData, dualWriteUpdates);
+    return { success: true, message: 'Played with pet!', stats: newStats };
   } catch (error) {
     throw new Error(error.message);
   }
 }
 
-
 async function petSleep(req) {
   try {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     let newStats = null;
-
-    
     let dualWriteUpdates = {};
     let initialData = {};
+
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -424,9 +418,7 @@ async function petSleep(req) {
       }
 
       const currentDoge = Number(data.doge_balance || 0);
-
       const newEnergy = Math.min(MAX_STAT, decayed.energy + 50);
-
       const currentXP = ensureXP(data);
       const xpGained = calculateXPGain(data, 20);
       const newXP = currentXP + xpGained;
@@ -453,21 +445,20 @@ async function petSleep(req) {
       newStats = { hunger: decayed.hunger, happiness: decayed.happiness, attention: decayed.attention, energy: newEnergy, xp: newXP };
     });
 
-    return {  success: true, message: 'Pet took a nap! Zzz...', stats: newStats  };
+    syncAfterPetTx(req.user.uid, initialData, dualWriteUpdates);
+    return { success: true, message: 'Pet took a nap! Zzz...', stats: newStats };
   } catch (error) {
     throw new Error(error.message);
   }
 }
 
-
 async function petStroke(req) {
   try {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     let newStats = null;
-
-    
     let dualWriteUpdates = {};
     let initialData = {};
+
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -508,12 +499,12 @@ async function petStroke(req) {
       newStats = { hunger: decayed.hunger, happiness: decayed.happiness, attention: newAttention, energy: decayed.energy, xp: newXP };
     });
 
-    return {  success: true, message: 'You stroked the pet!', stats: newStats  };
+    syncAfterPetTx(req.user.uid, initialData, dualWriteUpdates);
+    return { success: true, message: 'You stroked the pet!', stats: newStats };
   } catch (error) {
     throw new Error(error.message);
   }
 }
-
 
 async function petWalkSync(req) {
   try {
@@ -522,15 +513,11 @@ async function petWalkSync(req) {
       throw new Error('Invalid distance');
     }
 
-    const maxValidMeters = 1000;
-    const validMeters = Math.min(distance_meters, maxValidMeters); 
-
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     let result = null;
-
-    
     let dualWriteUpdates = {};
     let initialData = {};
+
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -542,19 +529,16 @@ async function petWalkSync(req) {
       if (!data.pet_birth_date) throw new Error('Pet not initialized');
       if (data.pet_sick) throw new Error('Your pet is too sick to go for a walk! Buy medicine from the shop.');
 
-      // Exploit protection
       const now = Date.now();
       const lastSync = data.pet_last_walk_sync ? data.pet_last_walk_sync.toDate().getTime() : 0;
       const timeSinceLastSync = now - lastSync;
       
-      // Require 3-hour cooldown between walks
       const COOLDOWN_MS = 3 * 60 * 60 * 1000;
       if (timeSinceLastSync < COOLDOWN_MS) {
         throw new Error('Your pet is resting. You can only go for a walk once every 3 hours!');
       }
 
       const validMeters = Math.min(distance_meters, 1000);
-
       const decayed = calculateDecay(data);
       
       const energyCost = (validMeters / 100) * WALK_ENERGY_COST_PER_100M;
@@ -594,26 +578,28 @@ async function petWalkSync(req) {
       const { userUpdates, petUpdates } = splitUpdates(updates);
       if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
-
+      logTransaction(transaction, req.user.uid, dogeReward, 'pet_care', { action: 'walk', distance: validMeters });
 
       result = { reward: dogeReward, distance: validMeters, total_distance: newTotalDist, energy: newEnergy, xp: newXP, xp_gained: xpGained };
     });
 
-    return {  success: true, message: 'Walk synced', ...result  };
+    syncAfterPetTx(req.user.uid, initialData, dualWriteUpdates);
+    if (result && result.reward) {
+      logRewardEvent(req.user.uid, 'pet_walk', result.reward, { distance: result.distance }).catch(console.error);
+    }
+    return { success: true, message: 'Walk synced', ...result };
   } catch (error) {
     throw new Error(error.message);
   }
 }
 
-
 async function petCleanPoo(req) {
   try {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     let reward = 0.00025;
-
-    
     let dualWriteUpdates = {};
     let initialData = {};
+
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -638,7 +624,6 @@ async function petCleanPoo(req) {
       pendingPoos = Math.min(4, pendingPoos);
       let effectiveLastPooHour = pendingPoos === 4 ? (currentHour - 4) : lastPooHour;
       
-      // Advance by 1 hour boundary
       let newLastPooHour = effectiveLastPooHour + 1;
       let newLastPooTimeMs = newLastPooHour * 3600000;
 
@@ -663,23 +648,23 @@ async function petCleanPoo(req) {
       const { userUpdates, petUpdates } = splitUpdates(updates);
       if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
+      logTransaction(transaction, req.user.uid, reward, 'pet_care', { action: 'clean_poo' });
     });
 
-    return {  success: true, message: 'Cleaned up poo!', reward  };
+    syncAfterPetTx(req.user.uid, initialData, dualWriteUpdates);
+    return { success: true, message: 'Cleaned up poo!', reward };
   } catch (error) {
     throw new Error(error.message);
   }
 }
 
-
 async function petBoop(req) {
   try {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
     let reward = 0.004;
-
-    
     let dualWriteUpdates = {};
     let initialData = {};
+
     await admin.firestore().runTransaction(async (transaction) => {
       const petRef = userRef.collection('pet').doc('status');
       const snapshot = await transaction.get(userRef);
@@ -719,12 +704,12 @@ async function petBoop(req) {
       const { userUpdates, petUpdates } = splitUpdates(updates);
       if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
+      logTransaction(transaction, req.user.uid, reward, 'pet_care', { action: 'boop' });
     });
 
-    return {  success: true, message: 'Boop! You found a reward!', reward  };
+    syncAfterPetTx(req.user.uid, initialData, dualWriteUpdates);
+    return { success: true, message: 'Boop! You found a reward!', reward };
   } catch (error) {
     throw new Error(error.message);
   }
 }
-
-

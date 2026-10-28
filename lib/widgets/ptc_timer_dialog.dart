@@ -4,19 +4,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'universal_web_view/universal_web_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import '../src/cross_tab_listener/cross_tab_listener.dart';
+import '../api_constants.dart';
+import '../screens/faucet/captcha_selector_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-
-// --- GLOBAL THEME CONSTANTS 🚀 ---
-
-// --- CAPTCHA JS BINDINGS ---
 
 // ==========================================
 // 1. THE SHELL
@@ -26,7 +22,12 @@ class PtcTimerDialog extends StatefulWidget {
   final String adId;
   final String targetUrl;
   final int duration;
-  const PtcTimerDialog({super.key, required this.adId, required this.targetUrl, required this.duration});
+  const PtcTimerDialog({
+    super.key,
+    required this.adId,
+    required this.targetUrl,
+    required this.duration,
+  });
 
   @override
   State<PtcTimerDialog> createState() => _PtcTimerDialogState();
@@ -36,16 +37,17 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
   late int _timeLeft;
   late final Stopwatch _stopwatch = Stopwatch();
   Timer? _timer;
+  Timer? _coldStartTimer;
   bool _claimed = false;
   bool _isProcessing = false;
   String _message = "Please wait...";
 
   bool _showCaptcha = false;
-  String _selectedCaptcha = 'hCaptcha';
+  String _selectedCaptcha = 'Turnstile';
   bool _captchaLoading = false;
+  int _captchaReloadCounter = 0;
   String? _captchaToken;
   CrossTabListener? _crossTabListener;
-  
 
   DateTime _lastClickTime = DateTime.now();
 
@@ -65,12 +67,13 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
     _startTimer();
   }
 
-    void _onCaptchaMessage(String messageStr) {
+  void _onCaptchaMessage(String messageStr) {
     if (!mounted) return;
     try {
       if (messageStr.contains("captcha") || messageStr.contains("token")) {
         final data = jsonDecode(messageStr) as Map<String, dynamic>;
-        final token = data["token"] ?? data["captcha_token"] ?? data["turnstile_token"];
+        final token =
+            data["token"] ?? data["captcha_token"] ?? data["turnstile_token"];
         if (token != null) {
           setState(() {
             _captchaToken = token;
@@ -128,12 +131,23 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
   }
 
   void _forceRenderCaptcha() {
-    setState(() => _captchaLoading = true);
+    setState(() {
+      _captchaReloadCounter++;
+      _captchaLoading = true;
+      _captchaToken = null;
+    });
     Timer(const Duration(milliseconds: 200), () {
       if (_selectedCaptcha == 'hCaptcha') {
         _crossTabListener?.renderHCaptcha();
       } else if (_selectedCaptcha == 'Turnstile') {
         _crossTabListener?.renderTurnstile();
+      }
+      if (mounted) {
+        Timer(const Duration(milliseconds: 800), () {
+          if (mounted) {
+            setState(() => _captchaLoading = false);
+          }
+        });
       }
     });
   }
@@ -144,12 +158,19 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
     setState(() => _message = "Verifying...");
     _updateBrowserTitle("Verifying");
 
+    _coldStartTimer?.cancel();
+    _coldStartTimer = Timer(const Duration(seconds: 4), () {
+      if (mounted && _isProcessing) {
+        setState(() => _message = "Waking up Vault server... please wait 🐾");
+      }
+    });
+
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
     try {
       final response = await http.post(
-        Uri.parse('https://golden-paw-vault.onrender.com/claim-ptc'),
+        Uri.parse('${ApiConstants.baseUrl}/claim-ptc'),
         headers: await getAuthHeaders(),
         body: jsonEncode({
           'captcha_token': _captchaToken,
@@ -157,6 +178,7 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
           'ad_id': widget.adId,
         }),
       );
+      _coldStartTimer?.cancel();
 
       if (response.statusCode == 200) {
         FirebaseAnalytics.instance.logEvent(
@@ -183,6 +205,7 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
         }
       }
     } catch (e) {
+      _coldStartTimer?.cancel();
       if (mounted) {
         setState(() {
           _message = "Connection error. Try again.";
@@ -197,6 +220,7 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
   @override
   void dispose() {
     _timer?.cancel();
+    _coldStartTimer?.cancel();
     _stopwatch.stop();
     super.dispose();
   }
@@ -209,189 +233,135 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
       backgroundColor: isDark ? themeProvider.darkGreyBoxColor : Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
-        padding: const EdgeInsets.all(25),
+        padding: const EdgeInsets.all(20),
         width: 400,
-        height: _showCaptcha ? (kIsWeb ? 350 : 550) : 250,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (_showCaptcha && !_claimed) ...[
-              Text(
-                "Almost done! Verify you are human.",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: gpBrownText(context),
-                ),
-              ),
-              const SizedBox(height: 15),
-              Container(
-                height: 30,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  color: isDark ? themeProvider.darkGreyBoxColor : Colors.white,
-                  borderRadius: BorderRadius.circular(5),
-                  border: Border.all(color: Colors.amber.shade200),
-                ),
-                child: DropdownButton<String>(
-                  value: _selectedCaptcha,
-                  icon: Icon(
-                    Icons.arrow_drop_down,
-                    color: isDark ? Colors.grey.shade400 : Colors.black87,
-                    size: 16,
-                  ),
-                  elevation: 16,
-                  dropdownColor: isDark ? Colors.grey.shade900 : Colors.white,
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (_showCaptcha && !_claimed) ...[
+                Text(
+                  "Almost done! Verify you are human.",
                   style: TextStyle(
-                    color: isDark ? Colors.grey.shade300 : Colors.black87,
                     fontWeight: FontWeight.bold,
-                    fontSize: 13,
+                    color: gpBrownText(context),
                   ),
-                  underline: Container(),
+                ),
+                const SizedBox(height: 15),
+                CaptchaSelectorWidget(
+                  selectedCaptcha: _selectedCaptcha,
+                  secondsRemaining: 0,
+                  isCheckingCooldown: false,
+                  captchaLoading: _captchaLoading,
+                  reloadCounter: _captchaReloadCounter,
                   onChanged: (String? value) {
                     setState(() {
                       _selectedCaptcha = value!;
+                      _captchaReloadCounter++;
                       _captchaToken = null;
                       _captchaLoading = false;
                     });
                   },
-                  items: const [
-                    DropdownMenuItem(
-                      value: 'hCaptcha',
-                      child: Text('hCaptcha'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'Turnstile',
-                      child: Text('Turnstile'),
-                    ),
-                  ],
+                  onMessageReceived: _onCaptchaMessage,
+                  onForceRender: _forceRenderCaptcha,
                 ),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                height: kIsWeb ? 120 : 350,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.amber, width: 2),
-                  borderRadius: BorderRadius.circular(12),
-                  color: Colors.white,
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    if (_captchaToken == null && _selectedCaptcha == 'hCaptcha')
-                      UniversalWebView.create(
-                        viewType: 'hcaptcha-widget',
-                        width: double.infinity,
-                        height: kIsWeb ? 90 : 320,
-                        onMessageReceived: _onCaptchaMessage,
-                      )
-                    else if (_captchaToken == null &&
-                        _selectedCaptcha == 'Turnstile')
-                      UniversalWebView.create(
-                        viewType: 'turnstile-widget',
-                        width: double.infinity,
-                        height: kIsWeb ? 90 : 320,
-                        onMessageReceived: _onCaptchaMessage,
-                      ),
-
-                    if (!_captchaLoading && _captchaToken == null)
-                      ElevatedButton(
-                        onPressed: _forceRenderCaptcha,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.amber.shade100,
-                          elevation: 0,
-                        ),
-                        child: const Text(
-                          "Tap to Verify",
-                          style: TextStyle(color: Colors.black87),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 15),
-              Text(
-                _message,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: _isProcessing ? Colors.blue : Colors.red,
-                  fontSize: 14,
-                ),
-              ),
-            ] else if (!_claimed) ...[
-              const CircularProgressIndicator(color: Colors.amber),
-              const SizedBox(height: 25),
-              Text(
-                _message,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: _message.contains("Paused")
-                      ? Colors.red
-                      : gpBrownText(context),
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 15),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-                    child: Text(
-                      "Cancel",
-                      style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600),
-                    ),
-                  ),
-                  if (_message.contains("Paused")) ...[
-                    const SizedBox(width: 10),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
-                      onPressed: () {
-                        setState(() {
-
-                        });
-                        launchUrl(Uri.parse(widget.targetUrl));
-                      },
-                      child: const Text("Resume Ad", style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
-                    ),
-                  ],
-                ],
-              ),
-            ] else ...[
-              const Icon(Icons.check_circle, color: Colors.green, size: 60),
-              const SizedBox(height: 15),
-              Text(
-                _message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
-                onPressed: () =>
-                    Navigator.of(context, rootNavigator: true).pop(),
-                child: Text(
-                  "CLOSE",
+                const SizedBox(height: 15),
+                Text(
+                  _message,
+                  textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: isDark ? Colors.grey.shade300 : Colors.black87,
                     fontWeight: FontWeight.bold,
+                    color: _isProcessing ? Colors.blue : Colors.red,
+                    fontSize: 14,
                   ),
                 ),
-              ),
+              ] else if (!_claimed) ...[
+                const CircularProgressIndicator(color: Colors.amber),
+                const SizedBox(height: 25),
+                Text(
+                  _message,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: _message.contains("Paused")
+                        ? Colors.red
+                        : gpBrownText(context),
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () =>
+                          Navigator.of(context, rootNavigator: true).pop(),
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(
+                          color: isDark
+                              ? Colors.grey.shade400
+                              : Colors.grey.shade600,
+                        ),
+                      ),
+                    ),
+                    if (_message.contains("Paused")) ...[
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amber,
+                        ),
+                        onPressed: () {
+                          setState(() {});
+                          launchUrl(Uri.parse(widget.targetUrl));
+                        },
+                        child: const Text(
+                          "Resume Ad",
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ] else ...[
+                const Icon(Icons.check_circle, color: Colors.green, size: 60),
+                const SizedBox(height: 15),
+                Text(
+                  _message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber,
+                  ),
+                  onPressed: () =>
+                      Navigator.of(context, rootNavigator: true).pop(),
+                  child: Text(
+                    "CLOSE",
+                    style: TextStyle(
+                      color: isDark ? Colors.grey.shade300 : Colors.black87,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
   }
 }
-
-// ==========================================
-// 🌟 TRUSTED BONUS SPONSOR 30-SECOND TIMER DIALOG
-// ==========================================
