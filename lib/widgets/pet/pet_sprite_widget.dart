@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'pet_collar_painter.dart';
+import 'pet_depth_perspective.dart';
 
 class PetSpriteWidget extends StatelessWidget {
   final String stage;
@@ -14,6 +15,7 @@ class PetSpriteWidget extends StatelessWidget {
   final bool isCloseUp;
   final bool isWalkAnimating;
   final bool isChasing;
+  final PetDepthPerspective perspective;
 
   final AnimationController shakeController;
   final AnimationController walkController;
@@ -41,6 +43,7 @@ class PetSpriteWidget extends StatelessWidget {
     required this.isCloseUp,
     required this.isWalkAnimating,
     required this.isChasing,
+    this.perspective = PetDepthPerspective.neutral,
     required this.shakeController,
     required this.walkController,
     required this.boopController,
@@ -79,7 +82,7 @@ class PetSpriteWidget extends StatelessWidget {
     }
   }
 
-  double _getScaleForStage() {
+  static double stageScaleFor(String stage) {
     switch (stage) {
       case 'egg':
         return 0.72;
@@ -103,6 +106,8 @@ class PetSpriteWidget extends StatelessWidget {
         return 0.90;
     }
   }
+
+  double _getScaleForStage() => stageScaleFor(stage);
 
   /// Computes organic natural blink amount (0.0 = open, 1.0 = closed), including
   /// occasional cute double-blinks, using wall-clock time whenever any animation ticks.
@@ -323,25 +328,27 @@ class PetSpriteWidget extends StatelessWidget {
         final activeCollar = PetCollars.resolveActiveCollar(
           equippedAccessories,
         );
+        final effectivePerspectiveScale =
+            (isCloseUp && identical(perspective, PetDepthPerspective.neutral))
+            ? 2.25
+            : perspective.scale;
 
         return Transform.translate(
           offset: Offset(shakeX + trickXOffset, 0),
-          child: AnimatedScale(
-            scale: isCloseUp ? 2.3 : 1.0,
-            duration: const Duration(milliseconds: 900),
-            curve: Curves.easeOutBack,
-            child: Transform.scale(
-              scale: baseScale * boopFactor,
-              child: GestureDetector(
-                onTapDown: (_) => onBoopDown(),
-                onTapUp: (_) => onBoopUp(),
-                onTapCancel: onBoopCancel,
-                onPanUpdate: (_) => onStroke(),
-                child: Stack(
+          child: Transform.scale(
+            alignment: Alignment.bottomCenter,
+            scale: effectivePerspectiveScale * baseScale * boopFactor,
+            child: GestureDetector(
+              onTapDown: (_) => onBoopDown(),
+              onTapUp: (_) => onBoopUp(),
+              onTapCancel: onBoopCancel,
+              onPanUpdate: (_) => onStroke(),
+              child: perspective.applyOpticalDoF(
+                Stack(
                   clipBehavior: Clip.none,
                   alignment: Alignment.center,
                   children: [
-                    // Dynamic ground shadow beneath paws
+                    // Dynamic ground shadow beneath paws (intensifies up close, softens in distance)
                     Positioned(
                       bottom: 2,
                       child: Transform.scale(
@@ -352,7 +359,11 @@ class PetSpriteWidget extends StatelessWidget {
                           height: 13,
                           decoration: BoxDecoration(
                             color: Colors.black.withValues(
-                              alpha: 0.22 * shadowScale,
+                              alpha:
+                                  (0.22 *
+                                          shadowScale *
+                                          perspective.shadowIntensity)
+                                      .clamp(0.05, 0.36),
                             ),
                             borderRadius: BorderRadius.circular(40),
                           ),
@@ -486,8 +497,10 @@ class PetSpriteWidget extends StatelessWidget {
                         ),
                       ),
 
-                    // Boop Prompt Badge
-                    if (isCloseUp && !walkController.isAnimating && !isChasing)
+                    // Boop Prompt Badge once the Shiba has arrived up close
+                    if (isCloseUp &&
+                        !isChasing &&
+                        effectivePerspectiveScale >= 1.90)
                       Positioned(
                         top: -28,
                         child: Container(

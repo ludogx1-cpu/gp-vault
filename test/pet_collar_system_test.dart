@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gp_faucet/widgets/pet/pet_collar_painter.dart';
+import 'package:gp_faucet/widgets/pet/pet_depth_perspective.dart';
 import 'package:gp_faucet/widgets/pet/pet_sprite_widget.dart';
 import 'package:gp_faucet/widgets/pet/pet_tabs_widget.dart';
 
@@ -45,6 +46,53 @@ void main() {
         PetStageRig.forAsset(PetSpriteWidget.getImageAssetForStage('egg')),
         isNull,
       );
+    });
+
+    test('2.5D PetDepthPerspective scales & applies optical DoF by depth', () {
+      const screenH = 800.0;
+      final farBg = PetDepthPerspective.fromScreenY(
+        y: PetDepthPerspective.minYForScreen(screenH),
+        screenHeight: screenH,
+      );
+      final midGround = PetDepthPerspective.fromScreenY(
+        y: 380.0,
+        screenHeight: screenH,
+      );
+      final nearFg = PetDepthPerspective.fromScreenY(
+        y: PetDepthPerspective.maxYForScreen(screenH),
+        screenHeight: screenH,
+      );
+      final closeUpBoop = PetDepthPerspective.fromScreenY(
+        y: PetDepthPerspective.maxYForScreen(screenH),
+        screenHeight: screenH,
+        closeUpFactor: 1.0,
+      );
+
+      // Scale grows progressively from far background -> midground -> foreground -> close-up boop
+      expect(farBg.scale, closeTo(0.50, 0.02));
+      expect(midGround.scale, greaterThan(farBg.scale));
+      expect(nearFg.scale, closeTo(1.48, 0.02));
+      expect(closeUpBoop.scale, closeTo(2.25, 0.02));
+
+      // Far background has optical DoF blur & atmospheric fade; foreground & boop are razor sharp
+      expect(farBg.blurSigma, greaterThan(1.2));
+      expect(farBg.opacity, lessThan(0.90));
+      expect(midGround.blurSigma, equals(0.0));
+      expect(nearFg.blurSigma, equals(0.0));
+      expect(closeUpBoop.blurSigma, equals(0.0));
+
+      // Camera rack-focus during close-up deepens background bokeh on distant items
+      final rackedBg = PetDepthPerspective.fromScreenY(
+        y: 220.0,
+        screenHeight: screenH,
+        cameraCloseUpFactor: 1.0,
+      );
+      final normalBg = PetDepthPerspective.fromScreenY(
+        y: 220.0,
+        screenHeight: screenH,
+        cameraCloseUpFactor: 0.0,
+      );
+      expect(rackedBg.blurSigma, greaterThan(normalBg.blurSigma));
     });
   });
 
