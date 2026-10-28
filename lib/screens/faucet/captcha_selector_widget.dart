@@ -80,8 +80,8 @@ class CaptchaSelectorWidget extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Container(
-          height: isHcaptcha ? 240 : 135,
-          width: 340,
+          height: isHcaptcha ? 420 : 135,
+          width: isHcaptcha ? 360 : 340,
           decoration: BoxDecoration(
             border: Border.all(color: Colors.amber, width: 2),
             borderRadius: BorderRadius.circular(12),
@@ -112,8 +112,8 @@ class CaptchaSelectorWidget extends StatelessWidget {
                 UniversalWebView.create(
                   key: ValueKey('hcaptcha-widget-key-$reloadCounter'),
                   viewType: 'hcaptcha-widget',
-                  width: 320,
-                  height: 200,
+                  width: 350,
+                  height: 400,
                   onMessageReceived: onMessageReceived,
                 ),
               if (!isCheckingCooldown &&

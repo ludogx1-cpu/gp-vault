@@ -79,7 +79,7 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
           <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
           <style>
             * { box-sizing: border-box; }
-            html, body { margin:0; padding:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; background:transparent; overflow:hidden; }
+            html, body { margin:0; padding:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; background:transparent; overflow-y:auto; overflow-x:hidden; }
             #hcaptcha-container { display:flex; justify-content:center; align-items:center; width:100%; height:100%; }
             dialog, [id*="zaraz"], [class*="zaraz"] { display: none !important; }
           </style>
@@ -120,7 +120,7 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
           <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
           <style>
             * { box-sizing: border-box; }
-            html, body { margin:0; padding:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; background:transparent; overflow:hidden; }
+            html, body { margin:0; padding:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; background:transparent; overflow-y:auto; overflow-x:hidden; }
             #cf-container { display:flex; justify-content:center; align-items:center; width:100%; height:100%; min-height:65px; }
             dialog, #zaraz-consent-modal, [id*="zaraz"], [class*="zaraz"] {
               display: none !important;

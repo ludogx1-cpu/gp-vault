@@ -95,13 +95,14 @@ class BonusTimersCard extends StatelessWidget {
                           const SizedBox(height: 10),
                           SizedBox(
                             width: double.infinity,
-                            height: 50,
+                            height: 60,
                             child: ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: canClaimBonus
                                     ? Colors.amber
                                     : Colors.grey,
                                 foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
@@ -115,10 +116,11 @@ class BonusTimersCard extends StatelessWidget {
                                 canClaimBonus
                                     ? 'VIEW BONUS SPONSORS'
                                     : 'COOLDOWN: $minutesLeftBonus MIN',
+                                textAlign: TextAlign.center,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w900,
-                                  fontSize: 15,
-                                  letterSpacing: 1.1,
+                                  fontSize: 14,
+                                  letterSpacing: 0.8,
                                 ),
                               ),
                               onPressed: canClaimBonus
@@ -147,13 +149,14 @@ class BonusTimersCard extends StatelessWidget {
                           const SizedBox(height: 10),
                           SizedBox(
                             width: double.infinity,
-                            height: 50,
+                            height: 60,
                             child: ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: canClaimEcoVideo
                                     ? Colors.red.shade600
                                     : Colors.grey,
                                 foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
@@ -167,10 +170,11 @@ class BonusTimersCard extends StatelessWidget {
                                 canClaimEcoVideo
                                     ? 'WATCH: GOLDEN PAW ECOSYSTEM'
                                     : 'COOLDOWN: $minutesLeftEcoVideo MIN',
+                                textAlign: TextAlign.center,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w900,
-                                  fontSize: 14,
-                                  letterSpacing: 1.1,
+                                  fontSize: 13,
+                                  letterSpacing: 0.8,
                                 ),
                               ),
                               onPressed: canClaimEcoVideo
