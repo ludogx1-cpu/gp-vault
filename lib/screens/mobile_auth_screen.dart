@@ -112,7 +112,7 @@ class _MobileAuthScreenState extends State<MobileAuthScreen> {
   Future<void> _handleGoogleAuth() async {
     setState(() => isLoading = true);
     try {
-      final GoogleSignIn googleSignIn = GoogleSignIn();
+      final GoogleSignIn googleSignIn = GoogleSignIn(serverClientId: '163858364889-6b3gurkgtik76jque9ccq1dr9iqju9mb.apps.googleusercontent.com');
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
         setState(() => isLoading = false);
