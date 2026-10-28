@@ -220,6 +220,35 @@ async function petStatus(req) {
           logTransaction(transaction, req.user.uid, 0.0001, 'pet_care', { action: 'sleep_reward' });
         }
 
+        // Process matured 24-hour Pet Care action returns (2x if paid, 1.5x if free)
+        let pendingReturns = Array.isArray(data.pet_pending_returns) ? data.pet_pending_returns : [];
+        if (pendingReturns.length > 0) {
+          const matured = pendingReturns.filter(r => r && Number(r.unlockAt) <= now);
+          const remaining = pendingReturns.filter(r => r && Number(r.unlockAt) > now);
+          if (matured.length > 0) {
+            const totalPayout = matured.reduce((sum, r) => sum + Number(r.amount || 0), 0);
+            const currentBal = updatePayload.doge_balance !== undefined
+              ? updatePayload.doge_balance
+              : Number(data.doge_balance || 0);
+            updatePayload.doge_balance = currentBal + totalPayout;
+            updatePayload.pet_pending_returns = remaining;
+
+            let history = data.reward_history || [];
+            history.unshift({
+              sector: 'Pet Care (24h Return)',
+              amount: totalPayout,
+              timestamp: now
+            });
+            if (history.length > 15) history = history.slice(0, 15);
+            updatePayload.reward_history = history;
+
+            logTransaction(transaction, req.user.uid, totalPayout, 'pet_care', {
+              action: '24h_return_payout',
+              count: matured.length
+            });
+          }
+        }
+
         Object.assign(dualWriteUpdates, updatePayload);
         initialData = data || {};
         const { userUpdates, petUpdates } = splitUpdates(updatePayload);
@@ -266,7 +295,10 @@ async function petStatus(req) {
           owned_balls: data.pet_owned_balls || ['white'],
           equipped_ball: data.pet_equipped_ball || 'white',
           fetch_click_count: data.fetch_click_count || 0,
-          sleeping_until: data.pet_sleeping_until ? data.pet_sleeping_until.toDate().getTime() : 0
+          sleeping_until: data.pet_sleeping_until ? data.pet_sleeping_until.toDate().getTime() : 0,
+          can_afford_action: (updatePayload.doge_balance !== undefined ? updatePayload.doge_balance : Number(data.doge_balance || 0)) >= FEED_COST_DOGE,
+          pending_return_total: (updatePayload.pet_pending_returns !== undefined ? updatePayload.pet_pending_returns : pendingReturns)
+            .reduce((sum, r) => sum + Number(r.amount || 0), 0)
         };
       }
     });
@@ -302,7 +334,20 @@ async function petFeed(req) {
       }
 
       const currentDoge = Number(data.doge_balance || 0);
-      if (currentDoge < FEED_COST_DOGE) throw new Error(`Insufficient DOGE. Costs ${FEED_COST_DOGE} DOGE to feed.`);
+      const hasBalance = currentDoge >= FEED_COST_DOGE;
+      const actualCost = hasBalance ? FEED_COST_DOGE : 0;
+      const returnMultiplier = hasBalance ? 2.0 : 1.5;
+      const returnAmount = Number((FEED_COST_DOGE * returnMultiplier).toFixed(6));
+      const unlockAt = Date.now() + 24 * 60 * 60 * 1000;
+
+      const pendingReturns = Array.isArray(data.pet_pending_returns) ? [...data.pet_pending_returns] : [];
+      pendingReturns.push({
+        action: 'feed',
+        costPaid: actualCost,
+        amount: returnAmount,
+        multiplier: returnMultiplier,
+        unlockAt
+      });
 
       const newHunger = MAX_STAT;
       const currentXP = ensureXP(data);
@@ -310,11 +355,12 @@ async function petFeed(req) {
       const newXP = currentXP + xpGained;
 
       const updates = {
-        doge_balance: currentDoge - FEED_COST_DOGE,
+        doge_balance: currentDoge - actualCost,
         pet_xp: newXP,
         pet_hunger: newHunger,
         pet_happiness: decayed.happiness,
         pet_energy: decayed.energy,
+        pet_pending_returns: pendingReturns,
         weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
         pet_last_feed_time: admin.firestore.FieldValue.serverTimestamp()
@@ -324,13 +370,26 @@ async function petFeed(req) {
       const { userUpdates, petUpdates } = splitUpdates(updates);
       if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
-      logTransaction(transaction, req.user.uid, -FEED_COST_DOGE, 'pet_care', { action: 'feed' });
+      if (actualCost > 0) {
+        logTransaction(transaction, req.user.uid, -actualCost, 'pet_care', { action: 'feed', returnAmount, unlockAt });
+      }
 
-      newStats = { hunger: newHunger, happiness: decayed.happiness, energy: decayed.energy, cost: FEED_COST_DOGE, xp: newXP };
+      newStats = {
+        hunger: newHunger,
+        happiness: decayed.happiness,
+        energy: decayed.energy,
+        cost: actualCost,
+        returnAmount,
+        returnMultiplier,
+        xp: newXP
+      };
     });
 
     syncAfterPetTx(req.user.uid, initialData, dualWriteUpdates);
-    return { success: true, message: 'Fed the pet!', stats: newStats };
+    const msg = newStats.cost > 0
+      ? `Fed pet (-${newStats.cost} DOGE)! Returns +${newStats.returnAmount} DOGE (2x) in 24h!`
+      : `Fed pet for FREE! Returns +${newStats.returnAmount} DOGE (1.5x) in 24h!`;
+    return { success: true, message: msg, stats: newStats };
   } catch (error) {
     throw new Error(error.message);
   }
@@ -360,7 +419,20 @@ async function petPlay(req) {
       }
 
       const currentDoge = Number(data.doge_balance || 0);
-      if (currentDoge < PLAY_COST_DOGE) throw new Error(`Insufficient DOGE. Costs ${PLAY_COST_DOGE} DOGE to play.`);
+      const hasBalance = currentDoge >= PLAY_COST_DOGE;
+      const actualCost = hasBalance ? PLAY_COST_DOGE : 0;
+      const returnMultiplier = hasBalance ? 2.0 : 1.5;
+      const returnAmount = Number((PLAY_COST_DOGE * returnMultiplier).toFixed(6));
+      const unlockAt = Date.now() + 24 * 60 * 60 * 1000;
+
+      const pendingReturns = Array.isArray(data.pet_pending_returns) ? [...data.pet_pending_returns] : [];
+      pendingReturns.push({
+        action: 'play',
+        costPaid: actualCost,
+        amount: returnAmount,
+        multiplier: returnMultiplier,
+        unlockAt
+      });
 
       const newHappiness = MAX_STAT;
       const currentXP = ensureXP(data);
@@ -368,11 +440,12 @@ async function petPlay(req) {
       const newXP = currentXP + xpGained;
 
       const updates = {
-        doge_balance: currentDoge - PLAY_COST_DOGE,
+        doge_balance: currentDoge - actualCost,
         pet_xp: newXP,
         pet_hunger: decayed.hunger,
         pet_happiness: newHappiness,
         pet_energy: decayed.energy,
+        pet_pending_returns: pendingReturns,
         weekly_time_above_40: Number(data.weekly_time_above_40 || 0) + (typeof decayed !== 'undefined' ? decayed.hoursAbove40 : 0),
         pet_last_interaction: admin.firestore.FieldValue.serverTimestamp(),
         pet_last_play_time: admin.firestore.FieldValue.serverTimestamp()
@@ -382,13 +455,26 @@ async function petPlay(req) {
       const { userUpdates, petUpdates } = splitUpdates(updates);
       if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
       if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
-      logTransaction(transaction, req.user.uid, -PLAY_COST_DOGE, 'pet_care', { action: 'play' });
+      if (actualCost > 0) {
+        logTransaction(transaction, req.user.uid, -actualCost, 'pet_care', { action: 'play', returnAmount, unlockAt });
+      }
 
-      newStats = { hunger: decayed.hunger, happiness: newHappiness, energy: decayed.energy, xp: newXP };
+      newStats = {
+        hunger: decayed.hunger,
+        happiness: newHappiness,
+        energy: decayed.energy,
+        cost: actualCost,
+        returnAmount,
+        returnMultiplier,
+        xp: newXP
+      };
     });
 
     syncAfterPetTx(req.user.uid, initialData, dualWriteUpdates);
-    return { success: true, message: 'Played with pet!', stats: newStats };
+    const msg = newStats.cost > 0
+      ? `Played with pet (-${newStats.cost} DOGE)! Returns +${newStats.returnAmount} DOGE (2x) in 24h!`
+      : `Played with pet for FREE! Returns +${newStats.returnAmount} DOGE (1.5x) in 24h!`;
+    return { success: true, message: msg, stats: newStats };
   } catch (error) {
     throw new Error(error.message);
   }
