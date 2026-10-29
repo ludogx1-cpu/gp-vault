@@ -280,7 +280,7 @@ async function petStatus(req) {
           age_multiplier: getAgeMultiplier({ ...data, pet_xp: currentXP }),
           total_distance: data.pet_total_distance_walked || 0,
           pending_poos: pendingPoos,
-          last_boop_time: data.pet_last_boop_time ? data.pet_last_boop_time.toDate().getTime() : 0,
+          last_boop_time: data.pet_last_boop_time ? (data.pet_last_boop_time.toDate ? data.pet_last_boop_time.toDate().getTime() : Number(data.pet_last_boop_time)) : 0,
           last_feed_time: data.pet_last_feed_time ? data.pet_last_feed_time.toDate().getTime() : 0,
           last_play_time: data.pet_last_play_time ? data.pet_last_play_time.toDate().getTime() : 0,
           last_sleep_time: data.pet_last_sleep_time ? data.pet_last_sleep_time.toDate().getTime() : 0,
@@ -762,9 +762,12 @@ async function petBoop(req) {
       if (!data.pet_birth_date) throw new Error('Pet not initialized');
 
       if (data.pet_last_boop_time) {
+        const lastBoopMs = data.pet_last_boop_time.toDate ? data.pet_last_boop_time.toDate().getTime() : Number(data.pet_last_boop_time);
+        const elapsedMs = Date.now() - lastBoopMs;
         const currentHalfHour = Math.floor(Date.now() / 1800000);
-        const lastBoopHalfHour = Math.floor(data.pet_last_boop_time.toDate().getTime() / 1800000);
-        if (currentHalfHour <= lastBoopHalfHour) {
+        const lastBoopHalfHour = Math.floor(lastBoopMs / 1800000);
+        const passedHalfHour = currentHalfHour > lastBoopHalfHour;
+        if (elapsedMs < 1740000 && !passedHalfHour) {
           throw new Error('Pet is not ready for a boop right now. Wait a bit!');
         }
       }

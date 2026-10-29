@@ -216,6 +216,9 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
           PetEvents.notifyStatusChanged(reactionEmoji: emoji);
 
           setState(() {
+            if (action == 'boop') {
+              _lastBoopTime = DateTime.now().millisecondsSinceEpoch;
+            }
             if (data['stats'] != null) {
               _hunger =
                   (data['stats']['hunger'] as num?)?.toDouble() ?? _hunger;
@@ -612,7 +615,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
         _happiness < 100 &&
         (now - _lastPlayTime) >= (5 * 60 * 60 * 1000);
     final bool canSleep = !_isSick && !isSleeping && _energy < 100;
-    final bool boopReady = !_isSick && !isSleeping && (now - _lastBoopTime) >= (30 * 60 * 1000);
+    final bool boopReady = !_isSick && !isSleeping && (now - _lastBoopTime) >= (29 * 60 * 1000);
 
     if (_isLoading && _hunger == 50 && _energy == 100) {
       return const Center(child: CircularProgressIndicator());

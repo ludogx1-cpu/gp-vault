@@ -338,12 +338,20 @@ class PetSpriteWidget extends StatelessWidget {
           child: Transform.scale(
             alignment: Alignment.bottomCenter,
             scale: effectivePerspectiveScale * baseScale * boopFactor,
-            child: GestureDetector(
-              onTapDown: (_) => onBoopDown(),
-              onTapUp: (_) => onBoopUp(),
-              onTapCancel: onBoopCancel,
-              onPanUpdate: (_) => onStroke(),
-              child: Stack(
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTapDown: (_) => onBoopDown(),
+                onTapUp: (_) => onBoopUp(),
+                onTapCancel: onBoopCancel,
+                onHorizontalDragUpdate: (details) {
+                  if (details.primaryDelta != null &&
+                      details.primaryDelta!.abs() > 4.0) {
+                    onStroke();
+                  }
+                },
+                child: Stack(
                 clipBehavior: Clip.none,
                 alignment: Alignment.center,
                 children: [
@@ -533,7 +541,8 @@ class PetSpriteWidget extends StatelessWidget {
               ),
             ),
           ),
-        );
+        ),
+      );
       },
     );
   }
