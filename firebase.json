@@ -54,10 +54,6 @@
           {
             "key": "Cross-Origin-Opener-Policy",
             "value": "same-origin-allow-popups"
-          },
-          {
-            "key": "Cross-Origin-Embedder-Policy",
-            "value": "credentialless"
           }
         ]
       },
@@ -83,6 +79,10 @@
       {
         "source": "/captcha.html",
         "destination": "/captcha.html"
+      },
+      {
+        "source": "/sponsors.html",
+        "destination": "/sponsors.html"
       },
       {
         "source": "/about.html",

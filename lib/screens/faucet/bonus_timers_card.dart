@@ -128,7 +128,7 @@ class BonusTimersCard extends StatelessWidget {
                               onPressed: canClaimBonus
                                   ? () {
                                       final sponsorUri = kIsWeb
-                                          ? Uri.base.resolve('sponsors.html')
+                                          ? Uri.base.resolve('/sponsors.html')
                                           : Uri.parse('https://goldenpaw.dog/sponsors.html');
                                       launchUrl(sponsorUri);
                                       showDialog(

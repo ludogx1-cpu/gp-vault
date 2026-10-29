@@ -11,7 +11,8 @@
     .header h1 { margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 1px; }
     .container { max-width: 800px; margin: 30px auto; padding: 0 20px; text-align: center; }
     .welcome-text { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 30px; line-height: 1.5; }
-    .ad-zone { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; margin: 20px; }
+    .ad-zone { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; margin: 20px; max-width: 100%; overflow-x: auto; }
+    .ad-zone:empty { display: none; }
     .sponsor-grid { display: grid; grid-template-columns: 1fr; gap: 25px; margin-bottom: 25px; }
     .sponsor-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.08); text-decoration: none; color: inherit; transition: transform 0.2s ease; display: flex; flex-direction: column; }
     .sponsor-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.15); }
@@ -50,6 +51,9 @@
     .bitco-468x60 { width: 468px; height: 60px; overflow: hidden; }
     .bitco-300x100 { width: 300px; height: 100px; overflow: hidden; }
   </style>
+  <script>
+    var mouseOverAd = false;
+  </script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
@@ -199,19 +203,35 @@
 
     // Fetch Ad Placeholders
     db.collection("sponsor_placeholders").onSnapshot((querySnapshot) => {
-      Object.values(zones).forEach(z => z.innerHTML = ''); 
+      Object.values(zones).forEach(z => { if (z) z.innerHTML = ''; });
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         if (data.iframe_code && zones[data.position]) {
           const adWrapper = document.createElement('div');
           adWrapper.innerHTML = data.iframe_code;
-          
+
+          // Re-create <script> elements so dynamic ad scripts execute properly
+          const scripts = adWrapper.querySelectorAll('script');
+          scripts.forEach((oldScript) => {
+            const newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach((attr) => {
+              newScript.setAttribute(attr.name, attr.value);
+            });
+            if (oldScript.textContent) {
+              newScript.textContent = oldScript.textContent;
+            }
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+          });
+
           adWrapper.addEventListener('mouseenter', () => mouseOverAd = true);
           adWrapper.addEventListener('mouseleave', () => mouseOverAd = false);
-          
+          adWrapper.addEventListener('click', notifyParentTimer);
+
           zones[data.position].appendChild(adWrapper);
         }
       });
+    }, (error) => {
+      console.error("Failed to load sponsor_placeholders:", error);
     });
 
     // Fetch Sponsor Cards
@@ -225,11 +245,14 @@
         card.className = 'sponsor-card';
         card.href = data.target_url || '#';
         card.target = '_blank';
+        card.rel = 'noopener noreferrer';
         let imageHtml = data.image_url ? `<img src="${data.image_url}" alt="Banner">` : '';
         card.innerHTML = `${imageHtml}<div class="card-title">${data.title || 'Sponsored Link'}</div>`;
         card.addEventListener('click', notifyParentTimer);
         cardContainer.appendChild(card);
       });
+    }, (error) => {
+      console.error("Failed to load bonus_sponsors:", error);
     });
   </script>
 

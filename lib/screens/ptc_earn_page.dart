@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:async';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -316,16 +317,19 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                                 ),
                                 onPressed: canClaimBonus
                                     ? () {
-                                        launchUrl(
-                                          Uri.parse(
-                                            'https://golden-paw-database.web.app/sponsors.html',
-                                          ),
-                                        );
+                                        final sponsorUri = kIsWeb
+                                            ? Uri.base.resolve('/sponsors.html')
+                                            : Uri.parse(
+                                                'https://goldenpaw.dog/sponsors.html',
+                                              );
+                                        launchUrl(sponsorUri);
                                         showDialog(
                                           barrierDismissible: false,
                                           context: context,
                                           builder: (context) =>
-                                              const BonusTimerDialog(),
+                                              BonusTimerDialog(
+                                                targetUrl: sponsorUri.toString(),
+                                              ),
                                         );
                                       }
                                     : null,
