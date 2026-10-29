@@ -25,12 +25,13 @@ class PooLayerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (poos.isEmpty) return const SizedBox.shrink();
     final screenHeight = MediaQuery.of(context).size.height;
     final sorted = List<PooData>.from(poos)
       ..sort((a, b) => a.y.compareTo(b.y));
 
     return Stack(
+      fit: StackFit.expand,
+      clipBehavior: Clip.none,
       children: sorted.map((poo) {
         final perspective = PetDepthPerspective.fromScreenY(
           y: poo.y - 55.0,
