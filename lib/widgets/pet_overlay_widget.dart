@@ -7,6 +7,9 @@ import 'dart:convert';
 import '../api_constants.dart';
 import '../src/firebase_service.dart';
 import '../utils/pet_events.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'pet/pet_sprite_widget.dart';
@@ -79,6 +82,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   StreamSubscription? _collarSubscription;
   StreamSubscription? _refreshSubscription;
   StreamSubscription? _reactionSubscription;
+  StreamSubscription<User?>? _authSubscription;
 
   // Fetch Mechanics (with 2.5D flight & perspective)
   String _equippedBall = 'white';
@@ -207,6 +211,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     _collarSubscription?.cancel();
     _refreshSubscription?.cancel();
     _reactionSubscription?.cancel();
+    _authSubscription?.cancel();
     _moveController.dispose();
     _ballFlightController.dispose();
     _shakeController.dispose();
@@ -264,18 +269,46 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   }
 
   (double, double) _horizontalBounds(Size size) {
-    double minX = 24.0;
-    double maxX = max(minX + 40.0, size.width - 124.0);
-    if (size.width >= 1000) {
-      final sideMargin = ((size.width - 600) / 2 - 160) / 2 + 165;
-      minX = max(minX, sideMargin);
-      maxX = min(maxX, size.width - sideMargin - 95);
-      if (maxX <= minX) {
-        minX = 40.0;
-        maxX = max(80.0, size.width - 140.0);
-      }
-    }
+    final double minX = 24.0;
+    final double maxX = max(minX + 40.0, size.width - 124.0);
     return (minX, maxX);
+  }
+
+  /// Computes a poo position in the open left/right floor margins outside the
+  /// center web page column and HTML iframes so poos are never hidden underneath
+  /// page cards or platform-view iframes.
+  Offset _spawnPooPosition(Size size, int index) {
+    final minY = PetDepthPerspective.minYForScreen(size.height) + 45.0;
+    final maxY = PetDepthPerspective.maxYForScreen(size.height);
+    final py = minY + _random.nextDouble() * max(60.0, maxY - minY);
+
+    if (size.width >= 900) {
+      final centerHalfWidth = min(410.0, size.width * 0.34);
+      final centerX = size.width / 2.0;
+      final leftMin = 24.0;
+      final leftMax = max(leftMin + 24.0, centerX - centerHalfWidth - 62.0);
+      final rightMin = min(
+        size.width - 96.0,
+        centerX + centerHalfWidth + 14.0,
+      );
+      final rightMax = max(rightMin + 24.0, size.width - 68.0);
+
+      final useLeftLane = (index % 2 == 0)
+          ? (_random.nextDouble() < 0.7)
+          : (_random.nextDouble() < 0.3);
+      final px = useLeftLane
+          ? (leftMin + _random.nextDouble() * max(16.0, leftMax - leftMin))
+          : (rightMin + _random.nextDouble() * max(16.0, rightMax - rightMin));
+      return Offset(px, py);
+    }
+
+    // On narrower screens, prefer the outer left/right edges away from centered iframes
+    final placeLeft = (index % 2 == 0);
+    final maxSafeX = max(64.0, size.width - 68.0);
+    final px = placeLeft
+        ? (16.0 + _random.nextDouble() * min(56.0, maxSafeX * 0.22))
+        : max(16.0, maxSafeX - _random.nextDouble() * min(56.0, maxSafeX * 0.22));
+    return Offset(px, py);
   }
 
   void _triggerReaction(String emoji) {
@@ -330,6 +363,16 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
         _shakeController.forward(from: 0.0);
       }
     });
+
+    if (Firebase.apps.isNotEmpty) {
+      _authSubscription = FirebaseAuth.instance.authStateChanges().listen((
+        user,
+      ) {
+        if (user != null && mounted) {
+          _fetchPetStatus();
+        }
+      });
+    }
   }
 
   void _playTrickAnimation(String trickName) {
@@ -395,23 +438,19 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
               }
             });
 
-            // Spawn poos across the 2.5D ground plane
+            // Spawn poos in open floor lanes outside the center web page / iframes
             if (pendingPoos > _poos.length) {
               final size = MediaQuery.of(context).size;
-              final (minX, maxX) = _horizontalBounds(size);
-              final minY = PetDepthPerspective.minYForScreen(size.height) + 40;
-              final maxY = PetDepthPerspective.maxYForScreen(size.height);
               int toAdd = pendingPoos - _poos.length;
               for (int i = 0; i < toAdd; i++) {
-                double px = minX + _random.nextDouble() * max(40.0, maxX - minX);
-                double py = minY + _random.nextDouble() * max(60.0, maxY - minY);
+                final pos = _spawnPooPosition(size, _poos.length + i);
                 _poos.add(
                   PooData(
                     id:
                         DateTime.now().millisecondsSinceEpoch.toString() +
                         i.toString(),
-                    x: px,
-                    y: py,
+                    x: pos.dx,
+                    y: pos.dy,
                   ),
                 );
               }
@@ -946,51 +985,53 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
                 : Positioned(
                     left: curPetX,
                     top: curPetY,
-                    child: PetSpriteWidget(
-                      stage: _stage,
-                      petName: _petName,
-                      isSick: _isSick,
-                      isSleeping:
-                          _sleepingUntil >
-                          DateTime.now().millisecondsSinceEpoch,
-                      facingRight: _facingRight,
-                      equippedAccessories: _equippedAccessories,
-                      emotion: emotion,
-                      reactionEmoji: _reactionEmoji,
-                      isCloseUp: _isCloseUp,
-                      isWalkAnimating: _walkController.isAnimating,
-                      isChasing: _isChasing,
-                      perspective: petPerspective,
-                      shakeController: _shakeController,
-                      walkController: _walkController,
-                      boopController: _boopController,
-                      trickController: _trickController,
-                      idleController: _idleController,
-                      reactionController: _reactionController,
-                      currentTrick: _currentTrick,
-                      onBoopDown: () {
-                        if (_isSleepingOverlay || _isSick) return;
-                        if (_stage != 'egg') _boopController.forward();
-                      },
-                      onBoopUp: () {
-                        if (_isSleepingOverlay || _isSick) return;
-                        if (_stage != 'egg') _boopController.reverse();
-                        if (_isCloseUp) {
-                          _boopPet();
-                        } else if (_stage != 'egg') {
-                          _strokePet();
-                        }
-                      },
-                      onBoopCancel: () {
-                        if (_isSleepingOverlay || _isSick) return;
-                        if (_stage != 'egg') _boopController.reverse();
-                      },
-                      onStroke: () {
-                        if (_isSleepingOverlay || _isSick) return;
-                        if (_stage != 'egg') {
-                          _strokePet();
-                        }
-                      },
+                    child: PointerInterceptor(
+                      child: PetSpriteWidget(
+                        stage: _stage,
+                        petName: _petName,
+                        isSick: _isSick,
+                        isSleeping:
+                            _sleepingUntil >
+                            DateTime.now().millisecondsSinceEpoch,
+                        facingRight: _facingRight,
+                        equippedAccessories: _equippedAccessories,
+                        emotion: emotion,
+                        reactionEmoji: _reactionEmoji,
+                        isCloseUp: _isCloseUp,
+                        isWalkAnimating: _walkController.isAnimating,
+                        isChasing: _isChasing,
+                        perspective: petPerspective,
+                        shakeController: _shakeController,
+                        walkController: _walkController,
+                        boopController: _boopController,
+                        trickController: _trickController,
+                        idleController: _idleController,
+                        reactionController: _reactionController,
+                        currentTrick: _currentTrick,
+                        onBoopDown: () {
+                          if (_isSleepingOverlay || _isSick) return;
+                          if (_stage != 'egg') _boopController.forward();
+                        },
+                        onBoopUp: () {
+                          if (_isSleepingOverlay || _isSick) return;
+                          if (_stage != 'egg') _boopController.reverse();
+                          if (_isCloseUp) {
+                            _boopPet();
+                          } else if (_stage != 'egg') {
+                            _strokePet();
+                          }
+                        },
+                        onBoopCancel: () {
+                          if (_isSleepingOverlay || _isSick) return;
+                          if (_stage != 'egg') _boopController.reverse();
+                        },
+                        onStroke: () {
+                          if (_isSleepingOverlay || _isSick) return;
+                          if (_stage != 'egg') {
+                            _strokePet();
+                          }
+                        },
+                      ),
                     ),
                   );
 

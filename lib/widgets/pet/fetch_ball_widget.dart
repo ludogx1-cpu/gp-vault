@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'pet_depth_perspective.dart';
 
 class FetchBallWidget extends StatelessWidget {
@@ -48,14 +49,15 @@ class FetchBallWidget extends StatelessWidget {
     return Positioned(
       left: ballX,
       top: ballY,
-      child: Transform.scale(
-        scale: ballScale,
-        alignment: Alignment.bottomCenter,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onPanUpdate: onPanUpdate,
-          onPanEnd: onPanEnd,
-          child: Padding(
+      child: PointerInterceptor(
+        child: Transform.scale(
+          scale: ballScale,
+          alignment: Alignment.bottomCenter,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onPanUpdate: onPanUpdate,
+            onPanEnd: onPanEnd,
+            child: Padding(
             // Generous touch target even when ball is small in the distance
             padding: const EdgeInsets.all(6.0),
             child: perspective.applyOpticalDoF(
@@ -107,6 +109,7 @@ class FetchBallWidget extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
               ),
             ),
           ),
