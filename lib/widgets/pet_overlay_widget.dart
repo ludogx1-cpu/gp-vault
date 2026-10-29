@@ -88,11 +88,16 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   String _equippedBall = 'white';
   bool _isFetching = false;
   bool _isReturning = false;
+  bool _isBallDragging = false;
   double _ballStartX = 400;
   double _ballStartY = 400;
   double _ballX = 400;
   double _ballY = 400;
+  double _panStartBallX = 400;
+  double _panStartBallY = 400;
+  double _flightArcHeight = 85.0;
   bool _ballInitialized = false;
+  final List<(Offset, int)> _recentDragSamples = [];
 
   // Speech Bubble
   String _currentSpeech = '';
@@ -741,10 +746,28 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     }
   }
 
-  void _onBallPanUpdate(DragUpdateDetails details) {
+  void _onBallPanStart(DragStartDetails details) {
     if (_isFetching || _isReturning || _stage == 'egg') return;
     _ballFlightController.stop();
     setState(() {
+      _isBallDragging = true;
+      _panStartBallX = _currentBallX;
+      _panStartBallY = _currentBallY;
+      _recentDragSamples.clear();
+      _recentDragSamples.add((Offset.zero, DateTime.now().millisecondsSinceEpoch));
+    });
+  }
+
+  void _onBallPanUpdate(DragUpdateDetails details) {
+    if (_isFetching || _isReturning || _stage == 'egg') return;
+    _ballFlightController.stop();
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
+    _recentDragSamples.add((details.delta, nowMs));
+    if (_recentDragSamples.length > 8) {
+      _recentDragSamples.removeAt(0);
+    }
+    setState(() {
+      _isBallDragging = true;
       _ballX += details.delta.dx;
       _ballY += details.delta.dy;
       _ballStartX = _ballX;
@@ -752,88 +775,190 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     });
   }
 
-  void _onBallPanEnd(DragEndDetails details) {
-    if (_isFetching || _isReturning || _stage == 'egg') return;
-
-    if (details.velocity.pixelsPerSecond.distance > 350) {
-      _startFetchSequence(details.velocity.pixelsPerSecond);
-    }
+  void _onBallTap() {
+    if (_isFetching || _isReturning || _stage == 'egg' || !mounted) return;
+    final size = MediaQuery.of(context).size;
+    final throwRight = _facingRight || _currentBallX < (size.width / 2);
+    final tossDir = Offset(throwRight ? 0.85 : -0.85, -0.55);
+    _launchBallWithVector(velocity: tossDir * 320.0, displacement: tossDir * 80.0);
   }
 
-  Future<void> _startFetchSequence(Offset velocity) async {
-    if (!mounted) return;
+  void _onBallPanEnd(DragEndDetails details) {
+    if (_isFetching || _isReturning || _stage == 'egg') return;
+    setState(() => _isBallDragging = false);
+
+    // 1. Gesture velocity
+    final gestureVel = details.velocity.pixelsPerSecond;
+
+    // 2. Velocity from recent drag history (essential on Web/touch when mouse slows right before release)
+    Offset historyVel = Offset.zero;
+    if (_recentDragSamples.length >= 2) {
+      final dt = (_recentDragSamples.last.$2 - _recentDragSamples.first.$2) / 1000.0;
+      if (dt > 0.015 && dt < 0.35) {
+        Offset totalDelta = Offset.zero;
+        for (final s in _recentDragSamples) {
+          totalDelta += s.$1;
+        }
+        historyVel = totalDelta / dt;
+      }
+    }
+
+    final effectiveVel = gestureVel.distance >= historyVel.distance ? gestureVel : historyVel;
+    final totalDisp = Offset(_ballX - _panStartBallX, _ballY - _panStartBallY);
+
+    _launchBallWithVector(velocity: effectiveVel, displacement: totalDisp);
+  }
+
+  void _launchBallWithVector({required Offset velocity, required Offset displacement}) {
+    if (_isFetching || _isReturning || _stage == 'egg' || !mounted) return;
+
     final size = MediaQuery.of(context).size;
-    final minY = PetDepthPerspective.minYForScreen(size.height) + 15.0;
-    final maxY = PetDepthPerspective.maxYForScreen(size.height) + 45.0;
+    final minY = PetDepthPerspective.minYForScreen(size.height) + 20.0;
+    final maxY = PetDepthPerspective.maxYForScreen(size.height) + 35.0;
     final (minX, maxX) = _horizontalBounds(size);
 
     final curBX = _currentBallX;
     final curBY = _currentBallY;
-    final projectedX = (curBX + (velocity.dx * 1.15)).clamp(minX, maxX + 60.0);
-    final projectedY = (curBY + (velocity.dy * 1.15)).clamp(minY, maxY);
+
+    Offset throwDir;
+    double throwDist;
+
+    if (velocity.distance >= 100.0) {
+      // High-momentum flick or throw
+      throwDir = velocity / velocity.distance;
+      throwDist = (velocity.distance * 1.55).clamp(380.0, 950.0);
+    } else if (displacement.distance >= 18.0) {
+      // Drag & release toss
+      throwDir = displacement / displacement.distance;
+      throwDist = (displacement.distance * 4.2).clamp(360.0, 900.0);
+    } else {
+      // Tap or gentle nudge: toss forward into the open room
+      final throwRight = _facingRight || curBX < (size.width / 2);
+      throwDir = Offset(throwRight ? 0.85 : -0.85, -0.55);
+      throwDir = throwDir / throwDir.distance;
+      throwDist = 440.0;
+    }
+
+    // Projected landing coordinates
+    double targetX = curBX + (throwDir.dx * throwDist);
+    double targetY = curBY + (throwDir.dy * throwDist);
+
+    // Wall bounce: if thrown off-screen, bounce dynamically back into the yard
+    if (targetX < minX) {
+      final overflow = minX - targetX;
+      targetX = (minX + overflow * 0.45).clamp(minX, maxX);
+    } else if (targetX > maxX + 40.0) {
+      final overflow = targetX - (maxX + 40.0);
+      targetX = ((maxX + 40.0) - overflow * 0.45).clamp(minX, maxX);
+    }
+
+    // Depth bounds: if thrown too far backward or forward, bounce gently back
+    if (targetY < minY) {
+      final overflow = minY - targetY;
+      targetY = (minY + overflow * 0.35).clamp(minY, maxY);
+    } else if (targetY > maxY) {
+      final overflow = targetY - maxY;
+      targetY = (maxY - overflow * 0.35).clamp(minY, maxY);
+    }
+
+    // Guarantee that every throw travels at least 280px across the yard!
+    final actualDist = Offset(targetX - curBX, targetY - curBY).distance;
+    if (actualDist < 260.0) {
+      final fallbackDir = Offset(
+        curBX < (size.width / 2) ? 1.0 : -1.0,
+        curBY > (minY + (maxY - minY) * 0.5) ? -0.7 : 0.7,
+      );
+      final normFallback = fallbackDir / fallbackDir.distance;
+      targetX = (curBX + normFallback.dx * 380.0).clamp(minX, maxX);
+      targetY = (curBY + normFallback.dy * 380.0).clamp(minY, maxY);
+    }
+
+    _startFetchFlight(targetX, targetY);
+  }
+
+  Future<void> _startFetchFlight(double targetX, double targetY) async {
+    if (!mounted) return;
+
+    final curBX = _currentBallX;
+    final curBY = _currentBallY;
+    final flightDist = Offset(targetX - curBX, targetY - curBY).distance;
+
+    // High lofty parabolic flight arc scaled by distance
+    final arcHeight = (flightDist * 0.28).clamp(65.0, 145.0);
+    final flightDurationMs = (flightDist * 1.15).round().clamp(650, 980);
 
     setState(() {
       _isFetching = true;
       _ballStartX = curBX;
       _ballStartY = curBY;
-      _ballX = projectedX;
-      _ballY = projectedY;
+      _ballX = targetX;
+      _ballY = targetY;
+      _flightArcHeight = arcHeight;
     });
-    _ballFlightController.duration = const Duration(milliseconds: 520);
+
+    _ballFlightController.duration = Duration(milliseconds: flightDurationMs);
     _ballFlightController.forward(from: 0.0);
 
-    await Future.delayed(const Duration(milliseconds: 520));
+    await Future.delayed(Duration(milliseconds: flightDurationMs));
     if (!mounted) return;
 
-    // Shiba sprints to the ball's 2.5D depth location (shrinking & blurring if thrown far away!)
-    final targetPetX = (projectedX - 34.0).clamp(minX, maxX);
-    final targetPetY = (projectedY - 58.0).clamp(
+    // Shiba spots the landed ball, barks happily and sprints over!
+    final size = MediaQuery.of(context).size;
+    final (minX, maxX) = _horizontalBounds(size);
+    final targetPetX = (targetX - (_facingRight ? 45.0 : 25.0)).clamp(minX, maxX);
+    final targetPetY = (targetY - 58.0).clamp(
       PetDepthPerspective.minYForScreen(size.height),
       PetDepthPerspective.maxYForScreen(size.height),
     );
+
     _isChasing = true;
+    final chaseDist = Offset(targetPetX - _currentPetX, targetPetY - _currentPetY).distance;
+    final chaseDurationMs = (chaseDist * 4.8).round().clamp(750, 1500);
+
     _animatePetTo(
       targetPetX,
       targetPetY,
-      duration: const Duration(milliseconds: 1050),
+      duration: Duration(milliseconds: chaseDurationMs),
       closeUp: false,
       curve: Curves.easeOutCubic,
     );
 
-    await Future.delayed(const Duration(milliseconds: 1080));
+    await Future.delayed(Duration(milliseconds: chaseDurationMs + 50));
     if (!mounted) return;
 
+    // Shiba scoops up the ball!
     _triggerReaction('🎾');
-    await Future.delayed(const Duration(milliseconds: 360));
+    await Future.delayed(const Duration(milliseconds: 380));
     if (!mounted) return;
 
-    // Shiba trots back toward midground carrying the ball!
-    final returnX = ((size.width / 2) - 50.0).clamp(minX, maxX);
-    final returnY =
-        PetDepthPerspective.minYForScreen(size.height) +
-        (PetDepthPerspective.maxYForScreen(size.height) -
-                PetDepthPerspective.minYForScreen(size.height)) *
-            0.58;
+    // Shiba trots back towards midground/user carrying the ball!
+    final returnX = ((size.width / 2) + (_random.nextDouble() * 120.0 - 60.0)).clamp(minX, maxX);
+    final returnY = (PetDepthPerspective.minYForScreen(size.height) +
+        (PetDepthPerspective.maxYForScreen(size.height) - PetDepthPerspective.minYForScreen(size.height)) * 0.62);
 
     setState(() {
       _isChasing = false;
       _isReturning = true;
     });
+
+    final returnDist = Offset(returnX - _currentPetX, returnY - _currentPetY).distance;
+    final returnDurationMs = (returnDist * 6.2).round().clamp(1200, 2400);
+
     _animatePetTo(
       returnX,
       returnY,
-      duration: const Duration(milliseconds: 1900),
+      duration: Duration(milliseconds: returnDurationMs),
       closeUp: false,
       curve: Curves.easeInOut,
     );
 
-    await Future.delayed(const Duration(milliseconds: 1920));
+    await Future.delayed(Duration(milliseconds: returnDurationMs + 50));
     if (!mounted) return;
 
     _walkController.stop();
     setState(() {
-      _ballX = _currentPetX + (_facingRight ? 62.0 : 12.0);
-      _ballY = _currentPetY + 66.0;
+      _ballX = _currentPetX + (_facingRight ? 58.0 : 16.0);
+      _ballY = _currentPetY + 65.0;
       _ballStartX = _ballX;
       _ballStartY = _ballY;
       _isFetching = false;
@@ -961,7 +1086,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
         // Parabolic throw arc when ball is flying, or carried by Shiba when returning!
         final throwArc =
             (_ballFlightController.isAnimating && !_isReturning)
-                ? -sin(_ballFlightController.value * pi) * 26.0
+                ? -sin(_ballFlightController.value * pi) * _flightArcHeight
                 : 0.0;
         final stageScale = PetSpriteWidget.stageScaleFor(_stage);
         final combinedPetScale = stageScale * petPerspective.scale;
@@ -1041,8 +1166,11 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
                 ballY: liveBallY,
                 equippedBall: _equippedBall,
                 perspective: ballPerspective,
+                onPanStart: _onBallPanStart,
                 onPanUpdate: _onBallPanUpdate,
                 onPanEnd: _onBallPanEnd,
+                onTap: _onBallTap,
+                isDragging: _isBallDragging,
               )
             : null;
 
