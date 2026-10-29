@@ -2,6 +2,7 @@ import 'smart_fallback_ad.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BannerAdPlaceholder extends StatefulWidget {
@@ -17,13 +18,20 @@ class _BannerAdPlaceholderState extends State<BannerAdPlaceholder> {
   static const double _bannerHeight = 120;
   final int _seed = Random().nextInt(10000);
 
+  Stream<QuerySnapshot> _adStream() {
+    if (Firebase.apps.isEmpty) {
+      return const Stream.empty();
+    }
+    return FirebaseFirestore.instance
+        .collection('ads')
+        .where('slot_id', isEqualTo: 'global_banner')
+        .snapshots();
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('ads')
-          .where('slot_id', isEqualTo: 'global_banner')
-          .snapshots(),
+      stream: _adStream(),
       builder: (context, snapshot) {
         Widget content;
 

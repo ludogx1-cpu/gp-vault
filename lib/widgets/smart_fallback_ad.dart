@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../screens/ad_hub_page.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../src/theme_provider.dart';
 
@@ -27,10 +28,17 @@ class SmartFallbackAd extends StatelessWidget {
     }
   }
 
+  Stream<QuerySnapshot> _partnersStream() {
+    if (Firebase.apps.isEmpty) {
+      return const Stream.empty();
+    }
+    return FirebaseFirestore.instance.collection('partners').snapshots();
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('partners').snapshots(),
+      stream: _partnersStream(),
       builder: (context, snapshot) {
         return ListenableBuilder(
           listenable: themeProvider,

@@ -1,24 +1,9 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'universal_web_view/universal_web_view.dart';
 import 'smart_fallback_ad.dart';
 
-class AdsterraLandingAd extends StatefulWidget {
+class AdsterraLandingAd extends StatelessWidget {
   const AdsterraLandingAd({super.key});
-
-  @override
-  State<AdsterraLandingAd> createState() => _AdsterraLandingAdState();
-}
-
-class _AdsterraLandingAdState extends State<AdsterraLandingAd> {
-  late String _viewId;
-
-  @override
-  void initState() {
-    super.initState();
-    // Unique ID for each ad unit on the page
-    _viewId = 'adsterra-landing-${Random().nextInt(100000)}';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +21,11 @@ class _AdsterraLandingAdState extends State<AdsterraLandingAd> {
             child: Stack(
               children: [
                 const SmartFallbackAd(width: 468, height: 60),
-                UniversalWebView.create(viewType: _viewId),
+                UniversalWebView.create(
+                  viewType: 'adsterra-468x60',
+                  width: 468,
+                  height: 60,
+                ),
               ],
             ),
           ),

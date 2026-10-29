@@ -160,23 +160,28 @@ class _FaucetPageState extends State<FaucetPage> {
                     children: [
                       if (!_isProfileSetupShowing) ...[
                         if (kIsWeb) const SizedBox(height: 80), // Push ads below the app header
-                        if (kIsWeb)
-                          FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: SizedBox(
-                              width: 728,
-                              height: 90,
-                              child: UniversalWebView.create(
-                                viewType: 'adsterra-728x90',
-                                width: 728,
-                                height: 90,
-                              ),
+                        const BannerAdPlaceholder(),
+                        const SizedBox(height: 12),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: SizedBox(
+                            width: 728,
+                            height: 90,
+                            child: Stack(
+                              children: [
+                                const SmartFallbackAd(width: 728, height: 90),
+                                UniversalWebView.create(
+                                  viewType: 'adsterra-728x90',
+                                  width: 728,
+                                  height: 90,
+                                ),
+                              ],
                             ),
                           ),
-
-                        if (kIsWeb) const SizedBox(height: 20),
-                        if (kIsWeb) const BitcotasksAdWidget(),
-                        if (kIsWeb) const SizedBox(height: 20),
+                        ),
+                        const SizedBox(height: 20),
+                        const BitcotasksAdWidget(),
+                        const SizedBox(height: 20),
                       ],
 
                       const SizedBox(
@@ -252,7 +257,7 @@ class _FaucetPageState extends State<FaucetPage> {
                       const BonusTimersCard(),
                       const SizedBox(height: 25),
 
-                      if (!_isProfileSetupShowing && kIsWeb) ...[
+                      if (!_isProfileSetupShowing) ...[
                         const Bitcotasks160x600AdWidget(),
                         const SizedBox(height: 20),
                       ],

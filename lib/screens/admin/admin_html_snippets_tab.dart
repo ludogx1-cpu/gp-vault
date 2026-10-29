@@ -83,7 +83,20 @@ class _AdminHtmlSnippetsTabState extends State<AdminHtmlSnippetsTab> {
                     decoration: const InputDecoration(
                       labelText: "Page Position",
                     ),
-                    items: ['Top', 'Middle', 'Bottom']
+                    items: const [
+                      'Top',
+                      'Top 1',
+                      'Top 2',
+                      'Top 3',
+                      'Middle',
+                      'Middle 1',
+                      'Middle 2',
+                      'Middle 3',
+                      'Bottom',
+                      'Bottom 1',
+                      'Bottom 2',
+                      'Bottom 3',
+                    ]
                         .map(
                           (p) => DropdownMenuItem(value: p, child: Text(p)),
                         )
