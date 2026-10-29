@@ -46,12 +46,6 @@ class PetDepthPerspective {
   }
 
   /// Computes 2.5D perspective scale and optical DoF blur from a screen Y coordinate.
-  ///
-  /// - [closeUpFactor] (`0.0..1.0`) smoothly blends the subject from normal ground
-  ///   perspective into the nose-at-the-lens close-up Boop zoom (`2.25x`).
-  /// - [cameraCloseUpFactor] (`0.0..1.0`) represents how strongly the virtual camera
-  ///   is currently racked onto a foreground close-up subject, deepening background
-  ///   bokeh on distant objects (ball, poos) behind the dog.
   factory PetDepthPerspective.fromScreenY({
     required double y,
     required double screenHeight,
@@ -108,8 +102,8 @@ class PetDepthPerspective {
     );
   }
 
-  /// Wraps [child] with GPU-friendly optical DoF blur and atmospheric distance
-  /// opacity. Skips offscreen layers completely when the subject is in sharp focus.
+  /// Wraps [child] with universal GPU-compatible optical DoF blur and atmospheric
+  /// distance opacity. Skips offscreen layers completely when in sharp focus.
   Widget applyOpticalDoF(Widget child) {
     Widget current = child;
     if (blurSigma > 0.08) {
@@ -117,7 +111,6 @@ class PetDepthPerspective {
         imageFilter: ImageFilter.blur(
           sigmaX: blurSigma,
           sigmaY: blurSigma,
-          tileMode: TileMode.decal,
         ),
         child: current,
       );

@@ -300,13 +300,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
           bool boopReady =
               (DateTime.now().millisecondsSinceEpoch - _lastBoopTime) >=
               1800000;
-          bool isNapping =
-              _sleepingUntil > DateTime.now().millisecondsSinceEpoch;
 
           if (_poos.isNotEmpty || boopReady || _isSick) {
             _isSleepingOverlay = false;
-          } else if (isNapping) {
-            _isSleepingOverlay = true;
           } else {
             _isSleepingOverlay = sleep;
           }
@@ -384,7 +380,6 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
 
             final now = DateTime.now().millisecondsSinceEpoch;
             bool boopReady = (now - _lastBoopTime) >= 1800000;
-            bool isSleeping = _sleepingUntil > now;
 
             SharedPreferences.getInstance().then((prefs) {
               bool userWantsSleep = prefs.getBool('pet_sleeping') ?? false;
@@ -393,8 +388,6 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
                   _userWantsSleep = userWantsSleep;
                   if (pendingPoos > 0 || boopReady || _isSick) {
                     _isSleepingOverlay = false;
-                  } else if (isSleeping) {
-                    _isSleepingOverlay = true;
                   } else {
                     _isSleepingOverlay = userWantsSleep;
                   }
@@ -492,6 +485,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   void _movePetRandomly() {
     if (!_isWandering || !mounted) return;
     if (_isSleepingOverlay && _stage != 'egg') return;
+    if (_sleepingUntil > DateTime.now().millisecondsSinceEpoch) return;
     if (_isFetching || _isReturning) return;
 
     if (!_isCloseUp &&
@@ -891,8 +885,11 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
       _ballStartY = _ballY;
     }
 
+    final isNapping = _sleepingUntil > DateTime.now().millisecondsSinceEpoch;
     String emotion = '';
-    if (!_walkController.isAnimating &&
+    if (isNapping && _stage != 'egg') {
+      emotion = '💤';
+    } else if (!_walkController.isAnimating &&
         !_isCloseUp &&
         !_isChasing &&
         _stage != 'egg') {
@@ -1015,6 +1012,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
             _isReturning || (ballGroundY >= petGroundY && !_isCloseUp);
 
         return Stack(
+          fit: StackFit.expand,
+          clipBehavior: Clip.none,
           children: [
             // Ground layer Poos (with 2.5D perspective & background DoF)
             PooLayerWidget(

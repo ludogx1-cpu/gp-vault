@@ -343,47 +343,47 @@ class PetSpriteWidget extends StatelessWidget {
               onTapUp: (_) => onBoopUp(),
               onTapCancel: onBoopCancel,
               onPanUpdate: (_) => onStroke(),
-              child: perspective.applyOpticalDoF(
-                Stack(
-                  clipBehavior: Clip.none,
-                  alignment: Alignment.center,
-                  children: [
-                    // Dynamic ground shadow beneath paws (intensifies up close, softens in distance)
-                    Positioned(
-                      bottom: 2,
-                      child: Transform.scale(
-                        scaleX: shadowScale * breatheScaleX,
-                        scaleY: shadowScale,
-                        child: Container(
-                          width: 68,
-                          height: 13,
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(
-                              alpha:
-                                  (0.22 *
-                                          shadowScale *
-                                          perspective.shadowIntensity)
-                                      .clamp(0.05, 0.36),
-                            ),
-                            borderRadius: BorderRadius.circular(40),
+              child: Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  // Dynamic ground shadow beneath paws (intensifies up close, softens in distance)
+                  Positioned(
+                    bottom: 2,
+                    child: Transform.scale(
+                      scaleX: shadowScale * breatheScaleX,
+                      scaleY: shadowScale,
+                      child: Container(
+                        width: 68,
+                        height: 13,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(
+                            alpha:
+                                (0.22 *
+                                        shadowScale *
+                                        perspective.shadowIntensity)
+                                    .clamp(0.05, 0.36),
                           ),
+                          borderRadius: BorderRadius.circular(40),
                         ),
                       ),
                     ),
+                  ),
 
-                    // Animated Shiba body (all sprites natively face RIGHT, so flip only when !facingRight)
-                    Transform.translate(
-                      offset: Offset(0, walkY + trickYOffset),
-                      child: Transform.rotate(
-                        angle: waddleAngle + trickRotation,
-                        child: Transform.scale(
-                          scaleX: breatheScaleX,
-                          scaleY: breatheScaleY,
-                          alignment: Alignment.bottomCenter,
-                          child: Transform(
-                            alignment: Alignment.center,
-                            transform: Matrix4.rotationY(facingRight ? 0 : pi),
-                            child: buildDressedShiba(
+                  // Animated Shiba body with optical Depth-of-Field applied cleanly to the sprite
+                  Transform.translate(
+                    offset: Offset(0, walkY + trickYOffset),
+                    child: Transform.rotate(
+                      angle: waddleAngle + trickRotation,
+                      child: Transform.scale(
+                        scaleX: breatheScaleX,
+                        scaleY: breatheScaleY,
+                        alignment: Alignment.bottomCenter,
+                        child: Transform(
+                          alignment: Alignment.center,
+                          transform: Matrix4.rotationY(facingRight ? 0 : pi),
+                          child: perspective.applyOpticalDoF(
+                            buildDressedShiba(
                               stage: stage,
                               isSick: isSick,
                               equippedAccessories: equippedAccessories,
@@ -399,11 +399,14 @@ class PetSpriteWidget extends StatelessWidget {
                         ),
                       ),
                     ),
+                  ),
 
-                    // Name, Stage & Equipped Collar Indicator
-                    if (emotion.isNotEmpty || stage != 'egg')
-                      Positioned(
-                        top: -46 + (walkY * 0.4),
+                  // Name, Stage & Equipped Collar Indicator (kept outside ImageFiltered so it is never clipped)
+                  if (emotion.isNotEmpty || stage != 'egg')
+                    Positioned(
+                      top: -46 + (walkY * 0.4),
+                      child: Opacity(
+                        opacity: perspective.opacity,
                         child: Column(
                           children: [
                             if (stage != 'egg')
@@ -475,58 +478,58 @@ class PetSpriteWidget extends StatelessWidget {
                           ],
                         ),
                       ),
+                    ),
 
-                    // Floating Reaction Particle (❤️, 🍖, ✨, 🎾)
-                    if (reactionEmoji.isNotEmpty &&
-                        reactionController != null &&
-                        reactionController!.isAnimating)
-                      Positioned(
-                        top: -55 - (reactionController!.value * 45),
-                        child: Opacity(
-                          opacity: (1.0 - reactionController!.value).clamp(
-                            0.0,
-                            1.0,
-                          ),
-                          child: Transform.scale(
-                            scale: 0.8 + (reactionController!.value * 0.6),
-                            child: Text(
-                              reactionEmoji,
-                              style: const TextStyle(fontSize: 28),
-                            ),
+                  // Floating Reaction Particle (❤️, 🍖, ✨, 🎾)
+                  if (reactionEmoji.isNotEmpty &&
+                      reactionController != null &&
+                      reactionController!.isAnimating)
+                    Positioned(
+                      top: -55 - (reactionController!.value * 45),
+                      child: Opacity(
+                        opacity: (1.0 - reactionController!.value).clamp(
+                          0.0,
+                          1.0,
+                        ),
+                        child: Transform.scale(
+                          scale: 0.8 + (reactionController!.value * 0.6),
+                          child: Text(
+                            reactionEmoji,
+                            style: const TextStyle(fontSize: 28),
                           ),
                         ),
                       ),
+                    ),
 
-                    // Boop Prompt Badge once the Shiba has arrived up close
-                    if (isCloseUp &&
-                        !isChasing &&
-                        effectivePerspectiveScale >= 1.90)
-                      Positioned(
-                        top: -28,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.pinkAccent,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: const [
-                              BoxShadow(color: Colors.black26, blurRadius: 4),
-                            ],
-                          ),
-                          child: const Text(
-                            "🐾 Tap to Boop! (+0.004 DOGE)",
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
+                  // Boop Prompt Badge once the Shiba has arrived up close
+                  if (isCloseUp &&
+                      !isChasing &&
+                      effectivePerspectiveScale >= 1.90)
+                    Positioned(
+                      top: -28,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.pinkAccent,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: const [
+                            BoxShadow(color: Colors.black26, blurRadius: 4),
+                          ],
+                        ),
+                        child: const Text(
+                          "🐾 Tap to Boop! (+0.004 DOGE)",
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
             ),
           ),

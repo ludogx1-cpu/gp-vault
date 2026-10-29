@@ -4,6 +4,8 @@ import 'package:gp_faucet/widgets/pet/pet_collar_painter.dart';
 import 'package:gp_faucet/widgets/pet/pet_depth_perspective.dart';
 import 'package:gp_faucet/widgets/pet/pet_sprite_widget.dart';
 import 'package:gp_faucet/widgets/pet/pet_tabs_widget.dart';
+import 'package:gp_faucet/widgets/pet/poo_layer_widget.dart';
+import 'package:gp_faucet/widgets/pet_overlay_widget.dart';
 
 void main() {
   group('PetCollars & PetStageRig calibration', () {
@@ -152,4 +154,42 @@ void main() {
     await tester.tap(find.text('Buy').first);
     expect(boughtId, 'collar_orange');
   });
+
+  testWidgets(
+    'PetOverlayWidget expands to full viewport and renders PetSpriteWidget even when poos list is empty',
+    (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: Stack(
+              children: [
+                SizedBox(width: 800, height: 600),
+                PetOverlayWidget(),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final overlayBox = tester.renderObject<RenderBox>(
+        find.byType(PetOverlayWidget),
+      );
+      expect(overlayBox.size.width, greaterThanOrEqualTo(800));
+      expect(overlayBox.size.height, greaterThanOrEqualTo(600));
+
+      final pooLayerBox = tester.renderObject<RenderBox>(
+        find.byType(PooLayerWidget),
+      );
+      expect(pooLayerBox.size.width, greaterThanOrEqualTo(800));
+      expect(pooLayerBox.size.height, greaterThanOrEqualTo(600));
+
+      expect(find.byType(PetSpriteWidget), findsOneWidget);
+      final spriteBox = tester.renderObject<RenderBox>(
+        find.byType(PetSpriteWidget),
+      );
+      expect(spriteBox.size.width, greaterThan(0));
+      expect(spriteBox.size.height, greaterThan(0));
+    },
+  );
 }
