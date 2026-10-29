@@ -134,6 +134,16 @@ void registerWebViews() {
       return iframe;
     });
 
+    // 10b. Adsterra 468x60
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('adsterra-468x60', (int viewId) {
+      final iframe = web.HTMLIFrameElement();
+      iframe.setAttribute('src', '/adsterra_468x60.html');
+      iframe.setAttribute('style', 'border:none; width:468px; height:60px; overflow:hidden;');
+      iframe.setAttribute('scrolling', 'no');
+      return iframe;
+    });
+
 
 
     // 11. Trustpilot

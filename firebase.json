@@ -85,6 +85,46 @@
         "destination": "/sponsors.html"
       },
       {
+        "source": "/partners.html",
+        "destination": "/partners.html"
+      },
+      {
+        "source": "/thankyou.html",
+        "destination": "/thankyou.html"
+      },
+      {
+        "source": "/adsterra_728x90.html",
+        "destination": "/adsterra_728x90.html"
+      },
+      {
+        "source": "/adsterra_468x60.html",
+        "destination": "/adsterra_468x60.html"
+      },
+      {
+        "source": "/adsterra_300x250.html",
+        "destination": "/adsterra_300x250.html"
+      },
+      {
+        "source": "/adsterra_160x600.html",
+        "destination": "/adsterra_160x600.html"
+      },
+      {
+        "source": "/adsterra_160x300.html",
+        "destination": "/adsterra_160x300.html"
+      },
+      {
+        "source": "/adsense_ptc_1.html",
+        "destination": "/adsense_ptc_1.html"
+      },
+      {
+        "source": "/adsense_ptc_2.html",
+        "destination": "/adsense_ptc_2.html"
+      },
+      {
+        "source": "/ad.html",
+        "destination": "/ad.html"
+      },
+      {
         "source": "/about.html",
         "destination": "/about.html"
       },

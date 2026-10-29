@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
@@ -630,13 +629,33 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
                       ),
               ),
             ),
-            if (kIsWeb) const SizedBox(height: 20),
-            if (kIsWeb)
-              SizedBox(
-                width: 300,
-                height: 250,
-                child: UniversalWebView.create(viewType: 'adsterra-300x250', width: 300, height: 250),
-              ),
+            const SizedBox(height: 20),
+            Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              alignment: WrapAlignment.center,
+              children: [
+                const SquareAdPlaceholder(slotId: 'square_left'),
+                SizedBox(
+                  width: 300,
+                  height: 250,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Stack(
+                      children: [
+                        const SmartFallbackAd(width: 300, height: 250),
+                        UniversalWebView.create(
+                          viewType: 'adsterra-300x250',
+                          width: 300,
+                          height: 250,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SquareAdPlaceholder(slotId: 'square_right'),
+              ],
+            ),
 
           ],
         ),

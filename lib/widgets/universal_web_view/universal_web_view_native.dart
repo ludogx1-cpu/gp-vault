@@ -26,16 +26,23 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
     super.initState();
     if (defaultTargetPlatform == TargetPlatform.windows ||
         defaultTargetPlatform == TargetPlatform.macOS ||
-        defaultTargetPlatform == TargetPlatform.linux) {
+        defaultTargetPlatform == TargetPlatform.linux ||
+        WebViewPlatform.instance == null) {
       _isSupported = false;
       _controller = null;
       return;
     }
-    _isSupported = true;
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setUserAgent('Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36')
-      ..setBackgroundColor(Colors.transparent);
+    try {
+      _controller = WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..setUserAgent('Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36')
+        ..setBackgroundColor(Colors.transparent);
+      _isSupported = true;
+    } catch (_) {
+      _isSupported = false;
+      _controller = null;
+      return;
+    }
 
     if (widget.onMessageReceived != null) {
       _controller!.addJavaScriptChannel(
@@ -222,6 +229,34 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
         </body>
         </html>
       ''';
+    } else if (viewType == 'bitcotasks-ad') {
+      return '''
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>body { margin:0; padding:0; overflow:hidden; background:transparent; display:flex; justify-content:center; align-items:center; width:100vw; height:100vh; }</style>
+        </head>
+        <body>
+          <script>
+          (function() {
+            var width = window.innerWidth || 320;
+            var size = '300x250';
+            if (width >= 728) size = '728x90';
+            else if (width >= 468) size = '468x60';
+            var adIframe = document.createElement('iframe');
+            adIframe.src = 'https://bitcotasks.com/banner.php?key=0cd9422cecc4ffac20af8a7d&size=' + size;
+            adIframe.frameBorder = 'no';
+            adIframe.style.border = 'none';
+            adIframe.style.width = size.split('x')[0] + 'px';
+            adIframe.style.height = size.split('x')[1] + 'px';
+            adIframe.style.overflow = 'hidden';
+            document.body.appendChild(adIframe);
+          })();
+          </script>
+        </body>
+        </html>
+      ''';
     } else if (viewType.startsWith('bitcotasks-')) {
       final sizeStr = viewType.replaceFirst('bitcotasks-', '');
       return '''
@@ -236,6 +271,20 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
         </body>
         </html>
       ''';
+    } else if (viewType == 'adsterra-728x90') {
+      return _buildAdsterraHtml('a8b9e808bb4744321dfd441c0eff4a37');
+    } else if (viewType == 'adsterra-468x60' || viewType.startsWith('adsterra-landing-')) {
+      return _buildAdsterraHtml('81487b0cf69981d5b93588025428264e');
+    } else if (viewType == 'adsterra-300x250') {
+      return _buildAdsterraHtml('db55b2e461e7dcfb40070e78dd094ac9');
+    } else if (viewType == 'adsterra-160x600') {
+      return _buildAdsterraHtml('f230343a2411c75040c34f8eb7445074');
+    } else if (viewType == 'adsterra-160x300') {
+      return _buildAdsterraHtml('b83f17d822fee1ca201539b3b828110e');
+    } else if (viewType == 'adsense-ptc-1') {
+      return _buildAdSenseHtml('2038938184');
+    } else if (viewType == 'adsense-ptc-2') {
+      return _buildAdSenseHtml('1704542038');
     } else if (viewType == 'github-sponsors-iframe') {
       return '''
         <!DOCTYPE html>
@@ -252,6 +301,64 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
     }
 
     return '<html><body>Not found</body></html>';
+  }
+
+  String _buildAdsterraHtml(String key) {
+    return '''
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          body { margin: 0; padding: 0; overflow: hidden; background: transparent; display: flex; justify-content: center; align-items: center; }
+        </style>
+      </head>
+      <body>
+        <script>
+          if (typeof atAsyncOptions !== 'object') var atAsyncOptions = [];
+          atAsyncOptions.push({
+            key: '$key',
+            format: 'js',
+            async: true,
+            container: 'atContainer-$key',
+            params: {}
+          });
+          var script = document.createElement('script');
+          script.type = 'text/javascript';
+          script.async = true;
+          script.src = 'https://landslidegraphsystems.com/$key/invoke.js';
+          document.getElementsByTagName('head')[0].appendChild(script);
+        </script>
+        <div id="atContainer-$key"></div>
+      </body>
+      </html>
+    ''';
+  }
+
+  String _buildAdSenseHtml(String slot) {
+    return '''
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; display: flex; justify-content: center; align-items: center; }
+          .ad-block { display: block; width: 100%; min-width: 280px; min-height: 250px; }
+        </style>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8242289438754471" crossorigin="anonymous"></script>
+      </head>
+      <body>
+        <ins class="adsbygoogle ad-block"
+             data-ad-client="ca-pub-8242289438754471"
+             data-ad-slot="$slot"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </body>
+      </html>
+    ''';
   }
 
   @override

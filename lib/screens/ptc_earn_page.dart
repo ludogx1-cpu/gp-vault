@@ -367,11 +367,16 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
+                      const BitcotasksAdWidget(),
+                      const SizedBox(height: 20),
                       // 🚀 ADSENSE PTC 1 🚀
                       SizedBox(
                         width: double.infinity,
                         height: 250,
-                        child: UniversalWebView.create(viewType: 'adsense-ptc-1'),
+                        child: UniversalWebView.create(
+                          viewType: 'adsense-ptc-1',
+                          height: 250,
+                        ),
                       ),
                       const SizedBox(height: 20),
                       // 🚀 TIMEWALL CLICKS BUTTON 🚀
@@ -414,7 +419,10 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                       SizedBox(
                         width: double.infinity,
                         height: 250,
-                        child: UniversalWebView.create(viewType: 'adsense-ptc-2'),
+                        child: UniversalWebView.create(
+                          viewType: 'adsense-ptc-2',
+                          height: 250,
+                        ),
                       ),
                       const SizedBox(height: 25),
                       const PwaInstallWidget(),

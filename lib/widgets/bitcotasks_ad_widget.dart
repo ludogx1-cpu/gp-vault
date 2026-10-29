@@ -6,14 +6,32 @@ class BitcotasksAdWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The sizes are up to 728x90, so we should allow some height.
-    // The responsive script adapts height to 250, 90, 60, or 100 based on width.
-    // We'll give it a max height of 250 so it never gets clipped.
-    return Container(
-      width: double.infinity,
-      constraints: const BoxConstraints(maxHeight: 250),
-      child: UniversalWebView.create(
-        viewType: 'bitcotasks-ad',
+    final screenWidth = MediaQuery.of(context).size.width;
+    double adWidth = 300;
+    double adHeight = 250;
+    if (screenWidth >= 1200) {
+      adWidth = 728;
+      adHeight = 90;
+    } else if (screenWidth >= 992) {
+      adWidth = 468;
+      adHeight = 60;
+    } else if (screenWidth >= 768) {
+      adWidth = 300;
+      adHeight = 100;
+    }
+
+    return Center(
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: SizedBox(
+          width: adWidth,
+          height: adHeight,
+          child: UniversalWebView.create(
+            viewType: 'bitcotasks-ad',
+            width: adWidth,
+            height: adHeight,
+          ),
+        ),
       ),
     );
   }

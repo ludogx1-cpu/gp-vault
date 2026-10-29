@@ -40,24 +40,27 @@ class _AccountPageState extends State<AccountPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (kIsWeb) ...[
-                            const SizedBox(height: 80), // Push ads below the app header
-                            FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: SizedBox(
-                                width: 728,
-                                height: 90,
-                                child: UniversalWebView.create(
-                                  viewType: 'adsterra-728x90',
-                                  width: 728,
-                                  height: 90,
-                                ),
+                          if (kIsWeb) const SizedBox(height: 80), // Push ads below the app header
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: SizedBox(
+                              width: 728,
+                              height: 90,
+                              child: Stack(
+                                children: [
+                                  const SmartFallbackAd(width: 728, height: 90),
+                                  UniversalWebView.create(
+                                    viewType: 'adsterra-728x90',
+                                    width: 728,
+                                    height: 90,
+                                  ),
+                                ],
                               ),
                             ),
-                            const SizedBox(height: 10),
-                            const BitcotasksAdWidget(),
-                            const SizedBox(height: 20),
-                          ],
+                          ),
+                          const SizedBox(height: 10),
+                          const BitcotasksAdWidget(),
+                          const SizedBox(height: 20),
                           Image.asset(
                             'assets/Goldenpawicon.png',
                             width: 130,
@@ -428,10 +431,10 @@ class _AccountPageState extends State<AccountPage> {
                   ),
                 ),
               ),
-              if (kIsWeb && MediaQuery.of(context).size.width >= 1000) ...[
+              if (kIsWeb && MediaQuery.of(context).size.width >= 1140) ...[
                 Positioned(
-                  left:
-                      ((MediaQuery.of(context).size.width - 800) / 2 - 160) / 2,
+                  left: (((MediaQuery.of(context).size.width - 800) / 2 - 160) / 2)
+                      .clamp(8.0, double.infinity),
                   top: 100,
                   width: 160,
                   height: 600,
@@ -442,8 +445,8 @@ class _AccountPageState extends State<AccountPage> {
                   ),
                 ),
                 Positioned(
-                  right:
-                      ((MediaQuery.of(context).size.width - 800) / 2 - 160) / 2,
+                  right: (((MediaQuery.of(context).size.width - 800) / 2 - 160) / 2)
+                      .clamp(8.0, double.infinity),
                   top: 100,
                   width: 160,
                   height: 300,
