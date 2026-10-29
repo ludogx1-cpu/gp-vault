@@ -9,7 +9,6 @@ import '../src/firebase_service.dart';
 import '../utils/pet_events.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'pet/pet_sprite_widget.dart';
@@ -337,7 +336,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
 
           bool boopReady =
               (DateTime.now().millisecondsSinceEpoch - _lastBoopTime) >=
-              1800000;
+              (29 * 60 * 1000);
 
           if (_poos.isNotEmpty || boopReady || _isSick) {
             _isSleepingOverlay = false;
@@ -427,7 +426,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
             int pendingPoos = data['pet']['pending_poos'] ?? 0;
 
             final now = DateTime.now().millisecondsSinceEpoch;
-            bool boopReady = (now - _lastBoopTime) >= 1800000;
+            bool boopReady = (now - _lastBoopTime) >= (29 * 60 * 1000);
 
             SharedPreferences.getInstance().then((prefs) {
               bool userWantsSleep = prefs.getBool('pet_sleeping') ?? false;
@@ -547,7 +546,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     final (minX, maxX) = _horizontalBounds(size);
 
     final now = DateTime.now().millisecondsSinceEpoch;
-    bool boopReady = !_isSick && (now - _lastBoopTime) >= 1800000;
+    bool boopReady = !_isSick && (now - _lastBoopTime) >= (29 * 60 * 1000);
 
     if (boopReady) {
       // Walk right up to the front-center camera lens for a close-up Boop!
@@ -689,26 +688,37 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   }
 
   Future<void> _boopPet() async {
-    if (!_isCloseUp) return;
-
-    _boopController.forward().then((_) => _boopController.reverse());
-    _triggerReaction('💖');
+    if (_isSick || _stage == 'egg') return;
 
     final now = DateTime.now().millisecondsSinceEpoch;
-    if (now - _lastBoopTime < 30 * 60 * 1000) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pet is not ready for another boop yet!')),
-      );
+    final int elapsed = now - _lastBoopTime;
+    const int cooldownMs = 29 * 60 * 1000;
+
+    if (elapsed < cooldownMs) {
+      final remainingMin = ((cooldownMs - elapsed) / 60000).ceil();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Pet is resting! Next boop ready in $remainingMin min.',
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
       return;
     }
 
+    _boopController.forward().then((_) {
+      if (mounted) _boopController.reverse();
+    });
+    _triggerReaction('💖');
+
+    final prevBoopTime = _lastBoopTime;
     setState(() {
       _lastBoopTime = now;
       _isCloseUp = false;
     });
-
-    // Trot happily off into the room after being booped!
-    _movePetRandomly();
 
     try {
       final headers = await getAuthHeaders();
@@ -725,24 +735,44 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
             SnackBar(
               content: Text(
                 'Boop! +${data['reward']} DOGE ❤️',
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               backgroundColor: Colors.green,
             ),
           );
         }
+        // Trot happily off into the room after being booped!
+        _movePetRandomly();
       } else {
         if (mounted) {
+          setState(() {
+            _lastBoopTime = prevBoopTime;
+          });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(data['error'] ?? 'Boop failed'),
+              content: Text(
+                data['error'] ?? 'Boop failed. Please try again!',
+              ),
               backgroundColor: Colors.red,
             ),
           );
         }
       }
     } catch (e) {
-      // ignore
+      if (mounted) {
+        setState(() {
+          _lastBoopTime = prevBoopTime;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Network error booping pet. Please try again!'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -1110,53 +1140,51 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
                 : Positioned(
                     left: curPetX,
                     top: curPetY,
-                    child: PointerInterceptor(
-                      child: PetSpriteWidget(
-                        stage: _stage,
-                        petName: _petName,
-                        isSick: _isSick,
-                        isSleeping:
-                            _sleepingUntil >
-                            DateTime.now().millisecondsSinceEpoch,
-                        facingRight: _facingRight,
-                        equippedAccessories: _equippedAccessories,
-                        emotion: emotion,
-                        reactionEmoji: _reactionEmoji,
-                        isCloseUp: _isCloseUp,
-                        isWalkAnimating: _walkController.isAnimating,
-                        isChasing: _isChasing,
-                        perspective: petPerspective,
-                        shakeController: _shakeController,
-                        walkController: _walkController,
-                        boopController: _boopController,
-                        trickController: _trickController,
-                        idleController: _idleController,
-                        reactionController: _reactionController,
-                        currentTrick: _currentTrick,
-                        onBoopDown: () {
-                          if (_isSleepingOverlay || _isSick) return;
-                          if (_stage != 'egg') _boopController.forward();
-                        },
-                        onBoopUp: () {
-                          if (_isSleepingOverlay || _isSick) return;
-                          if (_stage != 'egg') _boopController.reverse();
-                          if (_isCloseUp) {
-                            _boopPet();
-                          } else if (_stage != 'egg') {
-                            _strokePet();
-                          }
-                        },
-                        onBoopCancel: () {
-                          if (_isSleepingOverlay || _isSick) return;
-                          if (_stage != 'egg') _boopController.reverse();
-                        },
-                        onStroke: () {
-                          if (_isSleepingOverlay || _isSick) return;
-                          if (_stage != 'egg') {
-                            _strokePet();
-                          }
-                        },
-                      ),
+                    child: PetSpriteWidget(
+                      stage: _stage,
+                      petName: _petName,
+                      isSick: _isSick,
+                      isSleeping:
+                          _sleepingUntil >
+                          DateTime.now().millisecondsSinceEpoch,
+                      facingRight: _facingRight,
+                      equippedAccessories: _equippedAccessories,
+                      emotion: emotion,
+                      reactionEmoji: _reactionEmoji,
+                      isCloseUp: _isCloseUp,
+                      isWalkAnimating: _walkController.isAnimating,
+                      isChasing: _isChasing,
+                      perspective: petPerspective,
+                      shakeController: _shakeController,
+                      walkController: _walkController,
+                      boopController: _boopController,
+                      trickController: _trickController,
+                      idleController: _idleController,
+                      reactionController: _reactionController,
+                      currentTrick: _currentTrick,
+                      onBoopDown: () {
+                        if (_isSleepingOverlay || _isSick || _stage == 'egg') return;
+                        _boopController.forward();
+                      },
+                      onBoopUp: () {
+                        if (_isSleepingOverlay || _isSick || _stage == 'egg') return;
+                        _boopController.reverse();
+                        final now = DateTime.now().millisecondsSinceEpoch;
+                        final bool boopReady = (now - _lastBoopTime) >= (29 * 60 * 1000);
+                        if (_isCloseUp || boopReady) {
+                          _boopPet();
+                        } else {
+                          _strokePet();
+                        }
+                      },
+                      onBoopCancel: () {
+                        if (_isSleepingOverlay || _isSick || _stage == 'egg') return;
+                        _boopController.reverse();
+                      },
+                      onStroke: () {
+                        if (_isSleepingOverlay || _isSick || _stage == 'egg') return;
+                        _strokePet();
+                      },
                     ),
                   );
 
