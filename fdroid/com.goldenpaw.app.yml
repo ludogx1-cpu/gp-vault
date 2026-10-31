@@ -21,9 +21,9 @@ RepoType: git
 Repo: https://github.com/ludogx1-cpu/gp-vault.git
 
 Builds:
-  - versionName: 1.2.12
-    versionCode: 22
-    commit: 30af5defcc95d7c784a6d2e4e9ac85f72913c9cc
+  - versionName: 1.2.13
+    versionCode: 23
+    commit: v1.2.13
     output: build/app/outputs/flutter-apk/app-release.apk
     srclibs:
       - flutter@stable
@@ -40,6 +40,7 @@ Builds:
       - export PUB_CACHE=$(pwd)/.pub-cache
       - $$flutter$$/bin/flutter config --no-analytics
       - $$flutter$$/bin/flutter pub get --enforce-lockfile
+      - (cd android && ./gradlew :app:assembleRelease --dry-run)
     scandelete:
       - .pub-cache
     build:
@@ -49,5 +50,5 @@ Builds:
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
 UpdateCheckData: pubspec.yaml|version:\s.+\+(\d+)|.|version:\s(.+)\+
-CurrentVersion: 1.2.12
-CurrentVersionCode: 22
+CurrentVersion: 1.2.13
+CurrentVersionCode: 23
