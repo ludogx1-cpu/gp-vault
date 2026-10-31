@@ -1,6 +1,11 @@
+AntiFeatures:
+  NonFreeNet:
+    en-US: Relies on Firebase backend services and third-party Dogecoin network APIs.
+  Tracking:
+    en-US: Contains Firebase Analytics.
 Categories:
-  - Money
-  - Games
+  - Casual Game
+  - Wallet
 License: MIT
 AuthorName: Golden Paw Team
 AuthorEmail: support@goldenpaw.dog
@@ -8,26 +13,12 @@ AuthorWebSite: https://goldenpaw.dog
 SourceCode: https://github.com/ludogx1-cpu/gp-vault
 IssueTracker: https://github.com/ludogx1-cpu/gp-vault/issues
 Changelog: https://github.com/ludogx1-cpu/gp-vault/releases
+Donate: https://github.com/sponsors/ludogx1-cpu
 
 AutoName: Golden Paw
 
-Summary: Dogecoin faucet, staking vault, and virtual Shiba Inu companion.
-Description: |-
-  Golden Paw is a crypto-reward and virtual pet companion ecosystem.
-
-  Features:
-  * Adopt, feed, and grow your virtual Shiba Inu pet companion.
-  * Claim DOGE regularly from the faucet.
-  * Deposit DOGE into The Vault to earn daily staking interest yields.
-  * Complete tasks and offerwalls to earn bonus Dogecoin.
-  * Real-time balance synchronization and direct withdrawals.
-
 RepoType: git
 Repo: https://github.com/ludogx1-cpu/gp-vault.git
-
-AntiFeatures:
-  - NonFreeNet
-  - Tracking
 
 Builds:
   - versionName: 1.1.1
@@ -35,13 +26,53 @@ Builds:
     commit: v1.1.1
     output: build/app/outputs/flutter-apk/app-release.apk
     srclibs:
-      - flutter@3.47.2
+      - flutter@stable
+    rm:
+      - ios
+      - linux
+      - macos
+      - web
+      - windows
     prebuild:
-      - $$flutter$$/bin/flutter pub get
+      - flutterVersion=$(sed -n -E "s/.*flutter-version:\ '(.*)'/\1/p" .github/workflows/release-apk.yml)
+      - '[[ $flutterVersion ]]'
+      - git -C $$flutter$$ checkout -f $flutterVersion
+      - export PUB_CACHE=$(pwd)/.pub-cache
+      - $$flutter$$/bin/flutter config --no-analytics
+      - $$flutter$$/bin/flutter pub get --enforce-lockfile
+    scandelete:
+      - .pub-cache
     build:
+      - export PUB_CACHE=$(pwd)/.pub-cache
+      - $$flutter$$/bin/flutter build apk --release
+
+  - versionName: 1.2.12
+    versionCode: 22
+    commit: 30af5defcc95d7c784a6d2e4e9ac85f72913c9cc
+    output: build/app/outputs/flutter-apk/app-release.apk
+    srclibs:
+      - flutter@stable
+    rm:
+      - ios
+      - linux
+      - macos
+      - web
+      - windows
+    prebuild:
+      - flutterVersion=$(sed -n -E "s/.*flutter-version:\ '(.*)'/\1/p" .github/workflows/release-apk.yml)
+      - '[[ $flutterVersion ]]'
+      - git -C $$flutter$$ checkout -f $flutterVersion
+      - export PUB_CACHE=$(pwd)/.pub-cache
+      - $$flutter$$/bin/flutter config --no-analytics
+      - $$flutter$$/bin/flutter pub get --enforce-lockfile
+    scandelete:
+      - .pub-cache
+    build:
+      - export PUB_CACHE=$(pwd)/.pub-cache
       - $$flutter$$/bin/flutter build apk --release
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: 1.1.1
-CurrentVersionCode: 3
+UpdateCheckData: pubspec.yaml|version:\s.+\+(\d+)|.|version:\s(.+)\+
+CurrentVersion: 1.2.12
+CurrentVersionCode: 22
