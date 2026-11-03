@@ -40,7 +40,6 @@ Builds:
       - export PUB_CACHE=$(pwd)/.pub-cache
       - $$flutter$$/bin/flutter config --no-analytics
       - $$flutter$$/bin/flutter pub get --enforce-lockfile
-      - (cd android && ./gradlew :app:assembleRelease --dry-run)
     scandelete:
       - .pub-cache
     build:
