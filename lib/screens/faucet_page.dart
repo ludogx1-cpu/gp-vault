@@ -19,6 +19,7 @@ import 'faucet/updates_box.dart';
 import 'faucet/faucet_claim_card.dart';
 import 'faucet/faucet_stats_card.dart';
 import 'faucet/bonus_timers_card.dart';
+import '../widgets/admob_native_card.dart';
 
 class FaucetPage extends StatefulWidget {
   const FaucetPage({super.key});
@@ -160,6 +161,7 @@ class _FaucetPageState extends State<FaucetPage> {
                     children: [
                       if (!_isProfileSetupShowing) ...[
                         if (kIsWeb) const SizedBox(height: 80), // Push ads below the app header
+                        if (!kIsWeb) const AdMobNativeCard(),
                         const BannerAdPlaceholder(),
                         const SizedBox(height: 12),
                         FittedBox(

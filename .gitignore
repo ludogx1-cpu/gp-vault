@@ -64,3 +64,5 @@ web/*.apk
 
 web/downloads/*.apk
 web/*.exe
+
+.firebase/
