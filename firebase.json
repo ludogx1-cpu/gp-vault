@@ -73,6 +73,32 @@
             "value": "no-cache, no-store, must-revalidate"
           }
         ]
+      },
+      {
+        "source": "app-ads.txt",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "text/plain"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=3600"
+          }
+        ]
+      },
+      {
+        "source": "ads.txt",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "text/plain"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=3600"
+          }
+        ]
       }
     ],
     "rewrites": [
@@ -131,6 +157,14 @@
       {
         "source": "/golden-paw.apk",
         "destination": "/golden-paw.apk"
+      },
+      {
+        "source": "/app-ads.txt",
+        "destination": "/app-ads.txt"
+      },
+      {
+        "source": "/ads.txt",
+        "destination": "/ads.txt"
       },
       {
         "source": "**",
