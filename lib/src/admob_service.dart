@@ -4,8 +4,8 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class AdMobService {
   // Production App ID & Native Ad Unit ID
-  static const String appId = 'ca-app-pub-2047805482197197~3796279278';
-  static const String nativeAdUnitId = 'ca-app-pub-2047805482197197/5553223239';
+  static const String appId = 'ca-app-pub-2047805482197197~2114621817';
+  static const String nativeAdUnitId = 'ca-app-pub-2047805482197197/1969930399';
 
   // Google's official test ad unit ID for development (prevents policy violations during testing)
   static const String testNativeAdUnitId = 'ca-app-pub-3940256099942544/2247696110';
