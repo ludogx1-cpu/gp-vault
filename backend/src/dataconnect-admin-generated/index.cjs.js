@@ -3,7 +3,7 @@ const { validateAdminArgs } = require('firebase-admin/data-connect');
 const connectorConfig = {
   connector: 'example',
   serviceId: 'gp-vault-main',
-  location: 'europe-west2'
+  location: 'europe-west1'
 };
 exports.connectorConfig = connectorConfig;
 
