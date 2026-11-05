@@ -4,7 +4,6 @@ const { updateUserBalances, updatePetStats } = require('../dataconnect-admin-gen
 const { buildBalancePayload, buildPetPayload } = require('../utils/dataConnectSync');
 
 async function retryFailedDataConnectSyncs() {
-  console.log('[DataConnectRetryCron] Checking for failed syncs...');
   try {
     const db = admin.firestore();
     const snapshot = await db.collection('failed_dataconnect_syncs')
@@ -13,7 +12,6 @@ async function retryFailedDataConnectSyncs() {
       .get();
 
     if (snapshot.empty) {
-      console.log('[DataConnectRetryCron] No failed syncs found.');
       return;
     }
 
