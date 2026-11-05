@@ -45,7 +45,6 @@ async function syncUserBalances(uid, data, updates) {
   try {
     const payload = buildBalancePayload(uid, data, updates);
     await updateUserBalances(payload);
-    console.log(`[Dual-Write] Data Connect balances updated successfully for user ${uid}`);
   } catch (error) {
     console.error(`[Dual-Write] Failed to write balances to Data Connect for user ${uid}:`, error);
     
@@ -75,7 +74,6 @@ async function syncPetStats(uid, data, updates) {
   try {
     const payload = buildPetPayload(uid, data, updates);
     await updatePetStats(payload);
-    console.log(`[Dual-Write] Data Connect pet stats updated successfully for user ${uid}`);
   } catch (error) {
     console.error(`[Dual-Write] Failed to write pet stats to Data Connect for user ${uid}:`, error);
     
