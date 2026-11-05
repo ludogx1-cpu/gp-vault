@@ -69,7 +69,7 @@ class ExampleConnector {
   
 
   static ConnectorConfig connectorConfig = ConnectorConfig(
-    'europe-west2',
+    'europe-west1',
     'example',
     'gp-vault-main',
   );

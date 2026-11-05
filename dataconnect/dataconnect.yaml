@@ -1,6 +1,6 @@
 specVersion: "v1"
 serviceId: "gp-vault-main"
-location: "europe-west2"
+location: "europe-west1"
 schema:
   source: "./schema"
   datasource:

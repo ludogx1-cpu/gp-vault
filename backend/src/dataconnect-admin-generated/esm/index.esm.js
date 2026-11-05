@@ -3,7 +3,7 @@ import { validateAdminArgs } from 'firebase-admin/data-connect';
 export const connectorConfig = {
   connector: 'example',
   serviceId: 'gp-vault-main',
-  location: 'europe-west2'
+  location: 'europe-west1'
 };
 
 export function createUser(dcOrVarsOrOptions, varsOrOptions, options) {
