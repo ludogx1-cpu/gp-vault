@@ -3,81 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Golden Paw Studios</title>
-    <meta name="description" content="Golden Paw Studios - Developers of the Golden Paw app and digital entertainment experiences.">
+    <title>Golden Paw Studios | Official Developer Page</title>
+    <meta name="description" content="Golden Paw Studios is an independent game and app development studio with a passion for creating fun, rewarding, and easy-to-use mobile experiences.">
+    <link rel="icon" type="image/png" href="studios_icon.png">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Golden Paw Studios">
+    <meta property="og:description" content="Independent game and app development studio creating fun, rewarding, and accessible mobile experiences.">
+    <meta property="og:image" content="https://goldenpaw.dog/studios/studios_banner.png">
+    <meta property="og:url" content="https://goldenpaw.dog/studios">
+
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- NAVIGATION -->
     <nav>
-        <a href="index.html" class="brand">
-            <img src="/assets/assets/studios_logo.png" alt="Golden Paw Studios Logo">
-            Golden Paw Studios
+        <a href="/studios/" class="brand">
+            <img src="studios_icon.png" alt="Golden Paw Studios Logo" class="brand-icon">
+            <span>Golden Paw Studios</span>
         </a>
         <div class="nav-links">
+            <a href="#about">About</a>
             <a href="#games">Our Apps</a>
+            <a href="#values">Pillars</a>
             <a href="#contact">Contact</a>
+            <a href="https://goldenpaw.dog" class="nav-btn" target="_blank" rel="noopener">Launch App ↗</a>
         </div>
     </nav>
 
-    <section class="hero">
-        <h1>Crafting Digital<br>Experiences.</h1>
-        <p>We are a dedicated team of software engineers, designers, and creatives building polished, interactive mobile applications. From concept to deployment, we bring ideas to life.</p>
-        <a href="#about" class="btn btn-primary">Learn About Us</a>
-    </section>
+    <!-- HERO SECTION -->
+    <header class="hero">
+        <div class="hero-badge">✦ INDEPENDENT GAME & APP DEVELOPMENT ✦</div>
+        <h1>Crafting Rewarding<br><span class="gold-gradient">Digital Experiences.</span></h1>
+        <p class="hero-subtext">
+            Golden Paw Studios is an independent game and app development studio with a passion for creating fun, rewarding, and easy-to-use mobile experiences.
+        </p>
+        
+        <div class="hero-banner-container">
+            <img src="studios_banner.png" alt="Golden Paw Studios Showcase" class="hero-banner">
+        </div>
 
+        <div class="hero-cta-group">
+            <a href="#games" class="btn btn-primary">Explore Our Flagship App ↓</a>
+            <a href="#about" class="btn btn-secondary">Our Story & Vision</a>
+        </div>
+    </header>
+
+    <!-- ABOUT SECTION -->
     <section id="about" class="about">
-        <h2 class="section-title">Who We Are</h2>
+        <div class="section-header">
+            <span class="sub-badge">WHO WE ARE</span>
+            <h2 class="section-title">Our Story & Purpose</h2>
+        </div>
+
+        <div class="about-lead-box">
+            <p class="lead-quote">
+                "Our flagship project, <strong>Golden Paw</strong>, brings together the joy of caring for a virtual pet with the opportunity to earn real Dogecoin through instant faucet rewards and automated crypto staking vaults."
+            </p>
+        </div>
+
         <div class="about-grid">
             <div class="about-card">
-                <h3>Our Mission</h3>
-                <p>To create engaging, beautifully designed software that delights users. We believe in writing clean code and delivering seamless user experiences across all devices.</p>
+                <div class="card-icon">⚡</div>
+                <h3>Simple, Fair & Accessible</h3>
+                <p>
+                    We believe earning rewards should be simple, fair, and accessible to everyone. That's why we're focused on building experiences that don't require an upfront investment, put transparency first, and make Web3 more approachable.
+                </p>
             </div>
             <div class="about-card">
-                <h3>What We Do</h3>
-                <p>We specialize in full-stack mobile and web development, interactive UI/UX design, and deploying scalable digital leisure applications to global app stores.</p>
+                <div class="card-icon">🤝</div>
+                <h3>Community & Shared Vision</h3>
+                <p>
+                    At Golden Paw Studios, it's all about combining entertainment, real rewards, and a growing community of players who share our vision for casual, transparent crypto gaming.
+                </p>
             </div>
         </div>
     </section>
 
+    <!-- THREE PILLARS -->
+    <section id="values" class="values">
+        <div class="section-header">
+            <span class="sub-badge">CORE FOUNDATIONS</span>
+            <h2 class="section-title">What Drives Our Design</h2>
+        </div>
+
+        <div class="pillars-grid">
+            <div class="pillar-card">
+                <div class="pillar-num">01</div>
+                <h4>Interactive Pet Play</h4>
+                <p>Engaging virtual pet mechanics including feeding, hygiene, energy management, customizable accessories, and rewarding daily streak systems.</p>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-num">02</div>
+                <h4>Zero-Barrier Rewards</h4>
+                <p>Real cryptocurrency faucets and 33% APY high-yield staking vaults that reward time and dedication with absolutely zero initial deposit required.</p>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-num">03</div>
+                <h4>Security & Transparency</h4>
+                <p>Built upon robust dual-write cloud databases and verifiable payouts through trusted micropayment providers like FaucetPay.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FLAGSHIP APP SECTION -->
     <section id="games" class="games">
-        <h2 class="section-title">Our Flagship Title</h2>
+        <div class="section-header">
+            <span class="sub-badge">FEATURED RELEASE</span>
+            <h2 class="section-title">Our Flagship Project</h2>
+        </div>
         
         <div class="game-card">
             <div class="game-image">
-                <img src="/assets/assets/studios_logo.png" alt="Golden Paw App">
+                <img src="goldenpaw_app_icon.png" alt="Golden Paw Vault App Icon" class="app-vault-icon">
+                <div class="icon-glow"></div>
             </div>
             <div class="game-info">
-                <h3>Golden Paw</h3>
-                <p>A delightful, interactive virtual pet experience. Users can adopt, care for, and customize their very own Shiba Inu while exploring a vibrant digital world.</p>
+                <div class="tags-row">
+                    <span class="tag">Android APK</span>
+                    <span class="tag">Web App / PWA</span>
+                    <span class="tag">Dogecoin Rewards</span>
+                    <span class="tag">Virtual Pet</span>
+                </div>
+                <h3>Golden Paw: Pet Care & Crypto Vault</h3>
+                <p>
+                    A delightful, cyber-themed virtual pet experience where users adopt, feed, and nurture their very own Shiba Inu while earning instant Dogecoin faucet claims and compounding rewards in high-yield vaults.
+                </p>
+                
+                <div class="feature-bullets">
+                    <div class="bullet-item">🐾 <strong>Virtual Companion:</strong> Raise your Shiba Inu from puppy to legend</div>
+                    <div class="bullet-item">🪙 <strong>Instant Faucet:</strong> Claim free DOGE every 5 minutes</div>
+                    <div class="bullet-item">🏦 <strong>High-Yield Vault:</strong> Earn 33% APY compound staking rewards</div>
+                    <div class="bullet-item">📱 <strong>Cross-Platform:</strong> Seamless access via Android, Web, and PWA</div>
+                </div>
+
                 <div class="action-buttons">
-                    <a href="https://goldenpaw.dog" class="btn btn-primary">View Project</a>
+                    <a href="https://goldenpaw.dog" class="btn btn-primary" target="_blank" rel="noopener">Play on Web (Live) ↗</a>
+                    <a href="https://goldenpaw.dog/golden-paw.apk" class="btn btn-secondary" download>Download Android APK ↓</a>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- CONTACT / BUSINESS SECTION -->
     <section id="contact" class="contact">
         <div class="contact-box">
-            <h2>Business Inquiries</h2>
-            <p>Interested in collaborating, or have a business proposal? Our team is always open to new opportunities and partnerships.</p>
-            <a href="mailto:business@goldenpaw.dog" class="btn btn-primary">Email Our Team</a>
+            <span class="sub-badge">GET IN TOUCH</span>
+            <h2>Business & Partnerships</h2>
+            <p>
+                Interested in advertising partnerships, feature collaborations, or studio inquiries? We're always eager to connect with like-minded creators and partners in the Web3 and mobile gaming space.
+            </p>
             
-            <div class="social-links">
-                <p>Connect with us:</p>
-                <div class="social-icons">
-                    <a href="#" class="social-icon" title="X (Twitter)">𝕏</a>
-                    <a href="#" class="social-icon" title="Instagram">📸</a>
-                    <a href="#" class="social-icon" title="Facebook">📘</a>
+            <div class="contact-actions">
+                <a href="mailto:contact@goldenpaw.dog" class="btn btn-primary">contact@goldenpaw.dog</a>
+            </div>
+
+            <div class="studio-info-row">
+                <div class="info-item">
+                    <span class="info-label">Developer</span>
+                    <span class="info-val">Golden Paw Studios</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Official Website</span>
+                    <a href="https://goldenpaw.dog" class="info-val info-link">goldenpaw.dog</a>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Platform</span>
+                    <span class="info-val">Android & Web</span>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- FOOTER -->
     <footer>
-        <p>&copy; 2026 Golden Paw Studios. All rights reserved.</p>
-        <div class="footer-links">
-            <a href="/privacy.html">Privacy Policy</a>
-            <a href="/terms.html">Terms of Service</a>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <img src="studios_icon.png" alt="Golden Paw Studios" class="footer-icon">
+                <span>Golden Paw Studios</span>
+            </div>
+            <p class="copyright">&copy; 2026 Golden Paw Studios. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="/privacy.html">Privacy Policy</a>
+                <a href="/terms.html">Terms of Service</a>
+                <a href="https://goldenpaw.dog">Main App</a>
+            </div>
         </div>
     </footer>
 </body>
