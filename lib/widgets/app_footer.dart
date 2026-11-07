@@ -264,15 +264,6 @@ class AppFooter extends StatelessWidget {
                 tooltip: 'Follow us on TikTok (@goldenpawstudios)',
               ),
               IconButton(
-                icon: const Icon(Icons.email_rounded, color: Colors.amber),
-                onPressed: () {
-                  launchUrl(
-                    Uri.parse('mailto:goldenpaw.dogeadmin@gmail.com'),
-                  );
-                },
-                tooltip: 'Email Us (goldenpaw.dogeadmin@gmail.com)',
-              ),
-              IconButton(
                 icon: const Icon(Icons.facebook, color: Colors.blue),
                 onPressed: () {
                   launchUrl(
