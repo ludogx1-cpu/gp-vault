@@ -144,7 +144,27 @@ class ContactPage extends StatelessWidget {
                             Uri.parse('https://www.instagram.com/goldenpawdoge'),
                             mode: LaunchMode.externalApplication,
                           ),
-                          icon: const Icon(Icons.camera_alt, size: 16, color: Color(0xFFE1306C)),
+                          icon: Container(
+                            width: 18,
+                            height: 18,
+                            decoration: BoxDecoration(
+                              gradient: const RadialGradient(
+                                center: Alignment(-0.8, 0.8),
+                                radius: 1.2,
+                                colors: [
+                                  Color(0xFFFFDC80),
+                                  Color(0xFFF77737),
+                                  Color(0xFFFD1D1D),
+                                  Color(0xFFE1306C),
+                                  Color(0xFF833AB4),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Center(
+                              child: Icon(Icons.camera_alt, size: 12, color: Colors.white),
+                            ),
+                          ),
                           label: const Text("Instagram"),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: titleColor,

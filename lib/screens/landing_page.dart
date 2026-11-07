@@ -445,7 +445,27 @@ class _LandingPageState extends State<LandingPage> {
                       Uri.parse('https://www.instagram.com/goldenpawdoge'),
                       mode: LaunchMode.externalApplication,
                     ),
-                    icon: const Icon(Icons.camera_alt, size: 16, color: Color(0xFFE1306C)),
+                    icon: Container(
+                      width: 18,
+                      height: 18,
+                      decoration: BoxDecoration(
+                        gradient: const RadialGradient(
+                          center: Alignment(-0.8, 0.8),
+                          radius: 1.2,
+                          colors: [
+                            Color(0xFFFFDC80),
+                            Color(0xFFF77737),
+                            Color(0xFFFD1D1D),
+                            Color(0xFFE1306C),
+                            Color(0xFF833AB4),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Center(
+                        child: Icon(Icons.camera_alt, size: 12, color: Colors.white),
+                      ),
+                    ),
                     label: const Text("Instagram"),
                   ),
                   OutlinedButton.icon(
@@ -461,6 +481,19 @@ class _LandingPageState extends State<LandingPage> {
                     ),
                     icon: const Icon(Icons.tiktok, size: 16),
                     label: const Text("TikTok"),
+                  ),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: isDark ? Colors.white : Colors.black87,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                      side: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade400),
+                    ),
+                    onPressed: () => launchUrl(
+                      Uri.parse('mailto:goldenpaw.dogeadmin@gmail.com'),
+                    ),
+                    icon: const Icon(Icons.email_rounded, size: 16, color: Colors.amber),
+                    label: const Text("Email Us"),
                   ),
                 ],
               ),

@@ -206,8 +206,10 @@ class AppFooter extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 12,
+            runSpacing: 8,
             children: [
               IconButton(
                 icon: const Icon(Icons.close, color: Colors.white70),
@@ -220,7 +222,29 @@ class AppFooter extends StatelessWidget {
                 tooltip: 'Follow us on X (@ludogx101)',
               ),
               IconButton(
-                icon: const Icon(Icons.camera_alt, color: Color(0xFFE1306C)),
+                icon: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    gradient: const RadialGradient(
+                      center: Alignment(-0.8, 0.8),
+                      radius: 1.2,
+                      colors: [
+                        Color(0xFFFFDC80),
+                        Color(0xFFF77737),
+                        Color(0xFFF56040),
+                        Color(0xFFFD1D1D),
+                        Color(0xFFE1306C),
+                        Color(0xFFC13584),
+                        Color(0xFF833AB4),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.camera_alt, size: 15, color: Colors.white),
+                  ),
+                ),
                 onPressed: () {
                   launchUrl(
                     Uri.parse('https://www.instagram.com/goldenpawdoge'),
@@ -240,7 +264,7 @@ class AppFooter extends StatelessWidget {
                 tooltip: 'Follow us on TikTok (@goldenpawstudios)',
               ),
               IconButton(
-                icon: const Icon(Icons.mail, color: Colors.amber),
+                icon: const Icon(Icons.email_rounded, color: Colors.amber),
                 onPressed: () {
                   launchUrl(
                     Uri.parse('mailto:goldenpaw.dogeadmin@gmail.com'),
@@ -257,16 +281,6 @@ class AppFooter extends StatelessWidget {
                   );
                 },
                 tooltip: 'Follow us on Facebook',
-              ),
-              IconButton(
-                icon: const Icon(Icons.discord, color: Colors.indigo),
-                onPressed: () {
-                  launchUrl(
-                    Uri.parse('https://discord.com'),
-                    mode: LaunchMode.externalApplication,
-                  );
-                },
-                tooltip: 'Join our Discord',
               ),
             ],
           ),
