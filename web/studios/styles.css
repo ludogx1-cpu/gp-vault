@@ -511,6 +511,152 @@ nav {
   margin-bottom: 2.5rem;
 }
 
+.contact-email-wrapper {
+  margin-bottom: 2.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.email-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.05rem !important;
+  padding: 1rem 2.25rem !important;
+  word-break: break-all;
+}
+
+.btn-svg {
+  flex-shrink: 0;
+}
+
+/* SOCIAL CHANNELS SECTION */
+.social-channels-section {
+  margin-bottom: 3rem;
+  border-top: 1px solid var(--glass-border);
+  padding-top: 2.5rem;
+}
+
+.social-section-title {
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--primary-gold);
+  display: block;
+  margin-bottom: 1.5rem;
+}
+
+.social-pills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.25rem;
+}
+
+.social-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  text-decoration: none;
+  color: #FFF;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+}
+
+.social-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--glass-hover-border);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 193, 7, 0.1);
+}
+
+.social-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+  color: var(--primary-gold);
+  transition: all 0.3s ease;
+}
+
+.social-card:hover .social-icon-wrapper {
+  background: var(--primary-gold);
+  color: #0B0F19;
+  transform: scale(1.05);
+}
+
+.social-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.social-platform {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #FFF;
+  line-height: 1.2;
+}
+
+.social-handle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.social-arrow {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.social-card:hover .social-arrow {
+  color: var(--primary-gold);
+  transform: translate(2px, -2px);
+}
+
+/* FOOTER SOCIAL ICONS */
+.footer-social-icons {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.footer-social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.footer-social-btn:hover {
+  background: var(--primary-gold);
+  color: #0B0F19;
+  border-color: var(--primary-gold);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+}
+
 .studio-info-row {
   display: flex;
   justify-content: space-around;
