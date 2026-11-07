@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../src/theme_provider.dart';
 import '../widgets/widgets.dart';
 
@@ -90,12 +91,16 @@ class ContactPage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          Text(
-                            "goldenpaw.dogeadmin@gmail.com",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: titleColor,
+                          InkWell(
+                            onTap: () => launchUrl(Uri.parse('mailto:goldenpaw.dogeadmin@gmail.com')),
+                            child: Text(
+                              "goldenpaw.dogeadmin@gmail.com",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.amber.shade200 : Colors.blue.shade700,
+                                decoration: TextDecoration.underline,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -106,6 +111,71 @@ class ContactPage extends StatelessWidget {
                           ),
                         ],
                       ),
+                    ),
+                    const SizedBox(height: 25),
+                    Text(
+                      "Official Channels & Studios",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.amber : Colors.amber.shade700,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 12,
+                      runSpacing: 10,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: () => launchUrl(
+                            Uri.parse('https://x.com/ludogx101'),
+                            mode: LaunchMode.externalApplication,
+                          ),
+                          icon: const Icon(Icons.close, size: 16),
+                          label: const Text("X (@ludogx101)"),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: titleColor,
+                            side: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade400),
+                          ),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: () => launchUrl(
+                            Uri.parse('https://www.instagram.com/goldenpawdoge'),
+                            mode: LaunchMode.externalApplication,
+                          ),
+                          icon: const Icon(Icons.camera_alt, size: 16, color: Color(0xFFE1306C)),
+                          label: const Text("Instagram"),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: titleColor,
+                            side: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade400),
+                          ),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: () => launchUrl(
+                            Uri.parse('https://www.tiktok.com/@goldenpawstudios'),
+                            mode: LaunchMode.externalApplication,
+                          ),
+                          icon: const Icon(Icons.tiktok, size: 16),
+                          label: const Text("TikTok"),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: titleColor,
+                            side: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade400),
+                          ),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: () => launchUrl(
+                            Uri.parse('https://goldenpaw.dog/studios'),
+                            mode: LaunchMode.externalApplication,
+                          ),
+                          icon: const Icon(Icons.pets, size: 16, color: Colors.amber),
+                          label: const Text("Golden Paw Studios ↗"),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.amber,
+                            side: const BorderSide(color: Colors.amber),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 30),
                     ElevatedButton(

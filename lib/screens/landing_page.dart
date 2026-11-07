@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../src/theme_provider.dart';
 import '../widgets/trustpilot_widget.dart';
 import '../widgets/newsletter_subscribe_widget.dart';
@@ -299,9 +300,11 @@ class _LandingPageState extends State<LandingPage> {
             if (kIsWeb) const Bitcotasks468x60AdWidget(),
             const SizedBox(height: 50),
             const TrustpilotWidget(),
-            if (kIsWeb) const SizedBox(height: 80),
+            const SizedBox(height: 60),
+            _buildAboutStudiosSection(context),
+            if (kIsWeb) const SizedBox(height: 60),
             if (kIsWeb) const Bitcotasks300x600AdWidget(),
-            const SizedBox(height: 80),
+            const SizedBox(height: 60),
             const NewsletterSubscribeWidget(),
             const SizedBox(height: 50),
             const PwaInstallWidget(),
@@ -309,6 +312,162 @@ class _LandingPageState extends State<LandingPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildAboutStudiosSection(BuildContext context) {
+    final bool isMobile = MediaQuery.of(context).size.width < 600;
+
+    return ListenableBuilder(
+      listenable: themeProvider,
+      builder: (context, _) {
+        final isDark = themeProvider.isDarkMode;
+        final textColor = isDark ? Colors.white70 : Colors.black87;
+        final subtextColor = isDark ? Colors.white60 : Colors.black54;
+
+        return Container(
+          width: double.infinity,
+          constraints: const BoxConstraints(maxWidth: 880),
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          padding: EdgeInsets.all(isMobile ? 24 : 36),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF141926) : Colors.amber.shade50.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: isDark ? Colors.amber.withValues(alpha: 0.3) : Colors.amber.shade300,
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.amber.withValues(alpha: isDark ? 0.08 : 0.15),
+                blurRadius: 30,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(50),
+                  border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
+                ),
+                child: const Text(
+                  "✦ GOLDEN PAW STUDIOS ✦",
+                  style: TextStyle(
+                    color: Colors.amber,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 11,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "Our Vision & Community",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: isMobile ? 24 : 30,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "Golden Paw Studios is an independent game and app development studio with a passion for creating fun, rewarding, and easy-to-use mobile experiences.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: isMobile ? 15 : 17,
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                  height: 1.6,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                "Our flagship project, Golden Paw, brings together the joy of caring for a virtual pet with the opportunity to earn real Dogecoin through instant faucet rewards and automated crypto staking vaults.\n\nWe believe earning rewards should be simple, fair, and accessible to everyone. That's why we're focused on building experiences that don't require an upfront investment, put transparency first, and make Web3 more approachable.\n\nAt Golden Paw Studios, it's all about combining entertainment, real rewards, and a growing community of players who share our vision.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: isMobile ? 13 : 14,
+                  color: subtextColor,
+                  height: 1.6,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 12,
+                runSpacing: 10,
+                children: [
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.amber,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                      elevation: 4,
+                    ),
+                    onPressed: () => launchUrl(
+                      Uri.parse('https://goldenpaw.dog/studios'),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                    icon: const Icon(Icons.public, size: 18),
+                    label: const Text(
+                      "Visit Studios Website ↗",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: isDark ? Colors.white : Colors.black87,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                      side: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade400),
+                    ),
+                    onPressed: () => launchUrl(
+                      Uri.parse('https://x.com/ludogx101'),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                    icon: const Icon(Icons.close, size: 16),
+                    label: const Text("X (@ludogx101)"),
+                  ),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: isDark ? Colors.white : Colors.black87,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                      side: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade400),
+                    ),
+                    onPressed: () => launchUrl(
+                      Uri.parse('https://www.instagram.com/goldenpawdoge'),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                    icon: const Icon(Icons.camera_alt, size: 16, color: Color(0xFFE1306C)),
+                    label: const Text("Instagram"),
+                  ),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: isDark ? Colors.white : Colors.black87,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                      side: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade400),
+                    ),
+                    onPressed: () => launchUrl(
+                      Uri.parse('https://www.tiktok.com/@goldenpawstudios'),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                    icon: const Icon(Icons.tiktok, size: 16),
+                    label: const Text("TikTok"),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

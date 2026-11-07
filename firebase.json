@@ -167,6 +167,14 @@
         "destination": "/ads.txt"
       },
       {
+        "source": "/studios",
+        "destination": "/studios/index.html"
+      },
+      {
+        "source": "/studios/",
+        "destination": "/studios/index.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

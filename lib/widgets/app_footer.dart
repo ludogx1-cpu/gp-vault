@@ -64,6 +64,22 @@ class AppFooter extends StatelessWidget {
             runSpacing: 8,
             children: [
               TextButton(
+                onPressed: () {
+                  launchUrl(
+                    Uri.parse('https://goldenpaw.dog/studios'),
+                    mode: LaunchMode.externalApplication,
+                  );
+                },
+                child: const Text(
+                  "Golden Paw Studios",
+                  style: TextStyle(
+                    color: Colors.amber,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+              TextButton(
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const BlogPage()),
@@ -194,34 +210,63 @@ class AppFooter extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
-                icon: const Icon(Icons.discord, color: Colors.indigo),
-                onPressed: () {
-                  launchUrl(Uri.parse('https://discord.com'));
-                },
-                tooltip: 'Join our Discord',
-              ),
-              IconButton(
                 icon: const Icon(Icons.close, color: Colors.white70),
                 onPressed: () {
-                  launchUrl(Uri.parse('https://x.com/ludogx101'));
+                  launchUrl(
+                    Uri.parse('https://x.com/ludogx101'),
+                    mode: LaunchMode.externalApplication,
+                  );
                 },
-                tooltip: 'Follow us on X',
+                tooltip: 'Follow us on X (@ludogx101)',
+              ),
+              IconButton(
+                icon: const Icon(Icons.camera_alt, color: Color(0xFFE1306C)),
+                onPressed: () {
+                  launchUrl(
+                    Uri.parse('https://www.instagram.com/goldenpawdoge'),
+                    mode: LaunchMode.externalApplication,
+                  );
+                },
+                tooltip: 'Follow us on Instagram (@goldenpawdoge)',
+              ),
+              IconButton(
+                icon: const Icon(Icons.tiktok, color: Colors.white),
+                onPressed: () {
+                  launchUrl(
+                    Uri.parse('https://www.tiktok.com/@goldenpawstudios'),
+                    mode: LaunchMode.externalApplication,
+                  );
+                },
+                tooltip: 'Follow us on TikTok (@goldenpawstudios)',
+              ),
+              IconButton(
+                icon: const Icon(Icons.mail, color: Colors.amber),
+                onPressed: () {
+                  launchUrl(
+                    Uri.parse('mailto:goldenpaw.dogeadmin@gmail.com'),
+                  );
+                },
+                tooltip: 'Email Us (goldenpaw.dogeadmin@gmail.com)',
               ),
               IconButton(
                 icon: const Icon(Icons.facebook, color: Colors.blue),
                 onPressed: () {
                   launchUrl(
                     Uri.parse('https://www.facebook.com/GoldenPawDogeHub'),
+                    mode: LaunchMode.externalApplication,
                   );
                 },
                 tooltip: 'Follow us on Facebook',
               ),
               IconButton(
-                icon: const Icon(Icons.tiktok, color: Colors.white),
+                icon: const Icon(Icons.discord, color: Colors.indigo),
                 onPressed: () {
-                  launchUrl(Uri.parse('https://www.tiktok.com/@ludogx1'));
+                  launchUrl(
+                    Uri.parse('https://discord.com'),
+                    mode: LaunchMode.externalApplication,
+                  );
                 },
-                tooltip: 'Follow us on TikTok',
+                tooltip: 'Join our Discord',
               ),
             ],
           ),
