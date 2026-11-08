@@ -4,6 +4,7 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'app_router.dart';
+import 'widgets/age_gate.dart';
 import 'src/theme_provider.dart';
 import 'src/firebase_service.dart';
 import 'src/admob_service.dart';
@@ -45,7 +46,7 @@ void main() async {
           theme: theme.lightTheme,
           darkTheme: theme.darkTheme,
           themeMode: theme.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          builder: (context, child) => child ?? const SizedBox.shrink(),
+          builder: (context, child) => AgeGate(child: child ?? const SizedBox.shrink()),
         ),
       ),
     ),

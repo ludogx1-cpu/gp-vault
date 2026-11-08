@@ -43,12 +43,12 @@ MIT
 
 #### **Summary** (Required)
 ```text
-Earn DOGE, care for your virtual Shiba Inu pet, and grow your staking vault.
+Raise a virtual Shiba Inu pet and collect small DOGE rewards. 18+. Just for fun.
 ```
 
 #### **Description** (Required)
 ```markdown
-Welcome to Golden Paw — the ultimate Dogecoin faucet, staking vault, and virtual Shiba Inu companion ecosystem!
+Welcome to Golden Paw — a virtual Shiba Inu pet game for adults (18+), with small Dogecoin rewards along the way!
 
 🐾 RAISE YOUR VIRTUAL SHIBA INU
 • Adopt your very own digital Shiba Inu companion.
@@ -59,13 +59,12 @@ Welcome to Golden Paw — the ultimate Dogecoin faucet, staking vault, and virtu
 🪙 DOGECOIN FAUCET & REWARDS
 • Claim DOGE directly from the faucet at regular intervals.
 • Daily check-in bonuses and milestone multiplier rewards.
-• Complete quick tasks and offerwalls to supercharge your earnings.
+• Complete optional tasks and offerwalls for extra rewards.
 • Clean, transparent transactions with fast payouts.
 
-🔒 THE GOLDEN VAULT & STAKING
-• Stake your DOGE in The Vault to earn competitive daily interest yields.
-• Flexible compounding options to grow your holdings over time.
-• Live yield calculations and transparent staking analytics.
+🎁 THE BONUS VAULT
+• A just-for-fun game feature: move DOGE you've collected from playing into the Bonus Vault and a small bonus builds up.
+• You can't deposit your own money. Bonuses are not interest, are not guaranteed, and may change.
 ```
 
 ---

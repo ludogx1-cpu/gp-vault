@@ -195,7 +195,7 @@ class _LandingPageState extends State<LandingPage> {
                     listenable: themeProvider,
                     builder: (context, child) {
                       return Text(
-                        "Golden Paw is a crypto-reward application designed to help you earn and grow Dogecoin. Our purpose is to provide a fun, zero-investment platform where users can claim free DOGE every 5 minutes, stake earnings in our 33% APY Vault, and raise a virtual pet.\n\nBy signing in with your Google account, you can securely save your balance, protect your progress, and access your account across all your devices.",
+                        "Golden Paw is a virtual pet game for adults (18+). Raise your own Shiba, keep up your daily streak, and collect small Dogecoin rewards as you play. No purchase or deposit needed. Golden Paw is entertainment, not a way to make money, and nothing here is financial advice.\n\nBy signing in with your Google account, you can securely save your balance, protect your progress, and access your account across all your devices.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: isMobile ? 16 : 18,
@@ -270,21 +270,21 @@ class _LandingPageState extends State<LandingPage> {
                   icon: Icons.water_drop,
                   title: "Instant Faucet",
                   desc:
-                      "Visit every 5 minutes to claim free Dogecoin. No hidden limits, just pure rewards.",
+                      "Pop back every 5 minutes to collect a small Dogecoin reward while you play.",
                   color: Colors.blue,
                 ),
                 FeatureCard(
                   icon: Icons.bolt,
-                  title: "The Vault Staking",
+                  title: "Bonus Vault",
                   desc:
-                      "Lock your Doge in The Vault and earn 33% APY interest, calculated every single second.",
+                      "Park the DOGE you've collected from playing in the Bonus Vault and watch a small game bonus build up. No deposits. Bonuses are not interest and can change.",
                   color: Colors.green,
                 ),
                 FeatureCard(
                   icon: Icons.group_add,
                   title: "20% Referrals",
                   desc:
-                      "Invite your friends and earn 20% of every claim they make, for life. Passive income simplified.",
+                      "Invite friends and get a 20% bonus on the rewards they collect. Just for fun.",
                   color: Colors.purple,
                 ),
                 FeatureCard(

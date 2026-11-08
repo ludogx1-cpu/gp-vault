@@ -21,7 +21,7 @@ class StakingHeader extends StatelessWidget {
         Image.asset('assets/Bank.png', height: 100, width: 100),
         const SizedBox(height: 15),
         Text(
-          "Earn 33% APY on your DOGE",
+          "Bonus Vault",
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
@@ -58,7 +58,7 @@ class StakingHeader extends StatelessWidget {
               ),
               const SizedBox(width: 5),
               Text(
-                "Interest paid every second",
+                "A small game bonus on rewards you collected. Not interest.",
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -88,7 +88,7 @@ class StakingHeader extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  "Available Stakable Balance",
+                  "Rewards available to add",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: isDark
@@ -139,7 +139,7 @@ class StakingHeader extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(left: 8.0),
             child: Text(
-              "⚠️ Note: Offerwall rewards cannot be staked.",
+              "⚠️ Note: Offerwall rewards can't be added to the Bonus Vault.",
               style: TextStyle(
                 fontSize: 11,
                 color: isDark ? Colors.white54 : Colors.grey,

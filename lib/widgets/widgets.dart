@@ -15,6 +15,7 @@ export 'page_with_footer.dart';
 export 'platform_indicator_level_text.dart';
 export 'ptc_timer_dialog.dart';
 export 'root_gatekeeper.dart';
+export 'age_gate.dart';
 export 'smart_fallback_ad.dart';
 export 'square_ad_placeholder.dart';
 

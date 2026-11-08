@@ -37,7 +37,7 @@ class HarvestCard extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                "Total Staked (Principal)",
+                "In the Bonus Vault",
                 style: TextStyle(
                   fontSize: 14,
                   color: isDark ? Colors.white : Colors.black87,
@@ -51,7 +51,7 @@ class HarvestCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                "💡 The more you stake, the faster your yield ticks up!",
+                "💡 Bonuses are part of the game and can change at any time.",
                 style: TextStyle(
                   fontSize: 12,
                   color: isDark
@@ -73,7 +73,7 @@ class HarvestCard extends StatelessWidget {
                     size: 16,
                   ),
                   label: const Text(
-                    "HARVEST REWARDS",
+                    "COLLECT BONUS",
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

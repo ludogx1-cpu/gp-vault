@@ -44,7 +44,7 @@ class _StakingPageState extends State<StakingPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              data['message'] ?? "Successfully Harvested Interest! 🌾",
+              data['message'] ?? "Bonus collected! 🌾",
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             backgroundColor: Colors.green,
@@ -82,7 +82,7 @@ class _StakingPageState extends State<StakingPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              data['message'] ?? "Successfully staked $amountToStake DOGE! 🐾",
+              data['message'] ?? "Added $amountToStake DOGE to the Bonus Vault! 🐾",
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             backgroundColor: Colors.green,
@@ -126,7 +126,7 @@ class _StakingPageState extends State<StakingPage> {
           SnackBar(
             content: Text(
               data['message'] ??
-                  "Successfully unstaked $amountToUnstake DOGE! 🔓",
+                  "Took $amountToUnstake DOGE out of the Bonus Vault 🔓",
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             backgroundColor: Colors.blue,

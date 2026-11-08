@@ -137,8 +137,8 @@ final partnerList = [
   ),
   PartnerData(
     "Honeygain",
-    "Earn passive income by sharing unused internet bandwidth.",
-    "Passive Income",
+    "Get small rewards for sharing unused internet bandwidth.",
+    "Bandwidth Sharing",
     Icons.wifi_tethering,
     Colors.blueAccent,
     "https://join.honeygain.com/LUDOG88986",
@@ -146,8 +146,8 @@ final partnerList = [
   ),
   PartnerData(
     "EarnApp",
-    "Earn passive income by securely sharing your unused internet bandwidth.",
-    "Passive Income",
+    "Get small rewards for sharing your unused internet bandwidth.",
+    "Bandwidth Sharing",
     Icons.wifi_tethering,
     Colors.green,
     "https://earnapp.com/i/kFQACykZ",

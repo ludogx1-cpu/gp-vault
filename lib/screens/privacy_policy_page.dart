@@ -49,7 +49,8 @@ class PrivacyPolicyPage extends StatelessWidget {
                     const SizedBox(height: 15),
                     Text(
                       "1. Data We Collect\nWhen you register, we collect your email address. When you withdraw, we collect your FaucetPay linked Dogecoin address.\n\n"
-                      "2. Third-Party Services\nWe utilize Google Firebase for secure authentication and database management. We use Cloudflare and hCaptcha for bot mitigation.",
+                      "2. Third-Party Services\nWe utilize Google Firebase for secure authentication and database management. We use Cloudflare and hCaptcha for bot mitigation.\n\n"
+                      "3. Age\nGolden Paw is only for people aged 18 and over. We do not knowingly collect data from anyone under 18. If you believe someone under 18 has an account, contact us and we will delete it.",
                       style: TextStyle(
                         fontSize: 14,
                         height: 1.6,

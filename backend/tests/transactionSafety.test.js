@@ -8,7 +8,7 @@ const { admin } = require('../src/services/firebaseService');
 const { faucetPaySend } = require('../src/services/faucetPayService');
 const { withdraw, settleWithdrawal } = require('../src/services/withdrawalService');
 const { releasePendingOffers } = require('../src/services/offerwallCronService');
-const { bankWithdraw } = require('../src/services/faucetService');
+const { bankWithdraw, bankTransfer } = require('../src/services/faucetService');
 let db;
 beforeEach(() => {
   db = memoryFirestore();
@@ -71,9 +71,13 @@ test('concurrent Vault withdrawal requests cannot both send', async () => {
   expect(results.filter(result => result.status === 'fulfilled')).toHaveLength(1);
   expect(faucetPaySend).toHaveBeenCalledTimes(1);
 });
-test('offerwall payment pause remains unconditional', async () => {
-  await expect(bankWithdraw(user, 'address', 1)).rejects.toThrow('temporarily disabled');
+test('offerwall and Bank payment pause remains unconditional', async () => {
+  await expect(bankWithdraw(user, 'address', 1)).rejects.toThrow('temporarily paused');
   expect(faucetPaySend).not.toHaveBeenCalled();
+});
+test('closed Bank accepts no new transfers', async () => {
+  await expect(bankTransfer(user, 'vault', 1)).rejects.toThrow('no longer accepts transfers');
+  expect(db.rows.get('users/u1').doge_balance).toBe(5);
 });
 
 function offer(id, days = 8) {

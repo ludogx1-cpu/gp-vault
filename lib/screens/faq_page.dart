@@ -67,7 +67,7 @@ class FAQPage extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.all(15),
                             child: Text(
-                              "Golden Paw is a premier Dogecoin reward platform and advertising network. Users can earn free DOGE by claiming from our faucet or viewing sponsored PTC (Paid-To-Click) ads. Advertisers can purchase high-quality crypto traffic.",
+                              "Golden Paw is a virtual pet game for adults (18+) with small Dogecoin rewards. You can collect rewards from the faucet or by viewing sponsored ads. Golden Paw is entertainment, not an investment, and rewards are not a way to make money. The value of DOGE goes up and down.",
                               style: TextStyle(color: textColor),
                             ),
                           ),
@@ -111,14 +111,14 @@ class FAQPage extends StatelessWidget {
                         collapsedIconColor: titleColor,
                         iconColor: titleColor,
                         title: Text(
-                          "How does Staking work?",
+                          "How does the Bonus Vault work?",
                           style: TextStyle(fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black87),
                         ),
                         children: [
                           Padding(
                             padding: const EdgeInsets.all(15),
                             child: Text(
-                              "You can lock your available DOGE into the Vault to earn a 33% Annual Percentage Yield (APY). Interest is calculated and distributed every single second.",
+                              "The Bonus Vault is a game feature. You can move DOGE you've collected from playing into it and a small bonus builds up over time. You can't deposit your own money into it. The bonus is not interest, is not guaranteed, and we may change or end it at any time.",
                               style: TextStyle(color: textColor),
                             ),
                           ),

@@ -64,7 +64,7 @@ class WelcomeBanner extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      "•  Enter your Dogecoin address below and claim your free Doge instantly to FaucetPay.",
+                      "•  Enter your Dogecoin address below and collect your small DOGE reward to FaucetPay.",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,

@@ -1,4 +1,4 @@
-Welcome to Golden Paw — the ultimate Dogecoin faucet, staking vault, and virtual Shiba Inu companion ecosystem!
+Welcome to Golden Paw — a virtual Shiba Inu pet game for adults (18+), with small Dogecoin rewards along the way!
 
 🐾 RAISE YOUR VIRTUAL SHIBA INU
 • Adopt your very own digital Shiba Inu companion.
@@ -10,13 +10,12 @@ Welcome to Golden Paw — the ultimate Dogecoin faucet, staking vault, and virtu
 🪙 DOGECOIN FAUCET & REWARDS
 • Claim DOGE directly from the faucet at regular intervals.
 • Daily check-in bonuses and milestone multiplier rewards.
-• Complete quick tasks and offerwalls to supercharge your earnings.
+• Complete optional tasks and offerwalls for extra rewards.
 • Clean, transparent transactions with fast payouts to FaucetPay and personal Dogecoin wallets.
 
-🔒 THE GOLDEN VAULT & STAKING
-• Stake your DOGE in The Vault to earn competitive daily interest yields.
-• Flexible compounding options to grow your holdings over time.
-• Live yield calculations and transparent staking performance analytics.
+🎁 THE BONUS VAULT
+• A just-for-fun game feature: move DOGE you've collected from playing into the Bonus Vault and a small bonus builds up.
+• You can't deposit your own money. Bonuses are not interest, are not guaranteed, and may change.
 
 ✨ FEATURES AT A GLANCE
 • Seamless multi-platform synchronization across Android, Web, and Mobile.
@@ -24,4 +23,6 @@ Welcome to Golden Paw — the ultimate Dogecoin faucet, staking vault, and virtu
 • Community leaderboards, achievements, and social quests.
 • Safe, lightweight, and modern Flutter interface.
 
-Join the Golden Paw community today, raise your Shiba, and watch your Dogecoin rewards grow!
+Join the Golden Paw community and raise your Shiba!
+
+⚠️ Golden Paw is entertainment for players aged 18+. Rewards are small and are not a way to make money. Golden Paw does not take deposits, is not an investment and is not authorised by the FCA. The value of Dogecoin can go down as well as up. Nothing in this app is financial advice.

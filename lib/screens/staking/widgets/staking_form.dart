@@ -35,7 +35,7 @@ class StakingForm extends StatelessWidget {
             color: isDark ? Colors.white : Colors.black,
           ),
           decoration: InputDecoration(
-            labelText: 'Principal Amount to Stake / Unstake',
+            labelText: 'Amount to add / take out',
             labelStyle: TextStyle(
               color: isDark ? Colors.white70 : null,
             ),
@@ -55,7 +55,7 @@ class StakingForm extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                   ),
                   child: const Text(
-                    "MAX STAKE",
+                    "ADD ALL",
                     style: TextStyle(
                       color: Colors.green,
                       fontWeight: FontWeight.bold,
@@ -72,7 +72,7 @@ class StakingForm extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                   ),
                   child: const Text(
-                    "MAX UNSTAKE",
+                    "TAKE OUT ALL",
                     style: TextStyle(
                       color: Colors.amber,
                       fontWeight: FontWeight.bold,
@@ -122,7 +122,7 @@ class StakingForm extends StatelessWidget {
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text("Please enter a valid amount to stake."),
+                                content: Text("Please enter a valid amount to add."),
                               ),
                             );
                           }
@@ -166,7 +166,7 @@ class StakingForm extends StatelessWidget {
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text("Please enter a valid amount to unstake."),
+                                content: Text("Please enter a valid amount to take out."),
                               ),
                             );
                           }
@@ -177,7 +177,7 @@ class StakingForm extends StatelessWidget {
                     size: 18,
                   ),
                   label: Text(
-                    "UNSTAKE",
+                    "TAKE OUT",
                     style: TextStyle(
                       color: isDark ? Colors.white : Colors.black87,
                       fontWeight: FontWeight.bold,

@@ -33,7 +33,7 @@ router.post('/harvest', verifyFirebaseToken, async (req, res) => {
     if (!req.user) return res.status(401).json({ success: false, error: 'Authentication required' });
     
     const harvestedAmount = await stakingService.harvest(req.user);
-    res.json({ success: true, message: 'Successfully Harvested Interest!', harvestedAmount });
+    res.json({ success: true, message: 'Bonus collected!', harvestedAmount });
   } catch (error) {
     console.error('Harvest error:', error.message);
     res.status(400).json({ success: false, error: error.message });

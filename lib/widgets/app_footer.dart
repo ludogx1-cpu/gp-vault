@@ -306,6 +306,12 @@ class AppFooter extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               const Text(
+                "18+ only. Golden Paw is entertainment, not an investment. No deposits. Not authorised by the FCA. Not financial advice. Crypto values can go down as well as up.",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 11, color: Colors.white54),
+              ),
+              const SizedBox(height: 4),
+              const Text(
                 "Google is a trademark of Google LLC.",
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 11, color: Colors.white38),

@@ -31,32 +31,6 @@ async function processWeeklyReset() {
   const usersRef = admin.firestore().collection('users');
   const snapshot = await usersRef.where('weekly_time_above_40', '>', 0).get();
   
-  const AI_USERNAMES = [
-    "DogeLover99", "CryptoKing", "MoonWalker", "ShibaFanatic", 
-    "DiamondHands", "FaucetHunter", "GoldenPawPro", "SatoshiN", 
-    "Hodler4Life", "MuchWow"
-  ];
-
-  function seededRandom(seed) {
-      let t = seed += 0x6D2B79F5;
-      t = Math.imul(t ^ t >>> 15, t | 1);
-      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-      return ((t ^ t >>> 14) >>> 0) / 4294967296;
-  }
-
-  const aiBots = [];
-  const hoursSinceReset = 168; // 1 week
-  for (let i = 0; i < AI_USERNAMES.length; i++) {
-     const name = AI_USERNAMES[i];
-     const efficiency = 0.10 + (seededRandom(i) * 0.30); // 0.10 to 0.40
-     const score = Math.floor(hoursSinceReset * efficiency);
-     aiBots.push({
-       uid: `ai_bot_${i}`,
-       username: name,
-       weekly_time_above_40: score,
-       is_ai: true
-     });
-  }
 
   const realUsers = [];
   snapshot.forEach(doc => {
@@ -72,7 +46,7 @@ async function processWeeklyReset() {
     });
   });
 
-  const combined = [...realUsers, ...aiBots];
+  const combined = realUsers;
   combined.sort((a, b) => b.weekly_time_above_40 - a.weekly_time_above_40);
 
   // Distribute prizes to top 5

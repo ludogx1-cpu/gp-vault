@@ -497,21 +497,20 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     } else if (avgStats >= 30 && avgStats < 75) {
       const gpInfo = [
         "Did you know? You get 20% of your friends' claims for life!",
-        "Boop my nose every 30 mins for free DOGE!",
+        "Boop my nose every 30 mins for a little DOGE bonus!",
         "Check the Updates Board to stay informed.",
-        "You can stake DOGE in The Vault for 33% APY!",
+        "Have you checked the Bonus Vault?",
         "Don't forget to walk me every 3 hours.",
       ];
       text = gpInfo[_random.nextInt(gpInfo.length)];
     } else {
       const cryptoInfo = [
-        "Crypto Tip: Diversify your portfolio!",
-        "Remember to do your own research (DYOR) before investing.",
+                "Remember to do your own research (DYOR) before investing.",
         "Dogecoin was created in 2013 as a joke!",
         "Never invest more than you can afford to lose.",
-        "Golden Paw is the best place to earn crypto in 2026!",
-        "Keep holding! Diamond hands 💎🐾",
-        "Market moving? Stay calm and earn passive income.",
+        "Golden Paw is a game first. Play for fun!",
+        "Take a break if you need one. I'll be here! 🐾",
+        "Crypto prices go up AND down. Never risk money you need.",
       ];
       text = cryptoInfo[_random.nextInt(cryptoInfo.length)];
     }

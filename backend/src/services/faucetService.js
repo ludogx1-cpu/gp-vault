@@ -227,40 +227,14 @@ async function claimVault(user) {
 }
 
 async function bankWithdraw(user, address, amount) {
-  throw new Error('Offerwall withdrawals are temporarily disabled while we configure backend systems. Please check the notice board for updates.');
+  throw new Error('Offerwall and Bank withdrawals are temporarily paused until offerwall partner payouts are set up. Please check the updates board.');
 }
 
+// The Doge Bank no longer accepts deposits or transfers: Golden Paw does not
+// store DOGE for players. Existing Bank balances stay recorded and are paid
+// out alongside offerwall rewards once those payouts reopen.
 async function bankTransfer(user, source, amount) {
-  if (!['vault', 'offerwall'].includes(source)) throw new Error('Invalid transfer source');
-  
-  const transferAmount = Number(amount);
-  if (!Number.isFinite(transferAmount) || transferAmount <= 0) throw new Error('Invalid transfer amount');
-
-  const userRef = admin.firestore().collection('users').doc(user.uid);
-
-  const txResult = await admin.firestore().runTransaction(async (transaction) => {
-    const snapshot = await transaction.get(userRef);
-    if (!snapshot.exists) throw new Error('User profile not found');
-    const data = snapshot.data();
-    const currentBankBalance = Number(data.bank_balance || 0);
-
-    let updates = {};
-    if (source === 'vault') {
-      const vaultBalance = Number(data.doge_balance || 0);
-      if (vaultBalance < transferAmount) throw new Error('Insufficient Vault balance for this transfer.');
-      updates = { doge_balance: vaultBalance - transferAmount, bank_balance: currentBankBalance + transferAmount };
-    } else if (source === 'offerwall') {
-      const offerwallBalance = Number(data.offerwall_balance || 0);
-      if (offerwallBalance < transferAmount) throw new Error('Insufficient Offerwall balance for this transfer.');
-      updates = { offerwall_balance: offerwallBalance - transferAmount, bank_balance: currentBankBalance + transferAmount };
-    }
-    transaction.update(userRef, updates);
-    return { data, updates };
-  });
-
-  if (txResult) syncUserBalances(user.uid, txResult.data, txResult.updates).catch(console.error);
-
-  return 'Transfer successful';
+  throw new Error('The Doge Bank no longer accepts transfers.');
 }
 
 async function claimBonusSponsor(user, captcha_token, captcha_provider) {

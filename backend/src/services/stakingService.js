@@ -43,7 +43,7 @@ async function stake(user, amount) {
 
   if (txResult) syncUserBalances(user.uid, txResult.data, txResult.updates).catch(console.error);
 
-  return `Successfully staked ${amountToStake} DOGE`;
+  return `Added ${amountToStake} DOGE to the Bonus Vault`;
 }
 
 async function unstake(user, amount) {
@@ -65,7 +65,7 @@ async function unstake(user, amount) {
     const stakeTime = data.stake_timestamp;
 
     if (currentStaked < amountToUnstake) {
-      throw new Error('Not enough Staked DOGE to unstake');
+      throw new Error('Not enough DOGE in the Bonus Vault');
     }
 
     const pendingInterest = calculatePendingInterest(currentStaked, stakeTime);
@@ -91,7 +91,7 @@ async function unstake(user, amount) {
     await logRewardEvent(user.uid, 'staking_yield', finalPendingInterest, { type: 'auto_harvest' });
   }
 
-  return `Successfully unstaked ${amountToUnstake} DOGE`;
+  return `Took ${amountToUnstake} DOGE out of the Bonus Vault`;
 }
 
 async function harvest(user) {
@@ -109,7 +109,7 @@ async function harvest(user) {
 
     harvested = calculatePendingInterest(currentStaked, stakeTime);
     if (harvested <= 0) {
-      throw new Error('No interest to harvest yet!');
+      throw new Error('No bonus to collect yet!');
     }
 
     let history = data.reward_history || [];

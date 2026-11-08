@@ -13,7 +13,6 @@ const chatRoutes = require('./src/routes/chatRoutes');
 const leaderboardRoutes = require('./src/routes/leaderboardRoutes');
 const emailRoutes = require('./src/routes/emailRoutes');
 const promoRoutes = require('./src/routes/promoRoutes');
-const { startAiChatService } = require('./src/services/aiChatService');
 const { startWeeklyResetService } = require('./src/services/weeklyResetService');
 const { startPromoCronService } = require('./src/services/promoCronService');
 const { startPetCronService } = require('./src/services/petCronService');
@@ -145,7 +144,6 @@ app.use('/', promoRoutes);
 if (require.main === module) {
   const port = process.env.PORT || 3000;
   
-  startAiChatService(); // Start the AI Chat bots
   startWeeklyResetService(); // Start the Weekly Leaderboard Reset Service
   startPromoCronService(); // Start the Daily Promo Cron
   startPetCronService(); // Start the Pet Care Reminder Cron
