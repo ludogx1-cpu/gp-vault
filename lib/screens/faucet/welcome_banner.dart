@@ -76,7 +76,7 @@ class WelcomeBanner extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      "• Optionally toggle the switch to Hold it and move it to the Staking pool to earn passive rewards.",
+                      "• Or flip the switch to keep your rewards in your Golden Paw Vault instead, and withdraw them later.",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
