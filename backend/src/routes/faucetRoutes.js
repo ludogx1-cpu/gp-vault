@@ -24,11 +24,11 @@ router.post('/send-doge', faucetLimiter, verifyFirebaseToken, async (req, res) =
   }
 });
 
-router.post('/claim-vault', verifyFirebaseToken, async (req, res) => {
+router.post('/claim-vault', faucetLimiter, verifyFirebaseToken, async (req, res) => {
   try {
     if (!req.user) return res.status(401).json({ success: false, error: 'Authentication required for vault claim' });
-    
-    const result = await faucetService.claimVault(req.user);
+
+    const result = await faucetService.claimVault(req.user, req.body.captcha_token, req.body.captcha_provider);
     res.json({ success: true, message: 'Vault claim verified. Your reward has been recorded.', ...result });
   } catch (error) {
     console.error('claim-vault error:', error.message);

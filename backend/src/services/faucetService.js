@@ -120,7 +120,14 @@ async function sendDoge(user, address, captcha_token, captcha_provider, source) 
   };
 }
 
-async function claimVault(user) {
+async function claimVault(user, captcha_token, captcha_provider) {
+  try {
+    await verifyCaptcha(user.uid, captcha_token, captcha_provider);
+  } catch (captchaError) {
+    captchaError.statusCode = 400;
+    throw captchaError;
+  }
+
   const userRef = admin.firestore().collection('users').doc(user.uid);
   const now = admin.firestore.Timestamp.now();
   const cooldownMs = 5 * 60 * 1000;

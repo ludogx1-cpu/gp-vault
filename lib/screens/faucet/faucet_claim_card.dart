@@ -307,7 +307,10 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
             .post(
               Uri.parse('${ApiConstants.baseUrl}/claim-vault'),
               headers: await getAuthHeaders(),
-              body: jsonEncode({}),
+              body: jsonEncode({
+                "captcha_token": _captchaToken,
+                "captcha_provider": _selectedCaptcha,
+              }),
             )
             .timeout(const Duration(seconds: 60));
 

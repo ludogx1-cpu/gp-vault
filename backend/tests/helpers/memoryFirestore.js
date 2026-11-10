@@ -23,6 +23,7 @@ function memoryFirestore() {
           ref.update = async updates => apply(ref, updates);
           ref.set = async updates => apply(ref, updates, true);
           ref.delete = async () => rows.delete(ref.path);
+          ref.collection = sub => db.collection(`${ref.path}/${sub}`);
           return ref;
         },
         async add(data) { const ref = collection.doc(); await ref.set(data); return ref; },
