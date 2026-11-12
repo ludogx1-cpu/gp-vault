@@ -37,21 +37,13 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
 
   // Generates the personalized, cryptographically tracked wall link for each user
   String getOfferwallUrl(String provider, String uid) {
-    if (provider == "MONLIX") {
-      // ⚠️ Replace 'YOUR_MONLIX_ID' with your real API ID from your Monlix account
-      return "https://offers.monlix.com/wall?appid=YOUR_MONLIX_ID&userid=$uid";
-    }
-    if (provider == "LOOTABLY") {
-      // ⚠️ Replace 'YOUR_LOOTABLY_ID' with your real API ID from your Lootably account
-      return "https://wall.lootably.com/web/YOUR_LOOTABLY_ID/$uid";
-    }
     if (provider == "BITCOTASKS") {
       return "https://bitcotasks.com/offerwall/6xwmdur28o2s2jx3y4nj4ldt6jx5u9/$uid";
     }
     if (provider == "TIMEWALL") {
       return "https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=$uid";
     }
-    return "https://google.com"; // Fallback placeholder
+    return "about:blank";
   }
 
   @override
@@ -239,54 +231,6 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Row(
-                  children: [
-                    // Monlix Selection Button
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: selectedNetwork == "MONLIX"
-                              ? Colors.orange
-                              : Colors.grey.shade200,
-                          foregroundColor: selectedNetwork == "MONLIX"
-                              ? Colors.white
-                              : Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                        ),
-                        icon: const Icon(Icons.rocket_launch),
-                        label: const Text(
-                          "Monlix Engine",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        onPressed: () =>
-                            setState(() => selectedNetwork = "MONLIX"),
-                      ),
-                    ),
-                    const SizedBox(width: 15),
-                    // Lootably Selection Button
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: selectedNetwork == "LOOTABLY"
-                              ? Colors.purple
-                              : Colors.grey.shade200,
-                          foregroundColor: selectedNetwork == "LOOTABLY"
-                              ? Colors.white
-                              : Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                        ),
-                        icon: const Icon(Icons.flash_on),
-                        label: const Text(
-                          "Lootably Core",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        onPressed: () =>
-                            setState(() => selectedNetwork = "LOOTABLY"),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 15),
                 Row(
                   children: [
                     // BitcoTasks Selection Button

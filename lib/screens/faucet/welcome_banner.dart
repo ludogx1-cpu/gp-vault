@@ -51,7 +51,7 @@ class WelcomeBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  "We make earning crypto simple. Whether you are here to grab some quick Dogecoin or want to build a long-term balance, you are in the right place.",
+                  "Welcome to Golden Paw! Look after your Shiba, play the mini games and collect small Dogecoin rewards along the way. It's just for fun, not a way to make money.",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,

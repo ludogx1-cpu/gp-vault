@@ -164,7 +164,7 @@ class MainScaffold extends StatelessWidget {
             icon: Icon(Icons.water_drop),
             label: 'Faucet',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: 'Staking'),
+          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: 'Bonus Vault'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
         ],
       ),

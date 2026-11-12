@@ -140,7 +140,7 @@ class _AccountPageState extends State<AccountPage> {
                                             size: 28,
                                           ),
                                           title: Text(
-                                            "Earn Staking Rewards",
+                                            "Bonus Vault",
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               color: isDark
@@ -150,7 +150,7 @@ class _AccountPageState extends State<AccountPage> {
                                             ),
                                           ),
                                           subtitle: Text(
-                                            "Lock your saved Doge in the Vault to earn daily interest.",
+                                            "Put saved Doge in the Bonus Vault to collect a small game bonus. The rate can change at any time.",
                                             style: TextStyle(
                                               color: isDark
                                                   ? Colors.white70

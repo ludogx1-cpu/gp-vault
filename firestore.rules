@@ -91,6 +91,20 @@ service cloud.firestore {
       allow write: if false; // Only the Python script (Firebase Admin) can write
     }
 
+    // Suggestion Box: signed-in users can submit; only the Admin SDK can read
+    match /suggestions/{docId} {
+      allow read, update, delete: if false;
+      allow create: if isAuth()
+                    && request.resource.data.keys().hasOnly(['uid', 'email', 'suggestion', 'timestamp'])
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.suggestion is string
+                    && request.resource.data.suggestion.size() > 0
+                    && request.resource.data.suggestion.size() <= 2000
+                    && (request.resource.data.get('email', null) == null
+                        || (request.resource.data.email is string && request.resource.data.email.size() <= 320))
+                    && request.resource.data.timestamp == request.time;
+    }
+
     // Reward Audits Collection
     match /reward_audits/{docId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;

@@ -139,7 +139,7 @@ class FaucetStatsCard extends StatelessWidget {
                             
                             const SizedBox(height: 12),
                             Text(
-                              "Your +${totalBonusPercent.toStringAsFixed(0)}% boost is automatically applied to all Faucet claims, PTC ads, and Staking yields!",
+                              "Your +${totalBonusPercent.toStringAsFixed(0)}% boost is automatically applied to all Faucet claims, PTC ads, and Bonus Vault rewards!",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: secondaryTextColor,

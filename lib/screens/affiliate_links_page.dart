@@ -83,7 +83,7 @@ final partnerList = [
   ),
   PartnerData(
     "Contract-Miner",
-    "Virtual cloud mining simulator. Earn real crypto passively.",
+    "Virtual cloud mining simulator game.",
     "Simulated Cloud Mining",
     Icons.cloud_sync,
     Colors.indigo,

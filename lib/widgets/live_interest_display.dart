@@ -120,7 +120,7 @@ class _LiveInterestDisplayState extends State<LiveInterestDisplay> {
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  "+ ${_liveInterest.toStringAsFixed(10)} Pending Yield",
+                  "+ ${_liveInterest.toStringAsFixed(10)} Pending Bonus",
                   style: TextStyle(
                     fontSize: 13,
                     color: isDark ? Colors.greenAccent : Colors.black87,

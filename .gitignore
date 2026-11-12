@@ -69,3 +69,6 @@ web/*.exe
 
 # Chrome extension build output
 chrome_extension/dist/
+
+# One-off admin scripts touch production data and user details; keep them local
+backend/scripts/

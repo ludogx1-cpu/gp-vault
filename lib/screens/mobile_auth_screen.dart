@@ -28,10 +28,12 @@ class _MobileAuthScreenState extends State<MobileAuthScreen> {
 
   Future<void> _loadPrefs() async {
     final prefs = await SharedPreferences.getInstance();
+    // Older versions saved the password here in plain text. Firebase Auth keeps
+    // the session, so only the email is remembered now.
+    await prefs.remove('vault_password');
     if (mounted) {
       setState(() {
         emailCtrl.text = prefs.getString('vault_email') ?? '';
-        passCtrl.text = prefs.getString('vault_password') ?? '';
         rememberMe = prefs.getString('vault_email') != null;
       });
     }
@@ -56,7 +58,6 @@ class _MobileAuthScreenState extends State<MobileAuthScreen> {
       final prefs = await SharedPreferences.getInstance();
       if (rememberMe) {
         await prefs.setString('vault_email', emailCtrl.text.trim());
-        await prefs.setString('vault_password', passCtrl.text.trim());
       } else {
         await prefs.remove('vault_email');
         await prefs.remove('vault_password');

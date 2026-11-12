@@ -65,3 +65,33 @@ test('rules protect rewards while preserving real client profile and admin flows
   }, auth, ['pet_owned_accessories', 'pet_owned_tricks', 'active_trick_buffs']), 200);
   await expectStatus(write(`users/${uid}`, { doge_balance: 999 }, auth, ['doge_balance']), 403);
 });
+
+// Mirrors the app's add() with FieldValue.serverTimestamp() for the timestamp.
+async function createSuggestion(id, data, auth) {
+  const { timestamp, ...fields } = data;
+  const result = await fetch(`${base}:commit`, {
+    method: 'POST', headers: { Authorization: `Bearer ${auth}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ writes: [{
+      update: {
+        name: `projects/${project}/databases/(default)/documents/suggestions/${id}`,
+        fields: Object.fromEntries(Object.entries(fields).map(([key, entry]) => [key, value(entry)])),
+      },
+      ...(timestamp ? { updateTransforms: [{ fieldPath: 'timestamp', setToServerValue: 'REQUEST_TIME' }] } : {}),
+      currentDocument: { exists: false },
+    }] }),
+  });
+  return { status: result.status, body: await result.text() };
+}
+
+test('signed-in users can send suggestions; nobody can read or forge them', async () => {
+  const uid = `suggest-${Date.now()}`;
+  const auth = token(uid);
+  const ok = { uid, email: 'test@example.com', suggestion: 'More tricks please', timestamp: true };
+  await expectStatus(createSuggestion(`${uid}-ok`, ok, auth), 200);
+  await expectStatus(createSuggestion(`${uid}-other`, { ...ok, uid: 'someone-else' }, auth), 403);
+  await expectStatus(createSuggestion(`${uid}-extra`, { ...ok, doge_balance: 5 }, auth), 403);
+  await expectStatus(createSuggestion(`${uid}-long`, { ...ok, suggestion: 'x'.repeat(2001) }, auth), 403);
+  await expectStatus(createSuggestion(`${uid}-notime`, { ...ok, timestamp: false }, auth), 403);
+  const read = await fetch(`${base}/suggestions/${uid}-ok`, { headers: { Authorization: `Bearer ${auth}` } });
+  assert.equal(read.status, 403);
+});

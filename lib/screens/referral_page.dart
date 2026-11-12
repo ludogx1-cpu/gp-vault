@@ -41,7 +41,7 @@ class ReferralPage extends StatelessWidget {
                   const Icon(Icons.group_add, size: 80, color: Colors.purple),
                   const SizedBox(height: 20),
                   Text(
-                    "Earn 20% For Life!",
+                    "Get a 20% Referral Bonus!",
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -136,7 +136,7 @@ class ReferralPage extends StatelessWidget {
                                   SizedBox(width: 15),
                                   Expanded(
                                     child: Text(
-                                      "You haven't referred any users yet. Start sharing your link to earn passive DOGE!",
+                                      "You haven't referred any users yet. Share your link to start collecting referral bonuses!",
                                       style: TextStyle(
                                         color: Colors.grey,
                                         fontSize: 13,

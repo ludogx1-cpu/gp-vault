@@ -19,14 +19,26 @@ class _SuggestionBoxPageState extends State<SuggestionBoxPage> {
     final text = _suggestionController.text.trim();
     if (text.isEmpty) return;
 
+    // firestore.rules only accept suggestions from signed-in users.
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Please sign in to send a suggestion, or email goldenpaw.dogeadmin@gmail.com.",
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isSubmitting = true);
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
-
       await FirebaseFirestore.instance.collection('suggestions').add({
-        'uid': user?.uid ?? 'anonymous',
-        'email': user?.email ?? 'anonymous',
+        'uid': user.uid,
+        'email': user.email,
         'suggestion': text,
         'timestamp': FieldValue.serverTimestamp(),
       });
@@ -46,7 +58,9 @@ class _SuggestionBoxPageState extends State<SuggestionBoxPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Error submitting suggestion: $e"),
+          content: const Text(
+            "Sorry, your suggestion could not be sent. Please try again, or email goldenpaw.dogeadmin@gmail.com.",
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -105,7 +119,8 @@ class _SuggestionBoxPageState extends State<SuggestionBoxPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "Have an idea to improve Golden Paw? Let us know! We read every submission.",
+                      "Have an idea to improve Golden Paw, or need help? Let us know! We read every submission. "
+                      "You can also email goldenpaw.dogeadmin@gmail.com.",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 15,
@@ -116,6 +131,7 @@ class _SuggestionBoxPageState extends State<SuggestionBoxPage> {
                     TextField(
                       controller: _suggestionController,
                       maxLines: 6,
+                      maxLength: 2000,
                       style: TextStyle(
                         color: isDark ? Colors.white : Colors.black87,
                       ),

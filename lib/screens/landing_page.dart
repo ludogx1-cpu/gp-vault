@@ -388,7 +388,7 @@ class _LandingPageState extends State<LandingPage> {
               ),
               const SizedBox(height: 12),
               Text(
-                "Our flagship project, Golden Paw, brings together the joy of caring for a virtual pet with the opportunity to earn real Dogecoin through instant faucet rewards and automated crypto staking vaults.\n\nWe believe earning rewards should be simple, fair, and accessible to everyone. That's why we're focused on building experiences that don't require an upfront investment, put transparency first, and make Web3 more approachable.\n\nAt Golden Paw Studios, it's all about combining entertainment, real rewards, and a growing community of players who share our vision.",
+                "Our flagship project, Golden Paw, brings together the joy of caring for a virtual pet with small Dogecoin rewards from the faucet and the Bonus Vault.\n\nWe believe earning rewards should be simple, fair, and accessible to everyone. That's why we're focused on building experiences that don't require an upfront investment, put transparency first, and make Web3 more approachable.\n\nAt Golden Paw Studios, it's all about combining entertainment, small rewards, and a growing community of players who share our vision.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: isMobile ? 13 : 14,

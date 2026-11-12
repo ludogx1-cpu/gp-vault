@@ -49,7 +49,7 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
             _buildSection(
               context,
               '❤️ Happiness, 🍗 Hunger, ⚡ Energy',
-              'Keep your pet happy and fed! Feeding costs 0.0001 DOGE, fully restores Hunger to 100%, and places a 24-hour investment that returns double (plus bonuses)!\n\nIf your pet gets too tired, click Sleep! It takes a 10-minute nap for FREE, recovers 50% Energy, and rewards you with 0.0001 DOGE when it wakes up. Sickness happens if any stat hits 0 for 3 days. Buy FREE medicine in the shop to cure it!',
+              'Keep your pet happy and fed! Feeding costs 0.005 DOGE (free if your balance is lower), fully restores Hunger to 100%, and gives back a care bonus of twice the cost after 24 hours (1.5x if it was free)!\n\nIf your pet gets too tired, click Sleep! It takes a 10-minute nap for FREE, recovers 50% Energy, and rewards you with 0.0001 DOGE when it wakes up. Sickness happens if any stat hits 0 for 3 days. Buy FREE medicine in the shop to cure it!',
             ),
             _buildSection(
               context,
@@ -89,7 +89,7 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'Your pet grows older over time! As it grows from a Baby to an Old Dog, it provides a passive aging multiplier that scales up your rewards for being a long-term owner.',
+              'Your pet grows older over time! As it grows from a Baby to an Old Dog, it gives you an age bonus that boosts your rewards for being a long-time owner.',
               style: TextStyle(fontSize: 14, height: 1.5, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87)
             ),
             const SizedBox(height: 15),
