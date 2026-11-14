@@ -105,6 +105,25 @@ service cloud.firestore {
                     && request.resource.data.timestamp == request.time;
     }
 
+    // Chat reports (Online Safety Act): signed-in users can report a message;
+    // only the Admin SDK can read them.
+    match /chat_reports/{docId} {
+      allow read, update, delete: if false;
+      allow create: if isAuth()
+                    && request.resource.data.keys().hasOnly(['reporter_uid', 'message_id', 'reported_uid', 'message_text', 'reason', 'timestamp'])
+                    && request.resource.data.reporter_uid == request.auth.uid
+                    && request.resource.data.message_id is string
+                    && request.resource.data.message_id.size() > 0
+                    && request.resource.data.message_id.size() <= 200
+                    && request.resource.data.reported_uid is string
+                    && request.resource.data.reported_uid.size() <= 200
+                    && request.resource.data.reported_uid != request.auth.uid
+                    && request.resource.data.message_text is string
+                    && request.resource.data.message_text.size() <= 500
+                    && request.resource.data.reason in ['Spam or scam', 'Abuse, threats or hate', 'Sexual or illegal content', 'Sharing private information', 'Other']
+                    && request.resource.data.timestamp == request.time;
+    }
+
     // Reward Audits Collection
     match /reward_audits/{docId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;

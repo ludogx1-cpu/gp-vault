@@ -103,7 +103,18 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
             children: [
               _ruleItem("1. No links or advertisements of any kind."),
               _ruleItem("2. No begging or asking for funds."),
-              _ruleItem("3. Be respectful. No profanity or abuse."),
+              _ruleItem("3. Be respectful. No profanity, abuse, threats or hate."),
+              _ruleItem("4. Nothing illegal: no scams, fraud, sexual content or sharing other people's private details."),
+              _ruleItem("5. Golden Paw is 18+. Never ask anyone for personal information."),
+              const SizedBox(height: 4),
+              Text(
+                "See something that breaks these rules? Tap the flag next to the message to report it. "
+                "We review every report and remove illegal content.",
+                style: TextStyle(
+                  color: themeProvider.isDarkMode ? Colors.white70 : Colors.black87,
+                  fontSize: 13,
+                ),
+              ),
               const SizedBox(height: 10),
               Text(
                 "SWEAR JAR: Swearing will result in a 0.005 DOGE fine.",
@@ -125,6 +136,68 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
         );
       },
     );
+  }
+
+  static const List<String> _reportReasons = [
+    'Spam or scam',
+    'Abuse, threats or hate',
+    'Sexual or illegal content',
+    'Sharing private information',
+    'Other',
+  ];
+
+  /// Online Safety Act: users must be able to report content. Reports are
+  /// write-only for users (see firestore.rules) and reviewed by the admin.
+  Future<void> _reportMessage(
+    String messageId,
+    String reportedUid,
+    Map<String, dynamic> data,
+  ) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text("Report this message"),
+        children: [
+          for (final r in _reportReasons)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, r),
+              child: Text(r),
+            ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+          ),
+        ],
+      ),
+    );
+    if (reason == null || !mounted) return;
+
+    try {
+      await FirebaseFirestore.instance.collection('chat_reports').add({
+        'reporter_uid': user.uid,
+        'message_id': messageId,
+        'reported_uid': reportedUid,
+        'message_text': ((data['message'] ?? '') as Object).toString(),
+        'reason': reason,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Thanks, we'll review this message.")),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Report could not be sent. Please email goldenpaw.dogeadmin@gmail.com.",
+          ),
+        ),
+      );
+    }
   }
 
   Widget _ruleItem(String text) {
@@ -536,6 +609,10 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
                     bool isAdmin = data['is_admin'] == true;
                     String senderUid = data['uid'] ?? '';
                     
+                    final canReport = currentUser != null &&
+                        senderUid.isNotEmpty &&
+                        senderUid != currentUser.uid &&
+                        !isAdmin;
                     return ChatMessageBubble(
                       data: data,
                       isAdmin: isAdmin,
@@ -543,6 +620,9 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
                       isDark: isDark,
                       senderUid: senderUid,
                       onBan: _banUser,
+                      onReport: canReport
+                          ? () => _reportMessage(doc.id, senderUid, data)
+                          : null,
                     );
                   },
                 );

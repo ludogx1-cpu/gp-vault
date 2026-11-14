@@ -114,7 +114,7 @@ class WelcomeBanner extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          " whenever you are ready.",
+                          " whenever you are ready (affiliate link).",
                           style: TextStyle(
                             fontSize: 14,
                             color: isDark

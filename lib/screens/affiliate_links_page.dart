@@ -254,7 +254,7 @@ class _AffiliateLinksPageState extends State<AffiliateLinksPage>
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
             child: Text(
-              "Sign up for our trusted partner sites below to maximize your daily crypto earnings.",
+              "Ad · These are affiliate links: Golden Paw may earn a commission if you sign up. We don't run these sites, so please read their terms first. Rewards are usually small, and the value of crypto can go down as well as up.",
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey, fontSize: 13),
             ),

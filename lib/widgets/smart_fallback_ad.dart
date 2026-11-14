@@ -163,7 +163,7 @@ class SmartFallbackAd extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        "Partner Promotion",
+                        "Ad · Partner promotion",
                         style: TextStyle(
                           fontSize: height > 100 ? 10 : 9,
                           color: isDark ? Colors.white54 : Colors.grey,

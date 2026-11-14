@@ -176,7 +176,7 @@ class _MobileAuthScreenState extends State<MobileAuthScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Image.asset(
-                      'assets/logo_landing.png',
+                      'assets/paw_logo.png',
                       height: 120,
                       fit: BoxFit.contain,
                     ),

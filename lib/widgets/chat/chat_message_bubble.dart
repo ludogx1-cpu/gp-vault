@@ -7,6 +7,8 @@ class ChatMessageBubble extends StatelessWidget {
   final bool isDark;
   final String senderUid;
   final Function(String, String) onBan;
+  /// Lets a signed-in user report someone else's message. Null hides the button.
+  final VoidCallback? onReport;
 
   const ChatMessageBubble({
     super.key,
@@ -16,6 +18,7 @@ class ChatMessageBubble extends StatelessWidget {
     required this.isDark,
     required this.senderUid,
     required this.onBan,
+    this.onReport,
   });
 
   @override
@@ -57,6 +60,14 @@ class ChatMessageBubble extends StatelessWidget {
                       child: Text("Ban (Link)"),
                     ),
                   ],
+                ),
+              if (onReport != null && !isCurrentUserAdmin)
+                IconButton(
+                  icon: const Icon(Icons.flag_outlined, size: 14, color: Colors.grey),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+                  tooltip: 'Report message',
+                  onPressed: onReport,
                 ),
             ],
           ),

@@ -1,4 +1,3 @@
-import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:async';
@@ -48,49 +47,39 @@ class _LiveReferralTrackerState extends State<LiveReferralTracker> {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => launchUrl(Uri.parse('https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00SAJGMUIA')),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          color: kAppBarColor,
-          border: Border(
-            bottom: BorderSide(color: Colors.amber.shade700, width: 2),
+    // Price display only. No exchange link: promoting crypto trading to UK
+    // users is a regulated financial promotion.
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: kAppBarColor,
+        border: Border(
+          bottom: BorderSide(color: Colors.amber.shade700, width: 2),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.trending_up, color: Colors.green, size: 16),
+          const SizedBox(width: 8),
+          const Text(
+            "DOGE PRICE: ",
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.trending_up, color: Colors.green, size: 16),
-            const SizedBox(width: 8),
-            const Text(
-              "LIVE DOGE: ",
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
-              ),
+          Text(
+            "\$${_price.toStringAsFixed(4)}",
+            style: const TextStyle(
+              color: Colors.amber,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
             ),
-            Text(
-              "\$${_price.toStringAsFixed(4)}",
-              style: const TextStyle(
-                color: Colors.amber,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(width: 15),
-            const Text(
-              "|  TRADE ON BINANCE 🚀",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

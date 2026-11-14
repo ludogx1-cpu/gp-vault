@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Golden Paw: Pet & Faucet",
   "short_name": "Golden Paw",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Look after your Golden Paw Shiba and claim the 5-minute Dogecoin faucet from your toolbar.",
   "homepage_url": "https://goldenpaw.dog/",
   "icons": {

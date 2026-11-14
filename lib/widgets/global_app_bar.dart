@@ -72,18 +72,32 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Image.asset(
-                      'assets/logo_landing.png',
-                      height: isMobile ? 36 : 42,
+                      'assets/paw_logo.png',
+                      height: isMobile ? 34 : 40,
                       fit: BoxFit.contain,
+                      semanticLabel: 'Golden Paw',
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 10),
                     Flexible(
-                      child: Image.asset(
-                        'assets/Golen Paw Title.png',
-                        height: isMobile
-                            ? ((showBackArrow || showMenuIcon) ? 44 : 52)
-                            : 52,
-                        fit: BoxFit.contain,
+                      child: ShaderMask(
+                        // Gold gradient to match the paw logo.
+                        shaderCallback: (bounds) => const LinearGradient(
+                          colors: [Color(0xFFFFE082), Color(0xFFFFC107), Color(0xFFE0A000)],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ).createShader(bounds),
+                        child: Text(
+                          'Golden Paw',
+                          maxLines: 1,
+                          overflow: TextOverflow.fade,
+                          softWrap: false,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isMobile ? 24 : 28,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
                       ),
                     ),
                   ],

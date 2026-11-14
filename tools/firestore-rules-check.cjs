@@ -67,13 +67,13 @@ test('rules protect rewards while preserving real client profile and admin flows
 });
 
 // Mirrors the app's add() with FieldValue.serverTimestamp() for the timestamp.
-async function createSuggestion(id, data, auth) {
+async function createSuggestion(id, data, auth, collection = 'suggestions') {
   const { timestamp, ...fields } = data;
   const result = await fetch(`${base}:commit`, {
     method: 'POST', headers: { Authorization: `Bearer ${auth}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ writes: [{
       update: {
-        name: `projects/${project}/databases/(default)/documents/suggestions/${id}`,
+        name: `projects/${project}/databases/(default)/documents/${collection}/${id}`,
         fields: Object.fromEntries(Object.entries(fields).map(([key, entry]) => [key, value(entry)])),
       },
       ...(timestamp ? { updateTransforms: [{ fieldPath: 'timestamp', setToServerValue: 'REQUEST_TIME' }] } : {}),
@@ -93,5 +93,20 @@ test('signed-in users can send suggestions; nobody can read or forge them', asyn
   await expectStatus(createSuggestion(`${uid}-long`, { ...ok, suggestion: 'x'.repeat(2001) }, auth), 403);
   await expectStatus(createSuggestion(`${uid}-notime`, { ...ok, timestamp: false }, auth), 403);
   const read = await fetch(`${base}/suggestions/${uid}-ok`, { headers: { Authorization: `Bearer ${auth}` } });
+  assert.equal(read.status, 403);
+});
+
+test('signed-in users can report chat messages; nobody can read or forge reports', async () => {
+  const uid = `report-${Date.now()}`;
+  const auth = token(uid);
+  const ok = { reporter_uid: uid, message_id: 'msg1', reported_uid: 'someone-else', message_text: 'spam',
+    reason: 'Spam or scam', timestamp: true };
+  const report = (id, data) => createSuggestion(id, data, auth, 'chat_reports');
+  await expectStatus(report(`${uid}-ok`, ok), 200);
+  await expectStatus(report(`${uid}-forged`, { ...ok, reporter_uid: 'someone-else' }), 403);
+  await expectStatus(report(`${uid}-self`, { ...ok, reported_uid: uid }), 403);
+  await expectStatus(report(`${uid}-reason`, { ...ok, reason: 'whatever' }), 403);
+  await expectStatus(report(`${uid}-extra`, { ...ok, doge_balance: 5 }), 403);
+  const read = await fetch(`${base}/chat_reports/${uid}-ok`, { headers: { Authorization: `Bearer ${auth}` } });
   assert.equal(read.status, 403);
 });
