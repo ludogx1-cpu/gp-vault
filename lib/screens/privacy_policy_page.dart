@@ -34,6 +34,10 @@ class PolicySummaryPage extends StatelessWidget {
   final String summary;
   final String buttonLabel;
   final String url;
+  /// Optional controls shown between the summary and the button.
+  final Widget? extra;
+  /// Set false to hide the button that opens the full policy.
+  final bool showButton;
 
   const PolicySummaryPage({
     super.key,
@@ -41,6 +45,8 @@ class PolicySummaryPage extends StatelessWidget {
     required this.summary,
     this.buttonLabel = "Read the full Privacy Policy",
     this.url = fullPrivacyPolicyUrl,
+    this.extra,
+    this.showButton = true,
   });
 
   @override
@@ -73,8 +79,12 @@ class PolicySummaryPage extends StatelessWidget {
                       summary,
                       style: TextStyle(fontSize: 14, height: 1.6, color: textColor),
                     ),
+                    if (extra != null) ...[
+                      const SizedBox(height: 20),
+                      extra!,
+                    ],
                     const SizedBox(height: 20),
-                    ElevatedButton.icon(
+                    if (showButton) ElevatedButton.icon(
                       onPressed: () => launchUrl(
                         Uri.parse(url),
                         mode: LaunchMode.externalApplication,

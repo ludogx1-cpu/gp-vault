@@ -1,13 +1,59 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'js_bindings.dart';
 
-/// On the website, Firebase Analytics (which loads Google's tag) must only run
-/// after the visitor accepts analytics cookies in the cookie banner
-/// (web/consent.js sets window.gpAnalyticsAllowed). The Firebase web plugin
-/// only loads Google's tag on its first call, so skipping calls until consent
-/// means nothing is loaded before then. Native apps are unaffected.
-bool get analyticsAllowed => analyticsConsentGiven();
+/// Analytics only runs with the user's consent.
+///
+/// - Website: the visitor accepts analytics cookies in the cookie banner
+///   (web/consent.js sets window.gpAnalyticsAllowed). The Firebase web plugin
+///   only loads Google's tag on its first call, so skipping calls until
+///   consent means nothing is loaded before then.
+/// - App: collection is off by default (AndroidManifest.xml) and only turned
+///   on if the user ticks the analytics box (age gate or Cookies page).
+bool get analyticsAllowed =>
+    kIsWeb ? analyticsConsentGiven() : _appAnalyticsConsent == true;
+
+const String _appConsentKey = 'analytics_consent';
+bool? _appAnalyticsConsent;
+
+/// The user's saved choice in the app: null if they haven't chosen yet.
+bool? get appAnalyticsChoice => _appAnalyticsConsent;
+
+/// Loads the saved choice at start-up and applies it (app only).
+Future<void> loadAppAnalyticsConsent() async {
+  if (kIsWeb) return;
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    _appAnalyticsConsent = prefs.getBool(_appConsentKey);
+  } catch (_) {}
+  await _applyAppConsent();
+}
+
+/// Saves and applies the user's choice (app only).
+Future<void> setAppAnalyticsConsent(bool allowed) async {
+  if (kIsWeb) return;
+  _appAnalyticsConsent = allowed;
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_appConsentKey, allowed);
+  } catch (_) {}
+  await _applyAppConsent();
+}
+
+Future<void> _applyAppConsent() async {
+  final allowed = _appAnalyticsConsent == true;
+  try {
+    await FirebaseAnalytics.instance.setConsent(
+      analyticsStorageConsentGranted: allowed,
+      adStorageConsentGranted: false,
+      adUserDataConsentGranted: false,
+      adPersonalizationSignalsConsentGranted: false,
+    );
+    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(allowed);
+  } catch (_) {}
+}
 
 /// Logs an analytics event if the visitor has allowed analytics.
 void logAnalyticsEvent(String name, {Map<String, Object>? parameters}) {

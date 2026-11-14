@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../src/analytics.dart';
 
 /// Blocks the app until the player confirms they are 18 or over.
 /// The answer is remembered on this device.
@@ -17,6 +19,8 @@ class _AgeGateState extends State<AgeGate> {
 
   bool? _confirmed;
   bool _underage = false;
+  // App only: analytics is opt-in, so the box starts unticked.
+  bool _allowAnalytics = false;
 
   @override
   void initState() {
@@ -29,6 +33,7 @@ class _AgeGateState extends State<AgeGate> {
   Future<void> _confirm() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_prefsKey, true);
+    if (!kIsWeb) await setAppAnalyticsConsent(_allowAnalytics);
     if (mounted) setState(() => _confirmed = true);
   }
 
@@ -74,6 +79,20 @@ class _AgeGateState extends State<AgeGate> {
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.redAccent),
                   )
                 else ...[
+                  if (!kIsWeb) ...[
+                    CheckboxListTile(
+                      value: _allowAnalytics,
+                      onChanged: (v) => setState(() => _allowAnalytics = v ?? false),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      contentPadding: EdgeInsets.zero,
+                      activeColor: Colors.amber,
+                      title: const Text(
+                        'Help improve Golden Paw by sharing anonymous usage statistics (Google Analytics). Optional, and you can change it any time under Cookies & privacy.',
+                        style: TextStyle(fontSize: 13, height: 1.3),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(

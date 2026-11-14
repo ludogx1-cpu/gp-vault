@@ -13,6 +13,7 @@ import '../api_constants.dart';
 import '../app_router.dart';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'analytics.dart';
 
 class FirebaseService {
   static Future<void> initialize() async {
@@ -55,8 +56,9 @@ class FirebaseService {
     // Initialize Performance Monitoring
     FirebasePerformance.instance;
 
-    // Initialize Analytics
+    // Analytics: apply the user's saved consent (off until they opt in).
     FirebaseAnalytics.instance;
+    await loadAppAnalyticsConsent();
 
     // Push Notifications setup
     try {

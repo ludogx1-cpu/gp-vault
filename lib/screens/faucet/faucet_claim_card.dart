@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -154,7 +155,21 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
     }
     if (mounted && _secondsRemaining <= 0) {
       setState(() => _isCheckingCooldown = false);
+      _loadCaptchaOnWeb();
     }
+  }
+
+  /// On the website the captcha libraries only draw when asked to (the app's
+  /// WebView loads captcha.html, which draws by itself), so ask whenever a
+  /// fresh captcha is needed.
+  void _loadCaptchaOnWeb() {
+    if (!kIsWeb || !mounted) return;
+    // Short wait so an async cooldown reset has landed before checking.
+    Timer(const Duration(milliseconds: 400), () {
+      if (mounted && _secondsRemaining == 0 && !_isCheckingCooldown) {
+        _forceRenderCaptcha();
+      }
+    });
   }
 
   Future<void> _syncSaveLock() async {
@@ -226,7 +241,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                "Timer complete! 🐶 Please refresh the page to load your next Captcha.",
+                "Timer complete! 🐶 Solve the captcha to claim again.",
                 style: TextStyle(color: themeProvider.isDarkMode ? Colors.white : Colors.black87),
               ),
               duration: const Duration(seconds: 8),
@@ -234,6 +249,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
             ),
           );
         });
+        _loadCaptchaOnWeb();
       }
     });
   }
@@ -366,6 +382,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
             _captchaReloadCounter++;
             _isLoading = false;
           });
+          _loadCaptchaOnWeb();
         }
       } else {
         final response = await http
@@ -396,9 +413,11 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
           setState(() {
             _status = "Declined: ${errorData['error']}";
             _captchaToken = null;
+            _captchaReloadCounter++;
             _captchaLoading = false;
             _isLoading = false;
           });
+          _loadCaptchaOnWeb();
         }
       }
     } catch (e) {
@@ -407,9 +426,13 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
         setState(() {
           _status =
               "Server timeout. Trying to wake Render... try again in 10s.";
+          // The captcha answer was used up, so load a fresh one.
+          _captchaToken = null;
+          _captchaReloadCounter++;
           _captchaLoading = false;
           _isLoading = false;
         });
+        _loadCaptchaOnWeb();
       }
     }
   }
@@ -595,6 +618,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
               _captchaLoading = false;
               _status = "Ready to Claim";
             });
+            _loadCaptchaOnWeb();
           },
           onMessageReceived: _onCaptchaMessage,
           onForceRender: _forceRenderCaptcha,

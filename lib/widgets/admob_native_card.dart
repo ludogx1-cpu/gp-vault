@@ -24,11 +24,22 @@ class _AdMobNativeCardState extends State<AdMobNativeCard> {
   @override
   void initState() {
     super.initState();
-    _loadNativeAd();
+    // Ads may only be requested once ad consent has been handled.
+    if (AdMobService.adsReady.value) {
+      _loadNativeAd();
+    } else {
+      AdMobService.adsReady.addListener(_onAdsReady);
+    }
+  }
+
+  void _onAdsReady() {
+    if (!AdMobService.adsReady.value) return;
+    AdMobService.adsReady.removeListener(_onAdsReady);
+    if (mounted && _nativeAd == null) _loadNativeAd();
   }
 
   void _loadNativeAd() {
-    if (!AdMobService.isSupported) return;
+    if (!AdMobService.isSupported || !AdMobService.adsReady.value) return;
 
     final isDark = themeProvider.isDarkMode;
 
@@ -83,6 +94,7 @@ class _AdMobNativeCardState extends State<AdMobNativeCard> {
 
   @override
   void dispose() {
+    AdMobService.adsReady.removeListener(_onAdsReady);
     _nativeAd?.dispose();
     super.dispose();
   }
