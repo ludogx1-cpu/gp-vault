@@ -2,11 +2,10 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AppUpdateBanner extends StatefulWidget {
-  static const String currentVersion = 'v1.2.12';
-
   const AppUpdateBanner({super.key});
 
   @override
@@ -28,6 +27,9 @@ class _AppUpdateBannerState extends State<AppUpdateBanner> {
 
   Future<void> _checkForUpdate() async {
     try {
+      // The installed app's own version (from pubspec.yaml at build time).
+      final info = await PackageInfo.fromPlatform();
+      final installed = info.version;
       final response = await http
           .get(
             Uri.parse(
@@ -41,15 +43,16 @@ class _AppUpdateBannerState extends State<AppUpdateBanner> {
         final tagName = data['tag_name']?.toString();
         if (tagName != null &&
             tagName.isNotEmpty &&
-            _isNewerVersion(tagName, AppUpdateBanner.currentVersion)) {
+            _isNewerVersion(tagName, installed)) {
+          // The universal APK works on every phone (64-bit and older 32-bit).
           String url =
-              'https://github.com/ludogx1-cpu/gp-vault/releases/latest/download/goldenpaw.apk';
+              'https://github.com/ludogx1-cpu/gp-vault/releases/latest/download/GoldenPaw-universal.apk';
           final assets = data['assets'];
-          if (assets is List && assets.isNotEmpty) {
+          if (assets is List) {
             for (final asset in assets) {
               if (asset is Map &&
                   asset['browser_download_url'] != null &&
-                  asset['name'].toString().endsWith('.apk')) {
+                  asset['name'].toString().toLowerCase().contains('universal')) {
                 url = asset['browser_download_url'].toString();
                 break;
               }
