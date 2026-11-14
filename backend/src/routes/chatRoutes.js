@@ -389,4 +389,73 @@ router.post('/ban', verifyFirebaseToken, async (req, res) => {
   }
 });
 
+
+// --- Chat reports (Online Safety Act) -------------------------------------
+// Users file reports straight into Firestore (see firestore.rules). Only the
+// admin can list and resolve them here; each decision is recorded on the
+// report so there is a log of how reports were handled.
+
+router.get('/reports', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user || !(await checkIsAdmin(req.user.uid))) {
+      return res.status(401).json({ success: false, error: 'Admin only' });
+    }
+    const status = req.query.status === 'handled' ? 'handled' : 'open';
+    const snap = await admin.firestore().collection('chat_reports')
+      .orderBy('timestamp', 'desc').limit(200).get();
+    const reports = snap.docs
+      .map(doc => {
+        const d = doc.data() || {};
+        return {
+          id: doc.id,
+          reporter_uid: d.reporter_uid || '',
+          reported_uid: d.reported_uid || '',
+          message_id: d.message_id || '',
+          message_text: d.message_text || '',
+          reason: d.reason || '',
+          timestamp: d.timestamp ? d.timestamp.toDate().toISOString() : null,
+          status: d.status || 'open',
+          action: d.action || null,
+          handled_at: d.handled_at ? d.handled_at.toDate().toISOString() : null,
+        };
+      })
+      .filter(r => (status === 'open' ? r.status === 'open' : r.status !== 'open'));
+    res.json({ success: true, reports });
+  } catch (error) {
+    console.error('List chat reports error:', error);
+    res.status(500).json({ success: false, error: 'Failed to load reports' });
+  }
+});
+
+router.post('/reports/:id/resolve', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user || !(await checkIsAdmin(req.user.uid))) {
+      return res.status(401).json({ success: false, error: 'Admin only' });
+    }
+    const action = req.body && req.body.action;
+    if (!['removed', 'dismissed'].includes(action)) {
+      return res.status(400).json({ success: false, error: 'Action must be removed or dismissed' });
+    }
+    const db = admin.firestore();
+    const reportRef = db.collection('chat_reports').doc(req.params.id);
+    const report = await reportRef.get();
+    if (!report.exists) return res.status(404).json({ success: false, error: 'Report not found' });
+
+    if (action === 'removed') {
+      const messageId = report.data().message_id;
+      if (messageId) await db.collection('chat_messages').doc(messageId).delete();
+    }
+    await reportRef.update({
+      status: 'handled',
+      action,
+      handled_at: admin.firestore.FieldValue.serverTimestamp(),
+      handled_by: req.user.uid,
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Resolve chat report error:', error);
+    res.status(500).json({ success: false, error: 'Failed to resolve report' });
+  }
+});
+
 module.exports = router;

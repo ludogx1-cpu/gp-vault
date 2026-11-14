@@ -27,6 +27,19 @@ function memoryFirestore() {
           return ref;
         },
         async add(data) { const ref = collection.doc(); await ref.set(data); return ref; },
+        orderBy(field, direction = 'asc') {
+          const query = {
+            limit: () => query,
+            async get() {
+              const key = path => { const v = rows.get(path)[field]; return v && v.toDate ? v.toDate().getTime() : v; };
+              const docs = [...rows.keys()].filter(path => path.startsWith(`${name}/`) && path.split('/').length === 2)
+                .sort((x, y) => (key(x) > key(y) ? 1 : -1) * (direction === 'desc' ? -1 : 1))
+                .map(path => snapshot(collection.doc(path.slice(name.length + 1))));
+              return { docs, empty: docs.length === 0, size: docs.length };
+            },
+          };
+          return query;
+        },
         where(field, op, value) {
           const query = {
             limit: () => query,

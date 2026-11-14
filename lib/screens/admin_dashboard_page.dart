@@ -10,6 +10,7 @@ import 'admin/admin_html_snippets_tab.dart';
 import 'admin/admin_notice_tab.dart';
 import 'admin/admin_reward_monitor_tab.dart';
 import 'admin/admin_ai_drafts_tab.dart';
+import 'admin/admin_chat_reports_tab.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   const AdminDashboardPage({super.key});
@@ -25,7 +26,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
   @override
   void initState() {
     super.initState();
-    _adminTabController = TabController(length: 7, vsync: this);
+    _adminTabController = TabController(length: 8, vsync: this);
   }
 
   @override
@@ -86,6 +87,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
             Tab(icon: Icon(Icons.campaign), text: "Update Board"),
             Tab(icon: Icon(Icons.monitor_heart), text: "Reward Monitor"),
             Tab(icon: Icon(Icons.psychology), text: "AI Drafts"),
+            Tab(icon: Icon(Icons.flag), text: "Chat Reports"),
           ],
         ),
       ),
@@ -99,6 +101,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
           AdminNoticeTab(),
           AdminRewardMonitorTab(),
           AdminAiDraftsTab(),
+          AdminChatReportsTab(),
         ],
       ),
     );

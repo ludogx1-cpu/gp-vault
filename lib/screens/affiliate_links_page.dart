@@ -82,15 +82,6 @@ final partnerList = [
     "Faucets",
   ),
   PartnerData(
-    "Contract-Miner",
-    "Virtual cloud mining simulator game.",
-    "Simulated Cloud Mining",
-    Icons.cloud_sync,
-    Colors.indigo,
-    "https://www.contract-miner.com/?r=91714744460d2dde189cc5",
-    "Mining",
-  ),
-  PartnerData(
     "FireFaucet",
     "Level up and earn crypto automatically with daily bonuses.",
     "Level Up & Earn",
@@ -205,7 +196,7 @@ class _AffiliateLinksPageState extends State<AffiliateLinksPage>
     'Wallets',
     'PTC',
     'Faucets',
-    'Mining',
+    // No 'Mining' tab: cloud-mining schemes are a common FCA scam warning.
     'Other',
   ];
 
