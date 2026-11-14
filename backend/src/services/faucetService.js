@@ -8,6 +8,7 @@ const { calculateDecay, calculateTrickBonusPercent, getAgeMultiplier } = require
 const { logRewardEvent } = require('../utils/rewardAudit');
 const { syncUserBalances, syncPetStats } = require('../utils/dataConnectSync');
 const { withdraw } = require('./withdrawalService');
+const { payReferralBonus } = require('./referralService');
 
 function splitUpdates(updates) {
   const petUpdates = {};
@@ -106,6 +107,7 @@ async function sendDoge(user, address, captcha_token, captcha_provider, source) 
   } catch (metricErr) {
     console.error('Failed to update lifetime metrics for direct claim:', metricErr);
   }
+  await payReferralBonus(user, dogeAmount);
 
   return {
     address,
@@ -229,6 +231,7 @@ async function claimVault(user, captcha_token, captcha_provider) {
   }
 
   await logRewardEvent(user.uid, 'faucet_claim', finalReward, { sector: 'Vault Faucet' });
+  await payReferralBonus(user, finalReward);
 
   return { earned: finalReward, authUser: user.uid };
 }

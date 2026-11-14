@@ -27,13 +27,25 @@ function memoryFirestore() {
           return ref;
         },
         async add(data) { const ref = collection.doc(); await ref.set(data); return ref; },
+        // field may be FieldPath.documentId(), represented here as '__name__'.
         orderBy(field, direction = 'asc') {
+          let lower = null;
+          let upper = null;
+          let max = Infinity;
           const query = {
-            limit: () => query,
+            limit: n => { max = n; return query; },
+            startAt: v => { lower = v; return query; },
+            endAt: v => { upper = v; return query; },
             async get() {
-              const key = path => { const v = rows.get(path)[field]; return v && v.toDate ? v.toDate().getTime() : v; };
+              const key = path => {
+                if (field === '__name__') return path.slice(name.length + 1);
+                const v = rows.get(path)[field];
+                return v && v.toDate ? v.toDate().getTime() : v;
+              };
               const docs = [...rows.keys()].filter(path => path.startsWith(`${name}/`) && path.split('/').length === 2)
+                .filter(path => (lower === null || key(path) >= lower) && (upper === null || key(path) <= upper))
                 .sort((x, y) => (key(x) > key(y) ? 1 : -1) * (direction === 'desc' ? -1 : 1))
+                .slice(0, max)
                 .map(path => snapshot(collection.doc(path.slice(name.length + 1))));
               return { docs, empty: docs.length === 0, size: docs.length };
             },

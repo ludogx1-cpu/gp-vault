@@ -8,6 +8,7 @@ import 'widgets/age_gate.dart';
 import 'src/theme_provider.dart';
 import 'src/firebase_service.dart';
 import 'src/admob_service.dart';
+import 'src/referral_service.dart';
 import 'src/presence_service.dart';
 import 'src/user_provider.dart';
 import 'src/doge_price_provider.dart';
@@ -26,6 +27,7 @@ void main() async {
 
   await FirebaseService.initialize();
   await AdMobService.initialize();
+  await ReferralService.init();
   await NotificationService().init();
   PresenceService().initialize();
   ShowcaseView.register();
