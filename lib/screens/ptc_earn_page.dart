@@ -6,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../src/theme_provider.dart';
 import '../widgets/widgets.dart';
-import '../widgets/universal_web_view/universal_web_view.dart';
 import 'package:go_router/go_router.dart';
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
@@ -354,7 +353,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                           ),
                           icon: const Icon(Icons.desktop_windows, size: 28),
                           label: const Text(
-                            "EARN PASSIVE CRYPTO (DESKTOP APP)",
+                            "PARTNER REWARD APPS (DESKTOP)",
                             style: TextStyle(
                               fontWeight: FontWeight.w900,
                               fontSize: 15,
@@ -368,16 +367,8 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                       ),
                       const SizedBox(height: 20),
                       const BitcotasksAdWidget(),
-                      const SizedBox(height: 20),
-                      // 🚀 ADSENSE PTC 1 🚀
-                      SizedBox(
-                        width: double.infinity,
-                        height: 250,
-                        child: UniversalWebView.create(
-                          viewType: 'adsense-ptc-1',
-                          height: 250,
-                        ),
-                      ),
+                      // AdSense is not shown on this page: Google's policies do not
+                      // allow its ads on pages that reward people for viewing ads.
                       const SizedBox(height: 20),
                       // 🚀 TIMEWALL CLICKS BUTTON 🚀
                       SizedBox(
@@ -414,16 +405,6 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                       adContent,
                       const SizedBox(height: 25),
                       const Bitcotasks300x250AdWidget(),
-                      const SizedBox(height: 25),
-                      // 🚀 ADSENSE PTC 2 🚀
-                      SizedBox(
-                        width: double.infinity,
-                        height: 250,
-                        child: UniversalWebView.create(
-                          viewType: 'adsense-ptc-2',
-                          height: 250,
-                        ),
-                      ),
                       const SizedBox(height: 25),
                       const PwaInstallWidget(),
                       const SizedBox(height: 25),

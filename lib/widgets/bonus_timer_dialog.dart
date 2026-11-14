@@ -57,7 +57,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
   void initState() {
     super.initState();
     _timeLeft = widget.durationSeconds;
-    _updateBrowserTitle("Click an ad...");
+    _updateBrowserTitle("Visiting sponsors...");
     _message =
         "Stay on the page for ${widget.durationSeconds} seconds to earn your reward!";
 
@@ -148,7 +148,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
             remaining <= widget.durationSeconds) {
           setState(() {
             _timeLeft = remaining;
-            _message = "Watching Ad... $_timeLeft seconds left";
+            _message = "Visiting sponsors... $_timeLeft seconds left";
           });
           _updateBrowserTitle("${remaining}s left");
         }
@@ -352,7 +352,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
                           launchUrl(Uri.parse(widget.targetUrl!));
                         },
                         child: const Text(
-                          "Resume Ad",
+                          "Resume Visit",
                           style: TextStyle(
                             color: Colors.black87,
                             fontWeight: FontWeight.bold,

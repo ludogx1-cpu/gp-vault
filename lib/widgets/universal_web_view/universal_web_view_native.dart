@@ -2,6 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'universal_web_view.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
+
+/// Captchas load from the real hosted page so Cloudflare/hCaptcha see the
+/// genuine goldenpaw.dog origin. They also need the WebView's own user agent
+/// and third-party cookies (Cloudflare's mobile Turnstile requirements).
+const Map<String, String> _hostedCaptchaUrls = {
+  'turnstile-widget': 'https://goldenpaw.dog/captcha.html?type=turnstile',
+  'hcaptcha-widget': 'https://goldenpaw.dog/captcha.html?type=hcaptcha',
+};
 
 class UniversalWebViewNative extends UniversalWebView {
   const UniversalWebViewNative({
@@ -33,10 +42,22 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
       return;
     }
     try {
-      _controller = WebViewController()
+      final isCaptcha = _hostedCaptchaUrls.containsKey(widget.viewType);
+      final controller = WebViewController()
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
-        ..setUserAgent('Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36')
         ..setBackgroundColor(Colors.transparent);
+      if (!isCaptcha) {
+        controller.setUserAgent('Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36');
+      }
+      if (isCaptcha && controller.platform is AndroidWebViewController) {
+        AndroidWebViewCookieManager(
+          const PlatformWebViewCookieManagerCreationParams(),
+        ).setAcceptThirdPartyCookies(
+          controller.platform as AndroidWebViewController,
+          true,
+        );
+      }
+      _controller = controller;
       _isSupported = true;
     } catch (_) {
       _isSupported = false;
@@ -67,8 +88,9 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
   void _loadContent() {
     final controller = _controller;
     if (controller == null) return;
-    if (widget.initialUrl != null) {
-      controller.loadRequest(Uri.parse(widget.initialUrl!));
+    final hostedUrl = widget.initialUrl ?? _hostedCaptchaUrls[widget.viewType];
+    if (hostedUrl != null) {
+      controller.loadRequest(Uri.parse(hostedUrl));
     } else {
       controller.loadHtmlString(
         _getHtmlForViewType(widget.viewType),
@@ -281,10 +303,6 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
       return _buildAdsterraHtml('f230343a2411c75040c34f8eb7445074');
     } else if (viewType == 'adsterra-160x300') {
       return _buildAdsterraHtml('b83f17d822fee1ca201539b3b828110e');
-    } else if (viewType == 'adsense-ptc-1') {
-      return _buildAdSenseHtml('2038938184');
-    } else if (viewType == 'adsense-ptc-2') {
-      return _buildAdSenseHtml('1704542038');
     } else if (viewType == 'github-sponsors-iframe') {
       return '''
         <!DOCTYPE html>
@@ -331,31 +349,6 @@ class _UniversalWebViewNativeState extends State<UniversalWebViewNative> {
           document.getElementsByTagName('head')[0].appendChild(script);
         </script>
         <div id="atContainer-$key"></div>
-      </body>
-      </html>
-    ''';
-  }
-
-  String _buildAdSenseHtml(String slot) {
-    return '''
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-          html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; display: flex; justify-content: center; align-items: center; }
-          .ad-block { display: block; width: 100%; min-width: 280px; min-height: 250px; }
-        </style>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8242289438754471" crossorigin="anonymous"></script>
-      </head>
-      <body>
-        <ins class="adsbygoogle ad-block"
-             data-ad-client="ca-pub-8242289438754471"
-             data-ad-slot="$slot"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
       </body>
       </html>
     ''';

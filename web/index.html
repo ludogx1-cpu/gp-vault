@@ -53,26 +53,27 @@
   <!-- Use Inter webfont for crisper text rendering on web builds -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet">
  
-  <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-M3HTGK98');</script>
-  <!-- End Google Tag Manager -->
+  <!-- Consent gate: must run before any Google or advertising tag. -->
+  <script src="/consent.js"></script>
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-H0R68LWSK6"></script>
+  <!-- Google Tag Manager + Google tag: loaded only after analytics consent -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    gpConsent.onAnalytics(function () {
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-M3HTGK98');
 
-    gtag('config', 'G-H0R68LWSK6');
-
-    // Google tag (gtag.js) event
-    gtag('event', 'first_open', {});
-    gtag('event', 'session_start', {});
+      var tag = document.createElement('script');
+      tag.async = true;
+      tag.src = 'https://www.googletagmanager.com/gtag/js?id=G-H0R68LWSK6';
+      document.head.appendChild(tag);
+      gtag('js', new Date());
+      gtag('config', 'G-H0R68LWSK6');
+      gtag('event', 'first_open', {});
+      gtag('event', 'session_start', {});
+    });
   </script>
 
 
@@ -243,7 +244,9 @@
       return false;
     };
   </script>
+  <!-- AdRoll retargeting: loaded only after personalised-advertising consent -->
   <script type="text/javascript">
+    gpConsent.onPersonalisedAds(function () {
       adroll_adv_id = "TYRCWKOL3VFWDDX7CA3SRB";
       adroll_pix_id = "DRHLQQ37O5FJNP4COTDDK2";
       adroll_version = "2.0";
@@ -270,14 +273,11 @@
           o.parentNode.insertBefore(e, o);
       })(window, document);
       adroll.track("pageView");
+    });
   </script>
 
 </head>
 <body>
-  <!-- Google Tag Manager (noscript) -->
-  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M3HTGK98"
-  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-  <!-- End Google Tag Manager (noscript) -->
   <div class="gp-loader-wrapper">
     <div class="gp-loader-spinner"></div>
     <div class="gp-loader-text">Loading Golden Paw...</div>

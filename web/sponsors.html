@@ -66,7 +66,8 @@
   </div>
 
   <div class="container">
-    <p class="welcome-text">Please click on an ad below and stay on the page for 20 seconds to earn your reward. Thank you for supporting the Golden Paw ecosystem!</p>
+    <p class="welcome-text">Keep this page open until the bonus timer in Golden Paw finishes. You never need to click an advert to get the bonus. Adverts and sponsors on this page help pay for Golden Paw, so please only click ones that genuinely interest you.</p>
+    <p class="welcome-text" id="bonus-status" aria-live="polite">Starting your bonus timer…</p>
 
 
 
@@ -182,7 +183,12 @@
       'Bottom 3': document.getElementById('bottom-3')
     };
 
+    let bonusStarted = false;
     function notifyParentTimer() {
+      if (bonusStarted) return;
+      bonusStarted = true;
+      const status = document.getElementById('bonus-status');
+      if (status) status.textContent = 'Bonus timer started! Keep this page open until the timer in Golden Paw finishes.';
       try {
         if (window.opener) {
           window.opener.postMessage(JSON.stringify({ type: 'start_bonus_timer' }), '*');
@@ -198,11 +204,15 @@
       }
     }
 
-    // Simply trigger the timer whenever the window loses focus (e.g., opening a new tab).
-    // This perfectly captures clicks on all dynamic/iframe ads like Monetag without relying on mouse events.
-    window.addEventListener('blur', () => {
-      notifyParentTimer();
-    });
+    // The bonus is for visiting this page, never for clicking third-party
+    // adverts (ad networks treat rewarded ad clicks as invalid traffic).
+    // The Golden Paw tab runs the "stay on the page" countdown once told the
+    // visit has started.
+    function startWhenVisible() {
+      if (document.visibilityState === 'visible') notifyParentTimer();
+    }
+    document.addEventListener('visibilitychange', startWhenVisible);
+    startWhenVisible();
 
     // Fetch Ad Placeholders
     db.collection("sponsor_placeholders").onSnapshot((querySnapshot) => {
@@ -226,9 +236,6 @@
             oldScript.parentNode.replaceChild(newScript, oldScript);
           });
 
-          adWrapper.addEventListener('mouseenter', () => mouseOverAd = true);
-          adWrapper.addEventListener('mouseleave', () => mouseOverAd = false);
-          adWrapper.addEventListener('click', notifyParentTimer);
 
           zones[data.position].appendChild(adWrapper);
         }
@@ -251,7 +258,6 @@
         card.rel = 'noopener noreferrer';
         let imageHtml = data.image_url ? `<img src="${data.image_url}" alt="Banner">` : '';
         card.innerHTML = `${imageHtml}<div class="card-title">${data.title || 'Sponsored Link'}</div>`;
-        card.addEventListener('click', notifyParentTimer);
         cardContainer.appendChild(card);
       });
     }, (error) => {

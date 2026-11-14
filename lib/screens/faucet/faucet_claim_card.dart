@@ -353,8 +353,17 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
           );
         } else {
           _syncRemoveLock();
+          String reason = "Error claiming to Vault.";
+          try {
+            final error = jsonDecode(response.body)['error'];
+            if (error is String && error.isNotEmpty) reason = "Declined: $error";
+          } catch (_) {
+            // Keep the generic message for non-JSON responses.
+          }
           setState(() {
-            _status = "Error claiming to Vault.";
+            _status = reason;
+            _captchaToken = null;
+            _captchaReloadCounter++;
             _isLoading = false;
           });
         }

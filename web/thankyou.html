@@ -57,7 +57,10 @@
             background-color: #cd9f32;
         }
     </style>
+  <script src="/consent.js"></script>
+  <!-- AdRoll: loaded only after personalised-advertising consent -->
   <script type="text/javascript">
+    gpConsent.onPersonalisedAds(function () {
       adroll_adv_id = "TYRCWKOL3VFWDDX7CA3SRB";
       adroll_pix_id = "DRHLQQ37O5FJNP4COTDDK2";
       adroll_version = "2.0";
@@ -97,6 +100,7 @@
         "conversion_value": amount,
         "currency": "USD"
       });
+    });
   </script>
 </head>
 <body>
