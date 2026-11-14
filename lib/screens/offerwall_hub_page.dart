@@ -7,7 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../widgets/bitcotasks_native_widget.dart';
 import '../widgets/ads/timewall_quick_links.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
+import '../src/analytics.dart';
 
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
@@ -251,10 +251,7 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         onPressed: () {
-                          FirebaseAnalytics.instance.logEvent(
-                            name: 'offerwall_clicked',
-                            parameters: {'network': 'BITCOTASKS'},
-                          );
+                          logAnalyticsEvent('offerwall_clicked', parameters: {'network': 'BITCOTASKS'});
                           setState(() => selectedNetwork = "BITCOTASKS");
                         },
                       ),
@@ -278,10 +275,7 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         onPressed: () {
-                          FirebaseAnalytics.instance.logEvent(
-                            name: 'offerwall_clicked',
-                            parameters: {'network': 'TIMEWALL'},
-                          );
+                          logAnalyticsEvent('offerwall_clicked', parameters: {'network': 'TIMEWALL'});
                           setState(() => selectedNetwork = "TIMEWALL");
                         },
                       ),

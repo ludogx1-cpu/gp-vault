@@ -50,15 +50,16 @@
   <link rel="apple-touch-icon" href="/icons/Icon-192.png">
   
   <link rel="icon" type="image/png" href="/favicon.png?v=2">
-  <!-- Use Inter webfont for crisper text rendering on web builds -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet">
- 
-  <!-- Consent gate: must run before any Google or advertising tag. -->
-  <script src="/consent.js"></script>
+  <!-- The loading-screen logo is the first big thing painted (LCP). -->
+  <link rel="preload" as="image" href="/icons/Icon-192.png" fetchpriority="high">
+
+  <!-- Consent gate. Deferred so it never blocks rendering; nothing Google or
+       advertising loads before it runs (the app waits for gpAnalyticsAllowed). -->
+  <script src="/consent.js" defer></script>
 
   <!-- Google Tag Manager + Google tag: loaded only after analytics consent -->
   <script>
-    gpConsent.onAnalytics(function () {
+    (window.gpConsentQueue = window.gpConsentQueue || []).push(['analytics', function () {
       (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
       new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
       j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -73,7 +74,7 @@
       gtag('config', 'G-H0R68LWSK6');
       gtag('event', 'first_open', {});
       gtag('event', 'session_start', {});
-    });
+    }]);
   </script>
 
 
@@ -111,9 +112,15 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+    .gp-loader-logo {
+      width: 160px;
+      height: 160px;
+      border-radius: 32px;
+      margin-bottom: 24px;
+    }
     .gp-loader-text {
       color: #FFFFFF;
-      font-family: 'Inter', sans-serif;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
       font-weight: 700;
       font-size: 1.2rem;
       margin-top: 10px;
@@ -142,9 +149,8 @@
     }
   </style>
  
-  <script src="https://www.google.com/recaptcha/enterprise.js?render=6LeEKjotAAAAABBcMyZho_GL7pH7HW7YlQ_JowPy"></script>
-  <script src="https://js.hcaptcha.com/1/api.js?render=explicit" async defer></script>
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+  <!-- reCAPTCHA Enterprise is loaded by Firebase App Check itself. hCaptcha
+       and Turnstile load on demand the first time a captcha is shown. -->
   <script src="https://widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" async></script>
   
   <script>
@@ -181,7 +187,36 @@
         }, 100);
       }
  
+    // Captcha libraries load the first time they are needed.
+    const gpLoadedScripts = {};
+    function loadScriptOnce(src) {
+      if (!gpLoadedScripts[src]) {
+        gpLoadedScripts[src] = new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = src;
+          s.async = true;
+          s.onload = resolve;
+          s.onerror = () => { delete gpLoadedScripts[src]; reject(new Error('Failed to load ' + src)); };
+          document.head.appendChild(s);
+        });
+      }
+      return gpLoadedScripts[src];
+    }
+    function whenGlobalReady(name, callback, attempts = 0) {
+      if (window[name] && typeof window[name].render === 'function') callback();
+      else if (attempts < 100) setTimeout(() => whenGlobalReady(name, callback, attempts + 1), 100);
+    }
+    function loadHcaptcha() {
+      return loadScriptOnce('https://js.hcaptcha.com/1/api.js?render=explicit');
+    }
+    function loadTurnstile() {
+      return loadScriptOnce('https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit');
+    }
+
     function renderHCaptcha() {
+      loadHcaptcha().then(() => whenGlobalReady('hcaptcha', renderHCaptchaNow)).catch(console.error);
+    }
+    function renderHCaptchaNow() {
       waitForElement('hcaptcha-target', (el) => {
         el.innerHTML = '';
         hcaptcha.render(el, {
@@ -197,6 +232,9 @@
     }
  
     function renderTurnstile() {
+      loadTurnstile().then(() => whenGlobalReady('turnstile', renderTurnstileNow)).catch(console.error);
+    }
+    function renderTurnstileNow() {
       waitForElement('turnstile-target', (el) => {
         el.innerHTML = '';
         if (typeof turnstile !== 'undefined') {
@@ -246,7 +284,7 @@
   </script>
   <!-- AdRoll retargeting: loaded only after personalised-advertising consent -->
   <script type="text/javascript">
-    gpConsent.onPersonalisedAds(function () {
+    (window.gpConsentQueue = window.gpConsentQueue || []).push(['personalisedAds', function () {
       adroll_adv_id = "TYRCWKOL3VFWDDX7CA3SRB";
       adroll_pix_id = "DRHLQQ37O5FJNP4COTDDK2";
       adroll_version = "2.0";
@@ -273,15 +311,23 @@
           o.parentNode.insertBefore(e, o);
       })(window, document);
       adroll.track("pageView");
-    });
+    }]);
   </script>
 
 </head>
 <body>
   <div class="gp-loader-wrapper">
+    <img class="gp-loader-logo" src="/icons/Icon-192.png" width="160" height="160" alt="Golden Paw" fetchpriority="high">
     <div class="gp-loader-spinner"></div>
     <div class="gp-loader-text">Loading Golden Paw...</div>
   </div>
+  <script>
+    // Hide the loading screen once Flutter has drawn its first frame.
+    window.addEventListener('flutter-first-frame', function () {
+      var loader = document.querySelector('.gp-loader-wrapper');
+      if (loader) loader.style.display = 'none';
+    });
+  </script>
 
 
 

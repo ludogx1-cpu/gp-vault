@@ -5,9 +5,13 @@
 //  - Google Consent Mode v2 is "denied", so Google tags set no cookies;
 //  - Google Analytics hits are switched off with the ga-disable flags;
 //  - Google Tag Manager, gtag.js and AdRoll are not loaded at all.
-// Pages register loaders with gpConsent.onAnalytics / gpConsent.onPersonalisedAds.
+// Pages register loaders with gpConsent.onAnalytics / gpConsent.onPersonalisedAds,
+// or, before this script has run (it can load with `defer`), by pushing
+// ['analytics' | 'personalisedAds', fn] onto window.gpConsentQueue.
+// The Flutter app reads window.gpAnalyticsAllowed before using Firebase Analytics.
 (function (w, d) {
   var MEASUREMENT_IDS = ['G-H0R68LWSK6', 'G-HKKG25EDQW'];
+  w.gpAnalyticsAllowed = false;
 
   w.dataLayer = w.dataLayer || [];
   if (typeof w.gtag !== 'function') {
@@ -81,6 +85,7 @@
       personalization_storage: personalised ? 'granted' : 'denied'
     });
     setAnalyticsDisabled(!analytics);
+    w.gpAnalyticsAllowed = analytics;
 
     if (analytics) start('analytics');
     else clearCookies(['_ga', '_gid']);
@@ -108,9 +113,42 @@
     apply: apply
   };
 
+  // Loaders queued before this script ran.
+  function register(item) {
+    if (!item || typeof item[1] !== 'function') return;
+    if (item[0] === 'analytics') w.gpConsent.onAnalytics(item[1]);
+    else if (item[0] === 'personalisedAds') w.gpConsent.onPersonalisedAds(item[1]);
+  }
+  var queued = w.gpConsentQueue || [];
+  w.gpConsentQueue = { push: register };
+  for (var i = 0; i < queued.length; i++) register(queued[i]);
+
+  // The Zaraz banner lives in a shadow root and uses 10-11px text; make it
+  // readable on phones.
+  function enlargeBannerText() {
+    var host = d.querySelector('.cf_modal_container');
+    var root = host && host.shadowRoot;
+    if (!root || root.getElementById('gp-consent-text')) return;
+    var style = d.createElement('style');
+    style.id = 'gp-consent-text';
+    style.textContent = '.cf_modal li, .cf_modal p, .cf_modal summary { font-size: 14px !important; line-height: 1.45 !important; }' +
+      ' .cf_modal .cf_label { font-size: 12px !important; }';
+    root.appendChild(style);
+  }
+  if (typeof MutationObserver === 'function') {
+    var observer = new MutationObserver(enlargeBannerText);
+    var startObserving = function () {
+      observer.observe(d.body, { childList: true });
+      enlargeBannerText();
+    };
+    if (d.body) startObserving();
+    else d.addEventListener('DOMContentLoaded', startObserving);
+  }
+
   d.addEventListener('zarazConsentAPIReady', apply);
   d.addEventListener('zarazConsentChoicesUpdated', apply);
   function applyIfReady() {
+    enlargeBannerText();
     if (w.zaraz && w.zaraz.consent && w.zaraz.consent.APIReady) apply();
   }
   applyIfReady();
