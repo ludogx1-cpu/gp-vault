@@ -270,6 +270,14 @@
         "destination": "/studios/index.html"
       },
       {
+        "source": "/studios/services",
+        "destination": "/studios/services/index.html"
+      },
+      {
+        "source": "/studios/services/",
+        "destination": "/studios/services/index.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

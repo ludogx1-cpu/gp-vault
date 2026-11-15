@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golden Paw Studios | Websites, Audits &amp; Chrome Extensions</title>
+    <meta name="description" content="Fixed-price web services from Golden Paw Studios: website speed &amp; SEO audits, small business websites in 72 hours, custom Chrome extensions and monthly social media packs.">
+    <link rel="icon" type="image/png" href="../studios_icon.png">
+    <link rel="canonical" href="https://goldenpaw.dog/studios/services/">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Golden Paw Studios — Web Services">
+    <meta property="og:description" content="Fast, fixed-price websites, audits and Chrome extensions for small businesses.">
+    <meta property="og:image" content="https://goldenpaw.dog/studios/studios_banner.png">
+    <meta property="og:url" content="https://goldenpaw.dog/studios/services/">
+
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .services { padding: 4rem 6%; max-width: 1180px; margin: 0 auto; }
+        .svc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+        .svc-card {
+            background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 20px;
+            padding: 2rem; display: flex; flex-direction: column; transition: all .3s ease;
+        }
+        .svc-card:hover { transform: translateY(-4px); border-color: var(--glass-hover-border); }
+        .svc-card.featured { border-color: rgba(255,193,7,.45); box-shadow: 0 0 30px rgba(255,193,7,.12); }
+        .svc-icon { font-size: 2rem; margin-bottom: .75rem; }
+        .svc-card h3 { font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: #FFF; margin-bottom: .35rem; }
+        .svc-price { font-family: var(--font-heading); font-size: 2rem; font-weight: 800; color: var(--primary-gold); line-height: 1.2; }
+        .svc-price small { font-size: .9rem; font-weight: 500; color: var(--text-muted); }
+        .svc-meta { font-size: .85rem; color: var(--text-muted); margin-bottom: 1rem; }
+        .svc-card p { color: var(--text-light); font-size: .95rem; margin-bottom: 1rem; }
+        .svc-card ul { list-style: none; margin: 0 0 1.5rem; flex: 1; }
+        .svc-card li { color: var(--text-light); font-size: .92rem; padding: .3rem 0 .3rem 1.5rem; position: relative; }
+        .svc-card li::before { content: "✓"; position: absolute; left: 0; color: var(--primary-gold); font-weight: 700; }
+        .svc-card .btn { justify-content: center; }
+        .ribbon { align-self: flex-start; font-size: .7rem; font-weight: 800; letter-spacing: .1em; color: #0B0F19;
+                  background: var(--primary-gold); padding: .25rem .7rem; border-radius: 50px; margin-bottom: .75rem; }
+        .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
+        .faq { max-width: 820px; margin: 0 auto; }
+        .faq details { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 1.1rem 1.4rem; margin-bottom: .8rem; }
+        .faq summary { cursor: pointer; font-weight: 600; color: #FFF; }
+        .faq details p { color: var(--text-light); margin-top: .75rem; font-size: .95rem; }
+        .offer-box { text-align: center; }
+        .offer-box p { color: var(--text-light); max-width: 640px; margin: 0 auto 1.75rem; }
+        @media (max-width: 760px) {
+            .nav-links a:not(.nav-btn) { display: none; }
+            .services { padding: 3rem 16px; }
+            .svc-card { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/studios/" class="brand">
+            <img src="../studios_icon.png" alt="Golden Paw Studios Logo" class="brand-icon">
+            <span>Golden Paw Studios</span>
+        </a>
+        <div class="nav-links">
+            <a href="#services">Services</a>
+            <a href="#how">How it works</a>
+            <a href="#faq">FAQ</a>
+            <a href="#order" class="nav-btn">Get a free audit</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-badge">✦ WEB SERVICES FOR SMALL BUSINESSES ✦</div>
+        <h1>Fast websites.<br><span class="gold-gradient">Fixed prices. No jargon.</span></h1>
+        <p class="hero-subtext">
+            We build and fix websites, browser tools and social content for small businesses and creators.
+            Clear prices up front, quick turnaround, and you only pay once you're happy with the preview.
+        </p>
+        <div class="hero-cta-group">
+            <a href="#services" class="btn btn-primary">See services &amp; prices ↓</a>
+            <a href="#order" class="btn btn-secondary">Request a free homepage mock-up</a>
+        </div>
+    </header>
+
+    <section id="services" class="services">
+        <div class="section-header">
+            <span class="sub-badge">SERVICES</span>
+            <h2 class="section-title">Pick what you need</h2>
+        </div>
+
+        <div class="svc-grid">
+            <div class="svc-card">
+                <div class="svc-icon">🔍</div>
+                <h3>Website Speed &amp; SEO Audit</h3>
+                <div class="svc-price">£29</div>
+                <div class="svc-meta">Delivered within 24 hours</div>
+                <p>Find out why your site is slow or not showing up on Google.</p>
+                <ul>
+                    <li>Mobile &amp; desktop speed scores</li>
+                    <li>SEO checklist: titles, descriptions, headings</li>
+                    <li>Broken links &amp; errors</li>
+                    <li>Google Business Profile check</li>
+                    <li>Your top 5 fixes, in plain English</li>
+                </ul>
+                <a class="btn btn-secondary" href="mailto:goldenpaw.dogeadmin@gmail.com?subject=Website%20audit%20(%C2%A329)&amp;body=Website%20address%3A%20%0ABusiness%20name%3A%20%0A">Order an audit</a>
+            </div>
+
+            <div class="svc-card featured">
+                <span class="ribbon">MOST POPULAR</span>
+                <div class="svc-icon">🌐</div>
+                <h3>Small Business Website</h3>
+                <div class="svc-price">£249 <small>one-off</small></div>
+                <div class="svc-meta">Live in 72 hours · optional care plan £19/month</div>
+                <p>A clean, mobile-friendly site that helps local customers find and contact you.</p>
+                <ul>
+                    <li>Up to 5 pages: home, services, about, reviews, contact</li>
+                    <li>All the wording written for you</li>
+                    <li>Your domain connected</li>
+                    <li>Google Business Profile text &amp; basic SEO</li>
+                    <li>Free homepage mock-up before you commit</li>
+                </ul>
+                <a class="btn btn-primary" href="mailto:goldenpaw.dogeadmin@gmail.com?subject=Small%20business%20website%20(%C2%A3249)&amp;body=Business%20name%3A%20%0AWhat%20you%20do%3A%20%0AArea%20you%20cover%3A%20%0ACurrent%20website%20or%20Facebook%20page%20(if%20any)%3A%20%0A">Get my free mock-up</a>
+            </div>
+
+            <div class="svc-card">
+                <div class="svc-icon">🧩</div>
+                <h3>Custom Chrome Extension</h3>
+                <div class="svc-price"><small>from</small> £99</div>
+                <div class="svc-meta">Simple tools in 2–5 days</div>
+                <p>A browser tool that saves you or your team time every day.</p>
+                <ul>
+                    <li>Export data from web pages to CSV / Sheets</li>
+                    <li>Automate repetitive clicks and forms</li>
+                    <li>Popups, side panels, settings pages</li>
+                    <li>Chrome Web Store publishing help</li>
+                </ul>
+                <a class="btn btn-secondary" href="mailto:goldenpaw.dogeadmin@gmail.com?subject=Chrome%20extension%20enquiry&amp;body=What%20should%20the%20extension%20do%3F%20%0AWhich%20websites%20does%20it%20work%20on%3F%20%0A">Describe your idea</a>
+            </div>
+
+            <div class="svc-card">
+                <div class="svc-icon">📣</div>
+                <h3>Monthly Social Media Pack</h3>
+                <div class="svc-price">£79 <small>/ month</small></div>
+                <div class="svc-meta">Cancel any time</div>
+                <p>A month of ready-to-post content for Facebook &amp; Instagram.</p>
+                <ul>
+                    <li>20 branded graphics in your colours</li>
+                    <li>Captions &amp; hashtags written for you</li>
+                    <li>A simple posting calendar</li>
+                    <li>Seasonal offers and promotions planned in</li>
+                </ul>
+                <a class="btn btn-secondary" href="mailto:goldenpaw.dogeadmin@gmail.com?subject=Social%20media%20pack%20(%C2%A379%2Fmonth)&amp;body=Business%20name%3A%20%0AFacebook%2FInstagram%20links%3A%20%0A">Start my pack</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="how" class="values">
+        <div class="section-header">
+            <span class="sub-badge">HOW IT WORKS</span>
+            <h2 class="section-title">Simple from start to finish</h2>
+        </div>
+        <div class="steps">
+            <div class="pillar-card">
+                <div class="pillar-num">01</div>
+                <h4>Tell us what you need</h4>
+                <p>Send a quick email with your business name and what you're after. No forms, no calls unless you want one.</p>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-num">02</div>
+                <h4>See a preview first</h4>
+                <p>We send you a preview or sample. You ask for any changes until it's right.</p>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-num">03</div>
+                <h4>Pay &amp; go live</h4>
+                <p>Only once you're happy, you pay the fixed price and we put it live. No hidden extras.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="faq" class="services">
+        <div class="section-header">
+            <span class="sub-badge">FAQ</span>
+            <h2 class="section-title">Common questions</h2>
+        </div>
+        <div class="faq">
+            <details>
+                <summary>Do I need to know anything technical?</summary>
+                <p>No. We handle the technical side and explain anything you need to know in plain English.</p>
+            </details>
+            <details>
+                <summary>What about hosting and my domain name?</summary>
+                <p>If you already own a domain, we connect it. If not, we help you buy one (usually around £10–£15 a year, paid directly to the registrar so it stays in your name). Hosting is included in the optional £19/month care plan, or we can set it up on your own account.</p>
+            </details>
+            <details>
+                <summary>What does the £19/month care plan include?</summary>
+                <p>Hosting, small text and photo changes, and monitoring that alerts us if your site goes down or slows. Cancel any time.</p>
+            </details>
+            <details>
+                <summary>Do you use AI?</summary>
+                <p>Yes. We use AI tools to work faster, which is how we keep prices low. Every piece of work is checked by a person before it reaches you.</p>
+            </details>
+            <details>
+                <summary>How do I pay?</summary>
+                <p>By secure card payment link once you've approved the preview. For larger jobs we may ask for a 50% deposit.</p>
+            </details>
+        </div>
+    </section>
+
+    <section id="order" class="contact">
+        <div class="contact-box offer-box">
+            <span class="sub-badge">FREE, NO OBLIGATION</span>
+            <h2>Not sure where to start?</h2>
+            <p>Send us your website (or your Facebook page if you don't have one) and we'll reply with a free mini-audit or a free homepage mock-up. No pressure to buy.</p>
+            <div class="contact-email-wrapper">
+                <a href="mailto:goldenpaw.dogeadmin@gmail.com?subject=Free%20mini-audit%20%2F%20mock-up&amp;body=Business%20name%3A%20%0AWebsite%20or%20Facebook%20page%3A%20%0AWhat%20would%20you%20like%20help%20with%3F%20%0A" class="btn btn-primary email-btn">
+                    <span>Email goldenpaw.dogeadmin@gmail.com</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <img src="../studios_icon.png" alt="Golden Paw Studios" class="footer-icon">
+                <span>Golden Paw Studios</span>
+            </div>
+            <p class="copyright">&copy; 2026 Golden Paw Studios. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="/studios/">Studios home</a>
+                <a href="/privacy/">Privacy Policy</a>
+                <a href="/terms.html">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
