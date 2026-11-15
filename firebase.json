@@ -278,6 +278,14 @@
         "destination": "/studios/services/index.html"
       },
       {
+        "source": "/studios/thanks",
+        "destination": "/studios/thanks/index.html"
+      },
+      {
+        "source": "/studios/thanks/",
+        "destination": "/studios/thanks/index.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

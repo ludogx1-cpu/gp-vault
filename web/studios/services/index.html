@@ -15,6 +15,7 @@
     <meta property="og:url" content="https://goldenpaw.dog/studios/services/">
 
     <link rel="stylesheet" href="../styles.css">
+    <script src="../shop.js" defer></script>
     <style>
         .services { padding: 4rem 6%; max-width: 1180px; margin: 0 auto; }
         .svc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
@@ -98,7 +99,7 @@
                     <li>Google Business Profile check</li>
                     <li>Your top 5 fixes, in plain English</li>
                 </ul>
-                <a class="btn btn-secondary" href="mailto:goldenpaw.dogeadmin@gmail.com?subject=Website%20audit%20(%C2%A329)&amp;body=Website%20address%3A%20%0ABusiness%20name%3A%20%0A">Order an audit</a>
+                <a data-stripe="audit" class="btn btn-secondary" href="mailto:goldenpaw.dogeadmin@gmail.com?subject=Website%20audit%20(%C2%A329)&amp;body=Website%20address%3A%20%0ABusiness%20name%3A%20%0A">Order an audit</a>
             </div>
 
             <div class="svc-card featured">
@@ -115,7 +116,7 @@
                     <li>Google Business Profile text &amp; basic SEO</li>
                     <li>Free homepage mock-up before you commit</li>
                 </ul>
-                <a class="btn btn-primary" href="mailto:goldenpaw.dogeadmin@gmail.com?subject=Small%20business%20website%20(%C2%A3249)&amp;body=Business%20name%3A%20%0AWhat%20you%20do%3A%20%0AArea%20you%20cover%3A%20%0ACurrent%20website%20or%20Facebook%20page%20(if%20any)%3A%20%0A">Get my free mock-up</a>
+                <a data-stripe="website" class="btn btn-primary" href="mailto:goldenpaw.dogeadmin@gmail.com?subject=Small%20business%20website%20(%C2%A3249)&amp;body=Business%20name%3A%20%0AWhat%20you%20do%3A%20%0AArea%20you%20cover%3A%20%0ACurrent%20website%20or%20Facebook%20page%20(if%20any)%3A%20%0A">Get my free mock-up</a>
             </div>
 
             <div class="svc-card">
@@ -130,7 +131,7 @@
                     <li>Popups, side panels, settings pages</li>
                     <li>Chrome Web Store publishing help</li>
                 </ul>
-                <a class="btn btn-secondary" href="mailto:goldenpaw.dogeadmin@gmail.com?subject=Chrome%20extension%20enquiry&amp;body=What%20should%20the%20extension%20do%3F%20%0AWhich%20websites%20does%20it%20work%20on%3F%20%0A">Describe your idea</a>
+                <a data-stripe="extension" class="btn btn-secondary" href="mailto:goldenpaw.dogeadmin@gmail.com?subject=Chrome%20extension%20enquiry&amp;body=What%20should%20the%20extension%20do%3F%20%0AWhich%20websites%20does%20it%20work%20on%3F%20%0A">Describe your idea</a>
             </div>
 
             <div class="svc-card">
@@ -145,7 +146,7 @@
                     <li>A simple posting calendar</li>
                     <li>Seasonal offers and promotions planned in</li>
                 </ul>
-                <a class="btn btn-secondary" href="mailto:goldenpaw.dogeadmin@gmail.com?subject=Social%20media%20pack%20(%C2%A379%2Fmonth)&amp;body=Business%20name%3A%20%0AFacebook%2FInstagram%20links%3A%20%0A">Start my pack</a>
+                <a data-stripe="social" class="btn btn-secondary" href="mailto:goldenpaw.dogeadmin@gmail.com?subject=Social%20media%20pack%20(%C2%A379%2Fmonth)&amp;body=Business%20name%3A%20%0AFacebook%2FInstagram%20links%3A%20%0A">Start my pack</a>
             </div>
         </div>
     </section>
