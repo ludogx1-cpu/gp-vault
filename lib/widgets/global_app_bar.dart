@@ -80,9 +80,10 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
                     const SizedBox(width: 10),
                     Flexible(
                       child: ShaderMask(
-                        // Gold gradient to match the paw logo.
+                        // Metallic gold gradient sampled from the paw logo
+                        // (champagne highlight -> classic gold -> antique gold).
                         shaderCallback: (bounds) => const LinearGradient(
-                          colors: [Color(0xFFFFE082), Color(0xFFFFC107), Color(0xFFE0A000)],
+                          colors: [Color(0xFFF5E6A0), Color(0xFFD4AF37), Color(0xFF9A7437)],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                         ).createShader(bounds),
