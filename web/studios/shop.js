@@ -66,7 +66,7 @@ window.GP_SHOP = {
       name: 'Website Speed & SEO Audit',
       price: '£29',
       blurb: 'A plain-English report on why your site is slow or hard to find, with your top 5 fixes.',
-      stripe: '',
+      stripe: 'https://buy.stripe.com/cNicN7ani3KW3t22hR0gw01',
     },
     {
       id: 'website',
@@ -76,6 +76,8 @@ window.GP_SHOP = {
       blurb: 'A fast, mobile-friendly site live in 72 hours. Free homepage mock-up first.',
       // Usually paid after the client approves the preview, so this can stay
       // empty and you send the link by email instead.
+      // Live link, sent by email once the client approves their preview:
+      // https://buy.stripe.com/aFafZjfHCa9k5Ba7Cb0gw02
       stripe: '',
     },
     {
@@ -84,7 +86,7 @@ window.GP_SHOP = {
       name: 'Website Care Plan',
       price: '£19/mo',
       blurb: 'Hosting, small edits and uptime monitoring for your site. Cancel any time.',
-      stripe: '',
+      stripe: 'https://buy.stripe.com/28E3cx52Y5T45Ba2hR0gw03',
     },
     {
       id: 'extension',
@@ -92,7 +94,7 @@ window.GP_SHOP = {
       name: 'Custom Chrome Extension',
       price: 'from £99',
       blurb: 'A browser tool that automates the boring parts of your day.',
-      stripe: '',
+      stripe: 'https://buy.stripe.com/14A8wRcvq3KW5Ba6y70gw04',
     },
     {
       id: 'social',
@@ -100,7 +102,7 @@ window.GP_SHOP = {
       name: 'Monthly Social Media Pack',
       price: '£79/mo',
       blurb: '20 branded posts with captions and hashtags, ready to post each month.',
-      stripe: '',
+      stripe: 'https://buy.stripe.com/8x228tdzuepA6FebSr0gw05',
     },
   ],
 };
