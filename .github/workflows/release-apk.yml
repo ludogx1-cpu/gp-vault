@@ -46,14 +46,21 @@ jobs:
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS || 'upload' }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || 'goldenpaw2026' }}
-          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD || 'goldenpaw2026' }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
         run: |
           if [ -n "$KEYSTORE_BASE64" ]; then
             echo "Setting up keystore from secret..."
             echo "$KEYSTORE_BASE64" | base64 -d > android/app/release.keystore
           fi
           if [ -f "android/app/release.keystore" ]; then
+            missing=""
+            [ -n "$KEY_PASSWORD" ] || missing="$missing KEY_PASSWORD"
+            [ -n "$STORE_PASSWORD" ] || missing="$missing STORE_PASSWORD"
+            if [ -n "$missing" ]; then
+              echo "::error title=Missing signing secrets::A release keystore is present but these repository secrets are not set:$missing. Add them under Settings > Secrets and variables > Actions, or remove KEYSTORE_BASE64 to build with debug signing."
+              exit 1
+            fi
             echo "Configuring release signing with android/app/release.keystore..."
             printf "storePassword=%s\nkeyPassword=%s\nkeyAlias=%s\nstoreFile=release.keystore\n" \
               "$STORE_PASSWORD" "$KEY_PASSWORD" "$KEY_ALIAS" > android/key.properties
