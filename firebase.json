@@ -286,6 +286,22 @@
         "destination": "/studios/thanks/index.html"
       },
       {
+        "source": "/shop",
+        "destination": "/shop/index.html"
+      },
+      {
+        "source": "/shop/",
+        "destination": "/shop/index.html"
+      },
+      {
+        "source": "/support",
+        "destination": "/support/index.html"
+      },
+      {
+        "source": "/support/",
+        "destination": "/support/index.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

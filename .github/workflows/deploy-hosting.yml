@@ -1,0 +1,95 @@
+name: Deploy website
+
+# Deploys goldenpaw.dog (Firebase Hosting) after "Project checks" passes on main.
+# Needs the FIREBASE_SERVICE_ACCOUNT repository secret (a Firebase service-account
+# JSON key). Until that secret exists, the workflow skips the deploy.
+on:
+  workflow_run:
+    workflows: ["Project checks"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      apk_source:
+        description: "Where to get golden-paw.apk: keep the live one, or use the latest GitHub release"
+        type: choice
+        options: [live, release]
+        default: live
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-hosting
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check deploy key
+        id: key
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SA" ]; then
+            echo "::notice::FIREBASE_SERVICE_ACCOUNT secret not set; skipping deploy."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.key.outputs.skip == 'false'
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - uses: subosito/flutter-action@v2
+        if: steps.key.outputs.skip == 'false'
+        with:
+          flutter-version: '3.47.2'
+          channel: stable
+          cache: true
+
+      - name: Build web app
+        if: steps.key.outputs.skip == 'false'
+        run: |
+          flutter pub get
+          flutter build web --release --no-wasm-dry-run --no-pub
+
+      # golden-paw.apk is not in the repo; it lives only on the hosted site.
+      # Keep the live copy (default) or take the latest release, and refuse to
+      # deploy without a valid APK so the download link never breaks.
+      - name: Add Android APK
+        if: steps.key.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APK_SOURCE: ${{ github.event.inputs.apk_source || 'live' }}
+        run: |
+          set -u
+          out=build/web/golden-paw.apk
+          from_release() {
+            gh release download --repo "$GITHUB_REPOSITORY" --pattern 'GoldenPaw-universal.apk' --dir /tmp/apk --clobber \
+              && mv /tmp/apk/GoldenPaw-universal.apk "$out"
+          }
+          from_live() {
+            curl -fsSL --retry 3 -o "$out" https://goldenpaw.dog/golden-paw.apk
+          }
+          if [ "$APK_SOURCE" = "release" ]; then from_release || from_live; else from_live || from_release; fi
+          size=$(stat -c %s "$out" 2>/dev/null || echo 0)
+          magic=$(head -c 2 "$out" 2>/dev/null || true)
+          if [ "$size" -lt 5000000 ] || [ "$magic" != "PK" ]; then
+            echo "::error::No valid golden-paw.apk (size $size). Not deploying."
+            exit 1
+          fi
+          echo "APK ready: $((size / 1048576)) MB from $APK_SOURCE"
+
+      - name: Deploy to Firebase Hosting
+        if: steps.key.outputs.skip == 'false'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ github.token }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: golden-paw-database
+          channelId: live
