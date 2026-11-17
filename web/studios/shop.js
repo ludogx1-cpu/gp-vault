@@ -1,7 +1,11 @@
 /*
  * Golden Paw Studios — shop & services catalogue.
  *
- * HOW TO START SELLING SOMETHING
+ * Digital downloads are sold through Gumroad (instant delivery, VAT handled):
+ * put the product's Gumroad link (https://ludogx.gumroad.com/l/...) in `stripe`.
+ * Services are sold through Stripe Payment Links.
+ *
+ * HOW TO START SELLING A SERVICE
  * 1. In Stripe: Product catalogue → Payment Links → "+ New" → create the
  *    product at the price below. Under "After payment", choose
  *    "Don't show confirmation page" and redirect to:
@@ -31,7 +35,7 @@ window.GP_SHOP = {
       name: 'Dog Care Planner',
       price: '£5',
       blurb: 'A printable planner for walks, feeding, vet visits, meds and training progress.',
-      stripe: '',
+      stripe: 'https://ludogx.gumroad.com/l/dog-care-planner',
     },
     {
       id: 'colouring',
@@ -55,7 +59,7 @@ window.GP_SHOP = {
       name: 'Groomer & Dog Walker Starter Kit',
       price: '£12',
       blurb: 'Editable price list, booking form, client card and 20 social post templates.',
-      stripe: '',
+      stripe: 'https://ludogx.gumroad.com/l/groomer-starter-kit',
     },
   ],
 
