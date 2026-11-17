@@ -1,8 +1,9 @@
 name: Deploy website
 
 # Deploys goldenpaw.dog (Firebase Hosting) after "Project checks" passes on main.
-# Needs the FIREBASE_SERVICE_ACCOUNT repository secret (a Firebase service-account
-# JSON key). Until that secret exists, the workflow skips the deploy.
+# Needs a Firebase service-account key as a repository secret, named either
+# FIREBASE_SERVICE_ACCOUNT or FIREBASE_SERVICE_ACCOUNT_GOLDEN_PAW_DATABASE (the name
+# `firebase init hosting:github` creates). Until one exists, the deploy is skipped.
 on:
   workflow_run:
     workflows: ["Project checks"]
@@ -31,7 +32,7 @@ jobs:
       - name: Check deploy key
         id: key
         env:
-          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT || secrets.FIREBASE_SERVICE_ACCOUNT_GOLDEN_PAW_DATABASE }}
         run: |
           if [ -z "$FIREBASE_SA" ]; then
             echo "::notice::FIREBASE_SERVICE_ACCOUNT secret not set; skipping deploy."
@@ -90,6 +91,6 @@ jobs:
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ github.token }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT || secrets.FIREBASE_SERVICE_ACCOUNT_GOLDEN_PAW_DATABASE }}
           projectId: golden-paw-database
           channelId: live
