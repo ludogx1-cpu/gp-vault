@@ -1,6 +1,9 @@
 /*
  * Golden Paw Studios — shop & services catalogue.
  *
+ * Downloads: the Stripe Payment Link redirects buyers to the file after payment.
+ * Keep download URLs ONLY in Stripe (this repo is public).
+ *
  * HOW TO START SELLING SOMETHING
  * 1. In Stripe: Product catalogue → Payment Links → "+ New" → create the
  *    product at the price below. Under "After payment", choose
@@ -31,7 +34,7 @@ window.GP_SHOP = {
       name: 'Dog Care Planner',
       price: '£5',
       blurb: 'A printable planner for walks, feeding, vet visits, meds and training progress.',
-      stripe: '',
+      stripe: 'https://buy.stripe.com/5kQfZjcvq6X85Ba3lV0gw06',
     },
     {
       id: 'colouring',
@@ -55,7 +58,7 @@ window.GP_SHOP = {
       name: 'Groomer & Dog Walker Starter Kit',
       price: '£12',
       blurb: 'Editable price list, booking form, client card and 20 social post templates.',
-      stripe: '',
+      stripe: 'https://buy.stripe.com/bJeaEZ0MI4P08Nme0z0gw07',
     },
   ],
 
