@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class ThemeProvider extends ChangeNotifier {
   bool _isDarkMode = true;
@@ -18,8 +19,8 @@ class ThemeProvider extends ChangeNotifier {
       colors: [
         Colors.black87,
         Colors.black87.withValues(alpha: 0.98),
-        Color.lerp(Colors.black87, Colors.amber, 0.15)!,
-        Color.lerp(Colors.black87, Colors.amber, 0.20)!,
+        Color.lerp(Colors.black87, kGold, 0.15)!,
+        Color.lerp(Colors.black87, kGold, 0.20)!,
       ],
       stops: const [0.0, 0.6, 0.8, 1.0],
     );
@@ -46,7 +47,7 @@ class ThemeProvider extends ChangeNotifier {
       scaffoldBackgroundColor: Colors.black87,
       primaryColor: Colors.black87,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.amber,
+        seedColor: kGold,
         brightness: Brightness.dark,
       ),
       textTheme: ThemeData.dark().textTheme.apply(
@@ -75,7 +76,7 @@ final themeProvider = ThemeProvider();
 
 
 const kAppBarColor = Colors.black;
-const kAppBarIconColor = Colors.amber;
+const kAppBarIconColor = kGold;
 const kAppBarLogoColor = Colors.white;
 const kTextColorOnBlack = Colors.white;
 

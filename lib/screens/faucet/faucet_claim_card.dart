@@ -15,6 +15,7 @@ import '../../widgets/widgets.dart';
 import 'captcha_selector_widget.dart';
 import '../../src/analytics.dart';
 import '../../dataconnect_generated/generated.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class FaucetClaimCard extends StatefulWidget {
   final ExampleConnector? connector;
@@ -481,7 +482,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
                         : Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: Colors.amber,
+                      color: kGold,
                       width: 0.5,
                     ),
                   ),
@@ -496,7 +497,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
                                 : Icons.account_balance_wallet,
                             color: _saveToVault
                                 ? Colors.green
-                                : Colors.amber,
+                                : kGold,
                           ),
                           const SizedBox(width: 10),
                           Text(
@@ -515,7 +516,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
                       Switch(
                         value: _saveToVault,
                         activeThumbColor: Colors.green,
-                        inactiveThumbColor: Colors.amber,
+                        inactiveThumbColor: kGold,
                         onChanged: _secondsRemaining > 0
                             ? null
                             : (bool value) {
@@ -557,7 +558,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
               labelText: 'FaucetPay Dogecoin Address',
               prefixIcon: const Icon(
                 Icons.account_balance_wallet,
-                color: Colors.amber,
+                color: kGold,
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -565,13 +566,13 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: Theme.of(context).brightness == Brightness.dark ? Colors.amber : Colors.grey.shade400,
+                  color: Theme.of(context).brightness == Brightness.dark ? kGold : Colors.grey.shade400,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: Theme.of(context).brightness == Brightness.dark ? Colors.amber : Colors.blue,
+                  color: Theme.of(context).brightness == Brightness.dark ? kGold : Colors.blue,
                   width: 2.0,
                 ),
               ),
@@ -583,13 +584,13 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.amber.withValues(alpha: 0.1),
+            color: kGold.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.amber.withValues(alpha: 0.5)),
+            border: Border.all(color: kGold.withValues(alpha: 0.5)),
           ),
           child: const Row(
             children: [
-              Icon(Icons.info_outline, color: Colors.amber, size: 20),
+              Icon(Icons.info_outline, color: kGold, size: 20),
               SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -641,7 +642,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
                   backgroundColor:
                       _secondsRemaining > 0 || _captchaToken == null
                       ? Colors.grey
-                      : (_saveToVault ? Colors.green : Colors.amber),
+                      : (_saveToVault ? Colors.green : kGold),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../src/theme_provider.dart';
 import 'universal_web_view/universal_web_view.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class AppFooter extends StatelessWidget {
   const AppFooter({super.key});
@@ -18,7 +19,7 @@ class AppFooter extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20.0, 18.0, 20.0, 12.0),
       decoration: BoxDecoration(
         color: Colors.black,
-        border: Border(top: BorderSide(color: Colors.amber.shade200, width: 1)),
+        border: Border(top: BorderSide(color: kGold.shade200, width: 1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -33,7 +34,7 @@ class AppFooter extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
                     letterSpacing: 2,
-                    color: Colors.amber,
+                    color: kGold,
                   ),
                 ),
               ),
@@ -45,7 +46,7 @@ class AppFooter extends StatelessWidget {
                     themeProvider.isDarkMode
                         ? Icons.light_mode
                         : Icons.dark_mode,
-                    color: Colors.amber,
+                    color: kGold,
                     size: 20,
                   ),
                   tooltip: "Toggle Dark/Light Mode",
@@ -73,7 +74,7 @@ class AppFooter extends StatelessWidget {
                 child: const Text(
                   "Golden Paw Studios",
                   style: TextStyle(
-                    color: Colors.amber,
+                    color: kGold,
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                   ),
@@ -292,7 +293,7 @@ class AppFooter extends StatelessWidget {
             },
           ),
           const SizedBox(height: 8),
-          Container(height: 1, width: 250, color: Colors.amber.shade700),
+          Container(height: 1, width: 250, color: kGold.shade700),
           const SizedBox(height: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -323,7 +324,7 @@ class AppFooter extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: Colors.amber,
+                  color: kGold,
                 ),
               ),
               SizedBox(height: 4),
@@ -333,7 +334,7 @@ class AppFooter extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontStyle: FontStyle.italic,
-                  color: Colors.amber.shade200,
+                  color: kGold.shade200,
                 ),
               ),
             ],

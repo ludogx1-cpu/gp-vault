@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../src/theme_provider.dart';
 import '../../widgets/animated_hover_card.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class WelcomeBanner extends StatelessWidget {
   const WelcomeBanner({super.key});
@@ -19,10 +20,10 @@ class WelcomeBanner extends StatelessWidget {
         return AnimatedHoverCard(
           backgroundColor: isDark
               ? themeProvider.darkGreyBoxColor
-              : Colors.amber[50],
+              : kGold[50],
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: Colors.amber,
+            color: kGold,
             width: 0.5,
           ),
           child: Padding(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class ChatMessageBubble extends StatelessWidget {
   final Map<String, dynamic> data;
@@ -35,13 +36,13 @@ class ChatMessageBubble extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 12,
-                  color: isAdmin ? Colors.amber.shade700 : (isDark ? Colors.blue.shade300 : Colors.blue.shade700),
+                  color: isAdmin ? kGold.shade700 : (isDark ? Colors.blue.shade300 : Colors.blue.shade700),
                 ),
               ),
               if (isAdmin)
                 const Padding(
                   padding: EdgeInsets.only(left: 4.0),
-                  child: Icon(Icons.verified, size: 12, color: Colors.amber),
+                  child: Icon(Icons.verified, size: 12, color: kGold),
                 ),
               const Spacer(),
               if (isCurrentUserAdmin && !isAdmin)

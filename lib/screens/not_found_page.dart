@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../src/theme_provider.dart';
 import '../widgets/widgets.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class NotFoundPage extends StatelessWidget {
   const NotFoundPage({super.key});
@@ -23,7 +24,7 @@ class NotFoundPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.pets, size: 100, color: Colors.amber),
+                  const Icon(Icons.pets, size: 100, color: kGold),
                   const SizedBox(height: 20),
                   Text(
                     "404 - Page Not Found",
@@ -42,7 +43,7 @@ class NotFoundPage extends StatelessWidget {
                   const SizedBox(height: 40),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.amber,
+                      backgroundColor: kGold,
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     ),
                     onPressed: () => context.go('/faucet'),

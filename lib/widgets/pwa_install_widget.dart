@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import '../api_constants.dart';
 import '../src/pwa_interop.dart' if (dart.library.html) '../src/pwa_interop_web.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class PwaInstallWidget extends StatefulWidget {
   const PwaInstallWidget({super.key});
@@ -80,7 +81,7 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.amber.shade700, Colors.orange.shade800],
+          colors: [kGold.shade700, Colors.orange.shade800],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -134,7 +135,7 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
               height: 42,
               child: ElevatedButton.icon(
                 onPressed: _triggerInstall,
-                icon: const Icon(Icons.add_to_home_screen, color: Colors.amber, size: 18),
+                icon: const Icon(Icons.add_to_home_screen, color: kGold, size: 18),
                 label: const Text(
                   "INSTALL WEB APP",
                   style: TextStyle(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../widgets/widgets.dart'; // For AnimatedHoverCard, LiveInterestDisplay
 import '../../../src/theme_provider.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class HarvestCard extends StatelessWidget {
   final double stakedBalance;
@@ -24,10 +25,10 @@ class HarvestCard extends StatelessWidget {
     return AnimatedHoverCard(
       backgroundColor: isDark
           ? themeProvider.darkGreyBoxColor
-          : Colors.amber.shade100,
+          : kGold.shade100,
       borderRadius: BorderRadius.circular(20),
       border: Border.all(
-        color: Colors.amber,
+        color: kGold,
         width: 0.5,
       ),
       child: SizedBox(

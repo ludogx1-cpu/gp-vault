@@ -18,6 +18,7 @@ import 'pet/pet_stats_bar.dart';
 import 'pet/pet_xp_bar.dart';
 import 'pet/pet_sprite_widget.dart';
 import 'pet/pet_collar_painter.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class ShibaPetWidget extends StatefulWidget {
   const ShibaPetWidget({super.key});
@@ -427,13 +428,13 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
             end: Alignment.bottomCenter,
             colors: isDark
                 ? [Colors.grey.shade900, Colors.black45]
-                : [Colors.amber.shade100, Colors.white],
+                : [kGold.shade100, Colors.white],
           ),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: boopReady
                 ? Colors.pinkAccent
-                : (activeCollar?.primaryColor ?? Colors.amber).withValues(
+                : (activeCollar?.primaryColor ?? kGold).withValues(
                     alpha: 0.72,
                   ),
             width: boopReady ? 2.0 : 1.3,
@@ -445,7 +446,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: Colors.amber.withValues(alpha: 0.25),
+                color: kGold.withValues(alpha: 0.25),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -470,7 +471,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                       style: TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.w900,
-                        color: isDark ? Colors.amber : Colors.brown.shade800,
+                        color: isDark ? kGold : Colors.brown.shade800,
                         letterSpacing: 0.6,
                       ),
                     ),
@@ -626,9 +627,9 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
       constraints: const BoxConstraints(maxWidth: 600),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? theme.darkGreyBoxColor : Colors.amber.shade50,
+        color: isDark ? theme.darkGreyBoxColor : kGold.shade50,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.amber, width: 0.5),
+        border: Border.all(color: kGold, width: 0.5),
       ),
       child: Column(
         children: [
@@ -924,7 +925,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: Colors.amber,
+                  color: kGold,
                 ),
               ),
             ),
@@ -1039,7 +1040,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
         actionsAlignment: MainAxisAlignment.center,
         actions: [
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
+            style: ElevatedButton.styleFrom(backgroundColor: kGold),
             onPressed: () {
               Navigator.pop(context);
               onConfirm('usdt');

@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../widgets/bitcotasks_native_widget.dart';
 import '../widgets/ads/timewall_quick_links.dart';
 import '../src/analytics.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
@@ -54,7 +55,7 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
       return AppScaffold(
         appBar: AppBar(
           title: const Text('Offerwalls'),
-          backgroundColor: Colors.amber,
+          backgroundColor: kGold,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
@@ -81,7 +82,7 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
           'Offerwall Tasks',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.amber,
+        backgroundColor: kGold,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
         leading: IconButton(
@@ -103,7 +104,7 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-              child: CircularProgressIndicator(color: Colors.amber),
+              child: CircularProgressIndicator(color: kGold),
             );
           }
 
@@ -150,10 +151,10 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
               children: [
                 // 💼 Balance Staging Display Card
                 Card(
-                  color: Colors.amber.shade50,
+                  color: kGold.shade50,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
-                    side: BorderSide(color: Colors.amber.shade200),
+                    side: BorderSide(color: kGold.shade200),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
@@ -376,7 +377,7 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(
-                        color: Colors.amber.shade300,
+                        color: kGold.shade300,
                         width: 2,
                       ),
                     ),

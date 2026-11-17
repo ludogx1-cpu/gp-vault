@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../src/theme_provider.dart';
 import '../widgets/widgets.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 
 
@@ -32,7 +33,7 @@ class FAQPage extends StatelessWidget {
               listenable: themeProvider,
               builder: (context, _) {
                 final isDark = themeProvider.isDarkMode;
-                final titleColor = isDark ? Colors.amber : Colors.amber.shade700;
+                final titleColor = isDark ? kGold : kGold.shade700;
                 final textColor = isDark ? Colors.white70 : Colors.black87;
 
                 return Container(

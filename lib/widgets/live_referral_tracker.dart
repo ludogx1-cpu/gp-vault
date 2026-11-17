@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../src/theme_provider.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class LiveReferralTracker extends StatefulWidget {
   const LiveReferralTracker({super.key});
@@ -55,7 +56,7 @@ class _LiveReferralTrackerState extends State<LiveReferralTracker> {
       decoration: BoxDecoration(
         color: kAppBarColor,
         border: Border(
-          bottom: BorderSide(color: Colors.amber.shade700, width: 2),
+          bottom: BorderSide(color: kGold.shade700, width: 2),
         ),
       ),
       child: Row(
@@ -74,7 +75,7 @@ class _LiveReferralTrackerState extends State<LiveReferralTracker> {
           Text(
             "\$${_price.toStringAsFixed(4)}",
             style: const TextStyle(
-              color: Colors.amber,
+              color: kGold,
               fontSize: 14,
               fontWeight: FontWeight.bold,
             ),

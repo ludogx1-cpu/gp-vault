@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../src/theme_provider.dart';
 import '../widgets/widgets.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 
 
@@ -52,7 +53,7 @@ class ContactPage extends StatelessWidget {
                     Icon(
                       Icons.support_agent,
                       size: 80,
-                      color: isDark ? Colors.amber : Colors.amber.shade700,
+                      color: isDark ? kGold : kGold.shade700,
                     ),
                     const SizedBox(height: 20),
                     Text(
@@ -60,7 +61,7 @@ class ContactPage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.amber : Colors.amber.shade700,
+                        color: isDark ? kGold : kGold.shade700,
                       ),
                     ),
                     const SizedBox(height: 15),
@@ -73,10 +74,10 @@ class ContactPage extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: isDark ? Colors.black26 : Colors.amber.shade50,
+                        color: isDark ? Colors.black26 : kGold.shade50,
                         borderRadius: BorderRadius.circular(15),
                         border: Border.all(
-                          color: isDark ? Colors.amber.withValues(alpha: 0.3) : Colors.amber.shade200,
+                          color: isDark ? kGold.withValues(alpha: 0.3) : kGold.shade200,
                           width: 2,
                         ),
                       ),
@@ -86,7 +87,7 @@ class ContactPage extends StatelessWidget {
                             "Email Support",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.amber : Colors.amber.shade700,
+                              color: isDark ? kGold : kGold.shade700,
                               fontSize: 18,
                             ),
                           ),
@@ -98,7 +99,7 @@ class ContactPage extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.amber.shade200 : Colors.blue.shade700,
+                                color: isDark ? kGold.shade200 : Colors.blue.shade700,
                                 decoration: TextDecoration.underline,
                               ),
                             ),
@@ -118,7 +119,7 @@ class ContactPage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.amber : Colors.amber.shade700,
+                        color: isDark ? kGold : kGold.shade700,
                       ),
                     ),
                     const SizedBox(height: 15),
@@ -188,11 +189,11 @@ class ContactPage extends StatelessWidget {
                             Uri.parse('https://goldenpaw.dog/studios'),
                             mode: LaunchMode.externalApplication,
                           ),
-                          icon: const Icon(Icons.pets, size: 16, color: Colors.amber),
+                          icon: const Icon(Icons.pets, size: 16, color: kGold),
                           label: const Text("Golden Paw Studios ↗"),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.amber,
-                            side: const BorderSide(color: Colors.amber),
+                            foregroundColor: kGold,
+                            side: const BorderSide(color: kGold),
                           ),
                         ),
                       ],
@@ -200,7 +201,7 @@ class ContactPage extends StatelessWidget {
                     const SizedBox(height: 30),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.amber,
+                        backgroundColor: kGold,
                         foregroundColor: Colors.black87,
                       ),
                       onPressed: () => Navigator.pop(context),

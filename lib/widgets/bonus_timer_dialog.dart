@@ -13,6 +13,7 @@ import '../screens/faucet/captcha_selector_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:gp_faucet/src/brand_colors.dart';
 
 // ==========================================
 // 1. THE SHELL
@@ -311,7 +312,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
                   ),
                 ),
               ] else if (!_claimed) ...[
-                const CircularProgressIndicator(color: Colors.amber),
+                const CircularProgressIndicator(color: kGold),
                 const SizedBox(height: 25),
                 Text(
                   _message,
@@ -345,7 +346,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
                       const SizedBox(width: 10),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.amber,
+                          backgroundColor: kGold,
                         ),
                         onPressed: () {
                           setState(() {});
@@ -392,7 +393,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amber,
+                    backgroundColor: kGold,
                   ),
                   onPressed: () =>
                       Navigator.of(context, rootNavigator: true).pop(),

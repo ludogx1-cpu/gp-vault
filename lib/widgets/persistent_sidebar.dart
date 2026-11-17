@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 final ValueNotifier<bool> sidebarExpandedNotifier = ValueNotifier(false);
 
@@ -33,7 +34,7 @@ class _SidebarNavItemState extends State<SidebarNavItem> {
   @override
   Widget build(BuildContext context) {
     final Color defaultIconColor = widget.isDark ? Colors.grey.shade400 : Colors.grey.shade600;
-    final Color activeIconColor = Colors.amber;
+    final Color activeIconColor = kGold;
     final Color titleColor = widget.isDark ? Colors.white : Colors.black87;
     
     final bool isActive = _isHovered || _isPressed;
@@ -47,8 +48,8 @@ class _SidebarNavItemState extends State<SidebarNavItem> {
         onTapUp: (_) => setState(() => _isPressed = false),
         onTapCancel: () => setState(() => _isPressed = false),
         onHover: (hovering) => setState(() => _isHovered = hovering),
-        splashColor: Colors.amber.withValues(alpha: 0.2),
-        highlightColor: Colors.amber.withValues(alpha: 0.1),
+        splashColor: kGold.withValues(alpha: 0.2),
+        highlightColor: kGold.withValues(alpha: 0.1),
         hoverColor: Colors.transparent, // Let the icon color change handle hover
         child: Container(
           height: 55, // Increased size

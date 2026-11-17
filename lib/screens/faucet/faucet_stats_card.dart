@@ -7,6 +7,7 @@ import '../../src/theme_provider.dart';
 import '../../src/reward_logic.dart';
 import '../../widgets/shiba_pet_widget.dart';
 import 'leaderboard_preview.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class FaucetStatsCard extends StatelessWidget {
   final double currentDogePrice;
@@ -49,8 +50,8 @@ class FaucetStatsCard extends StatelessWidget {
                     builder: (context, _) {
                       final isDark = themeProvider.isDarkMode;
                       final boxColor = isDark ? themeProvider.darkGreyBoxColor : Colors.green.shade50;
-                      final borderColor = isDark ? Colors.amber.withValues(alpha: 0.5) : Colors.green.shade300;
-                      final primaryTextColor = isDark ? Colors.amber.shade300 : Colors.green.shade900;
+                      final borderColor = isDark ? kGold.withValues(alpha: 0.5) : Colors.green.shade300;
+                      final primaryTextColor = isDark ? kGold.shade300 : Colors.green.shade900;
                       final secondaryTextColor = isDark ? Colors.white70 : Colors.green.shade800;
 
                       return Container(
@@ -274,7 +275,7 @@ class FaucetStatsCard extends StatelessWidget {
                       : Colors.green.shade100,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: Colors.amber,
+                    color: kGold,
                     width: 0.5,
                   ),
                 ),
@@ -286,7 +287,7 @@ class FaucetStatsCard extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: isDark
-                            ? Colors.amber.shade300
+                            ? kGold.shade300
                             : Colors.green.shade900,
                         fontWeight: FontWeight.bold,
                         fontSize: 15,

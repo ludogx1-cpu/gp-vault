@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'pet_collar_painter.dart';
 import 'pet_depth_perspective.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class PetSpriteWidget extends StatelessWidget {
   final String stage;
@@ -428,7 +429,7 @@ class PetSpriteWidget extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
                                     color: (activeCollar?.primaryColor ??
-                                            Colors.amber)
+                                            kGold)
                                         .withValues(alpha: 0.75),
                                     width: 1.0,
                                   ),
@@ -458,7 +459,7 @@ class PetSpriteWidget extends StatelessWidget {
                                           style: const TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.bold,
-                                            color: Colors.amber,
+                                            color: kGold,
                                           ),
                                         ),
                                       ],

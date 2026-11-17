@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 class RootGatekeeper extends StatelessWidget {
   const RootGatekeeper({super.key});
 
@@ -15,7 +16,7 @@ class RootGatekeeper extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            body: Center(child: CircularProgressIndicator(color: Colors.amber)),
+            body: Center(child: CircularProgressIndicator(color: kGold)),
           );
         }
         if (snapshot.hasData) {
@@ -25,7 +26,7 @@ class RootGatekeeper extends StatelessWidget {
             }
           });
           return const Scaffold(
-            body: Center(child: CircularProgressIndicator(color: Colors.amber)),
+            body: Center(child: CircularProgressIndicator(color: kGold)),
           );
         }
         if (!kIsWeb) {

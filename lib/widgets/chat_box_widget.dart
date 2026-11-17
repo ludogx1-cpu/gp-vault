@@ -8,6 +8,7 @@ import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
 import '../api_constants.dart';
 import 'chat/chat_message_bubble.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class ChatBoxWidget extends StatefulWidget {
   const ChatBoxWidget({super.key});
@@ -374,7 +375,7 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
         width: 60,
         height: 60,
         decoration: BoxDecoration(
-          color: Colors.amber,
+          color: kGold,
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
@@ -435,7 +436,7 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             decoration: BoxDecoration(
-              color: isDark ? themeProvider.darkGreyBorder : Colors.amber.shade100,
+              color: isDark ? themeProvider.darkGreyBorder : kGold.shade100,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(15),
                 topRight: Radius.circular(15),
@@ -493,7 +494,7 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.savings, color: Colors.amber, size: 24),
+                const Icon(Icons.savings, color: kGold, size: 24),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(
@@ -512,7 +513,7 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
                           }
                           return Text(
                             "${balance.toStringAsFixed(5)} DOGE",
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.amber, fontSize: 14),
+                            style: const TextStyle(fontWeight: FontWeight.bold, color: kGold, fontSize: 14),
                           );
                         },
                       ),
@@ -524,7 +525,7 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
                     onPressed: _emptyJar,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
-                      backgroundColor: Colors.amber,
+                      backgroundColor: kGold,
                       minimumSize: const Size(0, 30),
                     ),
                     child: const Text("Empty Jar", style: TextStyle(fontSize: 12, color: Colors.black87)),
@@ -676,7 +677,7 @@ class _ChatBoxWidgetState extends State<ChatBoxWidget> {
                           ),
                         )
                       : IconButton(
-                          icon: const Icon(Icons.send, color: Colors.amber),
+                          icon: const Icon(Icons.send, color: kGold),
                           onPressed: _sendMessage,
                         ),
                 ],

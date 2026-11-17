@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../src/theme_provider.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class AnimatedHoverCard extends StatefulWidget {
   final Widget child;
@@ -93,7 +94,7 @@ class _AnimatedHoverCardState extends State<AnimatedHoverCard>
                       ? [
                           if (isDark)
                             BoxShadow(
-                              color: Colors.amber.withValues(alpha: 0.15),
+                              color: kGold.withValues(alpha: 0.15),
                               blurRadius: 15,
                               spreadRadius: 2,
                             )

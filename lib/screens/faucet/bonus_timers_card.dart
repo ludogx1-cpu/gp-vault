@@ -8,6 +8,7 @@ import '../../src/user_provider.dart';
 import '../../src/theme_provider.dart';
 import '../../api_constants.dart';
 import '../../widgets/bonus_timer_dialog.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class BonusTimersCard extends StatelessWidget {
   const BonusTimersCard({super.key});
@@ -64,11 +65,11 @@ class BonusTimersCard extends StatelessWidget {
                         color: isDark
                             ? themeProvider.darkGreyBoxColor
                             : (canClaimBonus
-                                  ? Colors.amber.shade100
+                                  ? kGold.shade100
                                   : Colors.grey.shade200),
                         borderRadius: BorderRadius.circular(15),
                         border: Border.all(
-                          color: Colors.amber,
+                          color: kGold,
                           width: 0.5,
                         ),
                       ),
@@ -101,7 +102,7 @@ class BonusTimersCard extends StatelessWidget {
                             child: ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: canClaimBonus
-                                    ? Colors.amber
+                                    ? kGold
                                     : Colors.grey,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),

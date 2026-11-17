@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../src/theme_provider.dart';
 import '../widgets/widgets.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 /// The full policy lives at goldenpaw.dog/privacy/ so the website, the app and
 /// the Chrome extension all point to one document.
@@ -92,7 +93,7 @@ class PolicySummaryPage extends StatelessWidget {
                       icon: const Icon(Icons.open_in_new),
                       label: Text(buttonLabel),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.amber,
+                        backgroundColor: kGold,
                         foregroundColor: Colors.black87,
                       ),
                     ),

@@ -8,6 +8,7 @@ import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
 import '../widgets/widgets.dart';
 import '../src/cross_tab_listener/cross_tab_listener.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class PromoCodePage extends StatefulWidget {
   const PromoCodePage({super.key});
@@ -151,7 +152,7 @@ class _PromoCodePageState extends State<PromoCodePage> {
           "Daily Promo Code",
           style: TextStyle(fontWeight: FontWeight.w900),
         ),
-        backgroundColor: Colors.amber,
+        backgroundColor: kGold,
         foregroundColor: Colors.white,
         centerTitle: true,
         leading: IconButton(
@@ -187,7 +188,7 @@ class _PromoCodePageState extends State<PromoCodePage> {
                       children: [
                         const Icon(
                           Icons.stars_rounded,
-                          color: Colors.amber,
+                          color: kGold,
                           size: 80,
                         ),
                         const SizedBox(height: 20),
@@ -220,25 +221,25 @@ class _PromoCodePageState extends State<PromoCodePage> {
                                   height: 14,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: Colors.amber,
+                                    color: kGold,
                                   ),
                                 )
                               : const Icon(
                                   Icons.auto_awesome,
                                   size: 18,
-                                  color: Colors.amber,
+                                  color: kGold,
                                 ),
                           label: const Text(
                             "GET TODAY'S CODE",
                             style: TextStyle(
-                              color: Colors.amber,
+                              color: kGold,
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
                             ),
                           ),
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(
-                              color: Colors.amber,
+                              color: kGold,
                               width: 1.5,
                             ),
                             shape: RoundedRectangleBorder(
@@ -255,10 +256,10 @@ class _PromoCodePageState extends State<PromoCodePage> {
                           decoration: BoxDecoration(
                             color: Colors.black87,
                             borderRadius: BorderRadius.circular(15),
-                            border: Border.all(color: Colors.amber, width: 4),
+                            border: Border.all(color: kGold, width: 4),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.amber.withValues(alpha: 0.5),
+                                color: kGold.withValues(alpha: 0.5),
                                 blurRadius: 10,
                                 spreadRadius: 2,
                               ),
@@ -271,7 +272,7 @@ class _PromoCodePageState extends State<PromoCodePage> {
                               fontFamily: 'Courier',
                               fontSize: 50,
                               fontWeight: FontWeight.w900,
-                              color: Colors.amber,
+                              color: kGold,
                               letterSpacing: 8,
                             ),
                           ),
@@ -303,7 +304,7 @@ class _PromoCodePageState extends State<PromoCodePage> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(
-                                color: Colors.amber,
+                                color: kGold,
                                 width: 2,
                               ),
                             ),
@@ -320,7 +321,7 @@ class _PromoCodePageState extends State<PromoCodePage> {
                                 ? null
                                 : _claimPromoCode,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.amber,
+                              backgroundColor: kGold,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),

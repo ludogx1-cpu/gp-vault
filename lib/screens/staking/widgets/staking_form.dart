@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class StakingForm extends StatelessWidget {
   final TextEditingController amountController;
@@ -41,7 +42,7 @@ class StakingForm extends StatelessWidget {
             ),
             prefixIcon: const Icon(
               Icons.monetization_on,
-              color: Colors.amber,
+              color: kGold,
             ),
             suffixIcon: Row(
               mainAxisSize: MainAxisSize.min,
@@ -74,7 +75,7 @@ class StakingForm extends StatelessWidget {
                   child: const Text(
                     "TAKE OUT ALL",
                     style: TextStyle(
-                      color: Colors.amber,
+                      color: kGold,
                       fontWeight: FontWeight.bold,
                       fontSize: 11,
                     ),
@@ -97,7 +98,7 @@ class StakingForm extends StatelessWidget {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(
-                color: Colors.amber,
+                color: kGold,
                 width: 2,
               ),
             ),
@@ -186,7 +187,7 @@ class StakingForm extends StatelessWidget {
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
-                        isDark ? Colors.amber : Colors.amber.shade100,
+                        isDark ? kGold : kGold.shade100,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25),
                     ),

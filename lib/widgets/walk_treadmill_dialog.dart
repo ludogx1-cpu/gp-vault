@@ -6,6 +6,7 @@ import 'dart:math';
 import '../api_constants.dart';
 import '../src/firebase_service.dart';
 import 'pet/pet_sprite_widget.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class WalkTreadmillDialog extends StatefulWidget {
   final String stage;
@@ -140,7 +141,7 @@ class _WalkTreadmillDialogState extends State<WalkTreadmillDialog>
                 colors: [Colors.lightBlue.shade100, Colors.green.shade100],
               ),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.amber, width: 1.5),
+              border: Border.all(color: kGold, width: 1.5),
             ),
             child: AnimatedBuilder(
               animation: Listenable.merge([_stepController, _idleController]),
@@ -257,7 +258,7 @@ class _WalkTreadmillDialogState extends State<WalkTreadmillDialog>
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.amber.shade700,
+                backgroundColor: kGold.shade700,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),

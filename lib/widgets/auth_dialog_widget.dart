@@ -10,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:go_router/go_router.dart';
 import '../src/theme_provider.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class AuthDialogWidget extends StatefulWidget {
   final bool isLogin;
@@ -151,7 +152,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                         children: [
                           Checkbox(
                             value: rememberMe,
-                            activeColor: Colors.amber,
+                            activeColor: kGold,
                             onChanged: (bool? value) {
                               setState(() {
                                 rememberMe = value ?? false;
@@ -253,7 +254,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                                     : Colors.white,
                                 borderRadius: BorderRadius.circular(5),
                                 border: Border.all(
-                                  color: Colors.amber.shade200,
+                                  color: kGold.shade200,
                                 ),
                               ),
                               child: DropdownButton<String>(
@@ -307,7 +308,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                             border: Border.all(
                               color: _captchaToken != null
                                   ? Colors.green
-                                  : Colors.amber,
+                                  : kGold,
                               width: 2,
                             ),
                             borderRadius: BorderRadius.circular(8),
@@ -341,7 +342,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
 
                               if (_captchaLoading && _captchaToken == null)
                                 const CircularProgressIndicator(
-                                  color: Colors.amber,
+                                  color: kGold,
                                 ),
                               if (!_captchaLoading && _captchaToken == null)
                                 Positioned(
@@ -393,7 +394,7 @@ class _AuthDialogWidgetState extends State<AuthDialogWidget> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _captchaToken == null
                             ? Colors.grey.shade300
-                            : Colors.amber,
+                            : kGold,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),

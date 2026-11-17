@@ -1,6 +1,7 @@
 import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class DogeogotchaInstructionsPage extends StatelessWidget {
   const DogeogotchaInstructionsPage({super.key});
@@ -10,7 +11,7 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
     return AppScaffold(
       appBar: AppBar(
         title: const Text('Dogeogotcha Instructions'),
-        backgroundColor: Colors.amber.shade700,
+        backgroundColor: kGold.shade700,
         foregroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -29,7 +30,7 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Center(
-              child: Icon(Icons.pets, size: 80, color: Colors.amber),
+              child: Icon(Icons.pets, size: 80, color: kGold),
             ),
             const SizedBox(height: 20),
             Text(
@@ -112,7 +113,7 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber,
+                  backgroundColor: kGold,
                   foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 ),
@@ -145,7 +146,7 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
 
   Widget _buildStageItem(BuildContext context, String title, String age, String reward, String assetPath) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final titleColor = isDark ? Colors.amber.shade300 : Colors.amber.shade800;
+    final titleColor = isDark ? kGold.shade300 : kGold.shade800;
     
     return Padding(
       padding: const EdgeInsets.only(bottom: 15.0),

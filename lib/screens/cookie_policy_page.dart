@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../src/admob_service.dart';
 import '../src/analytics.dart';
 import 'privacy_policy_page.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class CookiePolicyPage extends StatelessWidget {
   const CookiePolicyPage({super.key});
@@ -68,7 +69,7 @@ class _AppPrivacyChoicesState extends State<_AppPrivacyChoices> {
       children: [
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
-          activeThumbColor: Colors.amber,
+          activeThumbColor: kGold,
           title: const Text("Anonymous usage statistics"),
           subtitle: const Text("Google Analytics. Helps us see which features are used."),
           value: _analytics,

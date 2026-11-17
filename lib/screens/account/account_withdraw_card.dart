@@ -9,6 +9,7 @@ import '../../src/firebase_service.dart';
 import '../../api_constants.dart';
 import '../../widgets/widgets.dart';
 import '../../src/analytics.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class AccountWithdrawCard extends StatefulWidget {
   final bool isDark;
@@ -157,7 +158,7 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
     return AnimatedHoverCard(
       backgroundColor: widget.isDark ? Colors.grey.shade900 : Colors.white,
       borderRadius: BorderRadius.circular(15),
-      border: Border.all(color: Colors.amber, width: 0.5),
+      border: Border.all(color: kGold, width: 0.5),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -167,7 +168,7 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
               children: [
                 Icon(
                   Icons.outbound,
-                  color: widget.isDark ? Colors.amber : Colors.black87,
+                  color: widget.isDark ? kGold : Colors.black87,
                 ),
                 const SizedBox(width: 10),
                 Text(
@@ -183,7 +184,7 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
             Divider(
               height: 20,
               color: widget.isDark
-                  ? Colors.amber.withValues(alpha: 0.3)
+                  ? kGold.withValues(alpha: 0.3)
                   : Colors.grey,
             ),
             Row(
@@ -200,7 +201,7 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
                   "${widget.currentBalance.toStringAsFixed(8)} DOGE",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: widget.isDark ? Colors.amber : Colors.green,
+                    color: widget.isDark ? kGold : Colors.green,
                   ),
                 ),
               ],
@@ -263,7 +264,7 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
                     style: TextButton.styleFrom(
                       minimumSize: const Size(50, 32),
                       padding: const EdgeInsets.symmetric(horizontal: 10),
-                      backgroundColor: Colors.amber.withValues(alpha: 0.2),
+                      backgroundColor: kGold.withValues(alpha: 0.2),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -271,7 +272,7 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
                     child: const Text(
                       "MAX",
                       style: TextStyle(
-                        color: Colors.amber,
+                        color: kGold,
                         fontWeight: FontWeight.w900,
                         fontSize: 12,
                       ),
@@ -291,7 +292,7 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
               child: ElevatedButton(
                 onPressed: _isWithdrawing ? null : _processWithdrawal,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber,
+                  backgroundColor: kGold,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -325,7 +326,7 @@ class _AccountWithdrawCardState extends State<AccountWithdrawCard> {
                     color: _withdrawMessage.contains("Success")
                         ? Colors.green
                         : (_withdrawMessage.contains("Waking")
-                              ? Colors.amber
+                              ? kGold
                               : Colors.red),
                   ),
                 ),

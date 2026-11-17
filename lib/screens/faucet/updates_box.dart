@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../src/theme_provider.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class UpdatesBox extends StatelessWidget {
   const UpdatesBox({super.key});
@@ -51,7 +52,7 @@ class UpdatesBox extends StatelessWidget {
                 color: isDark ? themeProvider.darkGreyBoxColor : Colors.blue.shade50,
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(
-                  color: Colors.amber,
+                  color: kGold,
                   width: 0.5,
                 ),
               ),

@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../src/theme_provider.dart';
 import '../widgets/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 // --- GLOBAL THEME CONSTANTS 🚀 ---
 
@@ -72,7 +73,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
               color: Colors.black87,
             ),
           ),
-          backgroundColor: Colors.amber,
+          backgroundColor: kGold,
           centerTitle: true,
         ),
         body: const Center(
@@ -132,7 +133,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
             builder: (context, adsSnapshot) {
               if (adsSnapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: CircularProgressIndicator(color: Colors.amber),
+                  child: CircularProgressIndicator(color: kGold),
                 );
               }
 
@@ -191,7 +192,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                               contentPadding: const EdgeInsets.all(15),
                               leading: Icon(
                                 Icons.monetization_on,
-                                color: isClicked ? Colors.grey : Colors.amber,
+                                color: isClicked ? Colors.grey : kGold,
                                 size: 40,
                               ),
                               title: Text(
@@ -251,14 +252,14 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                           color: isDark
                               ? themeProvider.darkGreyBoxColor
                               : (canClaimBonus
-                                    ? Colors.amber.shade100
+                                    ? kGold.shade100
                                     : Colors.grey.shade200),
                           borderRadius: BorderRadius.circular(15),
                           border: Border.all(
                             color: isDark
                                 ? themeProvider.darkGreyBorder
                                 : (canClaimBonus
-                                      ? Colors.amber.shade400
+                                      ? kGold.shade400
                                       : Colors.grey.shade400),
                             width: 2,
                           ),
@@ -290,7 +291,7 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                               child: ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: canClaimBonus
-                                      ? Colors.amber
+                                      ? kGold
                                       : Colors.grey,
                                   foregroundColor: Colors.white,
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
