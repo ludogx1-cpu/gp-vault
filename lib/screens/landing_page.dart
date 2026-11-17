@@ -156,7 +156,7 @@ class _LandingPageState extends State<LandingPage> {
                         style: TextStyle(
                           fontFamily: 'Arial Black',
                           fontSize: isMobile ? 36 : 48,
-                          letterSpacing: -1.0,
+                          letterSpacing: 1.5,
                           fontWeight: FontWeight.w900,
                           color: themeProvider.isDarkMode
                               ? Colors.white
