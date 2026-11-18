@@ -49,7 +49,7 @@ class UpdatesBox extends StatelessWidget {
               constraints: const BoxConstraints(maxWidth: 800),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: isDark ? themeProvider.darkGreyBoxColor : Colors.blue.shade50,
+                color: isDark ? themeProvider.darkGreyBoxColor : kGold.shade50,
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(
                   color: kGold,
@@ -62,14 +62,14 @@ class UpdatesBox extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.campaign, color: isDark ? Colors.blueAccent : Colors.blue.shade800),
+                      Icon(Icons.campaign, color: isDark ? kGold : kGold.shade800),
                       const SizedBox(width: 8),
                       Text(
                         "LATEST UPDATES",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
-                          color: isDark ? Colors.blueAccent : Colors.blue.shade900,
+                          color: isDark ? kGold : kGold.shade900,
                         ),
                       ),
                     ],

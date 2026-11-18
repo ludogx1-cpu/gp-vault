@@ -224,7 +224,7 @@ class FaucetStatsCard extends StatelessWidget {
                                   Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(Icons.info_outline, size: 16, color: Colors.blue),
+                                      const Icon(Icons.info_outline, size: 16, color: kGold),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
@@ -238,7 +238,7 @@ class FaucetStatsCard extends StatelessWidget {
                                   Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(Icons.info_outline, size: 16, color: Colors.blue),
+                                      const Icon(Icons.info_outline, size: 16, color: kGold),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(

@@ -572,7 +572,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: Theme.of(context).brightness == Brightness.dark ? kGold : Colors.blue,
+                  color: Theme.of(context).brightness == Brightness.dark ? kGold : kGold.shade700,
                   width: 2.0,
                 ),
               ),

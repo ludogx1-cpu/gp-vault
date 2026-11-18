@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../src/theme_provider.dart';
 import 'persistent_sidebar.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackArrow;
@@ -80,10 +81,9 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
                     const SizedBox(width: 10),
                     Flexible(
                       child: ShaderMask(
-                        // Metallic gold gradient sampled from the paw logo
-                        // (champagne highlight -> classic gold -> antique gold).
+                        // Solid brand gold (no shine), matching the paw logo.
                         shaderCallback: (bounds) => const LinearGradient(
-                          colors: [Color(0xFFF5E6A0), Color(0xFFD4AF37), Color(0xFF9A7437)],
+                          colors: [kGold, kGold],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                         ).createShader(bounds),

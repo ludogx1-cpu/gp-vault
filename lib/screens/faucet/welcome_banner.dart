@@ -108,7 +108,7 @@ class WelcomeBanner extends StatelessWidget {
                             "FaucetPay",
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.blue,
+                              color: kGold,
                               decoration: TextDecoration.underline,
                               fontWeight: FontWeight.bold,
                             ),

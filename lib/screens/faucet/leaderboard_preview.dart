@@ -195,7 +195,7 @@ class _LeaderboardPreviewState extends State<LeaderboardPreview> {
                                         if (isAi)
                                           const Padding(
                                             padding: EdgeInsets.only(left: 4.0),
-                                            child: Icon(Icons.verified, size: 14, color: Colors.blue),
+                                            child: Icon(Icons.verified, size: 14, color: kGold),
                                           ),
                                       ],
                                     ),
