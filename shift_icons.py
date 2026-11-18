@@ -30,7 +30,7 @@ if __name__ == "__main__":
         'web/icons/Icon-maskable-192.png',
         'web/icons/Icon-maskable-512.png',
         'web/favicon.png',
-        'assets/Goldenpawicon.png'
+        'assets/Goldenpawicon_gold.png'
     ]
     for p in paths:
         shift_image_down(p, base_shift_pixels=11, base_size=192)
