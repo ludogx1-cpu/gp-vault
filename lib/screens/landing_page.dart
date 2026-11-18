@@ -154,10 +154,11 @@ class _LandingPageState extends State<LandingPage> {
                         "Golden Paw",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontFamily: 'Arial Black',
+                          fontFamily: 'Outfit',
                           fontSize: isMobile ? 36 : 48,
-                          letterSpacing: 1.5,
-                          fontWeight: FontWeight.w900,
+                          letterSpacing: 3.0,
+                          fontWeight: FontWeight.w800,
+                          fontVariations: const [FontVariation('wght', 800)],
                           color: themeProvider.isDarkMode
                               ? Colors.white
                               : Colors.black87.withValues(alpha: 0.9),

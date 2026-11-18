@@ -63,6 +63,12 @@ flutter_launcher_icons:
 flutter:
   uses-material-design: true
 
+  # Outfit (SIL Open Font Licence, see assets/fonts/Outfit-OFL.txt)
+  fonts:
+    - family: Outfit
+      fonts:
+        - asset: assets/fonts/Outfit-Variable.ttf
+
   # 🚀 THIS IS YOUR NEW ASSETS FOLDER
   assets:
     - assets/bg.png

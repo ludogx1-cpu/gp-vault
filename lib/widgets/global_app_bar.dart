@@ -94,9 +94,11 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
                           softWrap: false,
                           style: TextStyle(
                             color: Colors.white,
+                            fontFamily: 'Outfit',
                             fontSize: isMobile ? 24 : 28,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.5,
+                            fontWeight: FontWeight.w700,
+                            fontVariations: const [FontVariation('wght', 700)],
+                            letterSpacing: 3.0,
                           ),
                         ),
                       ),
