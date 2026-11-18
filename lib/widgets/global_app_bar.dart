@@ -73,7 +73,7 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Image.asset(
-                      'assets/paw_logo.png',
+                      'assets/paw_logo_gold.png',
                       height: isMobile ? 34 : 40,
                       fit: BoxFit.contain,
                       semanticLabel: 'Golden Paw',

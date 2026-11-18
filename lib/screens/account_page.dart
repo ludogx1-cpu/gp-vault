@@ -63,7 +63,7 @@ class _AccountPageState extends State<AccountPage> {
                           const BitcotasksAdWidget(),
                           const SizedBox(height: 20),
                           Image.asset(
-                            'assets/Goldenpawicon.png',
+                            'assets/Goldenpawicon_gold.png',
                             width: 130,
                             height: 130,
                             fit: BoxFit.contain,

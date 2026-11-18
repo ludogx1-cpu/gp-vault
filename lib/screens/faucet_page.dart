@@ -191,7 +191,7 @@ class _FaucetPageState extends State<FaucetPage> {
                         width: 120,
                         height: 120,
                         child: Image(
-                          image: AssetImage('assets/paw_logo.png'),
+                          image: AssetImage('assets/paw_logo_gold.png'),
                           fit: BoxFit.contain,
                         ),
                       ),

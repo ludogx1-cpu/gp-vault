@@ -142,7 +142,7 @@ class _LandingPageState extends State<LandingPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/paw_logo.png',
+                    'assets/paw_logo_gold.png',
                     height: 120,
                     fit: BoxFit.contain,
                   ),
