@@ -75,7 +75,7 @@ final themeProvider = ThemeProvider();
 
 
 
-const kAppBarColor = kNightshade;
+const kAppBarColor = kCharcoal;
 const kAppBarIconColor = kGold;
 const kAppBarLogoColor = Colors.white;
 const kTextColorOnBlack = Colors.white;

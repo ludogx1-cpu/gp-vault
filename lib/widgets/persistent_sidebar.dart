@@ -102,8 +102,8 @@ class PersistentSidebar extends StatelessWidget {
     final bool isAdmin = user != null && user.uid == ApiConstants.adminUid;
     final isDark = themeProvider.isDarkMode;
     
-    // Matches the Nightshade header and footer in dark mode
-    final Color sidebarColor = isDark ? kNightshade : Colors.white;
+    // Matches the Charcoal header and footer in dark mode
+    final Color sidebarColor = isDark ? kCharcoal : Colors.white;
 
     return ValueListenableBuilder<bool>(
       valueListenable: sidebarExpandedNotifier,
