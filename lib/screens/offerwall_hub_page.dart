@@ -5,9 +5,6 @@ import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../widgets/bitcotasks_native_widget.dart';
-import '../widgets/ads/timewall_quick_links.dart';
-import '../src/analytics.dart';
 import 'package:gp_faucet/src/brand_colors.dart';
 
 
@@ -33,20 +30,6 @@ class OfferwallHubPage extends StatefulWidget {
 }
 
 class _OfferwallHubPageState extends State<OfferwallHubPage> {
-  // Tracks which network engine is currently loaded into the container view
-  String selectedNetwork = "NONE";
-
-  // Generates the personalized, cryptographically tracked wall link for each user
-  String getOfferwallUrl(String provider, String uid) {
-    if (provider == "BITCOTASKS") {
-      return "https://bitcotasks.com/offerwall/6xwmdur28o2s2jx3y4nj4ldt6jx5u9/$uid";
-    }
-    if (provider == "TIMEWALL") {
-      return "https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=$uid";
-    }
-    return "about:blank";
-  }
-
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -222,9 +205,9 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                 ),
                 const SizedBox(height: 25),
 
-                // 🌐 PROVIDER SELECTION INTERFACE
+                // 🌐 PROVIDER LIST
                 Text(
-                  "Select a Task Provider Network:",
+                  "Task Provider Networks:",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
@@ -232,171 +215,47 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Row(
-                  children: [
-                    // BitcoTasks Selection Button
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: selectedNetwork == "BITCOTASKS"
-                              ? Colors.blue
-                              : Colors.grey.shade200,
-                          foregroundColor: selectedNetwork == "BITCOTASKS"
-                              ? Colors.white
-                              : Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                        ),
-                        icon: const Icon(Icons.task_alt),
-                        label: const Text(
-                          "BitcoTasks",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        onPressed: () {
-                          logAnalyticsEvent('offerwall_clicked', parameters: {'network': 'BITCOTASKS'});
-                          setState(() => selectedNetwork = "BITCOTASKS");
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 15),
-                    // TimeWall Selection Button
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: selectedNetwork == "TIMEWALL"
-                              ? Colors.green
-                              : Colors.grey.shade200,
-                          foregroundColor: selectedNetwork == "TIMEWALL"
-                              ? Colors.white
-                              : Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                        ),
-                        icon: const Icon(Icons.timelapse),
-                        label: const Text(
-                          "TimeWall",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        onPressed: () {
-                          logAnalyticsEvent('offerwall_clicked', parameters: {'network': 'TIMEWALL'});
-                          setState(() => selectedNetwork = "TIMEWALL");
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                
-                // 🚀 TIMEWALL QUICK LINKS 🚀
-                if (selectedNetwork == "TIMEWALL") ...[
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 15),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.shade50,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.orange.shade300),
-                    ),
-                    child: const Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            "Notice: You can still earn from TimeWall, but payouts are temporarily suspended while Golden Paw undergoes a background check with the provider. Payouts will resume once completed.",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.deepOrange,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                // TimeWall is suspended until the publisher account is approved.
+                // Re-enable it here (and on the PTC page) once the TimeWall ID is set up.
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    disabledBackgroundColor: Colors.grey.shade300,
+                    disabledForegroundColor: Colors.grey.shade700,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
                   ),
-                  TimewallQuickLinksWidget(uid: user.uid),
-                ],
-
-                const SizedBox(height: 30),
-
-                // 🖼️ DYNAMIC RAW HTML IFRAME CONTAINER CONTEXT
-                if (selectedNetwork == "NONE")
-                  Container(
-                    height: 400,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: Colors.grey.shade200),
-                    ),
-                    child: const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.touch_app, size: 50, color: Colors.grey),
-                        SizedBox(height: 10),
-                        Text(
-                          "Choose a provider network above to initialize your tasks matrix.",
+                  icon: const Icon(Icons.lock_clock),
+                  label: const Text(
+                    "TimeWall · Coming soon",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: null,
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade50,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.orange.shade300),
+                  ),
+                  child: const Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.info_outline, color: Colors.orange, size: 20),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          "TimeWall offers are coming soon. We're finishing setup with the provider and will switch them on as soon as it's complete.",
                           style: TextStyle(
-                            color: Colors.grey,
                             fontSize: 12,
+                            color: Colors.deepOrange,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ],
-                    ),
-                  )
-                else ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Active Matrix: $selectedNetwork",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
-                          fontSize: 13,
-                        ),
-                      ),
-                      TextButton.icon(
-                        icon: const Icon(
-                          Icons.close,
-                          size: 16,
-                          color: Colors.red,
-                        ),
-                        label: const Text(
-                          "Close Tasks View",
-                          style: TextStyle(color: Colors.red, fontSize: 12),
-                        ),
-                        onPressed: () =>
-                            setState(() => selectedNetwork = "NONE"),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  // The actual embedded HTML view frame box container
-                  Container(
-                    height:
-                        700, // Allocates a tall sandbox inside your layout for the scrolling offers
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: kGold.shade300,
-                        width: 2,
-                      ),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: selectedNetwork == "BITCOTASKS"
-                        ? BitcoTasksNativeWidget(subId: user.uid)
-                        : HtmlElementView.fromTagName(
-                            tagName: 'iframe',
-                            onElementCreated: (Object element) {
-                              // Casts the generated web element dynamically to tweak browser properties
-                              final iframe = element as dynamic;
-                              iframe.src = getOfferwallUrl(selectedNetwork, user.uid);
-                              iframe.style.border = 'none';
-                              iframe.style.width = '100%';
-                              iframe.style.height = '100%';
-                            },
-                          ),
-                  ),
-                ],
+                ),
               ],
             ),
           );
