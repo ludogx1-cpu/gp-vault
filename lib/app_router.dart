@@ -7,6 +7,8 @@ import 'screens/ad_hub_page.dart';
 import 'screens/admin_dashboard_page.dart';
 import 'screens/affiliate_links_page.dart';
 import 'screens/blog_page.dart';
+import 'screens/book_of_dog/book_of_dog_page.dart';
+import 'screens/book_of_dog/book_of_dog_rules_page.dart';
 import 'screens/dogeogotcha_instructions_page.dart';
 import 'screens/faucet_page.dart';
 import 'screens/leaderboard_page.dart';
@@ -30,6 +32,10 @@ final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(deb
 final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
+/// Shows The Book Of Dog in the bottom bar. Turn on once photo storage is
+/// set up in Firebase (the page itself is reachable at /book-of-dog anyway).
+const bool kBookOfDogTab = false;
+
 final GoRouter appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
   initialLocation: '/',
@@ -49,6 +55,14 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/faucet',
           pageBuilder: (context, state) => const NoTransitionPage(child: FaucetPage()),
+        ),
+        GoRoute(
+          path: '/book-of-dog',
+          pageBuilder: (context, state) => const NoTransitionPage(child: BookOfDogPage()),
+        ),
+        GoRoute(
+          path: '/book-of-dog/rules',
+          pageBuilder: (context, state) => const NoTransitionPage(child: BookOfDogRulesPage()),
         ),
         GoRoute(
           path: '/staking',
@@ -128,26 +142,21 @@ class MainScaffold extends StatelessWidget {
 
   const MainScaffold({super.key, required this.child});
 
+  static const List<(String, IconData, String)> _tabs = [
+    ('/faucet', Icons.water_drop, 'Faucet'),
+    if (kBookOfDogTab) ('/book-of-dog', Icons.pets, 'Book Of Dog'),
+    ('/staking', Icons.bolt, 'Bonus Vault'),
+    ('/account', Icons.person, 'Account'),
+  ];
+
   int _calculateSelectedIndex(BuildContext context) {
     final String location = GoRouterState.of(context).uri.path;
-    if (location.startsWith('/faucet')) return 0;
-    if (location.startsWith('/staking')) return 1;
-    if (location.startsWith('/account')) return 2;
-    return 0;
+    final index = _tabs.indexWhere((t) => location.startsWith(t.$1));
+    return index < 0 ? 0 : index;
   }
 
   void _onItemTapped(int index, BuildContext context) {
-    switch (index) {
-      case 0:
-        context.go('/faucet');
-        break;
-      case 1:
-        context.go('/staking');
-        break;
-      case 2:
-        context.go('/account');
-        break;
-    }
+    context.go(_tabs[index].$1);
   }
 
   @override
@@ -155,18 +164,14 @@ class MainScaffold extends StatelessWidget {
     return Scaffold(
       body: child,
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         currentIndex: _calculateSelectedIndex(context),
         onTap: (int idx) => _onItemTapped(idx, context),
         backgroundColor: kAppBarColor,
         selectedItemColor: kGold,
         unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.water_drop),
-            label: 'Faucet',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: 'Bonus Vault'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
+        items: [
+          for (final t in _tabs) BottomNavigationBarItem(icon: Icon(t.$2), label: t.$3),
         ],
       ),
     );

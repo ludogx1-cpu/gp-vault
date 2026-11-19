@@ -11,6 +11,7 @@ import 'admin/admin_notice_tab.dart';
 import 'admin/admin_reward_monitor_tab.dart';
 import 'admin/admin_ai_drafts_tab.dart';
 import 'admin/admin_chat_reports_tab.dart';
+import 'admin/admin_dogbook_reports_tab.dart';
 import 'package:gp_faucet/src/brand_colors.dart';
 
 class AdminDashboardPage extends StatefulWidget {
@@ -27,7 +28,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
   @override
   void initState() {
     super.initState();
-    _adminTabController = TabController(length: 8, vsync: this);
+    _adminTabController = TabController(length: 9, vsync: this);
   }
 
   @override
@@ -89,6 +90,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
             Tab(icon: Icon(Icons.monitor_heart), text: "Reward Monitor"),
             Tab(icon: Icon(Icons.psychology), text: "AI Drafts"),
             Tab(icon: Icon(Icons.flag), text: "Chat Reports"),
+            Tab(icon: Icon(Icons.pets), text: "Book Of Dog Reports"),
           ],
         ),
       ),
@@ -103,6 +105,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
           AdminRewardMonitorTab(),
           AdminAiDraftsTab(),
           AdminChatReportsTab(),
+          AdminDogbookReportsTab(),
         ],
       ),
     );

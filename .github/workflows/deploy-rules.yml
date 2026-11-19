@@ -1,0 +1,36 @@
+name: Deploy database rules
+
+# Pushes firestore.rules and firestore.indexes.json to the live Firebase
+# project. Run by hand (Actions > Deploy database rules > Run workflow) after
+# rule changes have passed "Project checks" on main. Uses the same service
+# account secret as the website deploy.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-rules
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Deploy Firestore rules and indexes
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT || secrets.FIREBASE_SERVICE_ACCOUNT_GOLDEN_PAW_DATABASE }}
+        run: |
+          if [ -z "$FIREBASE_SA" ]; then echo "::error::FIREBASE_SERVICE_ACCOUNT secret not set"; exit 1; fi
+          key="$RUNNER_TEMP/sa.json"
+          printf '%s' "$FIREBASE_SA" > "$key"
+          export GOOGLE_APPLICATION_CREDENTIALS="$key"
+          npx --yes firebase-tools@15.25.0 deploy --only firestore:rules,firestore:indexes \
+            --project golden-paw-database --non-interactive
+          rm -f "$key"
