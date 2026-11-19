@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'pet_depth_perspective.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class FetchBallWidget extends StatelessWidget {
   final double ballX;
@@ -107,7 +108,7 @@ class FetchBallWidget extends StatelessWidget {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: Colors.amber.withValues(alpha: 0.85),
+                                color: kGold.withValues(alpha: 0.85),
                                 width: 2.5,
                               ),
                             ),

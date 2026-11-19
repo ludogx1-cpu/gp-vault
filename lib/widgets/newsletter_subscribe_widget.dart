@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../src/theme_provider.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class NewsletterSubscribeWidget extends StatefulWidget {
   const NewsletterSubscribeWidget({super.key});
@@ -69,7 +70,7 @@ class _NewsletterSubscribeWidgetState extends State<NewsletterSubscribeWidget> {
           decoration: BoxDecoration(
             color: isDark ? themeProvider.darkGreyBoxColor : Colors.grey.shade100,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.amber.withValues(alpha: 0.5)),
+            border: Border.all(color: kGold.withValues(alpha: 0.5)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.05),
@@ -80,7 +81,7 @@ class _NewsletterSubscribeWidgetState extends State<NewsletterSubscribeWidget> {
           ),
           child: Column(
             children: [
-              Icon(Icons.mark_email_read, size: 40, color: Colors.amber.shade600),
+              Icon(Icons.mark_email_read, size: 40, color: kGold.shade600),
               const SizedBox(height: 10),
               Text(
                 "Subscribe for Updates & Promos",
@@ -124,7 +125,7 @@ class _NewsletterSubscribeWidgetState extends State<NewsletterSubscribeWidget> {
                   ElevatedButton(
                     onPressed: _isLoading ? null : _subscribe,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.amber,
+                      backgroundColor: kGold,
                       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),

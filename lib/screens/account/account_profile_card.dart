@@ -5,6 +5,7 @@ import '../../src/theme_provider.dart';
 import '../../src/firebase_service.dart';
 import '../../api_constants.dart';
 import '../../widgets/widgets.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class AccountProfileCard extends StatefulWidget {
   final bool isDark;
@@ -77,7 +78,7 @@ class _AccountProfileCardState extends State<AccountProfileCard> {
       backgroundColor: widget.isDark ? themeProvider.darkGreyBoxColor : Colors.white,
       borderRadius: BorderRadius.circular(20),
       border: Border.all(
-        color: Colors.amber,
+        color: kGold,
         width: 0.5,
       ),
       child: Padding(
@@ -116,8 +117,8 @@ class _AccountProfileCardState extends State<AccountProfileCard> {
                 counterText: "",
                 labelText: "Username",
                 hintText: widget.currentUsername == "Anonymous" ? "Enter a username" : widget.currentUsername,
-                labelStyle: TextStyle(color: Colors.amber.shade700),
-                prefixIcon: const Icon(Icons.badge, color: Colors.amber),
+                labelStyle: TextStyle(color: kGold.shade700),
+                prefixIcon: const Icon(Icons.badge, color: kGold),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
@@ -129,7 +130,7 @@ class _AccountProfileCardState extends State<AccountProfileCard> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(color: Colors.amber, width: 2),
+                  borderSide: const BorderSide(color: kGold, width: 2),
                 ),
               ),
             ),
@@ -152,7 +153,7 @@ class _AccountProfileCardState extends State<AccountProfileCard> {
               onPressed: _isSettingUsername ? null : _processSetUsername,
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 15),
-                backgroundColor: Colors.amber.shade700,
+                backgroundColor: kGold.shade700,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),

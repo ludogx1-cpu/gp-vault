@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../api_constants.dart';
 import '../widgets/widgets.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class LeaderboardPage extends StatefulWidget {
   const LeaderboardPage({super.key});
@@ -69,14 +70,14 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.emoji_events, color: Colors.amber, size: 32),
+                Icon(Icons.emoji_events, color: kGold, size: 32),
                 SizedBox(width: 8),
                 Text(
                   'Weekly Top 5 Prizes',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(width: 8),
-                Icon(Icons.emoji_events, color: Colors.amber, size: 32),
+                Icon(Icons.emoji_events, color: kGold, size: 32),
               ],
             ),
             const SizedBox(height: 16),
@@ -88,7 +89,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _prizeTier('1st', '3 DOGE', Colors.amber),
+                _prizeTier('1st', '3 DOGE', kGold),
                 _prizeTier('2nd', '0.25 DOGE', Colors.grey.shade400),
                 _prizeTier('3rd', '1 DOGE', Colors.orange.shade300),
               ],
@@ -160,7 +161,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
 
                         Color rankColor;
                         if (rank == 1) {
-                          rankColor = Colors.amber;
+                          rankColor = kGold;
                         } else if (rank == 2) {
                           rankColor = Colors.grey.shade400;
                         } else if (rank == 3) {

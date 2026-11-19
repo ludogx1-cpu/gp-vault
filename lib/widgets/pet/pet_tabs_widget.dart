@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'pet_collar_painter.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 /// The data model passed into the pet tabs so it stays stateless.
 class PetTabsData {
@@ -75,10 +76,10 @@ class PetTabsWidget extends StatelessWidget {
         child: Column(
           children: [
             TabBar(
-              labelColor: data.isDark ? Colors.amber : Colors.blue.shade800,
+              labelColor: data.isDark ? kGold : Colors.blue.shade800,
               unselectedLabelColor:
                   data.isDark ? Colors.white54 : Colors.black54,
-              indicatorColor: Colors.amber,
+              indicatorColor: kGold,
               isScrollable: true,
               tabs: const [
                 Tab(icon: Icon(Icons.info, size: 20), text: 'Info'),
@@ -182,12 +183,12 @@ class PetTabsWidget extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: isEquipped ? FontWeight.bold : FontWeight.normal,
-                color: isEquipped ? Colors.amber : Colors.green,
+                color: isEquipped ? kGold : Colors.green,
               ),
             )
           : Text(
               '\$${collar.usdtPrice.toStringAsFixed(2)} USDT | $dogePrice DOGE\n${collar.bonusLabel}',
-              style: const TextStyle(fontSize: 10, color: Colors.amber),
+              style: const TextStyle(fontSize: 10, color: kGold),
             ),
       trailing: isOwned
           ? ElevatedButton(
@@ -207,7 +208,7 @@ class PetTabsWidget extends StatelessWidget {
               onPressed: () =>
                   callbacks.onBuyAccessory(collar.id, collar.usdtPrice),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.amber,
+                backgroundColor: kGold,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 minimumSize: const Size(64, 30),
               ),
@@ -259,7 +260,7 @@ class PetTabsWidget extends StatelessWidget {
 
     return ListTile(
       visualDensity: VisualDensity.compact,
-      leading: Icon(icon, size: 30, color: Colors.amber),
+      leading: Icon(icon, size: 30, color: kGold),
       title: Text(
         name,
         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
@@ -287,7 +288,7 @@ class PetTabsWidget extends StatelessWidget {
           ElevatedButton(
             onPressed: () => callbacks.onBuyConsumable(id, price),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.amber,
+              backgroundColor: kGold,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               minimumSize: const Size(50, 30),
             ),
@@ -383,7 +384,7 @@ class PetTabsWidget extends StatelessWidget {
             )
           : Text(
               '\$${price.toStringAsFixed(2)} USDT | ${(price * 8.0).toStringAsFixed(0)} DOGE\n$bonus',
-              style: const TextStyle(fontSize: 10, color: Colors.amber),
+              style: const TextStyle(fontSize: 10, color: kGold),
             ),
       trailing: isOwned
           ? ElevatedButton(
@@ -402,7 +403,7 @@ class PetTabsWidget extends StatelessWidget {
           : ElevatedButton(
               onPressed: () => callbacks.onBuyBall(color, price),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.amber,
+                backgroundColor: kGold,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 minimumSize: const Size(64, 30),
               ),

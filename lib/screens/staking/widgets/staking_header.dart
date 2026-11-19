@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../widgets/widgets.dart'; // For AnimatedHoverCard
 import '../../../src/theme_provider.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class StakingHeader extends StatelessWidget {
   final bool isDark;
@@ -53,7 +54,7 @@ class StakingHeader extends StatelessWidget {
                 Icons.update,
                 size: 20,
                 color: isDark
-                    ? Colors.amber
+                    ? kGold
                     : Colors.green.shade800,
               ),
               const SizedBox(width: 5),
@@ -63,7 +64,7 @@ class StakingHeader extends StatelessWidget {
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: isDark
-                      ? Colors.amber
+                      ? kGold
                       : Colors.green.shade800,
                 ),
               ),
@@ -83,7 +84,7 @@ class StakingHeader extends StatelessWidget {
               children: [
                 Icon(
                   Icons.account_balance_wallet,
-                  color: Colors.amber.shade700,
+                  color: kGold.shade700,
                   size: 18,
                 ),
                 const SizedBox(width: 8),
@@ -107,7 +108,7 @@ class StakingHeader extends StatelessWidget {
               : Colors.white,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: Colors.amber,
+            color: kGold,
             width: 0.5,
           ),
           child: SizedBox(
@@ -125,7 +126,7 @@ class StakingHeader extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
-                      color: isDark ? Colors.amber : Colors.black87,
+                      color: isDark ? kGold : Colors.black87,
                     ),
                   ),
                 ),

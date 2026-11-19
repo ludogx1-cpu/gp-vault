@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../src/admob_service.dart';
 import '../src/theme_provider.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class AdMobNativeCard extends StatefulWidget {
   final TemplateType templateType;
@@ -71,7 +72,7 @@ class _AdMobNativeCardState extends State<AdMobNativeCard> {
         cornerRadius: 12.0,
         callToActionTextStyle: NativeTemplateTextStyle(
           textColor: Colors.black,
-          backgroundColor: Colors.amber.shade700,
+          backgroundColor: kGold.shade700,
           style: NativeTemplateFontStyle.bold,
           size: 15.0,
         ),

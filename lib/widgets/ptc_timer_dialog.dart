@@ -13,6 +13,7 @@ import '../api_constants.dart';
 import '../screens/faucet/captcha_selector_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 // ==========================================
 // 1. THE SHELL
@@ -277,7 +278,7 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
                   ),
                 ),
               ] else if (!_claimed) ...[
-                const CircularProgressIndicator(color: Colors.amber),
+                const CircularProgressIndicator(color: kGold),
                 const SizedBox(height: 25),
                 Text(
                   _message,
@@ -310,7 +311,7 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
                       const SizedBox(width: 10),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.amber,
+                          backgroundColor: kGold,
                         ),
                         onPressed: () {
                           setState(() {});
@@ -342,7 +343,7 @@ class _PtcTimerDialogState extends State<PtcTimerDialog> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amber,
+                    backgroundColor: kGold,
                   ),
                   onPressed: () =>
                       Navigator.of(context, rootNavigator: true).pop(),

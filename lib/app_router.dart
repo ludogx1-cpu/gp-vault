@@ -24,6 +24,7 @@ import 'screens/reward_history_page.dart';
 import 'src/theme_provider.dart';
 
 import 'src/analytics.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
@@ -157,7 +158,7 @@ class MainScaffold extends StatelessWidget {
         currentIndex: _calculateSelectedIndex(context),
         onTap: (int idx) => _onItemTapped(idx, context),
         backgroundColor: kAppBarColor,
-        selectedItemColor: Colors.amber,
+        selectedItemColor: kGold,
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(

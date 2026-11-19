@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../src/theme_provider.dart';
 import 'animated_hover_card.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class FeatureCard extends StatelessWidget {
   final IconData icon;
@@ -26,7 +27,7 @@ class FeatureCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isDark
-                ? Colors.amber.withValues(alpha: 0.3)
+                ? kGold.withValues(alpha: 0.3)
                 : Colors.grey.shade100,
           ),
           child: SizedBox(

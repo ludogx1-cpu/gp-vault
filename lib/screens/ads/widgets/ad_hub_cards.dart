@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../src/theme_provider.dart';
 import '../../create_ad_page.dart';
 import '../../../widgets/widgets.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class CampaignCard extends StatelessWidget {
   final bool isDark;
@@ -94,10 +95,10 @@ class VaultSwapCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? themeProvider.darkGreyBoxColor : Colors.amber.shade50,
+        color: isDark ? themeProvider.darkGreyBoxColor : kGold.shade50,
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: isDark ? themeProvider.darkGreyBorder : Colors.amber.shade300,
+          color: isDark ? themeProvider.darkGreyBorder : kGold.shade300,
           width: 2,
         ),
       ),
@@ -108,7 +109,7 @@ class VaultSwapCard extends StatelessWidget {
             children: [
               Icon(
                 Icons.swap_horizontal_circle,
-                color: isDark ? Colors.amber : Colors.black87,
+                color: isDark ? kGold : Colors.black87,
               ),
               const SizedBox(width: 10),
               Text(
@@ -126,7 +127,7 @@ class VaultSwapCard extends StatelessWidget {
             "Balance: ${dogeBalance.toStringAsFixed(4)} DOGE",
             style: TextStyle(
               fontSize: 12,
-              color: isDark ? Colors.amber.shade200 : Colors.black87,
+              color: isDark ? kGold.shade200 : Colors.black87,
             ),
           ),
           const SizedBox(height: 15),
@@ -168,7 +169,7 @@ class VaultSwapCard extends StatelessWidget {
                 isSwapping ? "Converting..." : "SWAP FOR AD CREDIT",
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: isDark ? Colors.amber : Colors.black87,
+                backgroundColor: isDark ? kGold : Colors.black87,
                 foregroundColor: isDark ? Colors.white : Colors.white,
               ),
             ),

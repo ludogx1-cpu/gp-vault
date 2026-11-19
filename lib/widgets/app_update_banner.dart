@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class AppUpdateBanner extends StatefulWidget {
   const AppUpdateBanner({super.key});
@@ -102,7 +103,7 @@ class _AppUpdateBannerState extends State<AppUpdateBanner> {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.amber.shade700, Colors.orange.shade800],
+          colors: [kGold.shade700, Colors.orange.shade800],
         ),
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [

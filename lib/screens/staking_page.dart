@@ -15,6 +15,7 @@ import '../widgets/universal_web_view/universal_web_view.dart';
 import 'staking/widgets/staking_header.dart';
 import 'staking/widgets/harvest_card.dart';
 import 'staking/widgets/staking_form.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 // ==========================================
 // 1. THE SHELL
@@ -183,7 +184,7 @@ class _StakingPageState extends State<StakingPage> {
           final userData = userProvider.userData;
           if (userData == null) {
             return const Center(
-              child: CircularProgressIndicator(color: Colors.amber),
+              child: CircularProgressIndicator(color: kGold),
             );
           }
 

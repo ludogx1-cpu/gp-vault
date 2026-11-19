@@ -7,6 +7,7 @@ import '../widgets/newsletter_subscribe_widget.dart';
 import '../widgets/widgets.dart';
 import 'blog_page.dart';
 import '../widgets/universal_web_view/universal_web_view.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class LandingPage extends StatefulWidget {
   final void Function(BuildContext, bool) onAuthTrigger;
@@ -104,7 +105,7 @@ class _LandingPageState extends State<LandingPage> {
                   child: ElevatedButton(
                     onPressed: () => widget.onAuthTrigger(context, false),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.amber,
+                      backgroundColor: kGold,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -141,7 +142,7 @@ class _LandingPageState extends State<LandingPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/paw_logo.png',
+                    'assets/paw_logo_gold.png',
                     height: 120,
                     fit: BoxFit.contain,
                   ),
@@ -153,10 +154,11 @@ class _LandingPageState extends State<LandingPage> {
                         "Golden Paw",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontFamily: 'Arial Black',
+                          fontFamily: 'Outfit',
                           fontSize: isMobile ? 36 : 48,
-                          letterSpacing: -1.0,
-                          fontWeight: FontWeight.w900,
+                          letterSpacing: 3.0,
+                          fontWeight: FontWeight.w800,
+                          fontVariations: const [FontVariation('wght', 800)],
                           color: themeProvider.isDarkMode
                               ? Colors.white
                               : Colors.black87.withValues(alpha: 0.9),
@@ -185,7 +187,7 @@ class _LandingPageState extends State<LandingPage> {
                           fontFamily: 'Arial Black',
                           fontSize: isMobile ? 18 : 24,
                           fontWeight: FontWeight.w700,
-                          color: Colors.amber,
+                          color: kGold,
                         ),
                       );
                     },
@@ -224,12 +226,12 @@ class _LandingPageState extends State<LandingPage> {
                     child: ElevatedButton(
                       onPressed: () => widget.onAuthTrigger(context, false),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.amber.shade700,
+                        backgroundColor: kGold.shade700,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
                         elevation: 10,
-                        shadowColor: Colors.amber.withValues(alpha: 0.5),
+                        shadowColor: kGold.withValues(alpha: 0.5),
                       ),
                       child: const Text(
                         "CREATE FREE ACCOUNT",
@@ -331,15 +333,15 @@ class _LandingPageState extends State<LandingPage> {
           margin: const EdgeInsets.symmetric(horizontal: 20),
           padding: EdgeInsets.all(isMobile ? 24 : 36),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF141926) : Colors.amber.shade50.withValues(alpha: 0.5),
+            color: isDark ? const Color(0xFF141926) : kGold.shade50.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(28),
             border: Border.all(
-              color: isDark ? Colors.amber.withValues(alpha: 0.3) : Colors.amber.shade300,
+              color: isDark ? kGold.withValues(alpha: 0.3) : kGold.shade300,
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.amber.withValues(alpha: isDark ? 0.08 : 0.15),
+                color: kGold.withValues(alpha: isDark ? 0.08 : 0.15),
                 blurRadius: 30,
                 offset: const Offset(0, 10),
               ),
@@ -351,14 +353,14 @@ class _LandingPageState extends State<LandingPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.15),
+                  color: kGold.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(50),
-                  border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
+                  border: Border.all(color: kGold.withValues(alpha: 0.4)),
                 ),
                 child: const Text(
                   "✦ GOLDEN PAW STUDIOS ✦",
                   style: TextStyle(
-                    color: Colors.amber,
+                    color: kGold,
                     fontWeight: FontWeight.w800,
                     fontSize: 11,
                     letterSpacing: 1.5,
@@ -404,7 +406,7 @@ class _LandingPageState extends State<LandingPage> {
                 children: [
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.amber,
+                      backgroundColor: kGold,
                       foregroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),

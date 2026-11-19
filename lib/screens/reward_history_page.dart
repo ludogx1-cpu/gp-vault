@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import '../src/theme_provider.dart';
 import '../widgets/widgets.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class RewardHistoryPage extends StatefulWidget {
   const RewardHistoryPage({super.key});
@@ -114,7 +115,7 @@ class _RewardHistoryPageState extends State<RewardHistoryPage> {
                                       break;
                                     case 'staking_yield':
                                       icon = Icons.bolt;
-                                      iconColor = Colors.amber;
+                                      iconColor = kGold;
                                       break;
                                     case 'ptc_reward':
                                       icon = Icons.ads_click;
@@ -126,7 +127,7 @@ class _RewardHistoryPageState extends State<RewardHistoryPage> {
                                       break;
                                     default:
                                       icon = Icons.monetization_on;
-                                      iconColor = Colors.amber;
+                                      iconColor = kGold;
                                   }
 
                                   return Card(
@@ -134,7 +135,7 @@ class _RewardHistoryPageState extends State<RewardHistoryPage> {
                                     margin: const EdgeInsets.only(bottom: 12),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      side: BorderSide(color: Colors.amber.shade200, width: 0.5),
+                                      side: BorderSide(color: kGold.shade200, width: 0.5),
                                     ),
                                     child: ListTile(
                                       leading: CircleAvatar(

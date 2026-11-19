@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../src/theme_provider.dart';
 import '../../api_constants.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class LeaderboardPreview extends StatefulWidget {
   const LeaderboardPreview({super.key});
@@ -85,7 +86,7 @@ class _LeaderboardPreviewState extends State<LeaderboardPreview> {
           decoration: BoxDecoration(
             color: isDark ? themeProvider.darkGreyBoxColor : Colors.green.shade100,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.amber, width: 0.5),
+            border: Border.all(color: kGold, width: 0.5),
           ),
           child: ExpansionTile(
             title: const Text(
@@ -106,7 +107,7 @@ class _LeaderboardPreviewState extends State<LeaderboardPreview> {
                     Card(
                       elevation: 2,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      color: isDark ? Colors.grey.shade800 : Colors.amber.shade50,
+                      color: isDark ? Colors.grey.shade800 : kGold.shade50,
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Column(
@@ -119,7 +120,7 @@ class _LeaderboardPreviewState extends State<LeaderboardPreview> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                _buildPrizeTier('1st', '3 DOGE', Colors.amber),
+                                _buildPrizeTier('1st', '3 DOGE', kGold),
                                 _buildPrizeTier('2nd', '2 DOGE', Colors.grey.shade400),
                                 _buildPrizeTier('3rd', '1 DOGE', Colors.orange.shade300),
                               ],
@@ -167,7 +168,7 @@ class _LeaderboardPreviewState extends State<LeaderboardPreview> {
                             final isAi = item['is_ai'] == true;
 
                             Color rankColor;
-                            if (rank == 1) { rankColor = Colors.amber; }
+                            if (rank == 1) { rankColor = kGold; }
                             else if (rank == 2) { rankColor = Colors.grey.shade400; }
                             else if (rank == 3) { rankColor = Colors.orange.shade300; }
                             else { rankColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black; }
@@ -194,7 +195,7 @@ class _LeaderboardPreviewState extends State<LeaderboardPreview> {
                                         if (isAi)
                                           const Padding(
                                             padding: EdgeInsets.only(left: 4.0),
-                                            child: Icon(Icons.verified, size: 14, color: Colors.blue),
+                                            child: Icon(Icons.verified, size: 14, color: kGold),
                                           ),
                                       ],
                                     ),

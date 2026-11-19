@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../src/theme_provider.dart';
 import 'persistent_sidebar.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackArrow;
@@ -72,7 +73,7 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Image.asset(
-                      'assets/paw_logo.png',
+                      'assets/paw_logo_gold.png',
                       height: isMobile ? 34 : 40,
                       fit: BoxFit.contain,
                       semanticLabel: 'Golden Paw',
@@ -80,9 +81,9 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
                     const SizedBox(width: 10),
                     Flexible(
                       child: ShaderMask(
-                        // Gold gradient to match the paw logo.
+                        // Solid brand gold (no shine), matching the paw logo.
                         shaderCallback: (bounds) => const LinearGradient(
-                          colors: [Color(0xFFFFE082), Color(0xFFFFC107), Color(0xFFE0A000)],
+                          colors: [kGold, kGold],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                         ).createShader(bounds),
@@ -93,9 +94,11 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
                           softWrap: false,
                           style: TextStyle(
                             color: Colors.white,
+                            fontFamily: 'Outfit',
                             fontSize: isMobile ? 24 : 28,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.5,
+                            fontWeight: FontWeight.w700,
+                            fontVariations: const [FontVariation('wght', 700)],
+                            letterSpacing: 3.0,
                           ),
                         ),
                       ),

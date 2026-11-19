@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
 import '../widgets/newsletter_subscribe_widget.dart';
 import '../widgets/widgets.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class BlogPage extends StatefulWidget {
   const BlogPage({super.key});
@@ -59,7 +60,7 @@ class _BlogPageState extends State<BlogPage> with SingleTickerProviderStateMixin
                         p: TextStyle(color: isDark ? Colors.white70 : Colors.black87, fontSize: 16, height: 1.6),
                         listBullet: TextStyle(color: isDark ? Colors.white70 : Colors.black87, fontSize: 16, height: 1.6),
                         strong: TextStyle(color: titleColor, fontWeight: FontWeight.bold),
-                        a: const TextStyle(color: Colors.amber, decoration: TextDecoration.underline),
+                        a: const TextStyle(color: kGold, decoration: TextDecoration.underline),
                       ),
                       onTapLink: (text, href, title) {
                         if (href != null) {
@@ -121,7 +122,7 @@ class _BlogPageState extends State<BlogPage> with SingleTickerProviderStateMixin
                       const SizedBox(height: 10),
                       Text(
                         "Note: Your submission will be reviewed by an admin before it goes live.",
-                        style: TextStyle(color: Colors.amber.shade700, fontSize: 12),
+                        style: TextStyle(color: kGold.shade700, fontSize: 12),
                       )
                     ],
                   ),
@@ -158,7 +159,7 @@ class _BlogPageState extends State<BlogPage> with SingleTickerProviderStateMixin
                             setState(() => isSubmitting = false);
                           }
                         },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
+                  style: ElevatedButton.styleFrom(backgroundColor: kGold),
                   child: isSubmitting
                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                       : const Text("SUBMIT", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -263,7 +264,7 @@ Thank you all for your patience and support!''',
       stream: query.snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting && defaultPosts.isEmpty) {
-          return const Center(child: CircularProgressIndicator(color: Colors.amber));
+          return const Center(child: CircularProgressIndicator(color: kGold));
         }
 
         final List<Map<String, dynamic>> allPosts = List.from(defaultPosts);
@@ -324,7 +325,7 @@ Thank you all for your patience and support!''',
                 decoration: BoxDecoration(
                   color: isDark ? Colors.black26 : Colors.white,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.amber, width: 0.5),
+                  border: Border.all(color: kGold, width: 0.5),
                 ),
                 child: Row(
                   children: [
@@ -346,7 +347,7 @@ Thank you all for your patience and support!''',
                             const SizedBox(height: 5),
                             Row(
                               children: [
-                                const Icon(Icons.calendar_today, size: 12, color: Colors.amber),
+                                const Icon(Icons.calendar_today, size: 12, color: kGold),
                                 const SizedBox(width: 5),
                                 Text(
                                   dateStr,
@@ -447,7 +448,7 @@ Thank you all for your patience and support!''',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Colors.amber,
+                        color: kGold,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -456,9 +457,9 @@ Thank you all for your patience and support!''',
                     TabBar(
                       controller: _tabController,
                       isScrollable: true,
-                      labelColor: Colors.amber,
+                      labelColor: kGold,
                       unselectedLabelColor: isDark ? Colors.white54 : Colors.black54,
-                      indicatorColor: Colors.amber,
+                      indicatorColor: kGold,
                       tabs: const [
                         Tab(text: "Daily Blogs"),
                         Tab(text: "Newsletters"),
@@ -473,7 +474,7 @@ Thank you all for your patience and support!''',
                       decoration: BoxDecoration(
                         color: isDark ? Colors.black12 : Colors.grey.shade50,
                         borderRadius: BorderRadius.circular(15),
-                        border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+                        border: Border.all(color: kGold.withValues(alpha: 0.3)),
                       ),
                       child: TabBarView(
                         controller: _tabController,
@@ -489,7 +490,7 @@ Thank you all for your patience and support!''',
                                 right: 15,
                                 child: FloatingActionButton.extended(
                                   onPressed: () => _showSubmissionDialog(context, 'user_post'),
-                                  backgroundColor: Colors.amber,
+                                  backgroundColor: kGold,
                                   icon: const Icon(Icons.edit, color: Colors.white),
                                   label: const Text("Write a Post", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),
@@ -504,7 +505,7 @@ Thank you all for your patience and support!''',
                                 right: 15,
                                 child: FloatingActionButton.extended(
                                   onPressed: () => _showSubmissionDialog(context, 'suggestion'),
-                                  backgroundColor: Colors.amber,
+                                  backgroundColor: kGold,
                                   icon: const Icon(Icons.lightbulb, color: Colors.white),
                                   label: const Text("Submit Suggestion", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),

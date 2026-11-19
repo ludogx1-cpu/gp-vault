@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'pet_depth_perspective.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class SpeechBubbleWidget extends StatelessWidget {
   final String text;
@@ -56,7 +57,7 @@ class SpeechBubbleWidget extends StatelessWidget {
                   bottomLeft: Radius.circular(15),
                   bottomRight: Radius.circular(2),
                 ),
-                border: Border.all(color: Colors.amber, width: 2),
+                border: Border.all(color: kGold, width: 2),
                 boxShadow: const [
                   BoxShadow(
                     color: Colors.black26,

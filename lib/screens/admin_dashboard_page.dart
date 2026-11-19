@@ -11,6 +11,7 @@ import 'admin/admin_notice_tab.dart';
 import 'admin/admin_reward_monitor_tab.dart';
 import 'admin/admin_ai_drafts_tab.dart';
 import 'admin/admin_chat_reports_tab.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   const AdminDashboardPage({super.key});
@@ -77,7 +78,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
           controller: _adminTabController,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
-          indicatorColor: Colors.amber,
+          indicatorColor: kGold,
           isScrollable: true,
           tabs: const [
             Tab(icon: Icon(Icons.ads_click), text: "Manage PTC Ads"),

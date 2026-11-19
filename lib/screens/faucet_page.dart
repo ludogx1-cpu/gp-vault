@@ -20,6 +20,7 @@ import 'faucet/faucet_claim_card.dart';
 import 'faucet/faucet_stats_card.dart';
 import 'faucet/bonus_timers_card.dart';
 import '../widgets/admob_native_card.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class FaucetPage extends StatefulWidget {
   const FaucetPage({super.key});
@@ -190,7 +191,7 @@ class _FaucetPageState extends State<FaucetPage> {
                         width: 120,
                         height: 120,
                         child: Image(
-                          image: AssetImage('assets/paw_logo.png'),
+                          image: AssetImage('assets/paw_logo_gold.png'),
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -219,17 +220,17 @@ class _FaucetPageState extends State<FaucetPage> {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.amber.withValues(alpha: 0.1),
+                          color: kGold.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: Colors.amber.withValues(alpha: 0.5),
+                            color: kGold.withValues(alpha: 0.5),
                           ),
                         ),
                         child: const Row(
                           children: [
                             Icon(
                               Icons.info_outline,
-                              color: Colors.amber,
+                              color: kGold,
                               size: 20,
                             ),
                             SizedBox(width: 10),

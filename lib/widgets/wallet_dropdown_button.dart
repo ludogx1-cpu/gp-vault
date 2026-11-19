@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import '../src/theme_provider.dart';
 import '../src/user_provider.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class WalletDropdownButton extends StatelessWidget {
   const WalletDropdownButton({super.key});
@@ -61,12 +62,12 @@ class WalletDropdownButton extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: Colors.amber.shade100,
+                            color: kGold.shade100,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
                             Icons.monetization_on,
-                            color: Colors.amber.shade800,
+                            color: kGold.shade800,
                             size: 20,
                           ),
                         ),
@@ -108,12 +109,12 @@ class WalletDropdownButton extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: Colors.purple.shade100,
+                            color: kGold.shade100,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
                             Icons.assignment_turned_in,
-                            color: Colors.purple.shade800,
+                            color: kGold.shade800,
                             size: 20,
                           ),
                         ),
@@ -155,12 +156,12 @@ class WalletDropdownButton extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: Colors.blue.shade100,
+                            color: kGold.shade100,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
                             Icons.account_balance,
-                            color: Colors.blue.shade800,
+                            color: kGold.shade800,
                             size: 20,
                           ),
                         ),

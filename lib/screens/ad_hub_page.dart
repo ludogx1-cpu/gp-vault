@@ -13,6 +13,7 @@ import 'ads/deposit_dialog.dart';
 import 'ads/buy_banner_dialog.dart';
 import 'ads/buy_ptc_ad_dialog.dart';
 import 'ads/widgets/ad_hub_cards.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 
 
@@ -151,7 +152,7 @@ class _AdHubPageState extends State<AdHubPage> {
                   ElevatedButton(
                     onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.amber,
+                      backgroundColor: kGold,
                     ),
                     child: const Text(
                       "Go Back",
@@ -169,7 +170,7 @@ class _AdHubPageState extends State<AdHubPage> {
           final userData = userProvider.userData;
           if (userData == null) {
             return const Center(
-              child: CircularProgressIndicator(color: Colors.amber),
+              child: CircularProgressIndicator(color: kGold),
             );
           }
           double adsBalance = (userData['ads_balance'] ?? 0.0).toDouble();

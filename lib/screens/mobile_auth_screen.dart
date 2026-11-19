@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
 import '../src/theme_provider.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class MobileAuthScreen extends StatefulWidget {
   const MobileAuthScreen({super.key});
@@ -176,7 +177,7 @@ class _MobileAuthScreenState extends State<MobileAuthScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Image.asset(
-                      'assets/paw_logo.png',
+                      'assets/paw_logo_gold.png',
                       height: 120,
                       fit: BoxFit.contain,
                     ),
@@ -224,7 +225,7 @@ class _MobileAuthScreenState extends State<MobileAuthScreen> {
                                 child: TextButton(
                                   onPressed: () => setState(() => isLogin = true),
                                   style: TextButton.styleFrom(
-                                    foregroundColor: isLogin ? Colors.amber : Colors.white54,
+                                    foregroundColor: isLogin ? kGold : Colors.white54,
                                     textStyle: TextStyle(
                                       fontWeight: isLogin ? FontWeight.bold : FontWeight.normal,
                                       fontSize: 16,
@@ -237,7 +238,7 @@ class _MobileAuthScreenState extends State<MobileAuthScreen> {
                                 child: TextButton(
                                   onPressed: () => setState(() => isLogin = false),
                                   style: TextButton.styleFrom(
-                                    foregroundColor: !isLogin ? Colors.amber : Colors.white54,
+                                    foregroundColor: !isLogin ? kGold : Colors.white54,
                                     textStyle: TextStyle(
                                       fontWeight: !isLogin ? FontWeight.bold : FontWeight.normal,
                                       fontSize: 16,
@@ -262,7 +263,7 @@ class _MobileAuthScreenState extends State<MobileAuthScreen> {
                                 borderRadius: BorderRadius.all(Radius.circular(10)),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.amber),
+                                borderSide: BorderSide(color: kGold),
                                 borderRadius: BorderRadius.all(Radius.circular(10)),
                               ),
                             ),
@@ -281,7 +282,7 @@ class _MobileAuthScreenState extends State<MobileAuthScreen> {
                                 borderRadius: BorderRadius.all(Radius.circular(10)),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.amber),
+                                borderSide: BorderSide(color: kGold),
                                 borderRadius: BorderRadius.all(Radius.circular(10)),
                               ),
                             ),
@@ -294,7 +295,7 @@ class _MobileAuthScreenState extends State<MobileAuthScreen> {
                                 children: [
                                   Checkbox(
                                     value: rememberMe,
-                                    activeColor: Colors.amber,
+                                    activeColor: kGold,
                                     checkColor: Colors.black,
                                     side: const BorderSide(color: Colors.white70),
                                     onChanged: (bool? value) {
@@ -342,7 +343,7 @@ class _MobileAuthScreenState extends State<MobileAuthScreen> {
                             height: 45,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.amber,
+                                backgroundColor: kGold,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),

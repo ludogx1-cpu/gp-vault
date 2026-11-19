@@ -11,6 +11,7 @@ import 'account/account_profile_card.dart';
 import 'account/account_withdraw_card.dart';
 import 'account/account_bank_card.dart';
 import 'account/account_history_card.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -62,7 +63,7 @@ class _AccountPageState extends State<AccountPage> {
                           const BitcotasksAdWidget(),
                           const SizedBox(height: 20),
                           Image.asset(
-                            'assets/Goldenpawicon.png',
+                            'assets/Goldenpawicon_gold.png',
                             width: 130,
                             height: 130,
                             fit: BoxFit.contain,
@@ -98,10 +99,10 @@ class _AccountPageState extends State<AccountPage> {
                                 return AnimatedHoverCard(
                                   backgroundColor: isDark
                                       ? Colors.grey.shade900
-                                      : Colors.amber.shade50,
+                                      : kGold.shade50,
                                   borderRadius: BorderRadius.circular(15),
                                   border: Border.all(
-                                    color: Colors.amber,
+                                    color: kGold,
                                     width: 0.5,
                                   ),
                                   child: Padding(
@@ -111,7 +112,7 @@ class _AccountPageState extends State<AccountPage> {
                                         ListTile(
                                           leading: const Icon(
                                             Icons.account_balance_wallet,
-                                            color: Colors.amber,
+                                            color: kGold,
                                             size: 28,
                                           ),
                                           title: Text(
@@ -136,7 +137,7 @@ class _AccountPageState extends State<AccountPage> {
                                         ListTile(
                                           leading: const Icon(
                                             Icons.bolt,
-                                            color: Colors.amber,
+                                            color: kGold,
                                             size: 28,
                                           ),
                                           title: Text(
@@ -172,7 +173,7 @@ class _AccountPageState extends State<AccountPage> {
                                 onPressed: () =>
                                     showAuthDialogGlobal(context, true),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.amber,
+                                  backgroundColor: kGold,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(25),
                                   ),
@@ -198,7 +199,7 @@ class _AccountPageState extends State<AccountPage> {
                                     showAuthDialogGlobal(context, false),
                                 style: OutlinedButton.styleFrom(
                                   side: BorderSide(
-                                    color: Colors.amber.shade700,
+                                    color: kGold.shade700,
                                     width: 2,
                                   ),
                                   shape: RoundedRectangleBorder(
@@ -208,7 +209,7 @@ class _AccountPageState extends State<AccountPage> {
                                 child: Text(
                                   "CREATE ACCOUNT",
                                   style: TextStyle(
-                                    color: Colors.amber.shade800,
+                                    color: kGold.shade800,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                   ),
@@ -288,7 +289,7 @@ class _AccountPageState extends State<AccountPage> {
                                               15,
                                             ),
                                             border: Border.all(
-                                              color: Colors.amber,
+                                              color: kGold,
                                               width: 0.5,
                                             ),
                                           ),

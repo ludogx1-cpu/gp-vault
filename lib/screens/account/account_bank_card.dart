@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../widgets/widgets.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 /// Read-only view of a player's offerwall and Doge Bank balances.
 /// The Bank no longer accepts deposits or transfers (Golden Paw does not
@@ -51,7 +52,7 @@ class AccountBankCard extends StatelessWidget {
     return AnimatedHoverCard(
       backgroundColor: isDark ? Colors.blue.shade900.withValues(alpha: 0.3) : Colors.blue.shade50,
       borderRadius: BorderRadius.circular(15),
-      border: Border.all(color: Colors.amber, width: 0.5),
+      border: Border.all(color: kGold, width: 0.5),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(

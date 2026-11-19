@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../src/theme_provider.dart';
 import '../../widgets/universal_web_view/universal_web_view.dart';
 import 'package:provider/provider.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class CaptchaSelectorWidget extends StatelessWidget {
   final String selectedCaptcha;
@@ -46,23 +47,23 @@ class CaptchaSelectorWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isDark
                     ? themeProvider.darkGreyBoxColor
-                    : Colors.amber.shade50,
+                    : kGold.shade50,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: isDark
                       ? themeProvider.darkGreyBorder
-                      : Colors.amber.shade200,
+                      : kGold.shade200,
                 ),
               ),
               child: DropdownButton<String>(
                 value: selectedCaptcha,
                 icon: Icon(
                   Icons.arrow_drop_down,
-                  color: isDark ? Colors.amber : Colors.black87,
+                  color: isDark ? kGold : Colors.black87,
                 ),
                 elevation: 16,
                 style: TextStyle(
-                  color: isDark ? Colors.amber : Colors.black87,
+                  color: isDark ? kGold : Colors.black87,
                   fontWeight: FontWeight.bold,
                 ),
                 underline: Container(),
@@ -83,7 +84,7 @@ class CaptchaSelectorWidget extends StatelessWidget {
           height: isHcaptcha ? 420 : 135,
           width: isHcaptcha ? 360 : 340,
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.amber, width: 2),
+            border: Border.all(color: kGold, width: 2),
             borderRadius: BorderRadius.circular(12),
             color: Colors.white,
           ),
@@ -119,7 +120,7 @@ class CaptchaSelectorWidget extends StatelessWidget {
               if (!isCheckingCooldown &&
                   captchaLoading &&
                   secondsRemaining == 0)
-                const CircularProgressIndicator(color: Colors.amber),
+                const CircularProgressIndicator(color: kGold),
               if (secondsRemaining > 0)
                 Center(
                   child: Text(

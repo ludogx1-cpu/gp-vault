@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class InterstitialAdDialog extends StatefulWidget {
   const InterstitialAdDialog({super.key});
@@ -112,7 +113,7 @@ class _InterstitialAdDialogState extends State<InterstitialAdDialog> {
                             width: double.infinity,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.amber, width: 2),
+                              border: Border.all(color: kGold, width: 2),
                               image: DecorationImage(
                                 image: NetworkImage(adData['image_url']),
                                 fit: BoxFit.cover,

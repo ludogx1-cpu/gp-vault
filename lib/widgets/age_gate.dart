@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../src/analytics.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 /// Blocks the app until the player confirms they are 18 or over.
 /// The answer is remembered on this device.
@@ -42,7 +43,7 @@ class _AgeGateState extends State<AgeGate> {
     if (_confirmed == true) return widget.child;
     if (_confirmed == null) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator(color: Colors.amber)),
+        body: Center(child: CircularProgressIndicator(color: kGold)),
       );
     }
 
@@ -85,7 +86,7 @@ class _AgeGateState extends State<AgeGate> {
                       onChanged: (v) => setState(() => _allowAnalytics = v ?? false),
                       controlAffinity: ListTileControlAffinity.leading,
                       contentPadding: EdgeInsets.zero,
-                      activeColor: Colors.amber,
+                      activeColor: kGold,
                       title: const Text(
                         'Help improve Golden Paw by sharing anonymous usage statistics (Google Analytics). Optional, and you can change it any time under Cookies & privacy.',
                         style: TextStyle(fontSize: 13, height: 1.3),
@@ -98,7 +99,7 @@ class _AgeGateState extends State<AgeGate> {
                     child: ElevatedButton(
                       onPressed: _confirm,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.amber,
+                        backgroundColor: kGold,
                         foregroundColor: Colors.black,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../widgets/widgets.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 
 
@@ -68,7 +69,7 @@ final partnerList = [
     "Get paid in Bitcoin for surfing the web. A trusted PTC platform.",
     "Bitcoin Web Surfing",
     Icons.currency_bitcoin,
-    Colors.amber,
+    kGold,
     "https://r.adbtc.top/2107663",
     "PTC",
   ),
@@ -263,7 +264,7 @@ class _AffiliateLinksPageState extends State<AffiliateLinksPage>
               isScrollable: true,
               indicatorSize: TabBarIndicatorSize.tab,
               indicator: BoxDecoration(
-                color: Colors.amber,
+                color: kGold,
                 borderRadius: BorderRadius.circular(20),
               ),
               labelColor: Colors.black87,
@@ -419,7 +420,7 @@ class _AffiliateLinksPageState extends State<AffiliateLinksPage>
             const SizedBox(width: 8),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.amber,
+                backgroundColor: kGold,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 minimumSize: const Size(60, 36),

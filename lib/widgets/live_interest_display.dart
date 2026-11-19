@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../src/theme_provider.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 
 
@@ -106,7 +107,7 @@ class _LiveInterestDisplayState extends State<LiveInterestDisplay> {
               "DOGE",
               style: TextStyle(
                 fontSize: 16,
-                color: isDark ? Colors.amber : Colors.black87,
+                color: isDark ? kGold : Colors.black87,
                 fontWeight: FontWeight.bold,
               ),
             ),

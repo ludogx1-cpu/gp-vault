@@ -54,7 +54,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/Goldenpawicon.png"
+  image_path: "assets/Goldenpawicon_gold.png"
   # Web icons are made separately (web/icons) so the dark theme colours in
   # web/manifest.json are not overwritten.
   web:
@@ -63,13 +63,19 @@ flutter_launcher_icons:
 flutter:
   uses-material-design: true
 
+  # Outfit (SIL Open Font Licence, see assets/fonts/Outfit-OFL.txt)
+  fonts:
+    - family: Outfit
+      fonts:
+        - asset: assets/fonts/Outfit-Variable.ttf
+
   # 🚀 THIS IS YOUR NEW ASSETS FOLDER
   assets:
     - assets/bg.png
     - assets/Bank.png
-    - assets/Goldenpawicon.png
+    - assets/Goldenpawicon_gold.png
     - assets/studios_logo.png
-    - assets/paw_logo.png
+    - assets/paw_logo_gold.png
     - assets/shiba_puppy.png
     - assets/shiba_teen.png
     - assets/shiba_adult.png

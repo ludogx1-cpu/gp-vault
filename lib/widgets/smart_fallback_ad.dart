@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../src/theme_provider.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class SmartFallbackAd extends StatelessWidget {
   final double width;
@@ -68,7 +69,7 @@ class SmartFallbackAd extends StatelessWidget {
                     children: [
                       Icon(
                         Icons.campaign,
-                        color: isDark ? Colors.amber : Colors.orange,
+                        color: isDark ? kGold : Colors.orange,
                         size: height > 100 ? 40 : 24,
                       ),
                       const SizedBox(height: 5),
@@ -124,7 +125,7 @@ class SmartFallbackAd extends StatelessWidget {
             var data = allPartners[Random().nextInt(allPartners.length)];
             Color iconColor = data['_isHardcoded'] == true
                 ? Color(int.parse(data['colorHex'] ?? 'ffffc107', radix: 16))
-                : Colors.amber;
+                : kGold;
             IconData displayIcon = data['_isHardcoded'] == true
                 ? data['_iconData']
                 : _getAdminIcon(data['iconName'] ?? '');
@@ -137,7 +138,7 @@ class SmartFallbackAd extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isDark
                       ? themeProvider.darkGreyBoxColor
-                      : Colors.amber.shade50,
+                      : kGold.shade50,
                   border: isDark
                       ? Border.all(color: themeProvider.darkGreyBorder)
                       : null,

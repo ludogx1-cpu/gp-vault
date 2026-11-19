@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/widgets.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class AccountHistoryCard extends StatefulWidget {
   final Map<String, dynamic>? userData;
@@ -27,7 +28,7 @@ class _AccountHistoryCardState extends State<AccountHistoryCard> {
       backgroundColor: widget.isDark ? Colors.grey.shade900 : Colors.white,
       borderRadius: BorderRadius.circular(15),
       border: Border.all(
-        color: Colors.amber,
+        color: kGold,
         width: 0.5,
       ),
       child: Padding(
@@ -39,7 +40,7 @@ class _AccountHistoryCardState extends State<AccountHistoryCard> {
               children: [
                 Icon(
                   Icons.history,
-                  color: widget.isDark ? Colors.amber : Colors.black87,
+                  color: widget.isDark ? kGold : Colors.black87,
                 ),
                 const SizedBox(width: 10),
                 Text(
@@ -55,15 +56,15 @@ class _AccountHistoryCardState extends State<AccountHistoryCard> {
                   onPressed: () {
                     GoRouter.of(context).push('/reward-history');
                   },
-                  child: const Text('View Full Audit', style: TextStyle(color: Colors.amber)),
+                  child: const Text('View Full Audit', style: TextStyle(color: kGold)),
                 ),
               ],
             ),
             Divider(
               height: 20,
               color: widget.isDark
-                  ? Colors.amber.withValues(alpha: 0.3)
-                  : Colors.amber.shade100,
+                  ? kGold.withValues(alpha: 0.3)
+                  : kGold.shade100,
             ),
             if (history.isEmpty)
               Padding(
@@ -144,10 +145,10 @@ class _AccountHistoryCardState extends State<AccountHistoryCard> {
                           child: Row(
                             children: [
                               CircleAvatar(
-                                backgroundColor: Colors.amber.withValues(
+                                backgroundColor: kGold.withValues(
                                   alpha: 0.2,
                                 ),
-                                child: Icon(icon, color: Colors.amber, size: 20),
+                                child: Icon(icon, color: kGold, size: 20),
                               ),
                               const SizedBox(width: 15),
                               Expanded(

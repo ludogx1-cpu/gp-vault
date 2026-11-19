@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../src/referral_service.dart';
 import '../src/theme_provider.dart';
 import '../widgets/widgets.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class ReferralPage extends StatefulWidget {
   const ReferralPage({super.key});
@@ -155,7 +156,7 @@ class _ReferralPageState extends State<ReferralPage> {
                   const SizedBox(height: 40),
                   ElevatedButton(
                     onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
+                    style: ElevatedButton.styleFrom(backgroundColor: kGold),
                     child: const Text(
                       "Back to Faucet",
                       style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
