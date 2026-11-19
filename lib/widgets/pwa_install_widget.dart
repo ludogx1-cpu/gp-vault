@@ -77,7 +77,7 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
         constraints: const BoxConstraints(maxWidth: 800),
         child: Container(
           width: double.infinity,
-      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -98,23 +98,22 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
-                children: [
-                  Icon(Icons.get_app_rounded, color: Colors.white, size: 28),
-                  SizedBox(width: 10),
-                  Text(
-                    "Choose Your Version",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 17,
-                    ),
+              const Icon(Icons.get_app_rounded, color: Colors.white, size: 26),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Text(
+                  "Get the app",
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
                   ),
-                ],
+                ),
               ),
               IconButton(
+                visualDensity: VisualDensity.compact,
                 icon: const Icon(Icons.close, color: Colors.white70, size: 20),
                 onPressed: _dismissBanner,
                 tooltip: "Dismiss",
@@ -124,8 +123,8 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
           const SizedBox(height: 8),
           Text(
             _isIOS
-                ? "Install the Web App or Android APK to receive notifications and daily promo codes! For iOS Web App: Tap Share ➔ 'Add to Home Screen'."
-                : "Install the Web App or Android APK to receive notifications and daily promo codes!",
+                ? "Add Golden Paw to your home screen for notifications and daily promo codes."
+                : "Install the web app or the Android app for notifications and daily promo codes.",
             style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.3),
           ),
           const SizedBox(height: 14),
@@ -137,7 +136,7 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
                 onPressed: _triggerInstall,
                 icon: const Icon(Icons.add_to_home_screen, color: kGold, size: 18),
                 label: const Text(
-                  "INSTALL WEB APP",
+                  "Install web app",
                   style: TextStyle(
                     color: Colors.black87,
                     fontWeight: FontWeight.bold,
@@ -183,7 +182,7 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
               },
               icon: const Icon(Icons.android, color: Colors.white, size: 18),
               label: const Text(
-                "DOWNLOAD ANDROID APK",
+                "Download Android app",
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,

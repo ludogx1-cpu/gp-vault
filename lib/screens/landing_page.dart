@@ -346,7 +346,7 @@ class _LandingPageState extends State<LandingPage> {
                   border: Border.all(color: kGold.withValues(alpha: 0.4)),
                 ),
                 child: const Text(
-                  "✦ GOLDEN PAW STUDIOS ✦",
+                  "✦ ABOUT US ✦",
                   style: TextStyle(
                     color: kGold,
                     fontWeight: FontWeight.w800,
@@ -357,7 +357,7 @@ class _LandingPageState extends State<LandingPage> {
               ),
               const SizedBox(height: 16),
               Text(
-                "Our Vision & Community",
+                "Who's behind Golden Paw?",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: isMobile ? 24 : 30,
@@ -367,7 +367,7 @@ class _LandingPageState extends State<LandingPage> {
               ),
               const SizedBox(height: 16),
               Text(
-                "Golden Paw Studios is an independent game and app development studio with a passion for creating fun, rewarding, and easy-to-use mobile experiences.",
+                "Golden Paw is made by Golden Paw Studios, a small independent studio in the UK. We're dog lovers who make games, printables and websites.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: isMobile ? 15 : 17,
@@ -378,7 +378,7 @@ class _LandingPageState extends State<LandingPage> {
               ),
               const SizedBox(height: 12),
               Text(
-                "Our flagship project, Golden Paw, brings together the joy of caring for a virtual pet with small Dogecoin rewards from the faucet and the Bonus Vault.\n\nWe believe earning rewards should be simple, fair, and accessible to everyone. That's why we're focused on building experiences that don't require an upfront investment, put transparency first, and make Web3 more approachable.\n\nAt Golden Paw Studios, it's all about combining entertainment, small rewards, and a growing community of players who share our vision.",
+                "Golden Paw started as a fun way to raise a virtual Shiba and collect small rewards along the way. It's free to play, with no deposits and no catches.\n\nWe're a real, small team, and we read every message and review you send. If something isn't right or you have an idea, tell us on our support page or email goldenpaw.dogeadmin@gmail.com.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: isMobile ? 13 : 14,
@@ -406,9 +406,37 @@ class _LandingPageState extends State<LandingPage> {
                     ),
                     icon: const Icon(Icons.public, size: 18),
                     label: const Text(
-                      "Visit Studios Website ↗",
+                      "Golden Paw Studios ↗",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
+                  ),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: isDark ? Colors.white : Colors.black87,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                      side: BorderSide(color: kGold.withValues(alpha: 0.6)),
+                    ),
+                    onPressed: () => launchUrl(
+                      Uri.parse('https://goldenpaw.dog/articles/'),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                    icon: const Icon(Icons.article_outlined, size: 16, color: kGold),
+                    label: const Text("Articles"),
+                  ),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: isDark ? Colors.white : Colors.black87,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                      side: BorderSide(color: kGold.withValues(alpha: 0.6)),
+                    ),
+                    onPressed: () => launchUrl(
+                      Uri.parse('https://goldenpaw.dog/support/'),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                    icon: const Icon(Icons.support_agent, size: 16, color: kGold),
+                    label: const Text("Help & support"),
                   ),
                   OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
