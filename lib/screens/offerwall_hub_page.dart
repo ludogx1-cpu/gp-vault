@@ -215,8 +215,8 @@ class _OfferwallHubPageState extends State<OfferwallHubPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                // TimeWall is suspended until the publisher account is approved.
-                // Re-enable it here (and on the PTC page) once the TimeWall ID is set up.
+                // TimeWall is suspended until TimeWall finishes verifying the owner's ID (needed for payouts).
+                // Once verified, re-enable it here and on the PTC page (publisher oid: 00b4588ba45c68fb).
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     disabledBackgroundColor: Colors.grey.shade300,

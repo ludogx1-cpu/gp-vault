@@ -371,8 +371,8 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                       // AdSense is not shown on this page: Google's policies do not
                       // allow its ads on pages that reward people for viewing ads.
                       const SizedBox(height: 20),
-                      // TimeWall is suspended until the publisher account is approved.
-                      // Restore the launchUrl onPressed here once the TimeWall ID is set up.
+                      // TimeWall is suspended until TimeWall finishes verifying the owner's ID (needed for payouts).
+                      // Once verified, restore onPressed: launchUrl(https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=<uid>&tab=clicks).
                       SizedBox(
                         width: double.infinity,
                         height: 60,
