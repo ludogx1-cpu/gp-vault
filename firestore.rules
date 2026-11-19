@@ -124,6 +124,27 @@ service cloud.firestore {
                     && request.resource.data.timestamp == request.time;
     }
 
+    // The Book Of Dog. All writes go through the backend (moderated, like
+    // chat). Anyone can read visible posts and comments; hidden ones (reported
+    // or awaiting review) are only readable by the Admin SDK. Queries must
+    // filter on hidden == false.
+    match /dogbook_posts/{postId} {
+      allow read: if resource.data.hidden == false;
+      allow write: if false;
+    }
+    match /dogbook_comments/{commentId} {
+      allow read: if resource.data.hidden == false;
+      allow write: if false;
+    }
+    // A player can check their own likes, so the app knows which hearts to fill.
+    match /dogbook_likes/{likeId} {
+      allow read: if isAuth() && resource.data.uid == request.auth.uid;
+      allow write: if false;
+    }
+    match /dogbook_reports/{docId} {
+      allow read, write: if false;
+    }
+
     // Reward Audits Collection
     match /reward_audits/{docId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;

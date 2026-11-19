@@ -76,6 +76,7 @@ function memoryFirestore() {
           },
           update: (ref, data) => writes.push(() => apply(ref, data)),
           set: (ref, data) => writes.push(() => apply(ref, data, true)),
+          delete: ref => writes.push(() => rows.delete(ref.path)),
         });
         if (db.failCommit) throw new Error('Simulated interrupted commit');
         writes.forEach(write => write());

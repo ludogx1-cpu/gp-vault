@@ -110,3 +110,42 @@ test('signed-in users can report chat messages; nobody can read or forge reports
   const read = await fetch(`${base}/chat_reports/${uid}-ok`, { headers: { Authorization: `Bearer ${auth}` } });
   assert.equal(read.status, 403);
 });
+
+test('Book Of Dog: visible posts are public, hidden ones and reports are not, and clients cannot write', async () => {
+  const id = `dog-${Date.now()}`;
+  const auth = token(`${id}-u`);
+  await expectStatus(write(`dogbook_posts/${id}-on`, { uid: 'a', dog_name: 'Rex', hidden: false }, 'owner'), 200);
+  await expectStatus(write(`dogbook_posts/${id}-off`, { uid: 'a', dog_name: 'Rex', hidden: true }, 'owner'), 200);
+  await expectStatus(write(`dogbook_comments/${id}-on`, { post_id: `${id}-on`, text: 'aww', hidden: false }, 'owner'), 200);
+  await expectStatus(write(`dogbook_comments/${id}-off`, { post_id: `${id}-on`, text: 'nasty', hidden: true }, 'owner'), 200);
+  await expectStatus(write(`dogbook_likes/${id}-mine`, { post_id: `${id}-on`, uid: `${id}-u` }, 'owner'), 200);
+  await expectStatus(write(`dogbook_likes/${id}-theirs`, { post_id: `${id}-on`, uid: 'b' }, 'owner'), 200);
+  await expectStatus(write(`dogbook_reports/${id}`, { reason: 'Spam' }, 'owner'), 200);
+
+  const get = async (path, bearer) => (await fetch(`${base}/${path}`, bearer ? { headers: { Authorization: `Bearer ${bearer}` } } : {})).status;
+  assert.equal(await get(`dogbook_posts/${id}-on`), 200);
+  assert.equal(await get(`dogbook_posts/${id}-off`), 403);
+  assert.equal(await get(`dogbook_comments/${id}-on`), 200);
+  assert.equal(await get(`dogbook_comments/${id}-off`, auth), 403);
+  assert.equal(await get(`dogbook_likes/${id}-mine`, auth), 200);
+  assert.equal(await get(`dogbook_likes/${id}-theirs`, auth), 403);
+  assert.equal(await get(`dogbook_likes/${id}-mine`), 403);
+  assert.equal(await get(`dogbook_reports/${id}`, auth), 403);
+
+  const query = async filtered => (await fetch(`${base}:runQuery`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ structuredQuery: {
+      from: [{ collectionId: 'dogbook_posts' }],
+      ...(filtered ? { where: { fieldFilter: { field: { fieldPath: 'hidden' }, op: 'EQUAL', value: { booleanValue: false } } } } : {}),
+      limit: 20,
+    } }),
+  })).status;
+  assert.equal(await query(true), 200);
+  assert.equal(await query(false), 403);
+
+  await expectStatus(write(`dogbook_posts/${id}-forged`, { uid: `${id}-u`, hidden: false }, auth), 403);
+  await expectStatus(write(`dogbook_posts/${id}-on`, { like_count: 999 }, auth, ['like_count']), 403);
+  await expectStatus(write(`dogbook_comments/${id}-forged`, { post_id: 'x', hidden: false }, auth), 403);
+  await expectStatus(write(`dogbook_likes/${id}-forged`, { uid: `${id}-u` }, auth), 403);
+  await expectStatus(write(`dogbook_reports/${id}-forged`, { reason: 'Spam' }, auth), 403);
+});
