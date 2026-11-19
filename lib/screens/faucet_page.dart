@@ -6,7 +6,6 @@ import '../src/doge_price_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:showcaseview/showcaseview.dart';
-import '../widgets/universal_web_view/universal_web_view.dart';
 import '../widgets/widgets.dart';
 import '../widgets/pet_overlay_widget.dart';
 import '../widgets/chat_box_widget.dart';
@@ -163,26 +162,9 @@ class _FaucetPageState extends State<FaucetPage> {
                       if (!_isProfileSetupShowing) ...[
                         if (kIsWeb) const SizedBox(height: 80), // Push ads below the app header
                         if (!kIsWeb) const AdMobNativeCard(),
-                        const BannerAdPlaceholder(),
-                        const SizedBox(height: 12),
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: SizedBox(
-                            width: 728,
-                            height: 90,
-                            child: Stack(
-                              children: [
-                                const SmartFallbackAd(width: 728, height: 90),
-                                UniversalWebView.create(
-                                  viewType: 'adsterra-728x90',
-                                  width: 728,
-                                  height: 90,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
+                        // One ad block only. The Adsterra banner (which served
+                        // "you won a prize" style creatives) and the partner
+                        // promotion box were removed to cut ad clutter.
                         const BitcotasksAdWidget(),
                         const SizedBox(height: 20),
                       ],

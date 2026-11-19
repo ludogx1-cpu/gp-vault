@@ -6,7 +6,6 @@ import '../widgets/trustpilot_widget.dart';
 import '../widgets/newsletter_subscribe_widget.dart';
 import '../widgets/widgets.dart';
 import 'blog_page.dart';
-import '../widgets/universal_web_view/universal_web_view.dart';
 import 'package:gp_faucet/src/brand_colors.dart';
 
 class LandingPage extends StatefulWidget {
@@ -125,16 +124,7 @@ class _LandingPageState extends State<LandingPage> {
       body: PageWithFooter(
         child: Column(
           children: [
-            if (kIsWeb) const SizedBox(height: 80), // Push ads below the app header
-            if (kIsWeb)
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: SizedBox(
-                  width: 728,
-                  height: 90,
-                  child: UniversalWebView.create(viewType: 'adsterra-728x90', width: 728, height: 90),
-                ),
-              ),
+            if (kIsWeb) const SizedBox(height: 80), // Keep content below the app header
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
@@ -304,8 +294,6 @@ class _LandingPageState extends State<LandingPage> {
             const TrustpilotWidget(),
             const SizedBox(height: 60),
             _buildAboutStudiosSection(context),
-            if (kIsWeb) const SizedBox(height: 60),
-            if (kIsWeb) const Bitcotasks300x600AdWidget(),
             const SizedBox(height: 60),
             const NewsletterSubscribeWidget(),
             const SizedBox(height: 50),
