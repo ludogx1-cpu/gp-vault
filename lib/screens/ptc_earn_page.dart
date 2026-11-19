@@ -371,35 +371,29 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                       // AdSense is not shown on this page: Google's policies do not
                       // allow its ads on pages that reward people for viewing ads.
                       const SizedBox(height: 20),
-                      // 🚀 TIMEWALL CLICKS BUTTON 🚀
+                      // TimeWall is suspended until TimeWall finishes verifying the owner's ID (needed for payouts).
+                      // Once verified, restore onPressed: launchUrl(https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=<uid>&tab=clicks).
                       SizedBox(
                         width: double.infinity,
                         height: 60,
                         child: ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            foregroundColor: Colors.white,
+                            disabledBackgroundColor: Colors.grey.shade300,
+                            disabledForegroundColor: Colors.grey.shade700,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
-                            elevation: 4,
                           ),
-                          icon: const Icon(Icons.touch_app, size: 28),
+                          icon: const Icon(Icons.lock_clock, size: 28),
                           label: const Text(
-                            "EARN MORE WITH TIMEWALL CLICKS",
+                            "TIMEWALL CLICKS · COMING SOON",
                             style: TextStyle(
                               fontWeight: FontWeight.w900,
                               fontSize: 16,
                               letterSpacing: 1.2,
                             ),
                           ),
-                          onPressed: () {
-                            launchUrl(
-                              Uri.parse(
-                                'https://timewall.io/users/login?oid=00b4588ba45c68fb&uid=${user.uid}&tab=clicks',
-                              ),
-                            );
-                          },
+                          onPressed: null,
                         ),
                       ),
                       const SizedBox(height: 25),

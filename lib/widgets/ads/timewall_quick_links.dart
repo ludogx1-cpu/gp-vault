@@ -1,3 +1,5 @@
+// Currently unused: TimeWall is suspended. Re-add TimewallQuickLinksWidget to
+// lib/screens/offerwall_hub_page.dart once TimeWall has verified the owner's ID.
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
