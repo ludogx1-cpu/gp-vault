@@ -15,3 +15,8 @@ const MaterialColor kGold = MaterialColor(0xFFC9A227, <int, Color>{
   800: Color(0xFF7F6416),
   900: Color(0xFF5E4A10),
 });
+
+/// Golden Paw "Nightshade" (#1E1631): a deep purple-black used instead of
+/// jet black for the header, footer and dark sidebar. Change it here to
+/// re-tint all of them.
+const Color kNightshade = Color(0xFF1E1631);
