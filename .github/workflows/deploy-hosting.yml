@@ -9,6 +9,9 @@ on:
     workflows: ["Project checks"]
     types: [completed]
     branches: [main]
+  # Daily rebuild so newly approved blog posts get their article pages.
+  schedule:
+    - cron: '23 4 * * *'
   workflow_dispatch:
     inputs:
       apk_source:
@@ -26,7 +29,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     steps:
       - name: Check deploy key
@@ -58,6 +61,25 @@ jobs:
         run: |
           flutter pub get
           flutter build web --release --no-wasm-dry-run --no-pub
+
+      - uses: actions/setup-node@v4
+        if: steps.key.outputs.skip == 'false'
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: tools/blog/package-lock.json
+
+      # Static, Google-friendly pages for approved blog posts (/articles/...).
+      # Never blocks the deploy: if it fails, the site deploys without them.
+      - name: Build blog article pages
+        if: steps.key.outputs.skip == 'false'
+        continue-on-error: true
+        working-directory: tools/blog
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT || secrets.FIREBASE_SERVICE_ACCOUNT_GOLDEN_PAW_DATABASE }}
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          node build_blog.mjs ../../build/web
 
       # golden-paw.apk is not in the repo; it lives only on the hosted site.
       # Keep the live copy (default) or take the latest release, and refuse to

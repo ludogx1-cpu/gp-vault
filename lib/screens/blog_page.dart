@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,6 +8,18 @@ import '../src/theme_provider.dart';
 import '../widgets/newsletter_subscribe_widget.dart';
 import '../widgets/widgets.dart';
 import 'package:gp_faucet/src/brand_colors.dart';
+
+/// Web address of a post's static article page (built at deploy time by
+/// tools/blog/build_blog.mjs). Keep this rule identical to articleSlug() there.
+String articleUrl(String topic, String docId) {
+  var s = topic.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-');
+  s = s.replaceAll(RegExp(r'^-+|-+$'), '');
+  if (s.length > 60) s = s.substring(0, 60);
+  s = s.replaceAll(RegExp(r'-+$'), '');
+  if (s.isEmpty) s = 'post';
+  final shortId = docId.length > 8 ? docId.substring(0, 8) : docId;
+  return 'https://goldenpaw.dog/articles/$s-$shortId/';
+}
 
 class BlogPage extends StatefulWidget {
   const BlogPage({super.key});
@@ -30,7 +43,7 @@ class _BlogPageState extends State<BlogPage> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
-  void _showArticleDialog(BuildContext context, String content, bool isDark, Color titleColor) {
+  void _showArticleDialog(BuildContext context, String content, bool isDark, Color titleColor, {String? pageUrl}) {
     showDialog(
       context: context,
       builder: (context) {
@@ -42,12 +55,40 @@ class _BlogPageState extends State<BlogPage> with SingleTickerProviderStateMixin
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                Align(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                    icon: Icon(Icons.close, color: titleColor),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Wrap(
+                        spacing: 4,
+                        children: [
+                    if (pageUrl != null) ...[
+                      TextButton.icon(
+                        onPressed: () => launchUrl(Uri.parse(pageUrl)),
+                        icon: const Icon(Icons.open_in_new, size: 18, color: kGold),
+                        label: const Text('Open as page', style: TextStyle(color: kGold)),
+                      ),
+                      TextButton.icon(
+                        onPressed: () async {
+                          await Clipboard.setData(ClipboardData(text: pageUrl));
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Link copied. Share it anywhere!')),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.link, size: 18, color: kGold),
+                        label: const Text('Copy link', style: TextStyle(color: kGold)),
+                      ),
+                    ],
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: titleColor),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
                 ),
                 Expanded(
                   child: SingleChildScrollView(
@@ -316,7 +357,16 @@ Thank you all for your patience and support!''',
                 if (externalUrl != null && externalUrl.toString().isNotEmpty) {
                   launchUrl(Uri.parse(externalUrl.toString()));
                 } else {
-                  _showArticleDialog(context, content, isDark, titleColor);
+                  final hasPage = collection == 'blog_posts' &&
+                      (categoryFilter == 'daily_blog' || categoryFilter == 'newsletter') &&
+                      docId.isNotEmpty;
+                  _showArticleDialog(
+                    context,
+                    content,
+                    isDark,
+                    titleColor,
+                    pageUrl: hasPage ? articleUrl(topic.toString(), docId) : null,
+                  );
                 }
               },
               borderRadius: BorderRadius.circular(10),

@@ -1,0 +1,13 @@
+{
+  "name": "golden-paw-blog-pages",
+  "private": true,
+  "type": "module",
+  "description": "Builds static, Google-friendly pages for Golden Paw blog posts at deploy time.",
+  "scripts": {
+    "build": "node build_blog.mjs ../../build/web"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.5.0",
+    "marked": "^15.0.12"
+  }
+}
