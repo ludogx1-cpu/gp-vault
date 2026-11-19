@@ -18,7 +18,7 @@ class AppFooter extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20.0, 18.0, 20.0, 12.0),
       decoration: BoxDecoration(
-        color: Colors.black,
+        color: kCharcoal,
         border: Border(top: BorderSide(color: kGold.shade200, width: 1)),
       ),
       child: Column(

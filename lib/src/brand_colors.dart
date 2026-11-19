@@ -15,3 +15,8 @@ const MaterialColor kGold = MaterialColor(0xFFC9A227, <int, Color>{
   800: Color(0xFF7F6416),
   900: Color(0xFF5E4A10),
 });
+
+/// Golden Paw "Charcoal" (#262626): a greyish black used instead of jet
+/// black for the header, footer and dark sidebar. Change it here to
+/// re-tint all of them.
+const Color kCharcoal = Color(0xFF262626);
