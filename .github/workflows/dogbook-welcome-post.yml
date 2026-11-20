@@ -1,0 +1,26 @@
+name: Book Of Dog welcome post
+
+# Adds the "Goldie" welcome post to The Book Of Dog. Run by hand; running it
+# again does nothing once the post exists.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Create the welcome post
+        working-directory: tools/dogbook
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT || secrets.FIREBASE_SERVICE_ACCOUNT_GOLDEN_PAW_DATABASE }}
+        run: |
+          npm ci --no-audit --no-fund
+          node welcome_post.mjs
