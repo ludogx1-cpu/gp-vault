@@ -1,0 +1,40 @@
+name: Publish newsletter article
+
+# Adds a newsletter from content/newsletters/ to goldenpaw.dog/articles.
+# Run by hand from main; then the website deploy rebuilds the article pages.
+on:
+  workflow_dispatch:
+    inputs:
+      doc_id:
+        description: "Article id (lower-case letters, numbers and dashes), e.g. news-2026-11"
+        required: true
+      title:
+        description: "Article title"
+        required: true
+      file:
+        description: "Markdown file, e.g. content/newsletters/2026-11.md"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Publish the article
+        working-directory: tools/blog
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT || secrets.FIREBASE_SERVICE_ACCOUNT_GOLDEN_PAW_DATABASE }}
+          DOC_ID: ${{ github.event.inputs.doc_id }}
+          TITLE: ${{ github.event.inputs.title }}
+          FILE: ${{ github.event.inputs.file }}
+        run: |
+          case "$FILE" in content/newsletters/*.md) ;; *) echo "::error::File must be in content/newsletters/"; exit 1;; esac
+          npm ci --ignore-scripts --no-audit --no-fund
+          node add_newsletter.mjs "$DOC_ID" "$TITLE" "../../$FILE"
