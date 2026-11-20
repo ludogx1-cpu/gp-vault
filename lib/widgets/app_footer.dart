@@ -18,7 +18,7 @@ class AppFooter extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20.0, 18.0, 20.0, 12.0),
       decoration: BoxDecoration(
-        color: kCharcoal,
+        color: gpChromeColor(context),
         border: Border(top: BorderSide(color: kGold.shade200, width: 1)),
       ),
       child: Column(
@@ -29,12 +29,12 @@ class AppFooter extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 6.0),
-                child: const Text(
+                child: Text(
                   "GOLDEN PAW DOGE",
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
                     letterSpacing: 2,
-                    color: kGold,
+                    color: gpChromeGold(context),
                   ),
                 ),
               ),
@@ -46,7 +46,7 @@ class AppFooter extends StatelessWidget {
                     themeProvider.isDarkMode
                         ? Icons.light_mode
                         : Icons.dark_mode,
-                    color: kGold,
+                    color: gpChromeGold(context),
                     size: 20,
                   ),
                   tooltip: "Toggle Dark/Light Mode",
@@ -71,10 +71,10 @@ class AppFooter extends StatelessWidget {
                     mode: LaunchMode.externalApplication,
                   );
                 },
-                child: const Text(
+                child: Text(
                   "Golden Paw Studios",
                   style: TextStyle(
-                    color: kGold,
+                    color: gpChromeGold(context),
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                   ),
@@ -85,10 +85,10 @@ class AppFooter extends StatelessWidget {
                   context,
                   MaterialPageRoute(builder: (context) => const BlogPage()),
                 ),
-                child: const Text(
+                child: Text(
                   "Blog",
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: gpChromeText(context),
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
                   ),
@@ -101,10 +101,10 @@ class AppFooter extends StatelessWidget {
                     mode: LaunchMode.externalApplication,
                   );
                 },
-                child: const Text(
+                child: Text(
                   "Terms of Service",
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: gpChromeText(context),
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
                   ),
@@ -117,10 +117,10 @@ class AppFooter extends StatelessWidget {
                     mode: LaunchMode.externalApplication,
                   );
                 },
-                child: const Text(
+                child: Text(
                   "Privacy Policy",
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: gpChromeText(context),
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
                   ),
@@ -133,10 +133,10 @@ class AppFooter extends StatelessWidget {
                     builder: (context) => const CookiePolicyPage(),
                   ),
                 ),
-                child: const Text(
+                child: Text(
                   "Cookie Policy",
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: gpChromeText(context),
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
                   ),
@@ -147,10 +147,10 @@ class AppFooter extends StatelessWidget {
                   context,
                   MaterialPageRoute(builder: (context) => const FAQPage()),
                 ),
-                child: const Text(
+                child: Text(
                   "FAQ",
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: gpChromeText(context),
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
                   ),
@@ -161,10 +161,10 @@ class AppFooter extends StatelessWidget {
                   context,
                   MaterialPageRoute(builder: (context) => const ContactPage()),
                 ),
-                child: const Text(
+                child: Text(
                   "Contact / Help Desk",
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: gpChromeText(context),
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
                   ),
@@ -213,7 +213,7 @@ class AppFooter extends StatelessWidget {
             runSpacing: 8,
             children: [
               IconButton(
-                icon: const Icon(Icons.close, color: Colors.white70),
+                icon: Icon(Icons.close, color: gpChromeText(context)),
                 onPressed: () {
                   launchUrl(
                     Uri.parse('https://x.com/ludogx101'),
@@ -255,7 +255,7 @@ class AppFooter extends StatelessWidget {
                 tooltip: 'Follow us on Instagram (@goldenpawdoge)',
               ),
               IconButton(
-                icon: const Icon(Icons.tiktok, color: Colors.white),
+                icon: Icon(Icons.tiktok, color: gpChromeText(context)),
                 onPressed: () {
                   launchUrl(
                     Uri.parse('https://www.tiktok.com/@goldenpawstudios'),
@@ -300,22 +300,22 @@ class AppFooter extends StatelessWidget {
             children: [
               const PulsatingSecurityText(),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 "© 2026 Golden Paw. All rights reserved.",
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: Colors.white54),
+                style: TextStyle(fontSize: 12, color: gpChromeMuted(context)),
               ),
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 "18+ only. Golden Paw is entertainment, not an investment. No deposits. Not authorised by the FCA. Not financial advice. Crypto values can go down as well as up.",
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 11, color: Colors.white54),
+                style: TextStyle(fontSize: 11, color: gpChromeMuted(context)),
               ),
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 "Google is a trademark of Google LLC.",
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 11, color: Colors.white38),
+                style: TextStyle(fontSize: 11, color: gpChromeMuted(context)),
               ),
               const SizedBox(height: 4),
               Text(
@@ -324,7 +324,7 @@ class AppFooter extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: kGold,
+                  color: gpChromeGold(context),
                 ),
               ),
               SizedBox(height: 4),
@@ -334,7 +334,7 @@ class AppFooter extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontStyle: FontStyle.italic,
-                  color: kGold.shade200,
+                  color: gpChromeGold(context),
                 ),
               ),
             ],

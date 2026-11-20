@@ -68,15 +68,15 @@ class PetTabsWidget extends StatelessWidget {
         margin: const EdgeInsets.only(top: 15),
         decoration: BoxDecoration(
           color: data.isDark
-              ? Colors.blueGrey.withValues(alpha: 0.2)
-              : Colors.blue.shade50,
+              ? kGold.withValues(alpha: 0.08)
+              : kGold.shade50,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.blue.withValues(alpha: 0.5)),
+          border: Border.all(color: kGold.withValues(alpha: 0.5)),
         ),
         child: Column(
           children: [
             TabBar(
-              labelColor: data.isDark ? kGold : Colors.blue.shade800,
+              labelColor: data.isDark ? kGold : kGold.shade800,
               unselectedLabelColor:
                   data.isDark ? Colors.white54 : Colors.black54,
               indicatorColor: kGold,
@@ -195,7 +195,7 @@ class PetTabsWidget extends StatelessWidget {
               onPressed: () =>
                   callbacks.onEquipAccessory(collar.id, !isEquipped),
               style: ElevatedButton.styleFrom(
-                backgroundColor: isEquipped ? Colors.grey.shade700 : Colors.blue,
+                backgroundColor: isEquipped ? Colors.grey.shade700 : kCharcoal,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 minimumSize: const Size(64, 30),
               ),
@@ -276,7 +276,7 @@ class PetTabsWidget extends StatelessWidget {
             ElevatedButton(
               onPressed: () => callbacks.onUseConsumable(id),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
+                backgroundColor: kCharcoal,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 minimumSize: const Size(50, 30),
               ),
@@ -391,7 +391,7 @@ class PetTabsWidget extends StatelessWidget {
               onPressed:
                   isEquipped ? null : () => callbacks.onEquipBall(color),
               style: ElevatedButton.styleFrom(
-                backgroundColor: isEquipped ? Colors.grey : Colors.blue,
+                backgroundColor: isEquipped ? Colors.grey : kCharcoal,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 minimumSize: const Size(64, 30),
               ),
@@ -496,8 +496,8 @@ class PetTabsWidget extends StatelessWidget {
         label: Text(isOwned ? name : 'Buy'),
         style: ElevatedButton.styleFrom(
           backgroundColor:
-              isOwned ? Colors.purple.shade400 : Colors.grey.shade700,
-          foregroundColor: Colors.white,
+              isOwned ? kCharcoal : Colors.grey.shade700,
+          foregroundColor: isOwned ? kGold : Colors.white,
         ),
       ),
     );

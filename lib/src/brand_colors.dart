@@ -20,3 +20,7 @@ const MaterialColor kGold = MaterialColor(0xFFC9A227, <int, Color>{
 /// black for the header, footer and dark sidebar. Change it here to
 /// re-tint all of them.
 const Color kCharcoal = Color(0xFF1C1C1C);
+
+/// Light grey (#EDEDED) used for the header, footer, bottom bar and sidebar
+/// in light mode, in place of Charcoal.
+const Color kChromeLight = Color(0xFFEDEDED);

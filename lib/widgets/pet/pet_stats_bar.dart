@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
+/// One of the pet's needs (hunger, energy...). Shown in brand gold, turning
+/// red when the need is low so it still stands out.
 class PetStatBar extends StatelessWidget {
+  static const double lowThreshold = 25;
+
   final String label;
   final double value;
-  final Color color;
   final IconData icon;
 
   const PetStatBar({
     super.key,
     required this.label,
     required this.value,
-    required this.color,
     required this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
+    final Color color = value < lowThreshold ? Colors.redAccent : kGold;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 
 class PetXpBar extends StatelessWidget {
   final int xp;
@@ -19,7 +20,7 @@ class PetXpBar extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.star, size: 14, color: Colors.purple),
+            const Icon(Icons.star, size: 14, color: kGold),
             const SizedBox(width: 4),
             const Text("XP (Next Stage)", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
             const Spacer(),
@@ -29,8 +30,8 @@ class PetXpBar extends StatelessWidget {
         const SizedBox(height: 4),
         LinearProgressIndicator(
           value: progress / 100,
-          backgroundColor: Colors.purple.withValues(alpha: 0.2),
-          valueColor: const AlwaysStoppedAnimation<Color>(Colors.purple),
+          backgroundColor: kGold.withValues(alpha: 0.2),
+          valueColor: AlwaysStoppedAnimation<Color>(kGold.shade700),
           minHeight: 8,
           borderRadius: BorderRadius.circular(4),
         ),

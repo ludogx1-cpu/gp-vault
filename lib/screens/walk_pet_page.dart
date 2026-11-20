@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import '../src/theme_provider.dart';
+import 'package:gp_faucet/src/brand_colors.dart';
 import '../src/firebase_service.dart';
 import '../api_constants.dart';
 import '../widgets/widgets.dart';
@@ -130,7 +131,7 @@ class _WalkPetPageState extends State<WalkPetPage> {
           _polylines.add(Polyline(
             polylineId: const PolylineId('route'),
             points: _routePoints,
-            color: (isSpeeding || isOutsideLocalArea) ? Colors.red : Colors.blue,
+            color: (isSpeeding || isOutsideLocalArea) ? Colors.red : kGold.shade700,
             width: 5,
           ));
         });
@@ -251,8 +252,9 @@ class _WalkPetPageState extends State<WalkPetPage> {
               margin: const EdgeInsets.symmetric(horizontal: 16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isDark ? Colors.grey.shade900 : Colors.blue.shade50,
+                color: isDark ? themeProvider.darkGreyBoxColor : kGold.shade50,
                 borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: kGold, width: 1),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -261,14 +263,14 @@ class _WalkPetPageState extends State<WalkPetPage> {
                     children: [
                       const Text("Distance", style: TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 5),
-                      Text("${_totalDistanceMeters.toStringAsFixed(0)} m", style: const TextStyle(fontSize: 20, color: Colors.blue)),
+                      Text("${_totalDistanceMeters.toStringAsFixed(0)} m", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: isDark ? kGold : kGold.shade800)),
                     ],
                   ),
                   Column(
                     children: [
                       const Text("Unsynced", style: TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 5),
-                      Text("${_unsyncedDistanceMeters.toStringAsFixed(0)} m", style: const TextStyle(fontSize: 20, color: Colors.orange)),
+                      Text("${_unsyncedDistanceMeters.toStringAsFixed(0)} m", style: TextStyle(fontSize: 20, color: isDark ? kGold.shade200 : kGold.shade700)),
                     ],
                   ),
                 ],
@@ -282,7 +284,7 @@ class _WalkPetPageState extends State<WalkPetPage> {
                 margin: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
-                  border: Border.all(color: Colors.grey),
+                  border: Border.all(color: kGold.withValues(alpha: 0.6)),
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
@@ -316,8 +318,9 @@ class _WalkPetPageState extends State<WalkPetPage> {
                       icon: const Icon(Icons.stop),
                       label: const Text("End Walk & Sync"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
+                        backgroundColor: kCharcoal,
+                        foregroundColor: kGold,
+                        side: const BorderSide(color: kGold),
                         minimumSize: const Size(double.infinity, 50),
                       ),
                     )
@@ -326,8 +329,8 @@ class _WalkPetPageState extends State<WalkPetPage> {
                       icon: const Icon(Icons.play_arrow),
                       label: const Text("Start Walk"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
+                        backgroundColor: kGold,
+                        foregroundColor: Colors.black,
                         minimumSize: const Size(double.infinity, 50),
                       ),
                     ),

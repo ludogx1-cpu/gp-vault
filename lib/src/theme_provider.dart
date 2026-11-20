@@ -80,6 +80,33 @@ const kAppBarIconColor = kGold;
 const kAppBarLogoColor = Colors.white;
 const kTextColorOnBlack = Colors.white;
 
+// --- Header, footer, bottom bar and sidebar ("chrome") colours ---
+// They follow the app's light/dark mode. Reading Theme.of(context) makes the
+// widget rebuild when the mode is switched.
+bool _isDarkChrome(BuildContext context) =>
+    Theme.of(context).brightness == Brightness.dark;
+
+/// Background: Charcoal in dark mode, light grey in light mode.
+Color gpChromeColor(BuildContext context) =>
+    _isDarkChrome(context) ? kCharcoal : kChromeLight;
+
+/// Brand gold on the chrome background (a deeper gold on light grey so it
+/// stays readable).
+Color gpChromeGold(BuildContext context) =>
+    _isDarkChrome(context) ? kGold : kGold.shade700;
+
+/// Main text on the chrome background.
+Color gpChromeText(BuildContext context) =>
+    _isDarkChrome(context) ? Colors.white70 : Colors.black87;
+
+/// Secondary text and icons on the chrome background.
+Color gpChromeMuted(BuildContext context) =>
+    _isDarkChrome(context) ? Colors.white54 : Colors.black54;
+
+/// Dividers and edges on the chrome background.
+Color gpChromeBorder(BuildContext context) =>
+    _isDarkChrome(context) ? const Color(0xFF3A3A3A) : const Color(0xFFD6D6D6);
+
 Color gpBrownText(BuildContext context, {Color darkColor = Colors.white70}) {
   return themeProvider.isDarkMode ? darkColor : Colors.black87;
 }

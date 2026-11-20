@@ -629,7 +629,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
       decoration: BoxDecoration(
         color: isDark ? theme.darkGreyBoxColor : kGold.shade50,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: kGold, width: 0.5),
+        border: Border.all(color: kGold, width: 1),
       ),
       child: Column(
         children: [
@@ -705,8 +705,8 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                               child: Icon(
                                 Icons.power_settings_new,
                                 color: _userWantsSleep
-                                    ? Colors.blue
-                                    : Colors.green,
+                                    ? Colors.grey
+                                    : kGold,
                                 size: 18,
                               ),
                             ),
@@ -718,25 +718,21 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                     PetStatBar(
                       label: "Attention",
                       value: _attention,
-                      color: Colors.green,
                       icon: Icons.waving_hand,
                     ),
                     PetStatBar(
                       label: "Hunger",
                       value: _hunger,
-                      color: Colors.orange,
                       icon: Icons.restaurant,
                     ),
                     PetStatBar(
                       label: "Happiness",
                       value: _happiness,
-                      color: Colors.pink,
                       icon: Icons.favorite,
                     ),
                     PetStatBar(
                       label: "Energy",
                       value: _energy,
-                      color: Colors.blue,
                       icon: Icons.bolt,
                     ),
                     const SizedBox(height: 10),
@@ -776,7 +772,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
               child: Text(
                 "XP BOOST ACTIVE (1.5x)",
                 style: TextStyle(
-                  color: Colors.purple,
+                  color: kGold,
                   fontWeight: FontWeight.bold,
                   fontSize: 12,
                 ),
@@ -801,8 +797,8 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                   style: const TextStyle(fontSize: 11),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: canFeed ? Colors.orange : Colors.grey,
-                  foregroundColor: Colors.white,
+                  backgroundColor: canFeed ? kGold : Colors.grey,
+                  foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
                     vertical: 0,
@@ -821,8 +817,8 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                   style: const TextStyle(fontSize: 11),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: canPlay ? Colors.pink : Colors.grey,
-                  foregroundColor: Colors.white,
+                  backgroundColor: canPlay ? kGold : Colors.grey,
+                  foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
                     vertical: 0,
@@ -836,8 +832,8 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                 icon: const Icon(Icons.bedtime, size: 16),
                 label: const Text("Sleep", style: TextStyle(fontSize: 11)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: canSleep ? Colors.blue : Colors.grey,
-                  foregroundColor: Colors.white,
+                  backgroundColor: canSleep ? kGold : Colors.grey,
+                  foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
                     vertical: 0,
@@ -853,8 +849,8 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                     style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.pinkAccent,
-                    foregroundColor: Colors.white,
+                    backgroundColor: kGold.shade300,
+                    foregroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
                       vertical: 0,
@@ -868,8 +864,8 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                   icon: const Icon(Icons.fast_rewind, size: 16),
                   label: const Text("-5 Days", style: TextStyle(fontSize: 11)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple,
-                    foregroundColor: Colors.white,
+                    backgroundColor: kCharcoal,
+                    foregroundColor: kGold,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 0,
@@ -881,8 +877,8 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                   icon: const Icon(Icons.fast_forward, size: 16),
                   label: const Text("+5 Days", style: TextStyle(fontSize: 11)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple,
-                    foregroundColor: Colors.white,
+                    backgroundColor: kCharcoal,
+                    foregroundColor: kGold,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 0,
@@ -911,10 +907,10 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
           const SizedBox(height: 10),
           Text(
             "Age Multiplier: ${_ageMultiplier.toStringAsFixed(2)}x | Walked: ${_totalDistance.toStringAsFixed(0)}m",
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: Colors.green,
+              color: isDark ? kGold : kGold.shade800,
             ),
           ),
           if (_pendingReturnTotal > 0)
@@ -1007,8 +1003,8 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: canWalk ? Colors.green : Colors.grey,
-                    foregroundColor: Colors.white,
+                    backgroundColor: canWalk ? kGold : Colors.grey,
+                    foregroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -1051,7 +1047,10 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
             ),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kCharcoal,
+              foregroundColor: kGold,
+            ),
             onPressed: () {
               Navigator.pop(context);
               onConfirm('doge');

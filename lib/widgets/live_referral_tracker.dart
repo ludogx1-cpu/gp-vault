@@ -77,8 +77,11 @@ class _LiveReferralTrackerState extends State<LiveReferralTracker> {
     final String priceText =
         _price > 0 ? "\$${_price.toStringAsFixed(4)}" : "…";
 
+    final Color muted = gpChromeMuted(context);
+    final Color gold = gpChromeGold(context);
+
     return Material(
-      color: kAppBarColor,
+      color: gpChromeColor(context),
       child: InkWell(
         onTap: () => _explain(context),
         child: Container(
@@ -96,24 +99,24 @@ class _LiveReferralTrackerState extends State<LiveReferralTracker> {
               children: [
                 Text(
                   isMobile ? "Dogecoin (USD): " : "Dogecoin price (USD): ",
-                  style: const TextStyle(
-                    color: Colors.white70,
+                  style: TextStyle(
+                    color: gpChromeText(context),
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   priceText,
-                  style: const TextStyle(
-                    color: kGold,
+                  style: TextStyle(
+                    color: gold,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(width: 6),
-                const Tooltip(
+                Tooltip(
                   message: 'What is this?',
-                  child: Icon(Icons.info_outline, color: Colors.white54, size: 15),
+                  child: Icon(Icons.info_outline, color: muted, size: 15),
                 ),
               ],
             ),

@@ -102,8 +102,8 @@ class PersistentSidebar extends StatelessWidget {
     final bool isAdmin = user != null && user.uid == ApiConstants.adminUid;
     final isDark = themeProvider.isDarkMode;
     
-    // Matches the Charcoal header and footer in dark mode
-    final Color sidebarColor = isDark ? kCharcoal : Colors.white;
+    // Matches the header and footer: Charcoal in dark mode, light grey in light mode
+    final Color sidebarColor = gpChromeColor(context);
 
     return ValueListenableBuilder<bool>(
       valueListenable: sidebarExpandedNotifier,
@@ -118,7 +118,7 @@ class PersistentSidebar extends StatelessWidget {
             color: sidebarColor,
             border: Border(
               right: BorderSide(
-                color: isDark ? themeProvider.darkGreyBorder : Colors.grey.shade300,
+                color: gpChromeBorder(context),
                 width: 1,
               ),
             ),

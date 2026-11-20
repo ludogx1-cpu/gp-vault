@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../src/theme_provider.dart';
 import 'persistent_sidebar.dart';
-import 'package:gp_faucet/src/brand_colors.dart';
 
 class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackArrow;
@@ -25,9 +24,11 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
+    final Color chrome = gpChromeColor(context);
+    final Color gold = gpChromeGold(context);
 
     return Container(
-      color: kAppBarColor,
+      color: chrome,
       child: SafeArea(
         bottom: false,
         child: Column(
@@ -37,12 +38,12 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
             AppBar(
               primary: false,
               toolbarHeight: 70,
-              backgroundColor: kAppBarColor,
+              backgroundColor: chrome,
               surfaceTintColor: Colors.transparent,
               elevation: 10,
-              shadowColor: Colors.black45,
+              shadowColor: themeProvider.isDarkMode ? Colors.black45 : Colors.black26,
               centerTitle: isMobile ? false : centerTitle,
-              iconTheme: const IconThemeData(color: kAppBarIconColor),
+              iconTheme: IconThemeData(color: gold),
               titleSpacing: showBackArrow ? 0 : 16,
               automaticallyImplyLeading: false,
               leading: showBackArrow
@@ -82,8 +83,8 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
                     Flexible(
                       child: ShaderMask(
                         // Solid brand gold (no shine), matching the paw logo.
-                        shaderCallback: (bounds) => const LinearGradient(
-                          colors: [kGold, kGold],
+                        shaderCallback: (bounds) => LinearGradient(
+                          colors: [gold, gold],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                         ).createShader(bounds),
