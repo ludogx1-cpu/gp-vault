@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -6,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../src/user_provider.dart';
 import '../src/theme_provider.dart';
 import '../widgets/widgets.dart';
-import '../widgets/universal_web_view/universal_web_view.dart';
 import 'account/account_profile_card.dart';
 import 'account/account_withdraw_card.dart';
 import 'account/account_bank_card.dart';
@@ -41,26 +39,7 @@ class _AccountPageState extends State<AccountPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (kIsWeb) const SizedBox(height: 80), // Push ads below the app header
-                          FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: SizedBox(
-                              width: 728,
-                              height: 90,
-                              child: Stack(
-                                children: [
-                                  const SmartFallbackAd(width: 728, height: 90),
-                                  UniversalWebView.create(
-                                    viewType: 'adsterra-728x90',
-                                    width: 728,
-                                    height: 90,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          const BitcotasksAdWidget(),
+                          // No ads on the Account page.
                           const SizedBox(height: 20),
                           Image.asset(
                             'assets/Goldenpawicon_gold.png',
@@ -432,32 +411,6 @@ class _AccountPageState extends State<AccountPage> {
                   ),
                 ),
               ),
-              if (kIsWeb && MediaQuery.of(context).size.width >= 1140) ...[
-                Positioned(
-                  left: (((MediaQuery.of(context).size.width - 800) / 2 - 160) / 2)
-                      .clamp(8.0, double.infinity),
-                  top: 100,
-                  width: 160,
-                  height: 600,
-                  child: UniversalWebView.create(
-                    viewType: 'adsterra-160x600',
-                    width: 160,
-                    height: 600,
-                  ),
-                ),
-                Positioned(
-                  right: (((MediaQuery.of(context).size.width - 800) / 2 - 160) / 2)
-                      .clamp(8.0, double.infinity),
-                  top: 100,
-                  width: 160,
-                  height: 300,
-                  child: UniversalWebView.create(
-                    viewType: 'adsterra-160x300',
-                    width: 160,
-                    height: 300,
-                  ),
-                ),
-              ],
             ],
           );
         },

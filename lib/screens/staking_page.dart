@@ -269,18 +269,6 @@ class _StakingPageState extends State<StakingPage> {
               ),
               if (kIsWeb && MediaQuery.of(context).size.width >= 1140) ...[
                 Positioned(
-                  left: (((MediaQuery.of(context).size.width - 800) / 2 - 160) / 2)
-                      .clamp(8.0, double.infinity),
-                  top: 100,
-                  width: 160,
-                  height: 600,
-                  child: UniversalWebView.create(
-                    viewType: 'adsterra-160x600',
-                    width: 160,
-                    height: 600,
-                  ),
-                ),
-                Positioned(
                   right: (((MediaQuery.of(context).size.width - 800) / 2 - 160) / 2)
                       .clamp(8.0, double.infinity),
                   top: 100,
