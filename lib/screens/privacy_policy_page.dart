@@ -22,6 +22,8 @@ class PrivacyPolicyPage extends StatelessWidget {
           "• Captchas from Cloudflare, hCaptcha and Google check that claims are made by people, not bots.\n"
           "• Analytics and advertising cookies are only used on the website if you agree to them in the cookie banner.\n"
           "• Pet walks use your location on your phone only. We just receive the distance walked.\n"
+          "• Photos, posts and comments you share in The Book Of Dog are public. We remove location data from photos.\n"
+          "• If you sign up for our newsletter, we send it with Substack. You can unsubscribe at any time.\n"
           "• We never sell your personal data.\n\n"
           "You can ask to see, correct or delete your data at any time by emailing goldenpaw.dogeadmin@gmail.com.",
     );

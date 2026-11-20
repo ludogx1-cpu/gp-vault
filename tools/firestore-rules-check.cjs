@@ -149,3 +149,29 @@ test('Book Of Dog: visible posts are public, hidden ones and reports are not, an
   await expectStatus(write(`dogbook_likes/${id}-forged`, { uid: `${id}-u` }, auth), 403);
   await expectStatus(write(`dogbook_reports/${id}-forged`, { reason: 'Spam' }, auth), 403);
 });
+
+test('newsletter: anyone can sign up with a valid email; nobody can read the list', async () => {
+  const id = `sub-${Date.now()}`;
+  const signUp = async (docId, fields, withTime = true) => {
+    const result = await fetch(`${base}:commit`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ writes: [{
+        update: {
+          name: `projects/${project}/databases/(default)/documents/subscribers/${docId}`,
+          fields: Object.fromEntries(Object.entries(fields).map(([key, entry]) => [key, value(entry)])),
+        },
+        ...(withTime ? { updateTransforms: [{ fieldPath: 'subscribed_at', setToServerValue: 'REQUEST_TIME' }] } : {}),
+        currentDocument: { exists: false },
+      }] }),
+    });
+    return { status: result.status, body: await result.text() };
+  };
+  await expectStatus(signUp(`${id}-ok`, { email: 'dog.lover@example.com' }), 200);
+  await expectStatus(signUp(`${id}-bad`, { email: 'not-an-email' }), 403);
+  await expectStatus(signUp(`${id}-extra`, { email: 'a@example.com', admin: true }), 403);
+  await expectStatus(signUp(`${id}-notime`, { email: 'a@example.com' }, false), 403);
+  const read = await fetch(`${base}/subscribers/${id}-ok`);
+  assert.equal(read.status, 403);
+  const signedInRead = await fetch(`${base}/subscribers/${id}-ok`, { headers: { Authorization: `Bearer ${token(`${id}-u`)}` } });
+  assert.equal(signedInRead.status, 403);
+});

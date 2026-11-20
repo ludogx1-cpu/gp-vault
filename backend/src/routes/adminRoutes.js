@@ -51,4 +51,25 @@ router.delete('/delete-update/:id', verifyFirebaseToken, async (req, res) => {
   }
 });
 
+// Newsletter sign-ups, for importing into Substack. Admin only: emails are
+// de-duplicated (case-insensitive), lower-cased and sorted.
+router.get('/subscribers', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!req.user) return res.status(401).json({ success: false, error: 'Authentication required' });
+    if (!(await isAdmin(req.user.uid))) {
+      return res.status(403).json({ success: false, error: 'Access Denied: Admins only.' });
+    }
+    const snap = await admin.firestore().collection('subscribers').get();
+    const emails = new Set();
+    for (const doc of snap.docs) {
+      const email = String((doc.data() || {}).email || '').trim().toLowerCase();
+      if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) emails.add(email);
+    }
+    res.json({ success: true, emails: [...emails].sort() });
+  } catch (error) {
+    console.error('subscribers export error:', error.message || error);
+    res.status(500).json({ success: false, error: 'Failed to load subscribers' });
+  }
+});
+
 module.exports = router;

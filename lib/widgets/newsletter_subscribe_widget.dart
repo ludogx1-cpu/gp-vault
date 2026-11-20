@@ -34,12 +34,12 @@ class _NewsletterSubscribeWidgetState extends State<NewsletterSubscribeWidget> {
     try {
       // Add email to Firestore 'subscribers' collection
       await FirebaseFirestore.instance.collection('subscribers').add({
-        'email': email,
+        'email': email.toLowerCase(),
         'subscribed_at': FieldValue.serverTimestamp(),
       });
 
       setState(() {
-        _message = "Thank you for subscribing!";
+        _message = "Thank you for subscribing! Golden Paw News will land in your inbox once a month.";
         _isSuccess = true;
         _emailController.clear();
       });
@@ -84,7 +84,7 @@ class _NewsletterSubscribeWidgetState extends State<NewsletterSubscribeWidget> {
               Icon(Icons.mark_email_read, size: 40, color: kGold.shade600),
               const SizedBox(height: 10),
               Text(
-                "Subscribe for Updates & Promos",
+                "Get Golden Paw News",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 22,
@@ -94,7 +94,7 @@ class _NewsletterSubscribeWidgetState extends State<NewsletterSubscribeWidget> {
               ),
               const SizedBox(height: 10),
               Text(
-                "Join our community and be the first to hear about new features, massive events, and exclusive promo codes!",
+                "Our monthly newsletter: new features, dog tips and the best of The Book Of Dog. Sent with Substack. Unsubscribe any time.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,

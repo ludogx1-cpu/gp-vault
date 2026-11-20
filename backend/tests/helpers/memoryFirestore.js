@@ -27,6 +27,11 @@ function memoryFirestore() {
           return ref;
         },
         async add(data) { const ref = collection.doc(); await ref.set(data); return ref; },
+        async get() {
+          const docs = [...rows.keys()].filter(path => path.startsWith(`${name}/`) && path.split('/').length === 2)
+            .map(path => snapshot(collection.doc(path.slice(name.length + 1))));
+          return { docs, empty: docs.length === 0, size: docs.length };
+        },
         // field may be FieldPath.documentId(), represented here as '__name__'.
         orderBy(field, direction = 'asc') {
           let lower = null;
