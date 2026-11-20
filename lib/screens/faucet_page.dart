@@ -160,13 +160,12 @@ class _FaucetPageState extends State<FaucetPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (!_isProfileSetupShowing) ...[
-                        if (kIsWeb) const SizedBox(height: 80), // Push ads below the app header
-                        if (!kIsWeb) const AdMobNativeCard(),
-                        // One ad block only. The Adsterra banner (which served
-                        // "you won a prize" style creatives) and the partner
-                        // promotion box were removed to cut ad clutter.
-                        const BitcotasksAdWidget(),
-                        const SizedBox(height: 20),
+                        if (kIsWeb) const SizedBox(height: 80), // Keep content below the app header
+                        // Android app only: one native ad. No banner ads on the web.
+                        if (!kIsWeb) ...[
+                          const AdMobNativeCard(),
+                          const SizedBox(height: 20),
+                        ],
                       ],
 
                       const SizedBox(
@@ -242,10 +241,6 @@ class _FaucetPageState extends State<FaucetPage> {
                       const BonusTimersCard(),
                       const SizedBox(height: 25),
 
-                      if (!_isProfileSetupShowing) ...[
-                        const Bitcotasks160x600AdWidget(),
-                        const SizedBox(height: 20),
-                      ],
 
                       const NewsletterSubscribeWidget(),
                       const SizedBox(height: 50),

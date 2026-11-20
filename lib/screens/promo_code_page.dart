@@ -7,7 +7,6 @@ import 'dart:math';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
 import '../widgets/widgets.dart';
-import '../src/cross_tab_listener/cross_tab_listener.dart';
 import 'package:gp_faucet/src/brand_colors.dart';
 
 class PromoCodePage extends StatefulWidget {
@@ -28,17 +27,6 @@ class _PromoCodePageState extends State<PromoCodePage> {
   Timer? _spinnerTimer;
 
   bool _isFetchingCode = false;
-  final String _popunderUrl = 'https://landslidegraphsystems.com/95/df/01/95df01543f4314cfaeaa9181f0b6ba8f.js';
-
-  @override
-  void initState() {
-    super.initState();
-    try {
-      getCrossTabListener().injectAdsterraPopunder(_popunderUrl);
-    } catch (e) {
-      debugPrint("Could not inject popunder: $e");
-    }
-  }
 
   Future<void> _fetchTodayCode() async {
     setState(() => _isFetchingCode = true);
@@ -65,11 +53,6 @@ class _PromoCodePageState extends State<PromoCodePage> {
 
   @override
   void dispose() {
-    try {
-      getCrossTabListener().removeAdsterraPopunder(_popunderUrl);
-    } catch (e) {
-      debugPrint("Could not remove popunder: $e");
-    }
     _codeController.dispose();
     _spinnerTimer?.cancel();
     super.dispose();
@@ -171,8 +154,6 @@ class _PromoCodePageState extends State<PromoCodePage> {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-              const Bitcotasks728x90AdWidget(),
-              const SizedBox(height: 20),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 500),
                 child: Card(

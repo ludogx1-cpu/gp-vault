@@ -202,10 +202,6 @@
         "destination": "/captcha.html"
       },
       {
-        "source": "/sponsors.html",
-        "destination": "/sponsors.html"
-      },
-      {
         "source": "/partners.html",
         "destination": "/partners.html"
       },

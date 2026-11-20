@@ -288,8 +288,6 @@ class _LandingPageState extends State<LandingPage> {
                 ),
               ],
             ),
-            if (kIsWeb) const SizedBox(height: 50),
-            if (kIsWeb) const Bitcotasks468x60AdWidget(),
             const SizedBox(height: 50),
             const TrustpilotWidget(),
             const SizedBox(height: 60),

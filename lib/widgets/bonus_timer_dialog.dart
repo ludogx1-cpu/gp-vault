@@ -8,7 +8,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
 import '../src/firebase_service.dart';
 import '../src/cross_tab_listener/cross_tab_listener.dart';
-import '../api_constants.dart';
 import '../screens/faucet/captcha_selector_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
@@ -20,13 +19,13 @@ import 'package:gp_faucet/src/brand_colors.dart';
 // ==========================================
 
 class BonusTimerDialog extends StatefulWidget {
-  final String? endpoint;
+  final String endpoint;
   final int durationSeconds;
   final String? targetUrl;
 
   const BonusTimerDialog({
     super.key,
-    this.endpoint,
+    required this.endpoint,
     this.durationSeconds = 20,
     this.targetUrl,
   });
@@ -195,8 +194,7 @@ class _BonusTimerDialogState extends State<BonusTimerDialog> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    final targetEndpoint =
-        widget.endpoint ?? '${ApiConstants.baseUrl}/claim-bonus-sponsor';
+    final targetEndpoint = widget.endpoint;
 
     try {
       final response = await http.post(

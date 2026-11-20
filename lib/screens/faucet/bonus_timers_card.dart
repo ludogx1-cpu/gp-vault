@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -25,23 +24,11 @@ class BonusTimersCard extends StatelessWidget {
 
         return Consumer<UserProvider>(
           builder: (context, userProvider, _) {
-            bool canClaimBonus = true;
-            int minutesLeftBonus = 0;
-            
             bool canClaimEcoVideo = true;
             int minutesLeftEcoVideo = 0;
 
             final userData = userProvider.userData;
             if (userData != null) {
-              final Timestamp? lastClaimBonus = userData['last_bonus_sponsor_claim'];
-              if (lastClaimBonus != null) {
-                final difference = DateTime.now().difference(lastClaimBonus.toDate());
-                if (difference.inMinutes < 15) { // The backend is 15 minutes!
-                  canClaimBonus = false;
-                  minutesLeftBonus = 15 - difference.inMinutes;
-                }
-              }
-
               final Timestamp? lastEcoVideo = userData['last_ecosystem_video_claim'];
               if (lastEcoVideo != null) {
                 final difference = DateTime.now().difference(lastEcoVideo.toDate());
@@ -64,7 +51,7 @@ class BonusTimersCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: isDark
                             ? themeProvider.darkGreyBoxColor
-                            : (canClaimBonus
+                            : (canClaimEcoVideo
                                   ? kGold.shade100
                                   : Colors.grey.shade200),
                         borderRadius: BorderRadius.circular(15),
@@ -86,66 +73,6 @@ class BonusTimersCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 15),
-                          const Text(
-                            "Support Sponsors (0.004 DOGE) for extra rewards & XP!",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.green,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 60,
-                            child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: canClaimBonus
-                                    ? kGold
-                                    : Colors.grey,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              icon: Icon(
-                                canClaimBonus
-                                    ? Icons.card_giftcard
-                                    : Icons.lock_clock,
-                              ),
-                              label: Text(
-                                canClaimBonus
-                                    ? 'VIEW BONUS SPONSORS'
-                                    : 'COOLDOWN: $minutesLeftBonus MIN',
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 14,
-                                  letterSpacing: 0.8,
-                                ),
-                              ),
-                              onPressed: canClaimBonus
-                                  ? () {
-                                      final sponsorUri = kIsWeb
-                                          ? Uri.base.resolve('/sponsors.html')
-                                          : Uri.parse('https://goldenpaw.dog/sponsors.html');
-                                      launchUrl(sponsorUri);
-                                      showDialog(
-                                        barrierDismissible: false,
-                                        context: context,
-                                        builder: (context) =>
-                                            BonusTimerDialog(
-                                              endpoint: '${ApiConstants.baseUrl}/claim-bonus-sponsor',
-                                              targetUrl: sponsorUri.toString(),
-                                            ),
-                                      );
-                                    }
-                                  : null,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
                           const Text(
                             "Watch the Ecosystem Video (0.003 DOGE) for extra rewards & XP!",
                             textAlign: TextAlign.center,

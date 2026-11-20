@@ -247,60 +247,6 @@ async function bankTransfer(user, source, amount) {
   throw new Error('The Doge Bank no longer accepts transfers.');
 }
 
-async function claimBonusSponsor(user, captcha_token, captcha_provider) {
-  await verifyCaptcha(user.uid, captcha_token, captcha_provider);
-  const userRef = admin.firestore().collection('users').doc(user.uid);
-  const rewardAmount = 0.004;
-  const xpReward = 15;
-  const cooldownMs = 15 * 60 * 1000;
-  let finalRewardAmount = rewardAmount;
-
-  const txResult = await admin.firestore().runTransaction(async (transaction) => {
-    const petRef = userRef.collection('pet').doc('status');
-    const snapshot = await transaction.get(userRef);
-    if (!snapshot.exists) throw new Error('User profile not found');
-    const data = snapshot.data() || {};
-    const petSnapshot = await transaction.get(petRef);
-    Object.assign(data, petSnapshot.data() || {});
-
-    if (data.last_bonus_sponsor_claim && Date.now() - data.last_bonus_sponsor_claim.toDate().getTime() < cooldownMs) {
-      const minutesLeft = Math.ceil((cooldownMs - (Date.now() - data.last_bonus_sponsor_claim.toDate().getTime())) / 60000);
-      const cooldownError = new Error(`Sponsor bonus cooldown active. Try again in ${minutesLeft} minutes.`);
-      cooldownError.statusCode = 429;
-      throw cooldownError;
-    }
-
-    const trickBonusPercent = calculateTrickBonusPercent(data);
-    finalRewardAmount = rewardAmount * (1 + (trickBonusPercent / 100));
-
-    let history = data.reward_history || [];
-    history.unshift({ sector: 'Bonus Sponsor', amount: finalRewardAmount, timestamp: Date.now() });
-    if (history.length > 15) history = history.slice(0, 15);
-
-    const updates = {
-      doge_balance: Number(data.doge_balance || 0) + finalRewardAmount,
-      xp: Number(data.xp || 0) + xpReward,
-      last_bonus_sponsor_claim: admin.firestore.Timestamp.now(),
-      active_trick_buffs: [],
-      reward_history: history,
-    };
-    const { userUpdates, petUpdates } = splitUpdates(updates);
-    if (Object.keys(userUpdates).length > 0) transaction.update(userRef, userUpdates);
-    if (Object.keys(petUpdates).length > 0) transaction.set(petRef, petUpdates, { merge: true });
-    logTransaction(transaction, user.uid, finalRewardAmount, 'faucet_claim', { sector: 'Ads Faucet' });
-    return { data, updates };
-  });
-
-  if (txResult) {
-    syncUserBalances(user.uid, txResult.data, txResult.updates).catch(console.error);
-    syncPetStats(user.uid, txResult.data, txResult.updates).catch(console.error);
-  }
-
-  await logRewardEvent(user.uid, 'faucet_claim', finalRewardAmount, { sector: 'Bonus Sponsor' });
-
-  return { rewardAmount: finalRewardAmount, xpReward };
-}
-
 async function claimEcosystemVideo(user, captcha_token, captcha_provider) {
   await verifyCaptcha(user.uid, captcha_token, captcha_provider);
   const userRef = admin.firestore().collection('users').doc(user.uid);
@@ -361,6 +307,5 @@ module.exports = {
   withdraw,
   bankWithdraw,
   bankTransfer,
-  claimBonusSponsor,
   claimEcosystemVideo
 };

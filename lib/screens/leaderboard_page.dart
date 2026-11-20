@@ -137,8 +137,6 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                 const SizedBox(height: 24),
                 _buildPrizeCard(),
                 const SizedBox(height: 24),
-                const Center(child: Bitcotasks300x100AdWidget()),
-                const SizedBox(height: 24),
                 
                 if (_isLoading)
                   const Center(child: CircularProgressIndicator())

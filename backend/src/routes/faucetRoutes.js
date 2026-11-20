@@ -72,18 +72,6 @@ router.post('/bank/transfer', verifyFirebaseToken, async (req, res) => {
   }
 });
 
-router.post('/claim-bonus-sponsor', verifyFirebaseToken, async (req, res) => {
-  try {
-    if (!req.user) return res.status(401).json({ success: false, error: 'Authentication required for sponsor bonus claim' });
-    
-    const result = await faucetService.claimBonusSponsor(req.user, req.body.captcha_token, req.body.captcha_provider);
-    res.json({ success: true, message: 'Sponsor bonus claim processed successfully', ...result });
-  } catch (error) {
-    console.error('claim-bonus-sponsor error:', error.message);
-    res.status(error.statusCode || 500).json({ success: false, error: error.message || 'Failed to process sponsor bonus claim' });
-  }
-});
-
 router.post('/claim-ecosystem-video', verifyFirebaseToken, async (req, res) => {
   try {
     if (!req.user) return res.status(401).json({ success: false, error: 'Authentication required for ecosystem video claim' });

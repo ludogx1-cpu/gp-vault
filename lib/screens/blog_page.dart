@@ -565,8 +565,6 @@ Thank you all for your patience and support!''',
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    const Bitcotasks300x100AdWidget(),
                   ],
                 ),
               );

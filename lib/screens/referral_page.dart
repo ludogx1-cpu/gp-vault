@@ -65,8 +65,6 @@ class _ReferralPageState extends State<ReferralPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Bitcotasks728x90AdWidget(),
-                  const SizedBox(height: 20),
                   const Icon(Icons.group_add, size: 80, color: Colors.purple),
                   const SizedBox(height: 20),
                   Text(

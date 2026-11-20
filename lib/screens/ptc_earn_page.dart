@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:async';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -94,22 +93,6 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
       body: StreamBuilder<DocumentSnapshot>(
         stream: _userStream,
         builder: (context, userDocSnapshot) {
-          bool canClaimBonus = true;
-          int minutesLeftBonus = 0;
-          if (userDocSnapshot.hasData && userDocSnapshot.data!.exists) {
-            var uData = userDocSnapshot.data!.data() as Map<String, dynamic>?;
-
-            Timestamp? lastClaimBonus =
-                uData?['last_bonus_sponsor_claim'] as Timestamp?;
-            if (lastClaimBonus != null) {
-              final now = DateTime.now();
-              final difference = now.difference(lastClaimBonus.toDate());
-              if (difference.inMinutes < 15) {
-                canClaimBonus = false;
-                minutesLeftBonus = 15 - difference.inMinutes;
-              }
-            }
-          }
 
           List<String> clickedLast24h = [];
           if (userDocSnapshot.hasData && userDocSnapshot.data!.exists) {
@@ -245,100 +228,6 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                   return ListView(
                     padding: const EdgeInsets.all(20),
                     children: [
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(15),
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? themeProvider.darkGreyBoxColor
-                              : (canClaimBonus
-                                    ? kGold.shade100
-                                    : Colors.grey.shade200),
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(
-                            color: isDark
-                                ? themeProvider.darkGreyBorder
-                                : (canClaimBonus
-                                      ? kGold.shade400
-                                      : Colors.grey.shade400),
-                            width: 2,
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              "🌟 Support Golden Paw & Earn DOGE 🌟",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : Colors.black87,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            const Text(
-                              "Stay on the page for 10 seconds to earn\n0.003 DOGE & 15 XP!",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.green,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
-                            const SizedBox(height: 15),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 60,
-                              child: ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: canClaimBonus
-                                      ? kGold
-                                      : Colors.grey,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                icon: Icon(
-                                  canClaimBonus
-                                      ? Icons.card_giftcard
-                                      : Icons.lock_clock,
-                                ),
-                                label: Text(
-                                  canClaimBonus
-                                      ? 'VIEW BONUS SPONSORS'
-                                      : 'COOLDOWN: $minutesLeftBonus MIN',
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 14,
-                                    letterSpacing: 0.8,
-                                  ),
-                                ),
-                                onPressed: canClaimBonus
-                                    ? () {
-                                        final sponsorUri = kIsWeb
-                                            ? Uri.base.resolve('/sponsors.html')
-                                            : Uri.parse(
-                                                'https://goldenpaw.dog/sponsors.html',
-                                              );
-                                        launchUrl(sponsorUri);
-                                        showDialog(
-                                          barrierDismissible: false,
-                                          context: context,
-                                          builder: (context) =>
-                                              BonusTimerDialog(
-                                                targetUrl: sponsorUri.toString(),
-                                              ),
-                                        );
-                                      }
-                                    : null,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 15),
                       // 🚀 PASSIVE DESKTOP MINER 🚀
                       SizedBox(
                         width: double.infinity,
@@ -366,8 +255,6 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                           },
                         ),
                       ),
-                      const SizedBox(height: 20),
-                      const BitcotasksAdWidget(),
                       // AdSense is not shown on this page: Google's policies do not
                       // allow its ads on pages that reward people for viewing ads.
                       const SizedBox(height: 20),
@@ -398,8 +285,6 @@ class _PtcEarnPageState extends State<PtcEarnPage> {
                       ),
                       const SizedBox(height: 25),
                       adContent,
-                      const SizedBox(height: 25),
-                      const Bitcotasks300x250AdWidget(),
                       const SizedBox(height: 25),
                       const PwaInstallWidget(),
                       const SizedBox(height: 25),

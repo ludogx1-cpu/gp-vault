@@ -233,8 +233,6 @@ class _AdHubPageState extends State<AdHubPage> {
                         onBuyPtcAd: _buyPtcAd,
                       ),
                       const SizedBox(height: 40),
-                      const Bitcotasks300x250AdWidget(),
-                      const SizedBox(height: 20),
                     ],
                   ),
                 ),

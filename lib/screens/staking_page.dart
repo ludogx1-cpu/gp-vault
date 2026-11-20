@@ -233,8 +233,6 @@ class _StakingPageState extends State<StakingPage> {
                                 ),
                               ),
                               const SizedBox(height: 20),
-                              const BitcotasksAdWidget(),
-                              const SizedBox(height: 20),
                               StakingHeader(
                                 isDark: isDark,
                                 themeProvider: themeProvider,
