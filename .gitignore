@@ -72,3 +72,6 @@ chrome_extension/dist/
 
 # One-off admin scripts touch production data and user details; keep them local
 backend/scripts/
+
+# Built downloads (rebuild with brand/make_logo_pack.py)
+brand/*.zip

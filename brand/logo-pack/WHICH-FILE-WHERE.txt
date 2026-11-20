@@ -1,0 +1,27 @@
+GOLDEN PAW LOGO PACK - which file to use where
+
+Profile pictures (shown in a circle on most sites)
+  X / Twitter, Facebook, Instagram, TikTok, YouTube, Discord,
+  Reddit, Gumroad, Trustpilot, Linktree, Google Business:
+      profile-400-dark.png   (or profile-800-dark.png if a site wants bigger)
+      profile-400-white.png  (for sites with a white look)
+
+App stores and developer consoles
+  Google Play app icon (512x512):      app-icon-512-dark.png
+  Chrome Web Store icon (128x128):     paw-transparent-128.png
+  Apple / large app icon (1024x1024):  app-icon-1024-dark.png
+  Firebase / Google Cloud / Stripe / OAuth consent screen logo:
+                                       paw-transparent-512.png
+
+Banners and headers
+  X / Twitter header (1500x500):       header-x-twitter-1500x500.png
+  Facebook cover (1640x624):           cover-facebook-1640x624.png
+  YouTube channel banner (2048x1152):  banner-youtube-2048x1152.png
+  Link previews / Open Graph (1200x630): share-image-1200x630.png
+  Logo with name, e.g. email signature: wordmark-1000x300.png
+
+Websites
+  favicon.ico, favicon-32.png, apple-touch-icon-180.png
+
+Any size you need with no background: paw-transparent-*.png
+Brand gold: #C9A227    Dark background: #141926    Font: Outfit

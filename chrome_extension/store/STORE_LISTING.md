@@ -1,6 +1,6 @@
 # Chrome Web Store submission: Golden Paw
 
-Upload `golden-paw-extension-1.0.0.zip` (in `chrome_extension/dist`).
+Upload `golden-paw-extension-1.0.2.zip` (in `chrome_extension/dist`).
 Developer dashboard: https://chrome.google.com/webstore/devconsole
 
 ## Store listing
