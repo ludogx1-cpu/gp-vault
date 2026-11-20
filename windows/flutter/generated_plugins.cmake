@@ -11,6 +11,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   firebase_database
   geolocator_windows
   local_notifier
+  share_plus
   url_launcher_windows
 )
 

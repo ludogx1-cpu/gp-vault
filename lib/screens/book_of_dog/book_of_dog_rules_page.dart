@@ -13,6 +13,7 @@ class BookOfDogRulesPage extends StatelessWidget {
     ('Keep it safe', 'Nothing violent, sexual, cruel to animals, or illegal. No photos of children without a parent or guardian agreeing.'),
     ('Keep private things private', "Don't share addresses, phone numbers or anything that shows where someone lives. We remove location data from photos automatically."),
     ('No selling or spam', 'No links, adverts, crypto promotions or puppy sales.'),
+    ('Real dog profiles', "Each profile should be a real dog you own or look after. Don't pretend to be someone else."),
     ('Only share what you may share', 'Only post photos you took or have permission to use.'),
   ];
 
@@ -67,8 +68,10 @@ class BookOfDogRulesPage extends StatelessWidget {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
               const Text(
-                'Anyone can see posts in The Book Of Dog, including people who are not signed in. '
-                'You can delete your own posts and comments at any time from the ⋮ menu.',
+                'Anyone can see posts, dog profiles and comments in The Book Of Dog, including people who are not '
+                'signed in. Other players can follow your dog, give paws, comment and share your posts. '
+                'You can edit or delete your own posts and comments at any time from the ⋮ menu, and delete a dog '
+                'profile (with all its posts) from My dogs.',
                 style: TextStyle(fontSize: 15, height: 1.4),
               ),
             ],

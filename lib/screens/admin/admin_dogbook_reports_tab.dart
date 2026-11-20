@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../book_of_dog/dogbook_api.dart';
 
-/// Reported Book Of Dog posts and comments (Online Safety Act). Each reported
+/// Reported Book Of Dog posts, comments and dog profiles (Online Safety Act). Each reported
 /// item appears once, with how many people reported it and why. Remove it,
 /// remove it and stop the author posting, or keep it (which un-hides it).
 /// Every decision is saved on the reports as a record.
@@ -124,7 +124,11 @@ class _AdminDogbookReportsTabState extends State<AdminDogbookReportsTab> {
       itemBuilder: (context, i) {
         final r = _reports[i];
         final key = r['target_key'] as String;
-        final isPost = r['target_type'] == 'post';
+        final typeLabel = switch (r['target_type']) {
+          'post' => 'Post',
+          'dog' => 'Dog profile',
+          _ => 'Comment',
+        };
         final image = (r['image_url'] ?? '').toString();
         final reasons = List<String>.from(r['reasons'] as List? ?? const []);
         final count = (r['reporters'] as num?)?.toInt() ?? 0;
@@ -140,7 +144,7 @@ class _AdminDogbookReportsTabState extends State<AdminDogbookReportsTab> {
                   runSpacing: 6,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    Chip(label: Text(isPost ? 'Post' : 'Comment')),
+                    Chip(label: Text(typeLabel)),
                     Chip(
                       label: Text('$count report${count == 1 ? '' : 's'}'),
                       backgroundColor: count >= 3 ? Colors.red.shade100 : null,
