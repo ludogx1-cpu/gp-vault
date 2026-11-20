@@ -15,6 +15,17 @@ const List<String> kDogbookReportReasons = [
   'Something else',
 ];
 
+/// A photo picked on the device, ready to upload.
+class PickedPhoto {
+  final Uint8List bytes;
+  final String name;
+
+  const PickedPhoto(this.bytes, this.name);
+}
+
+/// The public link to a post, for sharing.
+String dogbookPostUrl(String postId) => 'https://goldenpaw.dog/book-of-dog/post/$postId';
+
 /// The result of a Book Of Dog request: [ok] and either [data] or [error].
 class DogbookResult {
   final bool ok;
@@ -50,27 +61,71 @@ class DogbookApi {
     }
   }
 
-  static Future<DogbookResult> sharePost({
-    required Uint8List photo,
-    required String fileName,
-    required String dogName,
-    required String caption,
+  /// Sends a form with optional photos (multipart).
+  static Future<DogbookResult> _multipart(
+    String method,
+    String path,
+    Map<String, String> fields, {
+    List<PickedPhoto> photos = const [],
+    String fileField = 'photos',
   }) async {
     try {
       final headers = await getAuthHeaders();
       headers.remove('Content-Type');
-      final request = http.MultipartRequest('POST', Uri.parse('$_base/posts'))
+      final request = http.MultipartRequest(method, Uri.parse('$_base$path'))
         ..headers.addAll(headers)
-        ..fields['dog_name'] = dogName
-        ..fields['caption'] = caption
-        ..files.add(http.MultipartFile.fromBytes('photo', photo, filename: fileName));
-      final streamed = await request.send().timeout(const Duration(seconds: 90));
+        ..fields.addAll(fields);
+      for (final p in photos) {
+        request.files.add(http.MultipartFile.fromBytes(fileField, p.bytes, filename: p.name));
+      }
+      final streamed = await request.send().timeout(const Duration(seconds: 120));
       return _parse(await http.Response.fromStream(streamed));
     } catch (_) {
       return const DogbookResult(false,
-          error: 'Could not upload your photo. Check your connection and try again.');
+          error: 'Could not upload. Check your connection and try again.');
     }
   }
+
+  /// A new post from one of your dogs: text, up to 4 photos, or both.
+  static Future<DogbookResult> createPost({
+    required String dogId,
+    required String text,
+    List<PickedPhoto> photos = const [],
+  }) =>
+      _multipart('POST', '/posts', {'dog_id': dogId, 'text': text}, photos: photos);
+
+  static Future<DogbookResult> editPost(String id, String text) => _send((h) => http.patch(
+        Uri.parse('$_base/posts/$id'),
+        headers: h,
+        body: jsonEncode({'text': text}),
+      ));
+
+  static Future<DogbookResult> resharePost(String id, String dogId, String text) => _send((h) => http.post(
+        Uri.parse('$_base/posts/$id/reshare'),
+        headers: h,
+        body: jsonEncode({'dog_id': dogId, 'text': text}),
+      ));
+
+  static Future<DogbookResult> countShare(String id) =>
+      _send((h) => http.post(Uri.parse('$_base/posts/$id/shared'), headers: h));
+
+  static Future<DogbookResult> createDog(Map<String, String> fields, {PickedPhoto? photo}) =>
+      _multipart('POST', '/dogs', fields, photos: [?photo], fileField: 'photo');
+
+  static Future<DogbookResult> updateDog(String id, Map<String, String> fields, {PickedPhoto? photo}) =>
+      _multipart('PATCH', '/dogs/$id', fields, photos: [?photo], fileField: 'photo');
+
+  static Future<DogbookResult> deleteDog(String id) =>
+      _send((h) => http.delete(Uri.parse('$_base/dogs/$id'), headers: h));
+
+  static Future<DogbookResult> toggleFollow(String dogId) =>
+      _send((h) => http.post(Uri.parse('$_base/dogs/$dogId/follow'), headers: h));
+
+  static Future<DogbookResult> toggleCommentLike(String commentId) =>
+      _send((h) => http.post(Uri.parse('$_base/comments/$commentId/like'), headers: h));
+
+  static Future<DogbookResult> markNotificationsRead() =>
+      _send((h) => http.post(Uri.parse('$_base/notifications/read'), headers: h));
 
   static Future<DogbookResult> deletePost(String id) =>
       _send((h) => http.delete(Uri.parse('$_base/posts/$id'), headers: h));
@@ -78,11 +133,16 @@ class DogbookApi {
   static Future<DogbookResult> toggleLike(String postId) =>
       _send((h) => http.post(Uri.parse('$_base/posts/$postId/like'), headers: h));
 
-  static Future<DogbookResult> addComment(String postId, String text) => _send((h) => http.post(
-        Uri.parse('$_base/posts/$postId/comments'),
-        headers: h,
-        body: jsonEncode({'text': text}),
-      ));
+  static Future<DogbookResult> addComment(String postId, String text, {String? parentId, String? dogId}) =>
+      _send((h) => http.post(
+            Uri.parse('$_base/posts/$postId/comments'),
+            headers: h,
+            body: jsonEncode({
+              'text': text,
+              'parent_id': ?parentId,
+              'dog_id': ?dogId,
+            }),
+          ));
 
   static Future<DogbookResult> deleteComment(String id) =>
       _send((h) => http.delete(Uri.parse('$_base/comments/$id'), headers: h));

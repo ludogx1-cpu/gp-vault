@@ -9,6 +9,7 @@ import 'screens/affiliate_links_page.dart';
 import 'screens/blog_page.dart';
 import 'screens/book_of_dog/book_of_dog_page.dart';
 import 'screens/book_of_dog/book_of_dog_rules_page.dart';
+import 'screens/book_of_dog/dogbook_pages.dart';
 import 'screens/dogeogotcha_instructions_page.dart';
 import 'screens/faucet_page.dart';
 import 'screens/leaderboard_page.dart';
@@ -58,6 +59,24 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/book-of-dog',
           pageBuilder: (context, state) => const NoTransitionPage(child: BookOfDogPage()),
+        ),
+        GoRoute(
+          path: '/book-of-dog/post/:id',
+          pageBuilder: (context, state) =>
+              NoTransitionPage(child: DogbookPostPage(postId: state.pathParameters['id']!)),
+        ),
+        GoRoute(
+          path: '/book-of-dog/dog/:id',
+          pageBuilder: (context, state) =>
+              NoTransitionPage(child: DogProfilePage(dogId: state.pathParameters['id']!)),
+        ),
+        GoRoute(
+          path: '/book-of-dog/notifications',
+          pageBuilder: (context, state) => const NoTransitionPage(child: DogbookNotificationsPage()),
+        ),
+        GoRoute(
+          path: '/book-of-dog/my-dogs',
+          pageBuilder: (context, state) => const NoTransitionPage(child: MyDogsPage()),
         ),
         GoRoute(
           path: '/book-of-dog/rules',
