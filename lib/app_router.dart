@@ -34,7 +34,7 @@ final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<Scaffol
 
 /// Shows The Book Of Dog in the bottom bar. Turn on once photo storage is
 /// set up in Firebase (the page itself is reachable at /book-of-dog anyway).
-const bool kBookOfDogTab = false;
+const bool kBookOfDogTab = true;
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
