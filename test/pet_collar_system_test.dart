@@ -44,9 +44,10 @@ void main() {
           reason: 'Missing PetStageRig for stage $stage ($asset)',
         );
       }
+      // There is no egg any more: an old 'egg' stage shows the baby Shiba.
       expect(
-        PetStageRig.forAsset(PetSpriteWidget.getImageAssetForStage('egg')),
-        isNull,
+        PetSpriteWidget.getImageAssetForStage('egg'),
+        PetSpriteWidget.getImageAssetForStage('baby'),
       );
     });
 

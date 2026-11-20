@@ -30,7 +30,7 @@ class PetOverlayWidget extends StatefulWidget {
 
 class _PetOverlayWidgetState extends State<PetOverlayWidget>
     with TickerProviderStateMixin {
-  String _stage = 'egg';
+  String _stage = 'baby';
   Timer? _statusTimer;
   Timer? _moveTimer;
   Timer? _chaseTimer;

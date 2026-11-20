@@ -38,7 +38,8 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
   double _totalDistance = 0.0;
   double _ageMultiplier = 1.0;
   String _petName = 'Golden Paw Shiba';
-  String _stage = 'egg';
+  // New visitors see the baby Shiba straight away (there is no egg stage).
+  String _stage = 'baby';
   int _xp = 0;
   int _nextStageXp = 100;
 
@@ -133,7 +134,7 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                 (data['pet']['age_multiplier'] as num?)?.toDouble() ?? 1.0;
             _totalDistance = (data['pet']['total_distance'] as num).toDouble();
             _petName = data['pet']['name'] ?? 'Golden Paw Shiba';
-            _stage = data['pet']['stage'] ?? 'egg';
+            _stage = data['pet']['stage'] ?? 'baby';
             _xp = (data['pet']['xp'] as num?)?.toInt() ?? 0;
             _nextStageXp =
                 (data['pet']['next_stage_xp'] as num?)?.toInt() ?? 100;

@@ -60,8 +60,7 @@ class PetSpriteWidget extends StatelessWidget {
 
   static String getImageAssetForStage(String stage) {
     switch (stage) {
-      case 'egg':
-        return 'assets/shiba_egg.png';
+      case 'egg': // older saves only; show the baby Shiba
       case 'baby':
         return 'assets/shiba_baby.png';
       case 'toddler':
