@@ -149,3 +149,34 @@ test('Book Of Dog: visible posts are public, hidden ones and reports are not, an
   await expectStatus(write(`dogbook_likes/${id}-forged`, { uid: `${id}-u` }, auth), 403);
   await expectStatus(write(`dogbook_reports/${id}-forged`, { reason: 'Spam' }, auth), 403);
 });
+
+test('Book Of Dog social: dog profiles, follows, comment likes and notifications', async () => {
+  const id = `soc-${Date.now()}`;
+  const me = `${id}-me`;
+  const auth = token(me);
+  const get = async (path, bearer) => (await fetch(`${base}/${path}`, bearer ? { headers: { Authorization: `Bearer ${bearer}` } } : {})).status;
+  await expectStatus(write(`dogbook_dogs/${id}-on`, { owner_uid: 'a', name: 'Rex', hidden: false }, 'owner'), 200);
+  await expectStatus(write(`dogbook_dogs/${id}-off`, { owner_uid: 'a', name: 'Rex', hidden: true }, 'owner'), 200);
+  await expectStatus(write(`dogbook_dogs/${id}-mine`, { owner_uid: me, name: 'Mine', hidden: true }, 'owner'), 200);
+  await expectStatus(write(`dogbook_follows/${id}-mine`, { dog_id: 'd', uid: me }, 'owner'), 200);
+  await expectStatus(write(`dogbook_follows/${id}-theirs`, { dog_id: 'd', uid: 'b' }, 'owner'), 200);
+  await expectStatus(write(`dogbook_comment_likes/${id}-mine`, { comment_id: 'c', uid: me }, 'owner'), 200);
+  await expectStatus(write(`dogbook_notifications/${id}-mine`, { to_uid: me, read: false }, 'owner'), 200);
+  await expectStatus(write(`dogbook_notifications/${id}-theirs`, { to_uid: 'b', read: false }, 'owner'), 200);
+
+  assert.equal(await get(`dogbook_dogs/${id}-on`), 200);
+  assert.equal(await get(`dogbook_dogs/${id}-off`), 403);
+  assert.equal(await get(`dogbook_dogs/${id}-mine`, auth), 200);
+  assert.equal(await get(`dogbook_dogs/${id}-mine`), 403);
+  assert.equal(await get(`dogbook_follows/${id}-mine`, auth), 200);
+  assert.equal(await get(`dogbook_follows/${id}-theirs`, auth), 403);
+  assert.equal(await get(`dogbook_comment_likes/${id}-mine`, auth), 200);
+  assert.equal(await get(`dogbook_notifications/${id}-mine`, auth), 200);
+  assert.equal(await get(`dogbook_notifications/${id}-theirs`, auth), 403);
+  assert.equal(await get(`dogbook_notifications/${id}-mine`), 403);
+
+  await expectStatus(write(`dogbook_dogs/${id}-forged`, { owner_uid: me, hidden: false }, auth), 403);
+  await expectStatus(write(`dogbook_dogs/${id}-mine`, { follower_count: 999 }, auth, ['follower_count']), 403);
+  await expectStatus(write(`dogbook_follows/${id}-forged`, { dog_id: 'd', uid: me }, auth), 403);
+  await expectStatus(write(`dogbook_notifications/${id}-mine`, { read: true }, auth, ['read']), 403);
+});

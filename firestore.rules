@@ -144,6 +144,26 @@ service cloud.firestore {
     match /dogbook_reports/{docId} {
       allow read, write: if false;
     }
+    // Dog profiles: visible ones are public; owners can always see their own.
+    match /dogbook_dogs/{dogId} {
+      allow read: if resource.data.hidden == false
+                  || (isAuth() && resource.data.owner_uid == request.auth.uid);
+      allow write: if false;
+    }
+    // Who follows which dog: a player can read only their own follows.
+    match /dogbook_follows/{followId} {
+      allow read: if isAuth() && resource.data.uid == request.auth.uid;
+      allow write: if false;
+    }
+    match /dogbook_comment_likes/{likeId} {
+      allow read: if isAuth() && resource.data.uid == request.auth.uid;
+      allow write: if false;
+    }
+    // Notifications: only the person they are for can read them.
+    match /dogbook_notifications/{noteId} {
+      allow read: if isAuth() && resource.data.to_uid == request.auth.uid;
+      allow write: if false;
+    }
 
     // Reward Audits Collection
     match /reward_audits/{docId} {
