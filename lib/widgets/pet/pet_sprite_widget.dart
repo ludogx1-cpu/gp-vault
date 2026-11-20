@@ -65,13 +65,13 @@ class PetSpriteWidget extends StatelessWidget {
       case 'baby':
         return 'assets/shiba_baby.png';
       case 'toddler':
-        return 'assets/shiba_teen.png';
+        return 'assets/shiba_toddler.png';
       case 'puppy':
         return 'assets/shiba_puppy.png';
       case 'child':
         return 'assets/shiba_child.png';
       case 'teen':
-        return 'assets/shiba_young_adult.png';
+        return 'assets/shiba_teen.png';
       case 'young_adult':
         return 'assets/shiba_young_adult.png';
       case 'adult':

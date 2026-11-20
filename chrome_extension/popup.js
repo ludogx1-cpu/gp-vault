@@ -11,8 +11,8 @@ let tick = null;
 
 // Same stage -> art mapping as PetSpriteWidget.getImageAssetForStage in the app.
 const STAGE_ART = {
-  egg: 'shiba_egg', baby: 'shiba_baby', toddler: 'shiba_teen', puppy: 'shiba_puppy',
-  child: 'shiba_child', teen: 'shiba_young_adult', young_adult: 'shiba_young_adult',
+  egg: 'shiba_egg', baby: 'shiba_baby', toddler: 'shiba_toddler', puppy: 'shiba_puppy',
+  child: 'shiba_child', teen: 'shiba_teen', young_adult: 'shiba_young_adult',
   adult: 'shiba_adult', old_dog: 'old_dog',
 };
 
