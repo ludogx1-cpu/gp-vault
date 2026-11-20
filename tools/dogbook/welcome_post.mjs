@@ -17,34 +17,50 @@ admin.initializeApp({
 const db = admin.firestore();
 const ref = db.collection('dogbook_posts').doc('welcome');
 
-if ((await ref.get()).exists) {
-  console.log('Welcome post already exists; nothing to do.');
+// The Golden Paw Shiba on a soft cream square. Bump IMAGE_VERSION when the
+// art changes; running the workflow again then swaps the picture in place
+// (likes and comments are kept).
+const IMAGE_VERSION = 2;
+const path = `dogbook/welcome-v${IMAGE_VERSION}.jpg`;
+
+async function uploadImage() {
+  const shiba = await readFile(new URL('../../assets/shiba_adult.png', import.meta.url));
+  const dog = await sharp(shiba).resize(900, 900, { fit: 'inside' }).toBuffer();
+  const jpeg = await sharp({ create: { width: 1080, height: 1080, channels: 3, background: '#f3ede2' } })
+    .composite([{ input: dog, gravity: 'center' }])
+    .jpeg({ quality: 88, mozjpeg: true })
+    .toBuffer();
+  const token = crypto.randomUUID();
+  await admin.storage().bucket().file(path).save(jpeg, {
+    resumable: false,
+    contentType: 'image/jpeg',
+    metadata: { cacheControl: 'public, max-age=31536000', metadata: { firebaseStorageDownloadTokens: token } },
+  });
+  return `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/${encodeURIComponent(path)}?alt=media&token=${token}`;
+}
+
+const existing = await ref.get();
+if (existing.exists) {
+  const old = existing.data();
+  if (old.image_path === path) {
+    console.log('Welcome post is up to date; nothing to do.');
+    process.exit(0);
+  }
+  const imageUrl = await uploadImage();
+  await ref.update({ image_url: imageUrl, image_path: path });
+  if (old.image_path) await admin.storage().bucket().file(old.image_path).delete({ ignoreNotFound: true });
+  console.log('Welcome post picture updated.');
   process.exit(0);
 }
 
-// The Golden Paw Shiba on a soft cream square.
-const shiba = await readFile(new URL('../../assets/shiba_adult.png', import.meta.url));
-const dog = await sharp(shiba).resize(900, 900, { fit: 'inside' }).toBuffer();
-const jpeg = await sharp({ create: { width: 1080, height: 1080, channels: 3, background: '#f3ede2' } })
-  .composite([{ input: dog, gravity: 'center' }])
-  .jpeg({ quality: 88, mozjpeg: true })
-  .toBuffer();
-
-const path = 'dogbook/welcome.jpg';
-const token = crypto.randomUUID();
-await admin.storage().bucket().file(path).save(jpeg, {
-  resumable: false,
-  contentType: 'image/jpeg',
-  metadata: { cacheControl: 'public, max-age=31536000', metadata: { firebaseStorageDownloadTokens: token } },
-});
-
+const imageUrl = await uploadImage();
 await ref.set({
   uid: ADMIN_UID,
   author_name: 'Golden Paw',
   dog_name: 'Goldie',
   caption: "Welcome to The Book Of Dog! 🐾 I'm Goldie, the Golden Paw Shiba. "
     + 'Share a photo of your dog and tell us their name. Dogs only, be kind, and have fun!',
-  image_url: `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/${encodeURIComponent(path)}?alt=media&token=${token}`,
+  image_url: imageUrl,
   image_path: path,
   created_at: admin.firestore.FieldValue.serverTimestamp(),
   like_count: 0,

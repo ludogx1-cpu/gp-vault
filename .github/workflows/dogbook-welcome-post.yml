@@ -1,7 +1,8 @@
 name: Book Of Dog welcome post
 
-# Adds the "Goldie" welcome post to The Book Of Dog. Run by hand; running it
-# again does nothing once the post exists.
+# Adds the "Goldie" welcome post to The Book Of Dog, or swaps in new art when
+# IMAGE_VERSION in tools/dogbook/welcome_post.mjs changes. Run by hand; running it
+# again with no changes does nothing.
 on:
   workflow_dispatch:
 
