@@ -20,8 +20,6 @@ class _AdminSubscribersTabState extends State<AdminSubscribersTab> {
   bool _loading = true;
   String _error = '';
   List<String> _emails = [];
-  bool _allAccounts = false;
-  int _optedOut = 0;
 
   @override
   void initState() {
@@ -36,7 +34,7 @@ class _AdminSubscribersTabState extends State<AdminSubscribersTab> {
     });
     try {
       final response = await http.get(
-        Uri.parse('${ApiConstants.baseUrl}/admin/${_allAccounts ? 'account-emails' : 'subscribers'}'),
+        Uri.parse('${ApiConstants.baseUrl}/admin/subscribers'),
         headers: await getAuthHeaders(),
       );
       final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -45,7 +43,6 @@ class _AdminSubscribersTabState extends State<AdminSubscribersTab> {
         _loading = false;
         if (response.statusCode == 200) {
           _emails = List<String>.from(data['emails'] as List);
-          _optedOut = (data['opted_out'] as num?)?.toInt() ?? 0;
         } else {
           _error = (data['error'] ?? 'Could not load subscribers').toString();
         }
@@ -76,29 +73,14 @@ class _AdminSubscribersTabState extends State<AdminSubscribersTab> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        SegmentedButton<bool>(
-          segments: const [
-            ButtonSegment(value: false, label: Text('Newsletter sign-ups'), icon: Icon(Icons.mail_outline)),
-            ButtonSegment(value: true, label: Text('All account holders'), icon: Icon(Icons.people_outline)),
-          ],
-          selected: {_allAccounts},
-          onSelectionChanged: (v) {
-            setState(() => _allAccounts = v.first);
-            _load();
-          },
-        ),
-        const SizedBox(height: 16),
-        Text(_allAccounts ? '${_emails.length} account emails' : '${_emails.length} newsletter subscribers',
+        Text('${_emails.length} newsletter subscribers',
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 6),
-        Text(
-          _allAccounts
-              ? 'Everyone with a Golden Paw account, except the $_optedOut who unsubscribed or whose account is '
-                  'disabled. Copy the emails, then in Substack go to Subscribers → Add subscribers → paste. '
-                  'Make sure every email you send has an unsubscribe link (Substack adds one automatically).'
-              : 'People who signed up in a newsletter box on the site. Copy the emails, then in Substack go to '
-                  'Subscribers → Add subscribers → paste.',
-          style: const TextStyle(fontSize: 13, color: Colors.grey),
+        const Text(
+          'People who signed up in a newsletter box on the site. To send them Golden Paw News with Substack: '
+          'copy the emails, then in Substack go to Subscribers → Add subscribers → paste. '
+          'Only import people from this list.',
+          style: TextStyle(fontSize: 13, color: Colors.grey),
         ),
         const SizedBox(height: 12),
         Wrap(
