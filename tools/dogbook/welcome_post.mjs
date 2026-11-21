@@ -24,7 +24,7 @@ const IMAGE_VERSION = 2;
 const path = `dogbook/welcome-v${IMAGE_VERSION}.jpg`;
 
 async function uploadImage() {
-  const shiba = await readFile(new URL('../../assets/shiba_adult.png', import.meta.url));
+  const shiba = await readFile(new URL('../../assets/shiba_adult_v2.png', import.meta.url));
   const dog = await sharp(shiba).resize(900, 900, { fit: 'inside' }).toBuffer();
   const jpeg = await sharp({ create: { width: 1080, height: 1080, channels: 3, background: '#f3ede2' } })
     .composite([{ input: dog, gravity: 'center' }])

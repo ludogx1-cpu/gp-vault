@@ -77,15 +77,15 @@ flutter:
     - assets/Goldenpawicon_gold.png
     - assets/studios_logo.png
     - assets/paw_logo_gold.png
-    - assets/shiba_puppy.png
-    - assets/shiba_teen.png
-    - assets/shiba_adult.png
-    - assets/old_dog.png
+    - assets/shiba_puppy_v2.png
+    - assets/shiba_teen_v2.png
+    - assets/shiba_adult_v2.png
+    - assets/old_dog_v2.png
     - assets/shiba_poo.png
-    - assets/shiba_baby.png
-    - assets/shiba_toddler.png
-    - assets/shiba_child.png
-    - assets/shiba_young_adult.png
+    - assets/shiba_baby_v2.png
+    - assets/shiba_toddler_v2.png
+    - assets/shiba_child_v2.png
+    - assets/shiba_young_adult_v2.png
     - assets/shiba_top_hat.png
     - assets/shiba_sunglasses.png
     - assets/shiba_gold_chain.png

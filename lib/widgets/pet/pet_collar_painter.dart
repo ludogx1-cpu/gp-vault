@@ -199,7 +199,7 @@ class PetStageRig {
 
   // Measured on the cartoon life-stage art (Nov 2026).
   static const Map<String, PetStageRig> _byAsset = {
-    'assets/shiba_baby.png': PetStageRig(
+    'assets/shiba_baby_v2.png': PetStageRig(
       collarStart: Offset(0.250, 0.590),
       collarControl: Offset(0.410, 0.665),
       collarEnd: Offset(0.630, 0.590),
@@ -213,7 +213,7 @@ class PetStageRig {
       rightCheek: Offset(0.560, 0.470),
       tailAnchor: Offset(0.840, 0.560),
     ),
-    'assets/shiba_toddler.png': PetStageRig(
+    'assets/shiba_toddler_v2.png': PetStageRig(
       collarStart: Offset(0.200, 0.790),
       collarControl: Offset(0.330, 0.835),
       collarEnd: Offset(0.520, 0.775),
@@ -227,7 +227,7 @@ class PetStageRig {
       rightCheek: Offset(0.490, 0.680),
       tailAnchor: Offset(0.810, 0.560),
     ),
-    'assets/shiba_puppy.png': PetStageRig(
+    'assets/shiba_puppy_v2.png': PetStageRig(
       collarStart: Offset(0.320, 0.675),
       collarControl: Offset(0.470, 0.735),
       collarEnd: Offset(0.660, 0.665),
@@ -241,7 +241,7 @@ class PetStageRig {
       rightCheek: Offset(0.620, 0.510),
       tailAnchor: Offset(0.800, 0.520),
     ),
-    'assets/shiba_child.png': PetStageRig(
+    'assets/shiba_child_v2.png': PetStageRig(
       collarStart: Offset(0.290, 0.640),
       collarControl: Offset(0.490, 0.705),
       collarEnd: Offset(0.690, 0.640),
@@ -255,7 +255,7 @@ class PetStageRig {
       rightCheek: Offset(0.690, 0.500),
       tailAnchor: Offset(0.160, 0.530),
     ),
-    'assets/shiba_teen.png': PetStageRig(
+    'assets/shiba_teen_v2.png': PetStageRig(
       collarStart: Offset(0.170, 0.535),
       collarControl: Offset(0.290, 0.600),
       collarEnd: Offset(0.430, 0.525),
@@ -269,7 +269,7 @@ class PetStageRig {
       rightCheek: Offset(0.400, 0.425),
       tailAnchor: Offset(0.780, 0.420),
     ),
-    'assets/shiba_young_adult.png': PetStageRig(
+    'assets/shiba_young_adult_v2.png': PetStageRig(
       collarStart: Offset(0.550, 0.535),
       collarControl: Offset(0.665, 0.595),
       collarEnd: Offset(0.790, 0.525),
@@ -283,7 +283,7 @@ class PetStageRig {
       rightCheek: Offset(0.760, 0.400),
       tailAnchor: Offset(0.220, 0.420),
     ),
-    'assets/shiba_adult.png': PetStageRig(
+    'assets/shiba_adult_v2.png': PetStageRig(
       collarStart: Offset(0.310, 0.705),
       collarControl: Offset(0.500, 0.750),
       collarEnd: Offset(0.690, 0.705),
@@ -297,7 +297,7 @@ class PetStageRig {
       rightCheek: Offset(0.650, 0.500),
       tailAnchor: Offset(0.450, 0.170),
     ),
-    'assets/old_dog.png': PetStageRig(
+    'assets/old_dog_v2.png': PetStageRig(
       collarStart: Offset(0.400, 0.615),
       collarControl: Offset(0.550, 0.655),
       collarEnd: Offset(0.720, 0.605),

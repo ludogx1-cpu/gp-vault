@@ -94,14 +94,14 @@ class DogeogotchaInstructionsPage extends StatelessWidget {
               style: TextStyle(fontSize: 14, height: 1.5, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87)
             ),
             const SizedBox(height: 15),
-            _buildStageItem(context, 'Baby', '0 - 2 days', '+0% Bonus', 'assets/shiba_baby.png'),
-            _buildStageItem(context, 'Toddler', '2 - 7 days', '+5% Bonus', 'assets/shiba_toddler.png'),
-            _buildStageItem(context, 'Puppy', '7 - 14 days', '+10% Bonus', 'assets/shiba_puppy.png'),
-            _buildStageItem(context, 'Child', '14 - 30 days', '+30% Bonus', 'assets/shiba_child.png'),
-            _buildStageItem(context, 'Teen', '1 - 3 months', '+40% Bonus', 'assets/shiba_teen.png'),
-            _buildStageItem(context, 'Young Adult', '3 - 6 months', '+50% Bonus', 'assets/shiba_young_adult.png'),
-            _buildStageItem(context, 'Adult', '6 - 12 months', '+75% Bonus', 'assets/shiba_adult.png'),
-            _buildStageItem(context, 'Old Dog', '1 year+', '+100% Bonus (Max)', 'assets/old_dog.png'),
+            _buildStageItem(context, 'Baby', '0 - 2 days', '+0% Bonus', 'assets/shiba_baby_v2.png'),
+            _buildStageItem(context, 'Toddler', '2 - 7 days', '+5% Bonus', 'assets/shiba_toddler_v2.png'),
+            _buildStageItem(context, 'Puppy', '7 - 14 days', '+10% Bonus', 'assets/shiba_puppy_v2.png'),
+            _buildStageItem(context, 'Child', '14 - 30 days', '+30% Bonus', 'assets/shiba_child_v2.png'),
+            _buildStageItem(context, 'Teen', '1 - 3 months', '+40% Bonus', 'assets/shiba_teen_v2.png'),
+            _buildStageItem(context, 'Young Adult', '3 - 6 months', '+50% Bonus', 'assets/shiba_young_adult_v2.png'),
+            _buildStageItem(context, 'Adult', '6 - 12 months', '+75% Bonus', 'assets/shiba_adult_v2.png'),
+            _buildStageItem(context, 'Old Dog', '1 year+', '+100% Bonus (Max)', 'assets/old_dog_v2.png'),
             const SizedBox(height: 30),
             Center(
               child: ElevatedButton(

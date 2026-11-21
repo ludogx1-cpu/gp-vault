@@ -62,23 +62,23 @@ class PetSpriteWidget extends StatelessWidget {
     switch (stage) {
       case 'egg': // older saves only; show the baby Shiba
       case 'baby':
-        return 'assets/shiba_baby.png';
+        return 'assets/shiba_baby_v2.png';
       case 'toddler':
-        return 'assets/shiba_toddler.png';
+        return 'assets/shiba_toddler_v2.png';
       case 'puppy':
-        return 'assets/shiba_puppy.png';
+        return 'assets/shiba_puppy_v2.png';
       case 'child':
-        return 'assets/shiba_child.png';
+        return 'assets/shiba_child_v2.png';
       case 'teen':
-        return 'assets/shiba_teen.png';
+        return 'assets/shiba_teen_v2.png';
       case 'young_adult':
-        return 'assets/shiba_young_adult.png';
+        return 'assets/shiba_young_adult_v2.png';
       case 'adult':
-        return 'assets/shiba_adult.png';
+        return 'assets/shiba_adult_v2.png';
       case 'old_dog':
-        return 'assets/old_dog.png';
+        return 'assets/old_dog_v2.png';
       default:
-        return 'assets/shiba_puppy.png';
+        return 'assets/shiba_puppy_v2.png';
     }
   }
 
