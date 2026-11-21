@@ -5,6 +5,11 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      publish:
+        description: "Also publish a GitHub release tagged v<version from pubspec.yaml>"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -102,14 +107,30 @@ jobs:
           name: GoldenPaw-apks
           path: dist/*.apk
 
-      - name: Create GitHub Release (on tag)
-        if: startsWith(github.ref, 'refs/tags/v')
+      # A tag push releases that tag. A manual run with "publish" ticked
+      # releases v<version from pubspec.yaml> from this commit (on main only).
+      - name: Work out the release tag
+        id: tag
+        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.publish && github.ref == 'refs/heads/main')
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            echo "name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          else
+            version=$(grep -m1 '^version:' pubspec.yaml | sed -E 's/^version:[[:space:]]*([0-9.]+).*/\1/')
+            [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::Could not read the version from pubspec.yaml"; exit 1; }
+            echo "name=v$version" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release
+        if: steps.tag.outputs.name != ''
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*.apk
-          name: Golden Paw ${{ github.ref_name }}
+          tag_name: ${{ steps.tag.outputs.name }}
+          target_commitish: ${{ github.sha }}
+          name: Golden Paw ${{ steps.tag.outputs.name }}
           body: |
-            ## Golden Paw Release ${{ github.ref_name }}
+            ## Golden Paw Release ${{ steps.tag.outputs.name }}
             
             - `GoldenPaw-arm64-v8a.apk` (Recommended for modern phones, under 30MB)
             - `GoldenPaw-universal.apk` (All architectures combined)
