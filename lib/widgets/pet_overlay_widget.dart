@@ -1174,7 +1174,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     }
 
     // --- Kennel (always shown, top-left) ---
-    final kennelW = size.width < 600 ? 96.0 : 150.0;
+    final kennelW = size.width < 600 ? 120.0 : 190.0;
+    // Warm light from inside the kennel, only in dark mode.
+    final kennelLit = Theme.of(context).brightness == Brightness.dark;
     final kennelH = kennelW * 340 / 396;
     final kennelLeft = max(8.0, minX - 8);
     const kennelTop = 6.0;
@@ -1231,6 +1233,49 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
           clipBehavior: Clip.none,
           children: [
             Positioned.fill(child: Image.asset('assets/kennel.png', fit: BoxFit.contain)),
+            if (kennelLit) ...[
+              // Glow filling the doorway, brightest near the floor.
+              Positioned(
+                left: kennelW * 0.46,
+                top: kennelH * 0.49,
+                width: kennelW * 0.26,
+                height: kennelH * 0.44,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(kennelW * 0.13)),
+                    gradient: RadialGradient(
+                      center: const Alignment(0, 0.45),
+                      radius: 0.9,
+                      colors: [
+                        const Color(0xFFFFE08A).withValues(alpha: 0.85),
+                        const Color(0xFFFFB84D).withValues(alpha: 0.40),
+                        const Color(0x00FFB84D),
+                      ],
+                      stops: const [0.0, 0.55, 1.0],
+                    ),
+                  ),
+                ),
+              ),
+              // Light spilling out of the door onto the ground in front.
+              Positioned(
+                left: kennelW * 0.28,
+                top: kennelH * 0.82,
+                width: kennelW * 0.62,
+                height: kennelH * 0.28,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    gradient: RadialGradient(
+                      radius: 0.6,
+                      colors: [
+                        const Color(0xFFFFCC66).withValues(alpha: 0.55),
+                        const Color(0x00FFCC66),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
             if (_inKennel) ...[
               // The Shiba curled up on the bed inside the doorway.
               Positioned(
