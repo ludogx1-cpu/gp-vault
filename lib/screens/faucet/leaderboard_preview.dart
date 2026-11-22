@@ -84,7 +84,7 @@ class _LeaderboardPreviewState extends State<LeaderboardPreview> {
           width: double.infinity,
           constraints: const BoxConstraints(maxWidth: 800),
           decoration: BoxDecoration(
-            color: isDark ? themeProvider.darkGreyBoxColor : Colors.green.shade100,
+            color: isDark ? themeProvider.darkGreyBoxColor : kGold.shade100,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: kGold, width: 0.5),
           ),
@@ -122,15 +122,15 @@ class _LeaderboardPreviewState extends State<LeaderboardPreview> {
                               children: [
                                 _buildPrizeTier('1st', '3 DOGE', kGold),
                                 _buildPrizeTier('2nd', '2 DOGE', Colors.grey.shade400),
-                                _buildPrizeTier('3rd', '1 DOGE', Colors.orange.shade300),
+                                _buildPrizeTier('3rd', '1 DOGE', const Color(0xFFCD7F32)),
                               ],
                             ),
                             const SizedBox(height: 8),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                _buildPrizeTier('4th', '0.5 DOGE', Colors.blueGrey),
-                                _buildPrizeTier('5th', '0.25 DOGE', Colors.blueGrey),
+                                _buildPrizeTier('4th', '0.5 DOGE', Colors.grey.shade500),
+                                _buildPrizeTier('5th', '0.25 DOGE', Colors.grey.shade500),
                               ],
                             ),
                           ],
@@ -170,7 +170,7 @@ class _LeaderboardPreviewState extends State<LeaderboardPreview> {
                             Color rankColor;
                             if (rank == 1) { rankColor = kGold; }
                             else if (rank == 2) { rankColor = Colors.grey.shade400; }
-                            else if (rank == 3) { rankColor = Colors.orange.shade300; }
+                            else if (rank == 3) { rankColor = const Color(0xFFCD7F32); }
                             else { rankColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black; }
 
                             return Card(

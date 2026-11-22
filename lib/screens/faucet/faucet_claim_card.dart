@@ -246,7 +246,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
                 style: TextStyle(color: themeProvider.isDarkMode ? Colors.white : Colors.black87),
               ),
               duration: const Duration(seconds: 8),
-              backgroundColor: Colors.blue,
+              backgroundColor: kGold.shade700,
             ),
           );
         });
@@ -362,7 +362,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
                   ),
                 ],
               ),
-              backgroundColor: themeProvider.isDarkMode ? Colors.grey.shade800 : Colors.purple.shade600,
+              backgroundColor: themeProvider.isDarkMode ? Colors.grey.shade800 : kGold.shade800,
               behavior: SnackBarBehavior.floating,
               margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
               duration: const Duration(seconds: 4),
@@ -478,7 +478,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
                   ),
                   decoration: BoxDecoration(
                     color: _saveToVault
-                        ? Colors.green.shade50
+                        ? kGold.shade50
                         : Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
@@ -496,7 +496,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
                                 ? Icons.account_balance
                                 : Icons.account_balance_wallet,
                             color: _saveToVault
-                                ? Colors.green
+                                ? kGold.shade800
                                 : kGold,
                           ),
                           const SizedBox(width: 10),
@@ -507,7 +507,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: _saveToVault
-                                  ? Colors.green.shade800
+                                  ? kGold.shade900
                                   : Colors.black87,
                             ),
                           ),
@@ -515,7 +515,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
                       ),
                       Switch(
                         value: _saveToVault,
-                        activeThumbColor: Colors.green,
+                        activeThumbColor: kGold.shade800,
                         inactiveThumbColor: kGold,
                         onChanged: _secondsRemaining > 0
                             ? null
@@ -642,7 +642,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
                   backgroundColor:
                       _secondsRemaining > 0 || _captchaToken == null
                       ? Colors.grey
-                      : (_saveToVault ? Colors.green : kGold),
+                      : (_saveToVault ? kGold.shade700 : kGold),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
@@ -704,7 +704,7 @@ class _FaucetClaimCardState extends State<FaucetClaimCard> {
             fontWeight: FontWeight.bold,
             fontSize: 16,
             color: _saveToVault
-                ? Colors.green
+                ? (Theme.of(context).brightness == Brightness.dark ? kGold : kGold.shade800)
                 : (Theme.of(context).brightness == Brightness.dark
                       ? Colors.white70
                       : Colors.grey.shade600),

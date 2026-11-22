@@ -49,10 +49,10 @@ class FaucetStatsCard extends StatelessWidget {
                     listenable: themeProvider,
                     builder: (context, _) {
                       final isDark = themeProvider.isDarkMode;
-                      final boxColor = isDark ? themeProvider.darkGreyBoxColor : Colors.green.shade50;
-                      final borderColor = isDark ? kGold.withValues(alpha: 0.5) : Colors.green.shade300;
-                      final primaryTextColor = isDark ? kGold.shade300 : Colors.green.shade900;
-                      final secondaryTextColor = isDark ? Colors.white70 : Colors.green.shade800;
+                      final boxColor = isDark ? themeProvider.darkGreyBoxColor : kGold.shade50;
+                      final borderColor = isDark ? kGold.withValues(alpha: 0.5) : kGold.shade300;
+                      final primaryTextColor = isDark ? kGold.shade300 : kGold.shade900;
+                      final secondaryTextColor = isDark ? Colors.white70 : kGold.shade800;
 
                       return Container(
                         width: double.infinity,
@@ -64,7 +64,7 @@ class FaucetStatsCard extends StatelessWidget {
                           border: Border.all(color: borderColor, width: 1.5),
                           boxShadow: [
                             BoxShadow(
-                              color: isDark ? Colors.black26 : Colors.green.shade100,
+                              color: isDark ? Colors.black26 : kGold.shade100,
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             )
@@ -102,7 +102,7 @@ class FaucetStatsCard extends StatelessWidget {
                                 children: [
                                   _buildBoostRow("Level $levelBonus Bonus", "+$levelBonus%", Icons.trending_up, secondaryTextColor),
                                   const SizedBox(height: 8),
-                                  _buildBoostRow("Day $streak Streak", "+${streakBonus.toStringAsFixed(0)}%", Icons.local_fire_department, Colors.orange),
+                                  _buildBoostRow("Day $streak Streak", "+${streakBonus.toStringAsFixed(0)}%", Icons.local_fire_department, kGold.shade600),
                                   const Padding(
                                     padding: EdgeInsets.symmetric(vertical: 8),
                                     child: Divider(height: 1, thickness: 1),
@@ -121,14 +121,14 @@ class FaucetStatsCard extends StatelessWidget {
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                         decoration: BoxDecoration(
-                                          color: Colors.green.withValues(alpha: 0.2),
+                                          color: kGold.withValues(alpha: 0.2),
                                           borderRadius: BorderRadius.circular(8),
                                         ),
                                         child: Text(
                                           "+${totalBonusPercent.toStringAsFixed(0)}%",
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
-                                            color: isDark ? Colors.green.shade400 : Colors.green.shade700,
+                                            color: isDark ? kGold.shade300 : kGold.shade800,
                                           ),
                                         ),
                                       ),
@@ -216,7 +216,7 @@ class FaucetStatsCard extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: isDark ? Colors.black12 : Colors.green.shade100,
+                                color: isDark ? Colors.black12 : kGold.shade100,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Column(
@@ -272,7 +272,7 @@ class FaucetStatsCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isDark
                       ? themeProvider.darkGreyBoxColor
-                      : Colors.green.shade100,
+                      : kGold.shade100,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: kGold,
@@ -288,7 +288,7 @@ class FaucetStatsCard extends StatelessWidget {
                       style: TextStyle(
                         color: isDark
                             ? kGold.shade300
-                            : Colors.green.shade900,
+                            : kGold.shade900,
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
                       ),
@@ -300,7 +300,7 @@ class FaucetStatsCard extends StatelessWidget {
                       style: TextStyle(
                         color: isDark
                             ? Colors.white70
-                            : Colors.green.shade900,
+                            : kGold.shade900,
                         fontSize: 13,
                         fontStyle: FontStyle.italic,
                       ),

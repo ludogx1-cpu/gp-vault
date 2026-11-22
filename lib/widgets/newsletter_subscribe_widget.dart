@@ -142,7 +142,7 @@ class _NewsletterSubscribeWidgetState extends State<NewsletterSubscribeWidget> {
                 Text(
                   _message,
                   style: TextStyle(
-                    color: _isSuccess ? Colors.green : Colors.red,
+                    color: _isSuccess ? kGold.shade700 : Colors.redAccent,
                     fontWeight: FontWeight.bold,
                   ),
                 )

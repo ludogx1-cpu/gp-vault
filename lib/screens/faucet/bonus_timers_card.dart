@@ -73,11 +73,11 @@ class BonusTimersCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 15),
-                          const Text(
+                          Text(
                             "Watch the Ecosystem Video (0.003 DOGE) for extra rewards & XP!",
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: Colors.green,
+                              color: isDark ? kGold : kGold.shade800,
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
                             ),
@@ -89,9 +89,9 @@ class BonusTimersCard extends StatelessWidget {
                             child: ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: canClaimEcoVideo
-                                    ? Colors.red.shade600
+                                    ? kGold
                                     : Colors.grey,
-                                foregroundColor: Colors.white,
+                                foregroundColor: Colors.black,
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),

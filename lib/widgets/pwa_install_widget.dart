@@ -50,18 +50,18 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
         triggerPwaInstall();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text("To install: tap your browser menu (⋮ or Share) and select 'Add to Home screen' or 'Install App'!"),
-            backgroundColor: Colors.orange,
+            backgroundColor: kGold.shade800,
             duration: Duration(seconds: 5),
           ),
         );
       }
     } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text("To install: tap your browser menu (⋮ or Share) and select 'Add to Home screen' or 'Install App'!"),
-          backgroundColor: Colors.orange,
+          backgroundColor: kGold.shade800,
           duration: Duration(seconds: 5),
         ),
       );
@@ -81,14 +81,14 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [kGold.shade700, Colors.orange.shade800],
+          colors: [kGold.shade600, kGold.shade800],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.orange.withValues(alpha: 0.3),
+            color: kGold.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
           )
@@ -180,17 +180,18 @@ class _PwaInstallWidgetState extends State<PwaInstallWidget> {
               onPressed: () {
                 downloadApk(ApiConstants.apkDownloadUrl);
               },
-              icon: const Icon(Icons.android, color: Colors.white, size: 18),
+              icon: const Icon(Icons.android, color: kGold, size: 18),
               label: const Text(
                 "Download Android app",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: kGold,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green.shade600,
+                backgroundColor: kCharcoal,
+                side: const BorderSide(color: kGold),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
