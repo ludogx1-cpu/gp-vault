@@ -34,9 +34,9 @@
   <!-- Signed in -->
   <section id="main-view" class="hidden">
     <div class="card pet">
-      <img id="pet-img" src="pets/shiba_puppy.png" alt="Your Shiba" width="96" height="96">
+      <div class="pet-stage"><img id="pet-img" src="pets/shiba_baby.png" alt="Your Shiba" width="104" height="104"></div>
       <div class="pet-info">
-        <div class="pet-title"><strong id="pet-name">Your Shiba</strong> <span id="pet-stage" class="chip">puppy</span></div>
+        <div class="pet-title"><strong id="pet-name">Your Shiba</strong> <span id="pet-stage" class="chip">baby</span></div>
         <div class="stat"><span>Hunger</span><meter id="hunger" min="0" max="100" low="30" high="70" optimum="100"></meter></div>
         <div class="stat"><span>Happy</span><meter id="happiness" min="0" max="100" low="30" high="70" optimum="100"></meter></div>
         <div class="stat"><span>Energy</span><meter id="energy" min="0" max="100" low="30" high="70" optimum="100"></meter></div>
@@ -74,7 +74,10 @@
       <p id="faucet-msg" class="msg" role="status"></p>
     </div>
 
-    <footer><a id="open-site" href="#">Open the full app ↗</a></footer>
+    <footer>
+      <a id="open-site" href="#">Open the full app ↗</a>
+      <a href="https://goldenpaw.dog/book-of-dog" target="_blank" rel="noopener">The Book Of Dog 🐾</a>
+    </footer>
   </section>
 
   <script type="module" src="popup.js"></script>

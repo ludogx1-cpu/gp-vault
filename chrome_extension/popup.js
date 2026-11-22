@@ -103,8 +103,8 @@ $('open-site').addEventListener('click', openSite);
 // ---------- pet ----------
 
 function showPet(pet) {
-  const stage = pet.stage || 'puppy';
-  $('pet-img').src = `pets/${STAGE_ART[stage] || 'shiba_puppy'}.png`;
+  const stage = pet.stage || 'baby';
+  $('pet-img').src = `pets/${STAGE_ART[stage] || 'shiba_baby'}.png`;
   $('pet-name').textContent = pet.name || 'Your Shiba';
   $('pet-stage').textContent = stage.replace('_', ' ');
   for (const k of ['hunger', 'happiness', 'energy']) {

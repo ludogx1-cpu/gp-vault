@@ -27,6 +27,7 @@ Golden Paw is not a wallet, does not mine cryptocurrency, and never asks for pri
 **Graphic assets**
 - Icon 128×128: `icons/icon128.png`
 - Small promo tile 440×280: `store/promo-tile-440x280.png`
+- Marquee 1400×560 (optional): `store/marquee-1400x560.png`
 - Screenshots (at least 1, 1280×800 or 640×400): take these after signing in with your real account, so they show real data.
 
 ## Privacy practices tab
