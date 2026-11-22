@@ -1233,49 +1233,9 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
           clipBehavior: Clip.none,
           children: [
             Positioned.fill(child: Image.asset('assets/kennel.png', fit: BoxFit.contain)),
-            if (kennelLit) ...[
-              // Glow filling the doorway, brightest near the floor.
-              Positioned(
-                left: kennelW * 0.46,
-                top: kennelH * 0.49,
-                width: kennelW * 0.26,
-                height: kennelH * 0.44,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(kennelW * 0.13)),
-                    gradient: RadialGradient(
-                      center: const Alignment(0, 0.45),
-                      radius: 0.9,
-                      colors: [
-                        const Color(0xFFFFE08A).withValues(alpha: 0.85),
-                        const Color(0xFFFFB84D).withValues(alpha: 0.40),
-                        const Color(0x00FFB84D),
-                      ],
-                      stops: const [0.0, 0.55, 1.0],
-                    ),
-                  ),
-                ),
-              ),
-              // Light spilling out of the door onto the ground in front.
-              Positioned(
-                left: kennelW * 0.28,
-                top: kennelH * 0.82,
-                width: kennelW * 0.62,
-                height: kennelH * 0.28,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    gradient: RadialGradient(
-                      radius: 0.6,
-                      colors: [
-                        const Color(0xFFFFCC66).withValues(alpha: 0.55),
-                        const Color(0x00FFCC66),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            // Warm lamp light from inside (dark mode only). Drawn with a
+            // "screen" blend so it brightens the art like real light.
+            if (kennelLit) const Positioned.fill(child: CustomPaint(painter: _KennelLightPainter())),
             if (_inKennel) ...[
               // The Shiba curled up on the bed inside the doorway.
               Positioned(
@@ -1454,3 +1414,67 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
     );
   }
 }
+
+/// Light from a lamp inside the kennel: fills the arched doorway (brightest
+/// around the bed), a soft halo round the door frame, and an oval pool of
+/// light on the ground in front. Fractions match assets/kennel.png.
+class _KennelLightPainter extends CustomPainter {
+  const _KennelLightPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+
+    // 1. Doorway, clipped to the arch.
+    final x0 = w * 0.47, x1 = w * 0.705, y0 = h * 0.50, y1 = h * 0.92;
+    final r = Radius.circular((x1 - x0) / 2);
+    final door = Rect.fromLTRB(x0, y0, x1, y1);
+    final bed = Offset(w * 0.585, h * 0.78);
+    canvas.save();
+    canvas.clipRRect(RRect.fromRectAndCorners(door, topLeft: r, topRight: r));
+    canvas.drawRect(
+      door,
+      Paint()
+        ..blendMode = BlendMode.screen
+        ..shader = const RadialGradient(
+          colors: [Color(0xFFFFE9A8), Color(0xFFE6AA46), Color(0xFF000000)],
+          stops: [0.0, 0.5, 1.0],
+        ).createShader(Rect.fromCircle(center: bed, radius: w * 0.20)),
+    );
+    canvas.restore();
+
+    // 2. Soft halo around the door frame.
+    final haloCentre = Offset(w * 0.585, h * 0.70);
+    final haloRadius = w * 0.30;
+    canvas.drawCircle(
+      haloCentre,
+      haloRadius,
+      Paint()
+        ..blendMode = BlendMode.screen
+        ..shader = const RadialGradient(
+          colors: [Color(0xFF78551E), Color(0xFF000000)],
+        ).createShader(Rect.fromCircle(center: haloCentre, radius: haloRadius)),
+    );
+
+    // 3. Oval pool of light on the ground in front of the door.
+    final poolRadius = w * 0.35;
+    canvas.save();
+    canvas.translate(w * 0.585, h * 0.93);
+    canvas.scale(1, 0.22);
+    canvas.drawCircle(
+      Offset.zero,
+      poolRadius,
+      Paint()
+        ..blendMode = BlendMode.screen
+        ..shader = const RadialGradient(
+          colors: [Color(0xFFAA782D), Color(0xFF000000)],
+        ).createShader(Rect.fromCircle(center: Offset.zero, radius: poolRadius)),
+    );
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
