@@ -39,22 +39,6 @@ class AppFooter extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              AnimatedBuilder(
-                animation: themeProvider,
-                builder: (context, child) => IconButton(
-                  icon: Icon(
-                    themeProvider.isDarkMode
-                        ? Icons.light_mode
-                        : Icons.dark_mode,
-                    color: gpChromeGold(context),
-                    size: 20,
-                  ),
-                  tooltip: "Toggle Dark/Light Mode",
-                  onPressed: () {
-                    themeProvider.toggleTheme();
-                  },
-                ),
-              ),
             ],
           ),
           const SizedBox(height: 20),

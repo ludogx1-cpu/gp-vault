@@ -109,6 +109,15 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               actions: [
                 ...?actions,
+                // Dark / light mode switch (moved here from the footer).
+                IconButton(
+                  icon: Icon(
+                    themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                    color: gold,
+                  ),
+                  tooltip: themeProvider.isDarkMode ? 'Switch to light mode' : 'Switch to dark mode',
+                  onPressed: themeProvider.toggleTheme,
+                ),
                 if (showWallet)
                   const Padding(
                     padding: EdgeInsets.only(right: 8.0),
