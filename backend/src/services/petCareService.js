@@ -70,6 +70,7 @@ module.exports = {
   petStroke,
   petWalkSync,
   petCleanPoo,
+  pendingPooCount,
   petBoop
 };
 
@@ -257,9 +258,7 @@ async function petStatus(req) {
 
         let pendingPoos = 0;
         if (data.pet_last_poo_time) {
-          const currentHour = Math.floor(Date.now() / 3600000);
-          const lastPooHour = Math.floor(data.pet_last_poo_time.toDate().getTime() / 3600000);
-          pendingPoos = Math.max(0, Math.min(4, currentHour - lastPooHour));
+          pendingPoos = pendingPooCount(data.pet_last_poo_time.toDate().getTime());
         } else {
           const updates = { pet_last_poo_time: admin.firestore.FieldValue.serverTimestamp() };
           Object.assign(dualWriteUpdates, updates);
@@ -679,6 +678,15 @@ async function petWalkSync(req) {
   }
 }
 
+// Poos: one every POO_INTERVAL_HOURS, at most MAX_PENDING_POOS waiting
+// (was one an hour, up to 4).
+const POO_INTERVAL_HOURS = 4;
+const MAX_PENDING_POOS = 1;
+function pendingPooCount(lastPooMs, nowMs = Date.now()) {
+  const due = Math.floor((nowMs - lastPooMs) / (POO_INTERVAL_HOURS * 3600000));
+  return Math.max(0, Math.min(MAX_PENDING_POOS, due));
+}
+
 async function petCleanPoo(req) {
   try {
     const userRef = admin.firestore().collection('users').doc(req.user.uid);
@@ -699,19 +707,11 @@ async function petCleanPoo(req) {
       const lastPooTime = data.pet_last_poo_time;
       if (!lastPooTime) throw new Error('No poos to clean right now!');
 
-      const currentHour = Math.floor(Date.now() / 3600000);
-      const lastPooHour = Math.floor(lastPooTime.toDate().getTime() / 3600000);
-      let pendingPoos = currentHour - lastPooHour;
-      
-      if (pendingPoos <= 0) {
+      if (pendingPooCount(lastPooTime.toDate().getTime()) <= 0) {
         throw new Error('No poos to clean right now! Wait a bit.');
       }
-
-      pendingPoos = Math.min(4, pendingPoos);
-      let effectiveLastPooHour = pendingPoos === 4 ? (currentHour - 4) : lastPooHour;
-      
-      let newLastPooHour = effectiveLastPooHour + 1;
-      let newLastPooTimeMs = newLastPooHour * 3600000;
+      // Cleaning restarts the timer for the next poo.
+      const newLastPooTimeMs = Date.now();
 
       const newDogeBal = Number(data.doge_balance || 0) + reward;
 

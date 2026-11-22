@@ -58,6 +58,10 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
   bool _isCloseUp = false;
   bool _isChasing = false;
   bool _isSleepingOverlay = false;
+
+  // Kennel: the Shiba walks into it to sleep (top-left of the play area).
+  bool _inKennel = false;
+  bool _kennelWalkPending = false;
   bool _isSick = false;
   int _sleepingUntil = 0;
   bool _userWantsSleep = false;
@@ -1169,8 +1173,96 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
       }
     }
 
+    // --- Kennel (always shown, top-left) ---
+    final kennelW = size.width < 600 ? 96.0 : 150.0;
+    final kennelH = kennelW * 340 / 396;
+    final kennelLeft = max(8.0, minX - 8);
+    const kennelTop = 6.0;
+    final doorX = kennelLeft + kennelW * 0.585;
+    final sleepingNow = (_isSleepingOverlay || isNapping) && _stage != 'egg';
+
+    if (sleepingNow && !_inKennel && !_kennelWalkPending) {
+      _kennelWalkPending = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (_isSleepingOverlay || !_positionInitialized) {
+          // Wandering Shiba is hidden: go straight to bed.
+          setState(() {
+            _inKennel = true;
+            _kennelWalkPending = false;
+          });
+          return;
+        }
+        // Walk to the kennel door, then curl up inside.
+        _animatePetTo(
+          (doorX - 50).clamp(minX, maxX),
+          minY,
+          duration: const Duration(milliseconds: 2200),
+        );
+        Future.delayed(const Duration(milliseconds: 2300), () {
+          if (!mounted) return;
+          setState(() {
+            _inKennel = true;
+            _kennelWalkPending = false;
+          });
+        });
+      });
+    } else if (!sleepingNow && _inKennel) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() {
+          // Come back out of the kennel door.
+          _inKennel = false;
+          _petX = (doorX - 50).clamp(minX, maxX);
+          _petY = minY;
+          _startX = _petX;
+          _startY = _petY;
+        });
+      });
+    }
+
+    final kennel = Positioned(
+      left: kennelLeft,
+      top: kennelTop,
+      width: kennelW,
+      height: kennelH,
+      child: IgnorePointer(
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned.fill(child: Image.asset('assets/kennel.png', fit: BoxFit.contain)),
+            if (_inKennel) ...[
+              // The Shiba curled up on the bed inside the doorway.
+              Positioned(
+                left: kennelW * 0.585 - kennelW * 0.15,
+                top: kennelH * 0.86 - kennelW * 0.30,
+                width: kennelW * 0.30,
+                height: kennelW * 0.30,
+                child: Image.asset(
+                  PetSpriteWidget.getImageAssetForStage(_stage),
+                  fit: BoxFit.contain,
+                ),
+              ),
+              Positioned(
+                left: kennelW * 0.72,
+                top: kennelH * 0.47,
+                child: Text('💤', style: TextStyle(fontSize: kennelW * 0.13)),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+
     if (_isSleepingOverlay && _stage != 'egg') {
-      return PooLayerWidget(poos: _poos, onClean: _cleanPoo);
+      return Stack(
+        fit: StackFit.expand,
+        clipBehavior: Clip.none,
+        children: [
+          kennel,
+          PooLayerWidget(poos: _poos, onClean: _cleanPoo),
+        ],
+      );
     }
 
     return AnimatedBuilder(
@@ -1208,7 +1300,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
         );
 
         final petWidget =
-            (_isSleepingOverlay && _stage != 'egg')
+            ((_isSleepingOverlay || _inKennel) && _stage != 'egg')
                 ? const SizedBox.shrink()
                 : Positioned(
                     left: curPetX,
@@ -1286,6 +1378,8 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
           fit: StackFit.expand,
           clipBehavior: Clip.none,
           children: [
+            // The kennel sits at the back, top-left.
+            kennel,
             // Ground layer Poos (with 2.5D perspective & background DoF)
             PooLayerWidget(
               poos: _poos,
@@ -1300,6 +1394,7 @@ class _PetOverlayWidgetState extends State<PetOverlayWidget>
             // Speech Bubble anchored cleanly above the scaled Shiba's head
             if (_currentSpeech.isNotEmpty &&
                 !_isSleepingOverlay &&
+                !_inKennel &&
                 _stage != 'egg')
               SpeechBubbleWidget(
                 text: _currentSpeech,

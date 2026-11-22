@@ -27,6 +27,7 @@ import 'screens/reward_history_page.dart';
 import 'src/theme_provider.dart';
 
 import 'src/analytics.dart';
+import 'widgets/gpaws_layer.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
@@ -180,7 +181,8 @@ class MainScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: child,
+      // GPAWS (loyalty points) can peek out on every page of the app.
+      body: GpawsLayer(child: child),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _calculateSelectedIndex(context),

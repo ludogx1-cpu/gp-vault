@@ -8,6 +8,8 @@ import '../src/firebase_service.dart';
 import '../api_constants.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'gpaws_layer.dart' show GpawsBadge;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'walk_treadmill_dialog.dart';
 import '../src/notification_service.dart';
@@ -714,6 +716,22 @@ class _ShibaPetWidgetState extends State<ShibaPetWidget>
                           ),
                         ),
                       ],
+                    ),
+                    // GPAWS loyalty points balance.
+                    StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                      stream: FirebaseAuth.instance.currentUser == null
+                          ? null
+                          : FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(FirebaseAuth.instance.currentUser!.uid)
+                              .snapshots(),
+                      builder: (context, snap) {
+                        final n = snap.data?.data()?['gpaws'];
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: GpawsBadge(count: n is num ? n.toInt() : 0),
+                        );
+                      },
                     ),
                     const SizedBox(height: 6),
                     PetStatBar(
