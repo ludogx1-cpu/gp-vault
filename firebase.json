@@ -290,6 +290,22 @@
         "destination": "/shop/index.html"
       },
       {
+        "source": "/studios/services/sample-audit",
+        "destination": "/studios/services/sample-audit/index.html"
+      },
+      {
+        "source": "/studios/services/sample-audit/",
+        "destination": "/studios/services/sample-audit/index.html"
+      },
+      {
+        "source": "/dog-care",
+        "destination": "/dog-care/index.html"
+      },
+      {
+        "source": "/dog-care/",
+        "destination": "/dog-care/index.html"
+      },
+      {
         "source": "/support",
         "destination": "/support/index.html"
       },
