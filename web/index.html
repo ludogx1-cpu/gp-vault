@@ -84,10 +84,8 @@
       margin: 0;
     }
     .gp-loader-wrapper {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      width: fit-content;
+      margin: 32px auto 8px;
       background-color: #2A2A2A;
       border: 1px solid #3A3A3A;
       border-radius: 24px;
@@ -97,7 +95,6 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      z-index: -1;
     }
     .gp-loader-spinner {
       border: 4px solid rgba(201, 162, 39, 0.3);
@@ -126,14 +123,30 @@
       margin-top: 10px;
     }
     #gp-captcha-token { display: none; }
-    .gp-seo-section {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip: rect(0,0,0,0);
-      white-space: nowrap;
+    /* Readable landing shown under the loader until the app draws its first frame.
+       It is the same wording as the in-app landing page, so people and search
+       engines read the same thing. */
+    #gp-landing {
+      position: relative;
+      z-index: -1;
+      color: #E8E4D8;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      padding: 0 max(16px, env(safe-area-inset-left, 0px)) 48px;
     }
+    #gp-landing main { max-width: 760px; margin: 0 auto; }
+    #gp-landing h1 { color: #C9A227; font-size: 2rem; line-height: 1.2; margin: 24px 0 8px; text-align: center; }
+    #gp-landing h2 { color: #C9A227; font-size: 1.3rem; margin: 32px 0 8px; }
+    #gp-landing h3 { font-size: 1.02rem; margin: 14px 0 2px; color: #FFFFFF; }
+    #gp-landing p { margin: 6px 0; }
+    #gp-landing .lede { text-align: center; color: #CFC8B4; }
+    #gp-landing .cta { text-align: center; margin: 16px 0; }
+    #gp-landing .cta a { display: inline-block; background: #C9A227; color: #1A1400; font-weight: 700; padding: 10px 20px; border-radius: 999px; text-decoration: none; }
+    #gp-landing a { color: #E3C45A; }
+    #gp-landing ol, #gp-landing ul { padding-left: 1.3em; }
+    #gp-landing .stages { columns: 2; }
+    #gp-landing footer { margin-top: 36px; border-top: 1px solid #3A3A3A; padding-top: 16px; font-size: 0.9rem; color: #B8B2A0; text-align: center; }
+    #gp-landing footer a { margin: 0 8px; white-space: nowrap; }
     noscript .gp-noscript-content {
       display: block;
       background: #1a1a1a;
@@ -316,16 +329,17 @@
 
 </head>
 <body>
+  <div id="gp-landing">
   <div class="gp-loader-wrapper">
     <img class="gp-loader-logo" src="/paw-logo-192.png?v=2" width="160" height="160" alt="Golden Paw" fetchpriority="high">
     <div class="gp-loader-spinner"></div>
     <div class="gp-loader-text">Loading Golden Paw...</div>
   </div>
   <script>
-    // Hide the loading screen once Flutter has drawn its first frame.
+    // Hide the loading screen and landing text once Flutter has drawn its first frame.
     window.addEventListener('flutter-first-frame', function () {
-      var loader = document.querySelector('.gp-loader-wrapper');
-      if (loader) loader.style.display = 'none';
+      var landing = document.getElementById('gp-landing');
+      if (landing) landing.style.display = 'none';
     });
   </script>
 
@@ -335,22 +349,69 @@
 
   <div id="gp-captcha-token"></div>
 
-  <!-- Accessible SEO landmark for screen-readers and crawlers -->
-  <section aria-label="About Golden Paw" class="gp-seo-section">
-    <h1>Golden Paw</h1>
-    <p>Golden Paw is a virtual pet game for adults (18+). Raise your own Shiba and collect small Dogecoin rewards as you play. Entertainment only — not an investment or a way to make money.</p>
-  </section>
+  <main>
+    <h1>Raise your own Shiba. Share your real dog.</h1>
+    <p class="lede">🐾 Free virtual pet game · Made in the UK · For adults 18+</p>
+    <p class="lede">Adopt a pup, watch it grow from a sleepy baby to a wise old dog, and join a friendly community of dog lovers in The Book Of Dog.</p>
+    <p class="cta"><a href="/">Adopt your Shiba (free)</a></p>
+    <p class="lede">Sign up in seconds with Google or email. No card, no deposits.</p>
+    <noscript><p class="lede"><strong>Golden Paw needs JavaScript turned on to play.</strong></p></noscript>
 
-  <!-- Shown only when JavaScript is disabled (e.g. Google OAuth crawler) -->
-  <noscript>
-    <div class="gp-noscript-content">
-      <h1>Golden Paw</h1>
-      <p>
-        Golden Paw is a virtual pet game for adults (18+). Raise your own Shiba, keep your daily streak, and collect small Dogecoin rewards as you play. Sign in with your Google account to save your progress on any device. No purchase or deposit needed. Golden Paw is entertainment, not an investment, and not financial advice.
-      </p>
-      <p>Visit <a href="https://goldenpaw.dog/">goldenpaw.dog</a> to get started.</p>
-    </div>
-  </noscript>
+    <h2>Watch them grow</h2>
+    <p>Your Shiba grows up through 8 life stages, from a sleepy baby to a wise old dog:</p>
+    <ol class="stages">
+      <li>Baby</li><li>Toddler</li><li>Puppy</li><li>Child</li>
+      <li>Teen</li><li>Young adult</li><li>Adult</li><li>Old dog</li>
+    </ol>
+
+    <h2>How it works</h2>
+    <p>Three simple steps. No deposits, nothing to pay.</p>
+    <h3>1. Adopt your pup</h3>
+    <p>Sign up free, choose a name, and meet your baby Shiba.</p>
+    <h3>2. Care and play</h3>
+    <p>Feed, play fetch, go on walks, collect collars and watch it grow.</p>
+    <h3>3. Share and collect</h3>
+    <p>Post your real dog in <a href="/book-of-dog">The Book Of Dog</a> and collect GPAWS loyalty points.</p>
+
+    <h2>Spot the golden paws</h2>
+    <p>Golden paws peek out around Golden Paw while you play. Tap them to collect GPAWS, our loyalty points for being part of the pack. Your Shiba might even dig one up!</p>
+
+    <h2>Our promises</h2>
+    <ul>
+      <li><strong>Free to play.</strong> No card, no deposits, nothing to buy.</li>
+      <li><strong>Private.</strong> We never sell your data. Cookies only if you agree.</li>
+      <li><strong>Safe and kind.</strong> Dogs only, with reporting and moderation.</li>
+      <li><strong>Made in the UK.</strong> By a small, dog-mad team who read every message.</li>
+    </ul>
+
+    <h2>Questions</h2>
+    <h3>Is Golden Paw free?</h3>
+    <p>Yes. Signing up, raising your Shiba and using The Book Of Dog are all free. There are no deposits.</p>
+    <h3>What are GPAWS?</h3>
+    <p>GPAWS are our loyalty points. Golden paws appear around the app (up to 5 an hour) and you tap them to collect. They have no cash value.</p>
+    <h3>Do I need to know anything about crypto?</h3>
+    <p>No. Golden Paw is a virtual pet game and a dog-lover community first. Some optional extras for players aged 18+ involve small Dogecoin rewards, but they are entertainment, not an investment, and you never need to deposit anything.</p>
+    <h3>Who can join?</h3>
+    <p>Golden Paw is for adults aged 18 and over.</p>
+    <h3>Is my data safe?</h3>
+    <p>We only collect what we need to run your account, we never sell your data, and we only use analytics or advertising cookies if you agree. You can ask us to delete your data at any time. Read our <a href="/privacy/">privacy policy</a>.</p>
+
+    <h2>Who's behind Golden Paw?</h2>
+    <p>Golden Paw is made by <a href="/studios/">Golden Paw Studios</a>, a small independent studio in the UK. We're dog lovers who make games, printables and websites, and free tools like the <a href="https://animate.goldenpaw.dog/">Golden Paw Animation Creation Tool</a>. We read every message: visit our <a href="/support/">support page</a> or email goldenpaw.dogeadmin@gmail.com.</p>
+
+    <footer>
+      <a href="/about.html">About</a>
+      <a href="/book-of-dog">The Book Of Dog</a>
+      <a href="/articles/">Articles</a>
+      <a href="/studios/">Golden Paw Studios</a>
+      <a href="/shop/">Shop</a>
+      <a href="/support/">Help &amp; support</a>
+      <a href="/privacy/">Privacy</a>
+      <a href="/terms/">Terms</a>
+      <p>© 2026 Golden Paw Studios. 18+ only. Golden Paw is entertainment, not an investment. No deposits. Not financial advice.</p>
+    </footer>
+  </main>
+  </div>
 
   <script src="flutter_bootstrap.js?v=6" async></script>
 
