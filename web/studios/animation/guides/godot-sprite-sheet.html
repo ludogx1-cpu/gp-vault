@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Import a Sprite Sheet into Godot 4 | Golden Paw Animation Creation Tool</title>
+    <meta name="description" content="Import a sprite sheet into Godot 4 with AnimatedSprite2D and SpriteFrames, or Sprite2D with hframes and vframes. Includes pixel-art filtering and GDScript to play the animation.">
+    <link rel="canonical" href="https://goldenpaw.dog/studios/animation/guides/godot-sprite-sheet.html">
+    <meta name="google-adsense-account" content="ca-pub-2047805482197197">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="How to Import a Sprite Sheet into Godot 4 | Golden Paw Animation Creation Tool">
+    <meta property="og:description" content="Import a sprite sheet into Godot 4 with AnimatedSprite2D and SpriteFrames, or Sprite2D with hframes and vframes. Includes pixel-art filtering and GDScript to play the animation.">
+    <meta property="og:url" content="https://goldenpaw.dog/studios/animation/guides/godot-sprite-sheet.html">
+    <link rel="icon" href="/studios/animation/assets/paw-logo-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/studios/animation/assets/apple-touch-icon.png">
+    <meta name="theme-color" content="#C9A227">
+    <link rel="manifest" href="/studios/animation/site.webmanifest">
+    <link rel="preload" href="/studios/animation/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/studios/animation/fonts/fonts.css">
+    <link rel="stylesheet" href="/studios/animation/assets/site.css">
+    <script src="/studios/animation/assets/site.js"></script>
+</head>
+<body class="content-page">
+    <nav class="site-nav" aria-label="Main">
+        <a class="brand" href="/studios/animation/"><img src="/studios/animation/assets/paw-logo-192.png" alt="" width="30" height="30"><span>Golden Paw<small>Animation Creation Tool</small></span></a>
+        <ul>
+            <li><a href="/studios/animation/">Converter</a></li>
+            <li><a href="/studios/animation/editor.html">Sprite Editor</a></li>
+            <li><a href="/studios/animation/guides/">Guides</a></li>
+            <li><a href="/studios/animation/how-to-use.html">How to use</a></li>
+            <li><a href="/studios/animation/get-the-app.html">📲 Get the app</a></li>
+            <li><a href="/studios/animation/pro.html" class="nav-pro">⭐ Pro</a></li>
+            <li><a href="https://goldenpaw.dog/studios/" rel="noopener">🐾 Golden Paw Studios</a></li>
+            <li><a class="support-link" data-support hidden href="#" rel="noopener" target="_blank">☕ Support</a></li>
+            <li><button id="siteThemeToggle" type="button" aria-label="Toggle dark mode">🌙</button></li>
+        </ul>
+    </nav>
+    <main>
+        <article class="article">
+            <h1>How to import a sprite sheet into Godot 4</h1>
+            <p class="lede">Godot can slice a grid sprite sheet into an animation in a couple of clicks. Sheets from this tool are an even grid with no gaps between cells, which is exactly what Godot's importer expects.</p>
+
+            <h2>Before you start</h2>
+            <ul>
+                <li>Export a <strong>sprite sheet</strong> from the <a href="/studios/animation/">converter</a>. Note the number of columns and rows shown under the preview (they're also in the <code>.json</code> file).</li>
+                <li>PNG and WebP both work in Godot 4. Choose PNG if you're unsure.</li>
+                <li>Leave <em>Pad sheet to power-of-two</em> <strong>off</strong>. The padding adds empty space that would throw off Godot's grid.</li>
+                <li>Drag the image into your project's <code>FileSystem</code> dock.</li>
+            </ul>
+
+            <h2>Method 1: AnimatedSprite2D (easiest)</h2>
+            <ol>
+                <li>Add an <strong>AnimatedSprite2D</strong> node to your scene.</li>
+                <li>In the Inspector, set <em>Sprite Frames</em> to <strong>New SpriteFrames</strong>, then click it to open the SpriteFrames panel at the bottom of the editor.</li>
+                <li>Rename the <code>default</code> animation, for example to <code>run</code>.</li>
+                <li>Click the <strong>Add frames from sprite sheet</strong> button (the grid icon) and choose your image.</li>
+                <li>Set <em>Horizontal</em> to your number of columns and <em>Vertical</em> to your number of rows.</li>
+                <li>Click <strong>Select/Clear All Frames</strong>. If the last row isn't full, click to deselect the empty cells. Then click <em>Add frames</em>.</li>
+                <li>Set the animation speed (FPS) to match the FPS you exported with, and turn <em>Loop</em> on or off.</li>
+            </ol>
+            <p>Play it from a script:</p>
+            <pre><code>func _ready():
+    $AnimatedSprite2D.play("run")</code></pre>
+
+            <h2>Method 2: Sprite2D with hframes and vframes</h2>
+            <p>Useful if you drive animations with an <strong>AnimationPlayer</strong>, for example to sync frames with hitboxes or sounds.</p>
+            <ol>
+                <li>Add a <strong>Sprite2D</strong> and drag your sheet onto its <em>Texture</em>.</li>
+                <li>Under <em>Animation</em>, set <strong>Hframes</strong> to your columns and <strong>Vframes</strong> to your rows.</li>
+                <li>The <em>Frame</em> property now picks a cell, counting from 0 left to right, then down. Key it in an AnimationPlayer, or step it in code:</li>
+            </ol>
+            <pre><code>var t := 0.0
+const FPS := 12.0
+const FRAME_COUNT := 24  # frames in your sheet
+
+func _process(delta):
+    t += delta
+    $Sprite2D.frame = int(t * FPS) % FRAME_COUNT</code></pre>
+
+            <h2>Pixel art looks blurry?</h2>
+            <p>Godot smooths textures by default. For pixel art, go to <em>Project Settings → Rendering → Textures</em> and set <strong>Default Texture Filter</strong> to <strong>Nearest</strong>, or set <em>Texture → Filter</em> to <em>Nearest</em> on the node itself. Also export with <em>Crisp</em> edges and no edge feathering.</p>
+
+            <h2>Trimmed sheets still line up</h2>
+            <p><em>Trim transparent padding</em> crops every frame to the same shared box, so the cells stay an even grid and Godot slices them correctly. The animation won't jitter.</p>
+
+            <h2>More engines</h2>
+            <p>Using a web engine? See <a href="/studios/animation/guides/phaser-pixi-sprite-sheet.html">loading your sprite sheet in Phaser and PixiJS</a>.</p>
+            <p><a class="cta" href="/studios/animation/">Make a sprite sheet for Godot →</a></p>
+        </article>
+        <div class="ad-slot" data-ad="content"></div>
+
+    </main>
+    <footer class="site-footer">
+        <div><a href="/studios/animation/">Converter</a><a href="/studios/animation/editor.html">Sprite Editor</a><a href="/studios/animation/how-to-use.html">How to use</a><a href="/studios/animation/get-the-app.html">Get the app</a><a href="/studios/animation/pro.html">Pro</a><a href="/studios/animation/guides/">Guides</a><a href="/studios/animation/about.html">About</a><a href="/studios/animation/contact.html">Contact</a><a href="/studios/animation/privacy.html">Privacy</a><a href="/studios/animation/terms.html">Terms</a></div>
+        <div>© <span data-year>2026</span> <a href="https://goldenpaw.dog/studios/" rel="noopener">Golden Paw Studios</a>. The Animation Creation Tool processes everything on your device.</div>
+    </footer>
+</body>
+</html>

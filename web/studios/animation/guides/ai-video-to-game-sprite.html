@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Turn an AI Video into a Game Sprite | Golden Paw Animation Creation Tool</title>
+    <meta name="description" content="Make game-ready sprite animations from AI-generated video: prompting for clean loops, removing the background, picking the frame rate and exporting a sprite sheet and JSON.">
+    <link rel="canonical" href="https://goldenpaw.dog/studios/animation/guides/ai-video-to-game-sprite.html">
+    <meta name="google-adsense-account" content="ca-pub-2047805482197197">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="How to Turn an AI Video into a Game Sprite | Golden Paw Animation Creation Tool">
+    <meta property="og:description" content="Make game-ready sprite animations from AI-generated video: prompting for clean loops, removing the background, picking the frame rate and exporting a sprite sheet and JSON.">
+    <meta property="og:url" content="https://goldenpaw.dog/studios/animation/guides/ai-video-to-game-sprite.html">
+    <link rel="icon" href="/studios/animation/assets/paw-logo-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/studios/animation/assets/apple-touch-icon.png">
+    <meta name="theme-color" content="#C9A227">
+    <link rel="manifest" href="/studios/animation/site.webmanifest">
+    <link rel="preload" href="/studios/animation/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/studios/animation/fonts/fonts.css">
+    <link rel="stylesheet" href="/studios/animation/assets/site.css">
+    <script src="/studios/animation/assets/site.js"></script>
+</head>
+<body class="content-page">
+    <nav class="site-nav" aria-label="Main">
+        <a class="brand" href="/studios/animation/"><img src="/studios/animation/assets/paw-logo-192.png" alt="" width="30" height="30"><span>Golden Paw<small>Animation Creation Tool</small></span></a>
+        <ul>
+            <li><a href="/studios/animation/">Converter</a></li>
+            <li><a href="/studios/animation/editor.html">Sprite Editor</a></li>
+            <li><a href="/studios/animation/guides/">Guides</a></li>
+            <li><a href="/studios/animation/how-to-use.html">How to use</a></li>
+            <li><a href="/studios/animation/get-the-app.html">📲 Get the app</a></li>
+            <li><a href="/studios/animation/pro.html" class="nav-pro">⭐ Pro</a></li>
+            <li><a href="https://goldenpaw.dog/studios/" rel="noopener">🐾 Golden Paw Studios</a></li>
+            <li><a class="support-link" data-support hidden href="#" rel="noopener" target="_blank">☕ Support</a></li>
+            <li><button id="siteThemeToggle" type="button" aria-label="Toggle dark mode">🌙</button></li>
+        </ul>
+    </nav>
+    <main>
+        <article class="article">
+            <h1>How to turn an AI video into a game sprite</h1>
+            <p class="lede">AI video generators can animate a character in seconds. With a few prompt tricks and the right export settings, that clip becomes a clean, looping sprite sheet your game engine can load.</p>
+
+            <h2>1. Prompt for a sprite, not a film</h2>
+            <p>Most AI video is made to look cinematic. For a sprite you want the opposite: a still camera and a simple background. Include phrases like these in your prompt:</p>
+            <ul>
+                <li><strong>"static camera, no camera movement, no zoom"</strong>, so the character doesn't slide around the frame.</li>
+                <li><strong>"full body, side view, centred"</strong> (or "front view") for a consistent angle.</li>
+                <li><strong>"plain solid green background, evenly lit, no shadows"</strong> if you'll use the free green-screen removal.</li>
+                <li><strong>"seamless loop"</strong> and a simple action: "walking in place", "idle breathing", "running cycle".</li>
+            </ul>
+            <p>Generate a few versions and keep the one with the steadiest camera. A wobbling camera is the hardest problem to fix afterwards.</p>
+
+            <h2>2. Choose a short section that loops</h2>
+            <p>Load the clip in the <a href="/studios/animation/">converter</a> and scrub through it. Set the start and end so they cover <strong>one full cycle</strong>: for a walk, from one foot touching down until the same foot touches down again. Short loops of 0.5 to 2 seconds make small, smooth sprite sheets.</p>
+
+            <h2>3. Pick a game-friendly frame rate</h2>
+            <p>Video is usually 24 to 30 frames a second, but games rarely need that many sprite frames. <strong>8 to 12 FPS</strong> looks good for most characters and keeps the sheet small. Use 15 or more only for very fast or smooth motion.</p>
+
+            <h2>4. Remove the background</h2>
+            <ul>
+                <li><strong>Green or solid backdrop:</strong> tick <em>Remove Background (Chroma Key)</em>, click the background in the preview to sample it, and adjust tolerance and spill. See <a href="/studios/animation/guides/remove-green-screen.html">removing a green screen cleanly</a>.</li>
+                <li><strong>Any other background:</strong> <a href="/studios/animation/pro.html">Pro</a> adds AI background removal, which cuts the character out of a busy scene with no green screen. Choose <em>Soft</em> edges for fur and hair, or <em>Crisp</em> for cartoon and pixel styles.</li>
+            </ul>
+
+            <h2>5. Shrink it to sprite size</h2>
+            <p>AI video is often 720p or 1080p, far bigger than a game sprite needs. Turn on <em>Trim transparent padding</em> to cut away the empty space, then lower <em>Output Scale</em> until the character is the size it will appear in your game. A character shown 128 pixels tall in-game doesn't need 1080-pixel frames.</p>
+
+            <h2>6. Export and fix the loop</h2>
+            <p>Tick <em>Sprite sheet</em> and <em>Atlas metadata (.json)</em>, then process. If the loop has a small hitch, open the result in the <a href="/studios/animation/editor.html">Sprite Editor</a> and delete the last frame if it repeats the first.</p>
+
+            <h2>7. Load it in your engine</h2>
+            <p>The JSON is in TexturePacker JSON Hash format, which most 2D engines understand. See the guides for <a href="/studios/animation/guides/phaser-pixi-sprite-sheet.html">Phaser and PixiJS</a> and <a href="/studios/animation/guides/godot-sprite-sheet.html">Godot</a>.</p>
+
+            <h2>Check the licence</h2>
+            <p>Before shipping a commercial game, check the terms of the AI video service you used, so you know you're allowed to use its output in a product.</p>
+            <p><a class="cta" href="/studios/animation/">Turn your AI clip into a sprite →</a></p>
+        </article>
+        <div class="ad-slot" data-ad="content"></div>
+
+    </main>
+    <footer class="site-footer">
+        <div><a href="/studios/animation/">Converter</a><a href="/studios/animation/editor.html">Sprite Editor</a><a href="/studios/animation/how-to-use.html">How to use</a><a href="/studios/animation/get-the-app.html">Get the app</a><a href="/studios/animation/pro.html">Pro</a><a href="/studios/animation/guides/">Guides</a><a href="/studios/animation/about.html">About</a><a href="/studios/animation/contact.html">Contact</a><a href="/studios/animation/privacy.html">Privacy</a><a href="/studios/animation/terms.html">Terms</a></div>
+        <div>© <span data-year>2026</span> <a href="https://goldenpaw.dog/studios/" rel="noopener">Golden Paw Studios</a>. The Animation Creation Tool processes everything on your device.</div>
+    </footer>
+</body>
+</html>
