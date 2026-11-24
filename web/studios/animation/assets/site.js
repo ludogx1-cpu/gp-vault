@@ -45,13 +45,16 @@ window.SITE_CONFIG = {
     // permitted in extension pages), so ads, analytics and the service worker are off.
     var isExtension = /^(chrome|moz|safari-web)-extension:$/.test(location.protocol);
     window.GP_IS_EXTENSION = isExtension;
+    // Inside the Pro desktop app: no ads or analytics (and no service worker; the files are local).
+    var isDesktop = location.protocol === 'app:';
+    window.GP_IS_DESKTOP = isDesktop;
     // Pro customers never see ads (same check as pro.js, done early so no ad script loads).
     var isPro = false;
     try {
         var pro = JSON.parse(localStorage.getItem('gp-pro') || 'null');
         isPro = !!(pro && pro.key && pro.instanceId && (Date.now() - (pro.checkedAt || 0)) / 864e5 <= 30);
     } catch (e) { /* storage blocked: treat as free */ }
-    var hasAds = !isExtension && !isPro && /^ca-pub-\d{16}$/.test(cfg.adsenseClient || '');
+    var hasAds = !isExtension && !isDesktop && !isPro && /^ca-pub-\d{16}$/.test(cfg.adsenseClient || '');
 
     // Theme: share the tool's saved preference across every page.
     try {
@@ -83,7 +86,7 @@ window.SITE_CONFIG = {
     }
 
     // ---- Google Analytics 4 -------------------------------------------------
-    if (cfg.ga4 && !isExtension) {
+    if (cfg.ga4 && !isExtension && !isDesktop) {
         addScript('https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(cfg.ga4));
         gtag('js', new Date());
         gtag('config', cfg.ga4);
