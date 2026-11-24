@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Plugin for Claude &amp; MCP Apps | Golden Paw Animation Creation Tool</title>
+    <meta name="description" content="Use the Golden Paw Animation Creation Tool from Claude and other AI assistants: ask in plain English to turn a video into a sprite sheet, JSON atlas or transparent GIF. Runs on your computer.">
+    <link rel="canonical" href="https://goldenpaw.dog/studios/animation/ai-plugin.html">
+    <meta name="google-adsense-account" content="ca-pub-2047805482197197">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="AI Plugin for Claude &amp; MCP Apps | Golden Paw Animation Creation Tool">
+    <meta property="og:description" content="Use the Golden Paw Animation Creation Tool from Claude and other AI assistants: ask in plain English to turn a video into a sprite sheet, JSON atlas or transparent GIF. Runs on your computer.">
+    <meta property="og:url" content="https://goldenpaw.dog/studios/animation/ai-plugin.html">
+    <link rel="icon" href="/studios/animation/assets/paw-logo-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/studios/animation/assets/apple-touch-icon.png">
+    <meta name="theme-color" content="#C9A227">
+    <link rel="manifest" href="/studios/animation/site.webmanifest">
+    <link rel="preload" href="/studios/animation/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/studios/animation/fonts/fonts.css">
+    <link rel="stylesheet" href="/studios/animation/assets/site.css">
+    <script src="/studios/animation/assets/site.js"></script>
+</head>
+<body class="content-page">
+    <nav class="site-nav" aria-label="Main">
+        <a class="brand" href="/studios/animation/"><img src="/studios/animation/assets/paw-logo-192.png" alt="" width="30" height="30"><span>Golden Paw<small>Animation Creation Tool</small></span></a>
+        <ul>
+            <li><a href="/studios/animation/">Converter</a></li>
+            <li><a href="/studios/animation/editor.html">Sprite Editor</a></li>
+            <li><a href="/studios/animation/guides/">Guides</a></li>
+            <li><a href="/studios/animation/how-to-use.html">How to use</a></li>
+            <li><a href="/studios/animation/get-the-app.html">📲 Get the app</a></li>
+            <li><a href="/studios/animation/pro.html" class="nav-pro">⭐ Pro</a></li>
+            <li><a href="https://goldenpaw.dog/studios/" rel="noopener">🐾 Golden Paw Studios</a></li>
+            <li><a class="support-link" data-support hidden href="#" rel="noopener" target="_blank">☕ Support</a></li>
+            <li><button id="siteThemeToggle" type="button" aria-label="Toggle dark mode">🌙</button></li>
+        </ul>
+    </nav>
+    <main>
+        <article class="article">
+            <h1>🤖 Use the tool from your AI assistant</h1>
+            <p class="lede">The Golden Paw Animation Creation Tool is also an AI plugin. Ask Claude, in plain English, to turn a video into a sprite sheet, and it runs the tool for you, on your own computer.</p>
+
+            <h2>Just ask</h2>
+            <ul>
+                <li>"Turn <code>shiba-run.mp4</code> into a sprite sheet at 12 fps and remove the green screen."</li>
+                <li>"Make a transparent GIF of seconds 2 to 4 of this clip, half size."</li>
+                <li>"Cut this sprite sheet into separate frames using its JSON."</li>
+                <li>"Remove the background from these three character images." (Pro)</li>
+            </ul>
+            <p>You get the same results as the website: a packed sprite sheet, a TexturePacker JSON atlas for Phaser, PixiJS, Godot and other engines, an animated GIF and individual frames, with trimming, scaling and ping-pong loops. Claude shows you a preview of the result.</p>
+
+            <h2>Private by design</h2>
+            <p>The plugin runs on your computer, just like the website does in your browser. Your videos are never uploaded anywhere.</p>
+
+            <h2>Install in Claude Code</h2>
+            <p>You need <a href="https://nodejs.org/" rel="noopener" target="_blank">Node.js</a> 20 or newer. In Claude Code, type:</p>
+            <pre><code>/plugin marketplace add ludogx1-cpu/a-new-space
+/plugin install golden-paw-animate@golden-paw</code></pre>
+            <p>The first start takes a few seconds while it sets itself up. After that, just ask.</p>
+
+            <h2>Install in Claude Desktop and other MCP apps</h2>
+            <p>The plugin speaks the open <strong>Model Context Protocol</strong> (MCP), so it works with any app that supports MCP servers. In Claude Desktop, open <em>Settings → Developer → Edit Config</em>, add the following to <code>claude_desktop_config.json</code>, then restart the app:</p>
+            <pre><code>{
+  "mcpServers": {
+    "golden-paw-animate": {
+      "command": "npx",
+      "args": ["-y", "golden-paw-animate-mcp"]
+    }
+  }
+}</code></pre>
+
+            <h2>Free and Pro</h2>
+            <ul>
+                <li><strong>Free:</strong> sprite sheets, JSON atlases, GIFs, frame export, trimming, and green-screen or solid-colour background removal.</li>
+                <li><strong>Pro:</strong> AI background removal from <em>any</em> background, no green screen needed. One <a href="/studios/animation/pro.html">Pro</a> purchase (<span data-pro-price>£11.99</span>, no subscription) unlocks it on the website, the desktop app and the AI plugin. Tell Claude "activate Pro with my key" and paste the key from your purchase email.</li>
+            </ul>
+            <p>The first time you use AI background removal, the plugin downloads the AI engine and model (about 70&nbsp;MB, once). After that it works offline.</p>
+
+            <h2>Questions</h2>
+            <p>See the <a href="https://github.com/ludogx1-cpu/a-new-space/tree/main/mcp" rel="noopener" target="_blank">plugin's README</a> for settings, or <a href="/studios/animation/contact.html">contact us</a>.</p>
+            <p><a class="cta" href="/studios/animation/">Prefer clicking? Use the website →</a></p>
+        </article>
+    </main>
+    <footer class="site-footer">
+        <div><a href="/studios/animation/">Converter</a><a href="/studios/animation/editor.html">Sprite Editor</a><a href="/studios/animation/how-to-use.html">How to use</a><a href="/studios/animation/get-the-app.html">Get the app</a><a href="/studios/animation/ai-plugin.html">AI plugin</a><a href="/studios/animation/pro.html">Pro</a><a href="/studios/animation/guides/">Guides</a><a href="/studios/animation/about.html">About</a><a href="/studios/animation/contact.html">Contact</a><a href="/studios/animation/privacy.html">Privacy</a><a href="/studios/animation/terms.html">Terms</a></div>
+        <div>© <span data-year>2026</span> <a href="https://goldenpaw.dog/studios/" rel="noopener">Golden Paw Studios</a>. The Animation Creation Tool processes everything on your device.</div>
+    </footer>
+</body>
+</html>
