@@ -15,6 +15,12 @@
  *
  * Leave `stripe` empty ('') and the item shows as "Coming soon" with a
  * "Notify me" email button instead, so nothing ever links to a broken page.
+ *
+ * Optional, shown on the card so buyers know what they're getting before checkout:
+ *   details: ['PDF, 24 A4 pages', 'Edit in Canva (free account)', ...]
+ *   licence: 'Who can use it, in one plain sentence.'
+ *   preview: '/shop/previews/planner.png'  (an example page, e.g. filled in for a fictional dog)
+ * Products you can buy now are listed first.
  */
 window.GP_SHOP = {
   contactEmail: 'goldenpaw.dogeadmin@gmail.com',
@@ -34,6 +40,10 @@ window.GP_SHOP = {
       name: 'Dog Care Planner',
       price: '£5',
       blurb: 'A printable planner for walks, feeding, vet visits, meds and training progress.',
+      // TODO(owner): fill in so buyers can check the file works for them, e.g.
+      // details: ['PDF, NN A4 pages', 'Print at home, colour or black and white'],
+      details: [],
+      licence: 'For you and your own dogs.',
       stripe: 'https://buy.stripe.com/5kQfZjcvq6X85Ba3lV0gw06',
     },
     {
@@ -58,6 +68,9 @@ window.GP_SHOP = {
       name: 'Groomer & Dog Walker Starter Kit',
       price: '£12',
       blurb: 'Editable price list, booking form, client card and 20 social post templates.',
+      // TODO(owner): add the file type, page count and the software needed to edit it.
+      details: [],
+      licence: 'Business licence included: add your business name and logo, and use it with as many of your own clients as you like. Please don\'t resell or share the blank templates.',
       stripe: 'https://buy.stripe.com/bJeaEZ0MI4P08Nme0z0gw07',
     },
   ],
@@ -138,6 +151,25 @@ window.GP_SHOP = {
     el.querySelector('h3').textContent = item.name;
     el.querySelector('.svc-price').textContent = item.price;
     el.querySelector('p').textContent = item.blurb;
+    var btn = el.querySelector('a.btn');
+    if (item.preview) {
+      var img = document.createElement('img');
+      img.src = item.preview; img.loading = 'lazy'; img.className = 'shop-preview';
+      img.alt = 'Example page from ' + item.name;
+      el.insertBefore(img, el.querySelector('p'));
+    }
+    if (item.details && item.details.length) {
+      var ul = document.createElement('ul');
+      ul.className = 'shop-details';
+      item.details.forEach(function (d) { var li = document.createElement('li'); li.textContent = d; ul.appendChild(li); });
+      el.insertBefore(ul, btn);
+    }
+    if (item.licence) {
+      var lic = document.createElement('p');
+      lic.className = 'shop-licence';
+      lic.textContent = item.licence;
+      el.insertBefore(lic, btn);
+    }
     var a = el.querySelector('a');
     a.textContent = label;
     a.href = href;
@@ -148,7 +180,9 @@ window.GP_SHOP = {
   function render(containerId, items, kind) {
     var box = document.getElementById(containerId);
     if (!box) return;
-    items.forEach(function (item) { box.appendChild(card(item, kind)); });
+    // Things you can buy right now come first; "coming soon" items follow.
+    items.filter(function (i) { return i.stripe; }).concat(items.filter(function (i) { return !i.stripe; }))
+      .forEach(function (item) { box.appendChild(card(item, kind)); });
   }
 
   // Buttons elsewhere on a page can opt in with data-stripe="<service id>":
