@@ -242,17 +242,25 @@ class _LandingPageState extends State<LandingPage> {
       height: isMobile ? 240 : 380,
       child: Stack(
         alignment: Alignment.bottomCenter,
+        // The Shiba is placed a little below the box so it stands in front of the kennel;
+        // don't clip its paws.
+        clipBehavior: Clip.none,
         children: [
           Positioned(
             left: 0,
             bottom: 0,
             height: isMobile ? 190 : 300,
-            child: Image.asset('assets/kennel.png', fit: BoxFit.contain),
+            // Same kennel art as the game, without the food dispenser and bone,
+            // so the Shiba can stand in front of it.
+            child: Image.asset('assets/kennel_landing.png', fit: BoxFit.contain),
           ),
+          // The Shiba artwork has ~9% empty space under its paws, so it's offset down
+          // to stand on the ground in front of the kennel, and kept well under the
+          // kennel's height so the pair looks in proportion.
           Positioned(
-            right: 0,
-            bottom: 0,
-            height: isMobile ? 180 : 290,
+            right: isMobile ? 44 : 24,
+            bottom: isMobile ? -22 : -34,
+            height: isMobile ? 120 : 188,
             child: Image.asset('assets/shiba_young_adult_v2.png', fit: BoxFit.contain),
           ),
         ],
@@ -461,7 +469,19 @@ class _LandingPageState extends State<LandingPage> {
       child: Flex(
         direction: isMobile ? Axis.vertical : Axis.horizontal,
         children: [
-          Image.asset('assets/gpaw.png', width: 90, height: 90),
+          // Dark badge behind the gold paw so it stands out on the gold banner.
+          Container(
+            width: 112,
+            height: 112,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: const Color(0xFF1A1508),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withValues(alpha: 0.85), width: 3),
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.35), blurRadius: 14, offset: const Offset(0, 4))],
+            ),
+            child: Image.asset('assets/gpaw.png', width: 74, height: 74),
+          ),
           SizedBox(width: isMobile ? 0 : 24, height: isMobile ? 16 : 0),
           Flexible(
             child: Column(
