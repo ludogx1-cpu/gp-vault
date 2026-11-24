@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Sprite Sheet Editor &amp; Animation Player | Golden Paw Animation Creation Tool</title>
+    <meta name="description" content="Open any sprite sheet (with or without a JSON atlas), preview the animation, delete, reorder and duplicate frames, then export a new sheet and TexturePacker JSON. Free and private: runs in your browser.">
+    <link rel="canonical" href="https://goldenpaw.dog/studios/animation/editor.html">
+    <meta name="google-adsense-account" content="ca-pub-2047805482197197">
+    <meta name="theme-color" content="#C9A227">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Golden Paw Animation Creation Tool">
+    <meta property="og:title" content="Free Sprite Sheet Editor &amp; Animation Player">
+    <meta property="og:description" content="Preview, trim, reorder and re-export sprite sheets with a JSON atlas, right in your browser.">
+    <meta property="og:url" content="https://goldenpaw.dog/studios/animation/editor.html">
+    <meta property="og:image" content="https://goldenpaw.dog/studios/animation/assets/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" href="/studios/animation/assets/paw-logo-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/studios/animation/assets/apple-touch-icon.png">
+    <link rel="manifest" href="/studios/animation/site.webmanifest">
+    <link rel="preload" href="/studios/animation/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/studios/animation/fonts/fonts.css">
+    <link rel="stylesheet" href="/studios/animation/assets/site.css">
+    <script src="/studios/animation/assets/site.js"></script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Sprite Sheet Editor & Player",
+      "url": "https://goldenpaw.dog/studios/animation/editor.html",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Any (web browser)",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "description": "Load a sprite sheet and JSON atlas, preview the animation, delete, reorder and duplicate frames, and export a new sheet with TexturePacker JSON."
+    }
+    </script>
+    <style>
+        .panel { background: var(--panel); padding: 22px 25px; border-radius: 8px; box-shadow: 0 2px 4px var(--shadow); margin-bottom: 20px; }
+        .panel h2 { color: var(--accent); font-size: 1.15em; margin: 0 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border-soft); }
+        .desc { color: var(--muted); font-size: 0.88em; display: block; margin-top: 4px; line-height: 1.45; }
+        .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-top: 10px; }
+        label.inline { font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+        input[type="number"] { width: 64px; padding: 6px; border: 1px solid var(--border); border-radius: 4px; background: var(--panel); color: var(--text); }
+        input[type="text"] { padding: 6px 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--panel); color: var(--text); width: 180px; }
+        input[type="file"] { padding: 6px; border: 1px solid var(--border); border-radius: 4px; width: 100%; box-sizing: border-box; background: var(--panel); color: var(--text); }
+        select { padding: 6px; border: 1px solid var(--border); border-radius: 4px; background: var(--panel); color: var(--text); }
+        .btn { cursor: pointer; background: var(--accent); color: var(--on-accent); border: none; border-radius: 4px; padding: 8px 14px; font-weight: 600; font-size: 0.92em; }
+        .btn:hover { background: var(--accent-hover); }
+        .btn.secondary, .btn.danger, .btn.success, #exportSelectedBtn { color: #fff; }
+        .btn:disabled { background: #999; cursor: not-allowed; opacity: 0.6; }
+        .btn.secondary { background: #5a6268; } .btn.secondary:hover { background: #4e555b; }
+        .btn.danger { background: #dc3545; } .btn.danger:hover { background: #c82333; }
+        .btn.success { background: var(--success); } .btn.success:hover { filter: brightness(0.92); }
+        .btn:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+        .file-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        @media (max-width: 600px) { .file-grid { grid-template-columns: 1fr; } }
+        #dropZone { position: relative; }
+        #dropZone.dragging::after { content: "Drop sheet image and/or JSON"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(201,162,39,0.18); border: 3px dashed var(--accent); border-radius: 8px; font-weight: 700; font-size: 1.2em; color: var(--accent); pointer-events: none; }
+        #info { margin-top: 10px; font-size: 0.9em; color: var(--muted); }
+        #info.warn { color: #dc3545; }
+
+        .checker { background-color: #fff; background-image: linear-gradient(45deg,#ccc 25%,transparent 25%),linear-gradient(-45deg,#ccc 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ccc 75%),linear-gradient(-45deg,transparent 75%,#ccc 75%); background-size: 16px 16px; background-position: 0 0,0 8px,8px -8px,-8px 0; }
+        [data-theme="dark"] .checker { background-color: #1f2840; background-image: linear-gradient(45deg,#2c3650 25%,transparent 25%),linear-gradient(-45deg,#2c3650 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#2c3650 75%),linear-gradient(-45deg,transparent 75%,#2c3650 75%); }
+        .stage { margin-top: 14px; border: 1px solid var(--border); border-radius: 6px; overflow: auto; max-height: 520px; display: flex; justify-content: center; align-items: center; min-height: 160px; padding: 10px; }
+        #playerCanvas { display: block; }
+        #playerCanvas.pixelated, .frame-box.pixelated { image-rendering: pixelated; }
+        #frameCounter { font-family: monospace; color: var(--muted); min-width: 80px; }
+        #scrub { flex: 1; min-width: 120px; }
+
+        .toolbar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+        #selInfo { font-size: 0.88em; color: var(--muted); align-self: center; margin-left: 4px; }
+        #gallery { display: flex; flex-wrap: wrap; gap: 6px; max-height: 460px; overflow: auto; padding: 4px; border: 1px solid var(--border-soft); border-radius: 6px; min-height: 60px; }
+        #gallery:empty::before { content: "Frames appear here after you load a sheet."; color: var(--muted); font-style: italic; padding: 14px; }
+        .frame-wrap { position: relative; }
+        .frame-box { display: block; border: 2px solid var(--border); border-radius: 3px; cursor: pointer; transition: transform 0.08s, border-color 0.08s; }
+        .frame-box:hover { border-color: var(--accent); }
+        .frame-wrap.selected .frame-box { border-color: #e74c3c; box-shadow: 0 0 0 2px rgba(231,76,60,0.35); }
+        .frame-wrap.current .frame-box { outline: 2px solid var(--success); outline-offset: 1px; }
+        .frame-wrap:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+        .frame-wrap.drag-over .frame-box { border-color: var(--success); transform: scale(1.06); }
+        .frame-num { position: absolute; left: 3px; top: 2px; font: 10px/1 monospace; background: rgba(0,0,0,0.6); color: #fff; padding: 2px 3px; border-radius: 2px; pointer-events: none; }
+        #downloads { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+        a.download-btn { display: block; padding: 12px; background: var(--success); color: #fff; text-decoration: none; border-radius: 4px; text-align: center; font-weight: 700; }
+        a.download-btn:hover { filter: brightness(0.92); }
+        .kbd { font: 0.85em monospace; border: 1px solid var(--border); border-radius: 3px; padding: 0 4px; }
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+    </style>
+</head>
+<body class="content-page">
+    <nav class="site-nav" aria-label="Main">
+        <a class="brand" href="/studios/animation/"><img src="/studios/animation/assets/paw-logo-192.png" alt="" width="30" height="30"><span>Golden Paw<small>Animation Creation Tool</small></span></a>
+        <ul>
+            <li><a href="/studios/animation/">Converter</a></li>
+            <li><a href="/studios/animation/editor.html" aria-current="page">Sprite Editor</a></li>
+            <li><a href="/studios/animation/guides/">Guides</a></li>
+            <li><a href="/studios/animation/how-to-use.html">How to use</a></li>
+            <li><a href="/studios/animation/get-the-app.html">📲 Get the app</a></li>
+            <li><a href="/studios/animation/pro.html" class="nav-pro">⭐ Pro</a></li>
+            <li><a href="https://goldenpaw.dog/studios/" rel="noopener">🐾 Golden Paw Studios</a></li>
+            <li><a class="support-link" data-support hidden href="#" rel="noopener" target="_blank">☕ Support</a></li>
+            <li><button id="siteThemeToggle" type="button" aria-label="Toggle dark mode">🌙</button></li>
+        </ul>
+    </nav>
+
+    <main>
+        <h1 style="text-align:center;margin:0 0 6px;font-size:1.6em;">Sprite Sheet Editor &amp; Player</h1>
+        <p class="hero-tagline">Preview, clean up and re-export any sprite sheet. Files stay on your device.</p>
+
+        <details class="panel" style="padding:15px 25px;">
+            <summary style="cursor:pointer;font-weight:bold;color:var(--accent);font-size:1.05em;">📖 How to use (click to expand)</summary>
+            <ol style="line-height:1.7;margin-bottom:0;">
+                <li><strong>Load</strong> a sprite sheet image, plus its <strong>.json</strong> atlas if you have one. Drag &amp; drop both at once. No JSON? Enter the columns and rows and click <em>Slice by grid</em>.</li>
+                <li>Press <strong>▶ Play</strong> to preview. Adjust FPS, loop mode and zoom. Use <span class="kbd">←</span> <span class="kbd">→</span> to step frame by frame.</li>
+                <li><strong>Click frames</strong> to select them (Shift-click for a range), then Delete, Duplicate, Move or Reverse. Drag frames to reorder. <span class="kbd">Ctrl+Z</span> undoes.</li>
+                <li>Choose columns, format and a file name, then <strong>Export all</strong> or <strong>Export selected</strong> to split out a single animation.</li>
+            </ol>
+            <p style="margin:8px 0 0;">📘 Full instructions: <a href="/studios/animation/how-to-use.html#editor">How to use the Sprite Editor</a>.</p>
+        </details>
+
+        <div class="ad-slot" data-ad="top"></div>
+
+        <section class="panel" id="dropZone">
+            <h2>1. Load a sprite sheet</h2>
+            <div class="file-grid">
+                <div>
+                    <label class="inline" for="upload">Sheet image</label>
+                    <input type="file" id="upload" accept="image/*">
+                </div>
+                <div>
+                    <label class="inline" for="jsonUpload">JSON atlas <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+                    <input type="file" id="jsonUpload" accept=".json,application/json">
+                </div>
+            </div>
+            <span class="desc">Drag &amp; drop both files onto this panel. With a JSON atlas (TexturePacker JSON Hash or Array, as exported by our <a href="/studios/animation/">converter</a>, TexturePacker, Aseprite, Phaser…) frames are cut exactly, trim offsets included. Without one, slice by grid below.</span>
+
+            <div class="row">
+                <label class="inline">Grid: <input type="number" id="cols" value="4" min="1" title="Columns"> cols ×
+                <input type="number" id="rows" value="4" min="1" title="Rows"> rows</label>
+                <label class="inline">Skip empty cells <input type="checkbox" id="skipEmpty" checked></label>
+                <button class="btn secondary" id="extractBtn" type="button">Slice by grid</button>
+                <button class="btn secondary" id="reloadJsonBtn" type="button" hidden>Use JSON again</button>
+            </div>
+            <div id="info" role="status"></div>
+        </section>
+
+        <section class="panel">
+            <h2>2. Player</h2>
+            <div class="row" style="margin-top:0">
+                <button class="btn success" id="playBtn" type="button" disabled>▶ Play</button>
+                <button class="btn danger" id="stopBtn" type="button" disabled>■ Stop</button>
+                <button class="btn secondary" id="prevBtn" type="button" disabled title="Previous frame (←)">◀</button>
+                <button class="btn secondary" id="nextBtn" type="button" disabled title="Next frame (→)">▶</button>
+                <label class="inline">FPS <input type="number" id="fps" value="12" min="1" max="120"></label>
+                <label class="inline">Mode
+                    <select id="playMode">
+                        <option value="loop">Loop</option>
+                        <option value="pingpong">Ping-pong</option>
+                        <option value="once">Play once</option>
+                    </select>
+                </label>
+                <label class="inline">Zoom
+                    <select id="zoom">
+                        <option value="fit" selected>Fit</option>
+                        <option value="0.5">50%</option>
+                        <option value="1">100%</option>
+                        <option value="2">200%</option>
+                        <option value="4">400%</option>
+                        <option value="8">800%</option>
+                    </select>
+                </label>
+                <label class="inline">Pixel art <input type="checkbox" id="pixelated"></label>
+            </div>
+            <div class="row">
+                <input type="range" id="scrub" min="0" max="0" value="0" disabled aria-label="Scrub frames">
+                <span id="frameCounter">— / —</span>
+            </div>
+            <div class="stage checker" id="stage"><canvas id="playerCanvas" width="64" height="64"></canvas></div>
+            <span class="desc">Shortcuts: <span class="kbd">Space</span> play/pause · <span class="kbd">←</span>/<span class="kbd">→</span> step · <span class="kbd">Del</span> delete selected · <span class="kbd">Ctrl+A</span> select all · <span class="kbd">Ctrl+Z</span> undo</span>
+        </section>
+
+        <section class="panel">
+            <h2>3. Edit frames</h2>
+            <div class="toolbar">
+                <button class="btn secondary" data-act="all" type="button">Select all</button>
+                <button class="btn secondary" data-act="none" type="button">Clear</button>
+                <button class="btn secondary" data-act="invert" type="button">Invert</button>
+                <button class="btn secondary" data-act="earlier" type="button" title="Move selected frames one step earlier">← Move</button>
+                <button class="btn secondary" data-act="later" type="button" title="Move selected frames one step later">Move →</button>
+                <button class="btn secondary" data-act="duplicate" type="button">Duplicate</button>
+                <button class="btn secondary" data-act="reverse" type="button" title="Reverse the selected frames, or all frames if none are selected">Reverse</button>
+                <button class="btn danger" data-act="delete" type="button">Delete</button>
+                <button class="btn secondary" data-act="undo" type="button" id="undoBtn" disabled>↶ Undo</button>
+                <span id="selInfo"></span>
+            </div>
+            <div id="gallery"></div>
+            <span class="desc">Click to select, <strong>Shift-click</strong> for a range, <strong>Ctrl/⌘-click</strong> to toggle. Drag a frame to reorder. Double-click a frame to show it in the player.</span>
+        </section>
+
+        <section class="panel">
+            <h2>4. Export</h2>
+            <div class="row" style="margin-top:0">
+                <label class="inline">Columns <input type="number" id="expCols" value="8" min="1"></label>
+                <label class="inline">Format
+                    <select id="expFormat">
+                        <option value="image/png" selected>PNG (lossless)</option>
+                        <option value="image/webp">WebP (smaller)</option>
+                    </select>
+                </label>
+                <label class="inline">File name <input type="text" id="expName" value="spritesheet"></label>
+            </div>
+            <div class="row">
+                <button class="btn" id="exportBtn" type="button" disabled>Export all frames</button>
+                <button class="btn" id="exportSelectedBtn" type="button" disabled style="background:#7b4bb0">Export selected only</button>
+            </div>
+            <span class="desc">Exports a sheet image plus a TexturePacker JSON Hash atlas (works in Phaser, PixiJS and our converter's format). Frames are written at their full, untrimmed size so they line up exactly.</span>
+            <div id="downloads"></div>
+        </section>
+
+        <section class="seo-content">
+            <h2>What can the sprite sheet editor do?</h2>
+            <p>It's the clean-up step after you've made a sprite sheet. Load a sheet from our <a href="/studios/animation/">video converter</a> or anywhere else, watch it animate at any frame rate, and fix it: cut the frames where the loop stutters, drop blurry in-betweens, reorder or reverse a sequence, duplicate a held pose, or split one long sheet into separate animations by exporting just the frames you select.</p>
+            <div class="ad-slot" data-ad="content"></div>
+            <h2>Tips</h2>
+            <ul>
+                <li><strong>Finding a seamless loop:</strong> step through with the arrow keys and delete the frame that duplicates frame 1. That removes the hitch at the loop point.</li>
+                <li><strong>Splitting animations:</strong> select the idle frames, export them as <code>idle</code>, then select the run frames and export them as <code>run</code>.</li>
+                <li><strong>No JSON?</strong> Count the columns and rows in the sheet and use <em>Slice by grid</em>. <em>Skip empty cells</em> drops blank cells at the end of the last row.</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div><a href="/studios/animation/">Converter</a><a href="/studios/animation/editor.html">Sprite Editor</a><a href="/studios/animation/how-to-use.html">How to use</a><a href="/studios/animation/get-the-app.html">Get the app</a><a href="/studios/animation/pro.html">Pro</a><a href="/studios/animation/guides/">Guides</a><a href="/studios/animation/about.html">About</a><a href="/studios/animation/contact.html">Contact</a><a href="/studios/animation/privacy.html">Privacy</a><a href="/studios/animation/terms.html">Terms</a></div>
+        <div>© <span data-year>2026</span> <a href="https://goldenpaw.dog/studios/" rel="noopener">Golden Paw Studios</a>. The Animation Creation Tool processes everything on your device.</div>
+    </footer>
+
+<script src="/studios/animation/assets/editor.js"></script>
+</body>
+</html>

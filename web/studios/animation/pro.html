@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro: AI Background Removal, No Ads | Golden Paw Animation Creation Tool</title>
+    <meta name="description" content="Golden Paw Animation Pro: AI background removal with no green screen, no ads, batch processing and presets. One payment of £11.99, no subscription.">
+    <link rel="canonical" href="https://goldenpaw.dog/studios/animation/pro.html">
+    <meta name="google-adsense-account" content="ca-pub-2047805482197197">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Golden Paw Animation Pro">
+    <meta property="og:description" content="Golden Paw Animation Pro: AI background removal with no green screen, no ads, batch processing and presets. One payment of £11.99, no subscription.">
+    <meta property="og:url" content="https://goldenpaw.dog/studios/animation/pro.html">
+    <link rel="icon" href="/studios/animation/assets/paw-logo-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/studios/animation/assets/apple-touch-icon.png">
+    <meta name="theme-color" content="#C9A227">
+    <link rel="manifest" href="/studios/animation/site.webmanifest">
+    <link rel="preload" href="/studios/animation/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/studios/animation/fonts/fonts.css">
+    <link rel="stylesheet" href="/studios/animation/assets/site.css">
+    <script src="/studios/animation/assets/site.js"></script>
+    <script src="/studios/animation/assets/pro.js" defer></script>
+    <script src="/studios/animation/assets/pro-page.js" defer></script>
+</head>
+<body class="content-page">
+    <nav class="site-nav" aria-label="Main">
+        <a class="brand" href="/studios/animation/"><img src="/studios/animation/assets/paw-logo-192.png" alt="" width="30" height="30"><span>Golden Paw<small>Animation Creation Tool</small></span></a>
+        <ul>
+            <li><a href="/studios/animation/">Converter</a></li>
+            <li><a href="/studios/animation/editor.html">Sprite Editor</a></li>
+            <li><a href="/studios/animation/guides/">Guides</a></li>
+            <li><a href="/studios/animation/how-to-use.html">How to use</a></li>
+            <li><a href="/studios/animation/get-the-app.html">📲 Get the app</a></li>
+            <li><a href="/studios/animation/pro.html" class="nav-pro" aria-current="page">⭐ Pro</a></li>
+            <li><a href="https://goldenpaw.dog/studios/" rel="noopener">🐾 Golden Paw Studios</a></li>
+            <li><a class="support-link" data-support hidden href="#" rel="noopener" target="_blank">☕ Support</a></li>
+            <li><button id="siteThemeToggle" type="button" aria-label="Toggle dark mode">🌙</button></li>
+        </ul>
+    </nav>
+    <main>
+        <article class="article">
+            <p class="pro-kicker"><span class="pro-badge">PRO</span></p>
+            <h1>Golden Paw Animation Pro</h1>
+            <p class="lede">Everything in the free tool, plus AI background removal and no ads. One payment of <strong data-pro-price>£11.99</strong>. No subscription.</p>
+
+            <div class="pro-grid">
+                <div class="pro-col">
+                    <h2>Free</h2>
+                    <ul class="ticks">
+                        <li>Video to sprite sheet, GIF, frame ZIP and JSON atlas</li>
+                        <li>Green-screen (colour key) removal</li>
+                        <li>Sprite sheet editor and player</li>
+                        <li>Works offline as an app</li>
+                        <li>Supported by ads</li>
+                    </ul>
+                </div>
+                <div class="pro-col pro-col-main">
+                    <h2>Pro <span class="pro-price"><span data-pro-price>£11.99</span> once</span></h2>
+                    <ul class="ticks">
+                        <li><strong>🤖 AI background removal:</strong> cut your character out of <em>any</em> background, no green screen needed</li>
+                        <li><strong>No ads</strong>, anywhere in the tool</li>
+                        <li><strong>Batch processing:</strong> turn a whole folder of clips into sprite sheets in one go</li>
+                        <li><strong>Saved presets</strong> for each game or engine</li>
+                        <li><strong>Windows desktop app</strong>, about twice as fast for AI (download link in your purchase email)</li>
+                        <li>All future Pro updates included</li>
+                    </ul>
+                    <p><a class="cta" id="buyPro" href="#" rel="noopener">Get Pro for <span data-pro-price>£11.99</span></a></p>
+                    <p class="desc" id="buyNote">Secure checkout by Lemon Squeezy. Your licence key arrives by email straight away.</p>
+                </div>
+            </div>
+
+            <h2 id="activate">Already bought Pro?</h2>
+            <div id="proInactive">
+                <p>Paste the licence key from your purchase email to unlock Pro on this device.</p>
+                <form id="activateForm" class="key-form">
+                    <label for="licenceKey" class="visually-hidden">Licence key</label>
+                    <input id="licenceKey" type="text" autocomplete="off" spellcheck="false" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX">
+                    <button class="cta" type="submit" id="activateBtn">Unlock Pro</button>
+                </form>
+            </div>
+            <div id="proActive" hidden>
+                <p>✅ <strong>Pro is active on this device</strong><span id="proEmail"></span>. Ads are off and AI background removal is unlocked in the <a href="/studios/animation/">converter</a>.</p>
+                <p><button type="button" class="link-btn" id="deactivateBtn">Deactivate on this device</button> (frees it up to use on another device)</p>
+            </div>
+            <p class="desc" id="activateMsg" role="status"></p>
+
+            <h2>Questions</h2>
+            <div class="faq">
+                <details><summary>Is it really a one-off payment?</summary><p>Yes. You pay once and keep Pro, including future Pro updates. There's no subscription and nothing renews.</p></details>
+                <details><summary>How many devices can I use it on?</summary><p>Your licence key works on up to 3 of your own devices or browsers. You can deactivate one here to move it to another.</p></details>
+                <details><summary>Does the AI upload my videos?</summary><p>No. The AI runs on your own computer or phone, inside your browser. Your files never leave your device, just like the rest of the tool.</p></details>
+                <details><summary>What do I need for the AI?</summary><p>Any modern browser works. Chrome or Edge on a computer with a graphics card is fastest. The first time you use it, the AI downloads once (about 46&nbsp;MB) and is then saved for next time.</p></details>
+                <details><summary>Windows says "unknown publisher" when I install the desktop app</summary><p>That's normal for a new small developer's app. Click <strong>More info → Run anyway</strong>. The app only runs the tool on your computer. You can also keep using Pro in your browser instead.</p></details>
+                <details><summary>Who handles payment and VAT?</summary><p>Lemon Squeezy is our payment partner and merchant of record. They take the payment securely, add the right VAT for your country, and email your receipt and licence key.</p></details>
+                <details><summary>Something not working?</summary><p>Email <a data-contact href="#">goldenpaw.dogeadmin@gmail.com</a> with your order email and we'll sort it out.</p></details>
+            </div>
+
+            <p class="desc">AI background removal uses the IS-Net model (Xuebin Qin et al., Apache License 2.0) and onnxruntime-web (Microsoft, MIT License).</p>
+        </article>
+    </main>
+    <footer class="site-footer">
+        <div><a href="/studios/animation/">Converter</a><a href="/studios/animation/editor.html">Sprite Editor</a><a href="/studios/animation/how-to-use.html">How to use</a><a href="/studios/animation/get-the-app.html">Get the app</a><a href="/studios/animation/pro.html">Pro</a><a href="/studios/animation/guides/">Guides</a><a href="/studios/animation/about.html">About</a><a href="/studios/animation/contact.html">Contact</a><a href="/studios/animation/privacy.html">Privacy</a><a href="/studios/animation/terms.html">Terms</a></div>
+        <div>© <span data-year>2026</span> <a href="https://goldenpaw.dog/studios/" rel="noopener">Golden Paw Studios</a>. The Animation Creation Tool processes everything on your device.</div>
+    </footer>
+</body>
+</html>
