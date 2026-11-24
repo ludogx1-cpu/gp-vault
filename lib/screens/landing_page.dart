@@ -242,20 +242,25 @@ class _LandingPageState extends State<LandingPage> {
       height: isMobile ? 240 : 380,
       child: Stack(
         alignment: Alignment.bottomCenter,
+        // The Shiba is placed a little below the box so it stands in front of the kennel;
+        // don't clip its paws.
+        clipBehavior: Clip.none,
         children: [
           Positioned(
             left: 0,
             bottom: 0,
             height: isMobile ? 190 : 300,
-            child: Image.asset('assets/kennel.png', fit: BoxFit.contain),
+            // Same kennel art as the game, without the food dispenser and bone,
+            // so the Shiba can stand in front of it.
+            child: Image.asset('assets/kennel_landing.png', fit: BoxFit.contain),
           ),
-          // The Shiba artwork has ~9% empty space under its paws, so it sits a little
-          // below the ground line to stand level with the kennel, and a bit smaller
-          // than the kennel so the pair looks in proportion.
+          // The Shiba artwork has ~9% empty space under its paws, so it's offset down
+          // to stand on the ground in front of the kennel, and kept well under the
+          // kennel's height so the pair looks in proportion.
           Positioned(
-            right: isMobile ? 4 : 10,
-            bottom: isMobile ? -16 : -24,
-            height: isMobile ? 160 : 250,
+            right: isMobile ? 44 : 24,
+            bottom: isMobile ? -22 : -34,
+            height: isMobile ? 120 : 188,
             child: Image.asset('assets/shiba_young_adult_v2.png', fit: BoxFit.contain),
           ),
         ],
