@@ -818,3 +818,5 @@ footer {
 .svc-card .shop-details li::before { content: "✓"; position: absolute; left: 0; color: var(--primary-gold); font-weight: 700; }
 .svc-card .shop-licence { font-size: .85rem; color: var(--text-muted); border-left: 3px solid var(--primary-gold); padding: .4rem .7rem; margin: 0 0 1rem; background: rgba(201, 162, 39, .06); border-radius: 0 8px 8px 0; }
 .svc-card .shop-preview { width: 100%; border-radius: 12px; border: 1px solid var(--glass-border); margin: .25rem 0 .9rem; }
+
+.svc-card .shop-preview-note { font-size: .8rem; color: var(--text-muted); margin: -.5rem 0 .75rem; }
