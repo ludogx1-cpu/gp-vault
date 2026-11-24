@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Make a GIF with a Transparent Background | Golden Paw Animation Creation Tool</title>
+    <meta name="description" content="Make an animated GIF with a transparent background from any video: why GIF edges look jagged, how to avoid halos, and the best settings for clean results.">
+    <link rel="canonical" href="https://goldenpaw.dog/studios/animation/guides/transparent-gif.html">
+    <meta name="google-adsense-account" content="ca-pub-2047805482197197">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="How to Make a GIF with a Transparent Background | Golden Paw Animation Creation Tool">
+    <meta property="og:description" content="Make an animated GIF with a transparent background from any video: why GIF edges look jagged, how to avoid halos, and the best settings for clean results.">
+    <meta property="og:url" content="https://goldenpaw.dog/studios/animation/guides/transparent-gif.html">
+    <link rel="icon" href="/studios/animation/assets/paw-logo-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/studios/animation/assets/apple-touch-icon.png">
+    <meta name="theme-color" content="#C9A227">
+    <link rel="manifest" href="/studios/animation/site.webmanifest">
+    <link rel="preload" href="/studios/animation/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/studios/animation/fonts/fonts.css">
+    <link rel="stylesheet" href="/studios/animation/assets/site.css">
+    <script src="/studios/animation/assets/site.js"></script>
+</head>
+<body class="content-page">
+    <nav class="site-nav" aria-label="Main">
+        <a class="brand" href="/studios/animation/"><img src="/studios/animation/assets/paw-logo-192.png" alt="" width="30" height="30"><span>Golden Paw<small>Animation Creation Tool</small></span></a>
+        <ul>
+            <li><a href="/studios/animation/">Converter</a></li>
+            <li><a href="/studios/animation/editor.html">Sprite Editor</a></li>
+            <li><a href="/studios/animation/guides/">Guides</a></li>
+            <li><a href="/studios/animation/how-to-use.html">How to use</a></li>
+            <li><a href="/studios/animation/get-the-app.html">📲 Get the app</a></li>
+            <li><a href="/studios/animation/pro.html" class="nav-pro">⭐ Pro</a></li>
+            <li><a href="https://goldenpaw.dog/studios/" rel="noopener">🐾 Golden Paw Studios</a></li>
+            <li><a class="support-link" data-support hidden href="#" rel="noopener" target="_blank">☕ Support</a></li>
+            <li><button id="siteThemeToggle" type="button" aria-label="Toggle dark mode">🌙</button></li>
+        </ul>
+    </nav>
+    <main>
+        <article class="article">
+            <h1>How to make a GIF with a transparent background</h1>
+            <p class="lede">Animated GIFs work almost everywhere: chat apps, forums, emails and websites. They can be transparent too, as long as you understand one quirk of the format.</p>
+
+            <h2>Steps</h2>
+            <ol>
+                <li>Open the <a href="/studios/animation/">converter</a> and load your video.</li>
+                <li>Set the start and end of the part you want, and a frame rate (10 to 15 FPS suits most GIFs).</li>
+                <li>Remove the background: tick <em>Remove Background (Chroma Key)</em> for a green screen or solid backdrop, or use AI background removal with <a href="/studios/animation/pro.html">Pro</a> for any background.</li>
+                <li>Under outputs, tick <strong>Animated GIF</strong>.</li>
+                <li>Click <em>Process File</em>, check the preview, then download <code>animation.gif</code>.</li>
+            </ol>
+
+            <h2>Why GIF transparency is different</h2>
+            <p>PNG and WebP store a smooth level of transparency for every pixel, so soft edges fade nicely into whatever is behind them. <strong>GIF can only make a pixel fully transparent or fully solid.</strong> There's no in-between.</p>
+            <p>The tool handles this for you: every pixel that's at least half visible becomes solid and the rest become transparent. It also picks a transparency colour that doesn't appear anywhere in your artwork, so none of your character disappears by accident.</p>
+
+            <h2>Getting cleaner edges</h2>
+            <ul>
+                <li><strong>Use crisp edges.</strong> Soft, feathered edges are what turn jagged in a GIF. Lower the chroma key's edge feathering, or choose <em>Crisp</em> edges for AI background removal.</li>
+                <li><strong>Turn spill suppression up.</strong> Any green fringe left on the edge becomes a solid green outline in a GIF.</li>
+                <li><strong>Think about where it will be shown.</strong> Edges look best on a background with a similar brightness to the one the clip was filmed on.</li>
+            </ul>
+
+            <h2>Keeping the file small</h2>
+            <ul>
+                <li>Lower the <em>Output Scale</em>. Halving the size makes the file roughly four times smaller.</li>
+                <li>Use fewer frames: a lower FPS or a shorter loop.</li>
+                <li><em>Trim transparent padding</em> crops away empty space around the subject.</li>
+                <li>GIFs are limited to 256 colours per frame, so simple, flat-coloured artwork compresses far better than detailed video.</li>
+            </ul>
+
+            <h2>When not to use a GIF</h2>
+            <p>For a game or an app, use the <strong>sprite sheet</strong> (PNG or WebP) instead. It keeps smooth edges and full colour, and is usually smaller. Use the GIF for sharing.</p>
+            <p><a class="cta" href="/studios/animation/">Make a transparent GIF →</a></p>
+        </article>
+        <div class="ad-slot" data-ad="content"></div>
+
+    </main>
+    <footer class="site-footer">
+        <div><a href="/studios/animation/">Converter</a><a href="/studios/animation/editor.html">Sprite Editor</a><a href="/studios/animation/how-to-use.html">How to use</a><a href="/studios/animation/get-the-app.html">Get the app</a><a href="/studios/animation/pro.html">Pro</a><a href="/studios/animation/guides/">Guides</a><a href="/studios/animation/about.html">About</a><a href="/studios/animation/contact.html">Contact</a><a href="/studios/animation/privacy.html">Privacy</a><a href="/studios/animation/terms.html">Terms</a></div>
+        <div>© <span data-year>2026</span> <a href="https://goldenpaw.dog/studios/" rel="noopener">Golden Paw Studios</a>. The Animation Creation Tool processes everything on your device.</div>
+    </footer>
+</body>
+</html>
