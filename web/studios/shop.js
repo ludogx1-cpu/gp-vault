@@ -21,6 +21,14 @@ window.GP_SHOP = {
 
   products: [
     {
+      id: 'walk-bingo',
+      icon: '🦮',
+      name: 'Dog Walk Bingo',
+      price: '£2',
+      blurb: '4 different printable bingo cards for dog walks, plus a how-to-play page. Spot a squirrel, a puddle, the perfect stick… BINGO!',
+      stripe: '',
+    },
+    {
       id: 'wallpapers',
       icon: '🖼️',
       name: 'Shiba Wallpaper Pack',
