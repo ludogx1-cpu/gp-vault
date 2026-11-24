@@ -19,7 +19,8 @@
  * Optional, shown on the card so buyers know what they're getting before checkout:
  *   details: ['PDF, 24 A4 pages', 'Edit in Canva (free account)', ...]
  *   licence: 'Who can use it, in one plain sentence.'
- *   preview: '/shop/previews/planner.png'  (an example page, e.g. filled in for a fictional dog)
+ *   preview: '/shop/previews/planner.jpg'  (example pages; tap opens full size)
+ *   previewNote: 'One line saying what the example shows.'
  * Products you can buy now are listed first.
  */
 window.GP_SHOP = {
@@ -33,6 +34,9 @@ window.GP_SHOP = {
       price: '£2',
       blurb: '4 different printable bingo cards for dog walks, plus a how-to-play page. Spot a squirrel, a puddle, the perfect stick… BINGO!',
       stripe: 'https://buy.stripe.com/cNi7sNfHCa9kgfO8Gf0gw08',
+      preview: '/shop/previews/walk-bingo.jpg',
+      details: ['PDF, 5 A4 pages: how to play + 4 different cards', 'Print at home, in colour or black and white', 'Reuse it: slip a card in a plastic sleeve and use a whiteboard pen'],
+      licence: 'For you, your family and your own walks.',
     },
     {
       id: 'wallpapers',
@@ -49,8 +53,8 @@ window.GP_SHOP = {
       price: '£5',
       blurb: 'A printable planner for walks, feeding, vet visits, meds and training progress.',
       // TODO(owner): fill in so buyers can check the file works for them, e.g.
-      // details: ['PDF, NN A4 pages', 'Print at home, colour or black and white'],
-      details: [],
+      preview: '/shop/previews/planner.jpg',
+      details: ['PDF, 11 A4 pages', 'Print at home, in colour or black and white', 'Print extra weekly and monthly pages whenever you need them'],
       licence: 'For you and your own dogs.',
       stripe: 'https://buy.stripe.com/5kQfZjcvq6X85Ba3lV0gw06',
     },
@@ -77,8 +81,10 @@ window.GP_SHOP = {
       price: '£12',
       blurb: 'Editable price list, booking form, client card and 20 social post templates.',
       // TODO(owner): add the file type, page count and the software needed to edit it.
-      details: [],
-      licence: 'Business licence included: add your business name and logo, and use it with as many of your own clients as you like. Please don\'t resell or share the blank templates.',
+      preview: '/shop/previews/groomer-kit.jpg',
+      previewNote: 'Example: the price list filled in for a made-up groomer, and 4 of the 20 social posts.',
+      details: ['ZIP download: 6 PDFs and 20 square social post images (1080 × 1080)', 'Price list, booking & consent form, client record card, loyalty cards (8 per sheet) and ready-made captions', 'Type straight into the PDFs with free Adobe Acrobat Reader or your web browser, then print or send'],
+      licence: 'Business licence included: type in your business name and use everything with all your own clients (one business). Please don\'t resell or share the files.',
       stripe: 'https://buy.stripe.com/bJeaEZ0MI4P08Nme0z0gw07',
     },
   ],
@@ -161,10 +167,21 @@ window.GP_SHOP = {
     el.querySelector('p').textContent = item.blurb;
     var btn = el.querySelector('a.btn');
     if (item.preview) {
+      // Tap to open full size, so the pages are readable on a phone.
+      var zoom = document.createElement('a');
+      zoom.href = item.preview; zoom.target = '_blank'; zoom.rel = 'noopener';
+      zoom.title = 'See the example pages full size';
       var img = document.createElement('img');
       img.src = item.preview; img.loading = 'lazy'; img.className = 'shop-preview';
-      img.alt = 'Example page from ' + item.name;
-      el.insertBefore(img, el.querySelector('p'));
+      img.alt = 'Example pages from ' + item.name;
+      zoom.appendChild(img);
+      el.insertBefore(zoom, el.querySelector('p'));
+      if (item.previewNote) {
+        var note = document.createElement('p');
+        note.className = 'shop-preview-note';
+        note.textContent = item.previewNote;
+        el.insertBefore(note, el.querySelector('p:not(.shop-preview-note)'));
+      }
     }
     if (item.details && item.details.length) {
       var ul = document.createElement('ul');
@@ -178,10 +195,9 @@ window.GP_SHOP = {
       lic.textContent = item.licence;
       el.insertBefore(lic, btn);
     }
-    var a = el.querySelector('a');
-    a.textContent = label;
-    a.href = href;
-    if (live) { a.target = '_blank'; a.rel = 'noopener'; }
+    btn.textContent = label;
+    btn.href = href;
+    if (live) { btn.target = '_blank'; btn.rel = 'noopener'; }
     return el;
   }
 
