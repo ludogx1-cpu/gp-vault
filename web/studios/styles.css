@@ -811,3 +811,10 @@ footer {
   .shop-section { padding: 3rem 16px; }
   .nav-links a:not(.nav-btn) { display: none; }
 }
+
+/* Shop cards: what you get, licence and example preview */
+.svc-card .shop-details { list-style: none; margin: 0 0 .9rem; padding: 0; }
+.svc-card .shop-details li { color: var(--text-light); font-size: .88rem; padding: .2rem 0 .2rem 1.3rem; position: relative; }
+.svc-card .shop-details li::before { content: "✓"; position: absolute; left: 0; color: var(--primary-gold); font-weight: 700; }
+.svc-card .shop-licence { font-size: .85rem; color: var(--text-muted); border-left: 3px solid var(--primary-gold); padding: .4rem .7rem; margin: 0 0 1rem; background: rgba(201, 162, 39, .06); border-radius: 0 8px 8px 0; }
+.svc-card .shop-preview { width: 100%; border-radius: 12px; border: 1px solid var(--glass-border); margin: .25rem 0 .9rem; }

@@ -17,6 +17,9 @@ import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { Marked } from 'marked';
 
+// Posts written before this date get a short note that Golden Paw has changed since.
+const OLD_POST_CUTOFF = new Date('2026-11-01T00:00:00Z');
+
 const SITE = 'https://goldenpaw.dog';
 const OUT = process.argv[2];
 if (!OUT || !fs.existsSync(OUT)) {
@@ -98,6 +101,7 @@ function shell({ title, description, canonical, body, ogType = 'website', jsonld
     <link rel="stylesheet" href="/studios/styles.css">
     <style>
       .article-wrap { max-width: 760px; margin: 0 auto; padding: 3rem 6% 4rem; }
+      .article-dated { background: var(--surface-2, rgba(212,160,23,.08)); border-left: 3px solid #d4a017; padding: .6rem .9rem; border-radius: 6px; font-size: .92rem; margin: 0 0 1.25rem; }
       .article-meta { color: var(--text-muted); font-size: .92rem; margin-bottom: 1.5rem; }
       .article-wrap h1 { font-family: var(--font-heading); font-size: clamp(2rem, 4.5vw, 2.8rem); line-height: 1.15; color: #FFF; margin-bottom: .75rem; }
       .article-body { color: var(--text-light); font-size: 1.07rem; line-height: 1.8; }
@@ -191,7 +195,8 @@ for (const p of posts) {
         <article>
             <h1>${esc(p.topic)}</h1>
             <div class="article-meta">${dateTxt ? `${esc(dateTxt)} · ` : ''}${p.category === 'newsletter' ? 'Newsletter' : 'Golden Paw blog'}</div>
-            <div class="article-body">
+${p.created && p.created < OLD_POST_CUTOFF ? `            <p class="article-dated">Written ${esc(dateTxt)}. Golden Paw has changed since then; for how it works today, see <a href="/about.html">About Golden Paw</a>.</p>
+` : ''}            <div class="article-body">
 ${marked.parse(String(p.content))}
             </div>
         </article>
