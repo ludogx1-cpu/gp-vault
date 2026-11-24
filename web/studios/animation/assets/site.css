@@ -1,0 +1,106 @@
+/* Shared chrome for every page: header nav, footer, ad slots, articles. */
+:root {
+    --bg: #f6f3ea; --panel: #ffffff; --text: #2e2a22; --muted: #5c564a;
+    --border: #e0d8c4; --border-soft: #efe9d8; --accent: #7a5c00; --accent-hover: #5e4700;
+    --accent-soft: #efe9d8; --accent-softer: #faf7ef; --success: #1e7e34; --shadow: rgba(60,45,0,0.1);
+    --gold: #c9a227; --on-accent: #ffffff;
+}
+[data-theme="dark"] {
+    --bg: #0b0f19; --panel: #121826; --text: #e6e6e6; --muted: #a8adb5;
+    --border: #2c3650; --border-soft: #1f2840; --accent: #c9a227; --accent-hover: #d9b440;
+    --accent-soft: #1f2840; --accent-softer: #19213a; --success: #2fbf5f; --shadow: rgba(0,0,0,0.5);
+    --gold: #c9a227; --on-accent: #1a1400;
+}
+
+html { border-top: 4px solid var(--gold); }
+input[type="range"], input[type="checkbox"], input[type="radio"], progress { accent-color: var(--accent); }
+
+.site-nav {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    padding: 10px 0 14px; margin-bottom: 18px; border-bottom: 1px solid var(--border);
+}
+.site-nav .brand { font-weight: 800; color: var(--text); text-decoration: none; font-size: 1.05em; display: flex; align-items: center; gap: 8px; }
+.site-nav .brand img { width: 30px; height: 30px; }
+.site-nav .brand span { display: flex; flex-direction: column; line-height: 1.1; }
+.site-nav .brand small { font-weight: 600; font-size: 0.72em; color: var(--muted); letter-spacing: 0.02em; }
+.site-nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0; padding: 0; align-items: center; }
+.site-nav a { color: var(--muted); text-decoration: none; font-size: 0.95em; }
+.site-nav a:hover, .site-nav a[aria-current="page"] { color: var(--accent); }
+.site-nav .support-link { background: var(--accent); color: var(--on-accent) !important; padding: 5px 12px; border-radius: 999px; font-weight: 600; }
+#siteThemeToggle { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.9em; }
+
+.ad-slot { margin: 28px 0; min-height: 100px; text-align: center; }
+.ad-slot::before { content: "Advertisement"; display: block; font-size: 0.72em; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+
+.site-footer { margin-top: 40px; padding: 20px 0 10px; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.88em; text-align: center; line-height: 1.8; }
+.site-footer a { color: var(--muted); margin: 0 8px; }
+.site-footer div + div a { margin: 0; }
+.site-footer a:hover { color: var(--accent); }
+
+/* Content pages + SEO sections on the tool page */
+body.content-page { font-family: system-ui, sans-serif; padding: 20px; max-width: 850px; margin: auto; background: var(--bg); color: var(--text); line-height: 1.65; }
+.article, .seo-content { background: var(--panel); padding: 25px 30px; border-radius: 8px; box-shadow: 0 2px 4px var(--shadow); margin-bottom: 20px; }
+.article h1 { margin-top: 0; line-height: 1.25; }
+.article h2, .seo-content h2 { color: var(--accent); margin-top: 1.6em; }
+.seo-content h2:first-child { margin-top: 0; }
+.article a, .seo-content a { color: var(--accent); }
+.article code, .seo-content code { background: var(--accent-soft); padding: 1px 5px; border-radius: 3px; }
+.article .lede { font-size: 1.1em; color: var(--muted); }
+.cta { display: inline-block; background: var(--success); color: #fff !important; text-decoration: none; padding: 12px 22px; border-radius: 6px; font-weight: 700; margin: 10px 0; }
+.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 14px 0; }
+.feature-grid div { background: var(--accent-softer); border: 1px solid var(--border-soft); border-radius: 6px; padding: 12px 14px; }
+.feature-grid strong { display: block; margin-bottom: 4px; }
+.faq details { border-bottom: 1px solid var(--border-soft); padding: 10px 0; }
+.faq summary { cursor: pointer; font-weight: 600; }
+.guide-list { padding-left: 1.2em; }
+.guide-list li { margin: 6px 0; }
+.hero-tagline { text-align: center; color: var(--muted); margin: -8px 0 18px; }
+
+@media (max-width: 600px) {
+    body.content-page { padding: 16px; }
+    .article, .seo-content { padding: 18px 16px; }
+    .site-nav ul { gap: 4px 12px; }
+}
+
+/* Showcase of animations made with the tool */
+.showcase { background: var(--panel); border-radius: 8px; box-shadow: 0 2px 4px var(--shadow); padding: 20px 25px; margin-bottom: 20px; border-top: 3px solid var(--gold); }
+.showcase h2 { margin: 0 0 4px; color: var(--accent); font-size: 1.2em; }
+.showcase > p { margin: 0 0 14px; color: var(--muted); font-size: 0.92em; }
+.showcase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+.showcase-card { margin: 0; border: 1px solid var(--border-soft); border-radius: 8px; overflow: hidden; background: var(--accent-softer); }
+.showcase-stage { aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; padding: 8px; background: var(--accent-soft); }
+.showcase-stage canvas { max-width: 100%; max-height: 100%; width: auto; height: auto; image-rendering: auto; }
+.showcase-card figcaption { padding: 10px 12px; font-size: 0.88em; display: flex; flex-direction: column; gap: 3px; }
+.showcase-card figcaption span { color: var(--muted); }
+.showcase-card figcaption a { color: var(--accent); font-weight: 600; margin-top: 2px; }
+.kbd { font: 0.85em monospace; border: 1px solid var(--border); border-radius: 3px; padding: 0 4px; background: var(--accent-softer); }
+.article h3 { margin-top: 1.4em; margin-bottom: 0.4em; }
+
+/* Golden Paw Studios typography */
+body, body.content-page { font-family: 'Inter', system-ui, sans-serif; }
+h1, h2, h3, .site-nav .brand, .showcase h2 { font-family: 'Outfit', 'Inter', system-ui, sans-serif; letter-spacing: -0.01em; }
+.article pre { overflow-x: auto; max-width: 100%; background: var(--accent-softer); border: 1px solid var(--border-soft); border-radius: 6px; padding: 12px 14px; font-size: 0.88em; line-height: 1.5; }
+.article pre code { background: none; padding: 0; }
+
+/* Pro */
+.pro-badge { display: inline-block; font-size: 0.7em; font-weight: 800; letter-spacing: 0.08em; color: #1a1400; background: #c9a227; border-radius: 999px; padding: 2px 9px; vertical-align: middle; }
+.pro-kicker { margin: 0 0 4px; }
+.site-nav a.nav-pro { color: var(--accent); font-weight: 700; }
+.pro-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 16px; margin: 18px 0 8px; }
+@media (max-width: 640px) { .pro-grid { grid-template-columns: 1fr; } }
+.pro-col { border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; background: var(--accent-softer); min-width: 0; }
+.pro-col h2 { margin-top: 0; font-size: 1.2em; }
+.pro-col-main { border: 2px solid var(--gold); box-shadow: 0 6px 24px rgba(201,162,39,0.18); }
+.pro-price { font-size: 0.75em; color: var(--text); font-weight: 600; margin-left: 6px; }
+ul.ticks { list-style: none; padding: 0; margin: 0; }
+ul.ticks li { padding: 5px 0 5px 1.6em; position: relative; }
+ul.ticks li::before { content: "✓"; position: absolute; left: 0; color: var(--success); font-weight: 800; }
+.key-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.key-form input { flex: 1 1 280px; min-width: 0; padding: 11px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); color: var(--text); font: 0.95em ui-monospace, monospace; }
+.key-form button.cta { border: none; cursor: pointer; font-size: 1em; margin: 0; }
+.cta-disabled { background: var(--border) !important; color: var(--muted) !important; cursor: default; }
+.link-btn { background: none; border: none; color: var(--accent); text-decoration: underline; cursor: pointer; padding: 0; font: inherit; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* Footer links wrap cleanly on narrow screens (gaps instead of side margins). */
+.site-footer > div:first-child { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 16px; }
+.site-footer > div:first-child a { margin: 0; }

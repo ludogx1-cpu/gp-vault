@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Load a Sprite Sheet and JSON Atlas in Phaser 3 and PixiJS | Golden Paw Animation Creation Tool</title>
+    <meta name="description" content="Copy-paste code to load the TexturePacker JSON Hash sprite sheet exported by Golden Paw Animation Creation Tool into Phaser 3 and PixiJS, with looping animations.">
+    <link rel="canonical" href="https://goldenpaw.dog/studios/animation/guides/phaser-pixi-sprite-sheet.html">
+    <meta name="google-adsense-account" content="ca-pub-2047805482197197">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Load a Sprite Sheet and JSON Atlas in Phaser 3 and PixiJS | Golden Paw Animation Creation Tool">
+    <meta property="og:description" content="Copy-paste code to load the TexturePacker JSON Hash sprite sheet exported by Golden Paw Animation Creation Tool into Phaser 3 and PixiJS, with looping animations.">
+    <meta property="og:url" content="https://goldenpaw.dog/studios/animation/guides/phaser-pixi-sprite-sheet.html">
+    <link rel="icon" href="/studios/animation/assets/paw-logo-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/studios/animation/assets/apple-touch-icon.png">
+    <meta name="theme-color" content="#C9A227">
+    <link rel="manifest" href="/studios/animation/site.webmanifest">
+    <link rel="preload" href="/studios/animation/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/studios/animation/fonts/fonts.css">
+    <link rel="stylesheet" href="/studios/animation/assets/site.css">
+    <script src="/studios/animation/assets/site.js"></script>
+</head>
+<body class="content-page">
+    <nav class="site-nav" aria-label="Main">
+        <a class="brand" href="/studios/animation/"><img src="/studios/animation/assets/paw-logo-192.png" alt="" width="30" height="30"><span>Golden Paw<small>Animation Creation Tool</small></span></a>
+        <ul>
+            <li><a href="/studios/animation/">Converter</a></li>
+            <li><a href="/studios/animation/editor.html">Sprite Editor</a></li>
+            <li><a href="/studios/animation/guides/">Guides</a></li>
+            <li><a href="/studios/animation/how-to-use.html">How to use</a></li>
+            <li><a href="/studios/animation/get-the-app.html">📲 Get the app</a></li>
+            <li><a href="/studios/animation/pro.html" class="nav-pro">⭐ Pro</a></li>
+            <li><a href="https://goldenpaw.dog/studios/" rel="noopener">🐾 Golden Paw Studios</a></li>
+            <li><a class="support-link" data-support hidden href="#" rel="noopener" target="_blank">☕ Support</a></li>
+            <li><button id="siteThemeToggle" type="button" aria-label="Toggle dark mode">🌙</button></li>
+        </ul>
+    </nav>
+    <main>
+        <article class="article">
+            <h1>Loading your sprite sheet in Phaser and PixiJS</h1>
+            <p class="lede">The tool exports a sprite sheet image plus a <code>.json</code> atlas in TexturePacker's "JSON Hash" format, a de facto standard. Here's how to play it in the two most popular JavaScript engines.</p>
+
+            <h2>What's in the JSON</h2>
+            <p>The atlas lists every frame by name with its <code>x</code>, <code>y</code>, <code>w</code> and <code>h</code> on the sheet. If you used <em>Trim transparent padding</em>, it also includes <code>spriteSourceSize</code> and <code>sourceSize</code>, so the engine can put the trimmed art back at its original position. A <code>meta</code> block records the image file name and sheet size.</p>
+            <p>Keep the image and JSON in the same folder and don't rename the image without updating <code>meta.image</code>.</p>
+
+            <h2>Phaser 3</h2>
+<pre><code>class Game extends Phaser.Scene {
+  preload() {
+    // atlas(key, imageURL, jsonURL)
+    this.load.atlas('hero', 'assets/spritesheet.webp', 'assets/spritesheet.json');
+  }
+  create() {
+    this.anims.create({
+      key: 'hero-run',
+      frames: this.anims.generateFrameNames('hero'), // every frame, in order
+      frameRate: 12,
+      repeat: -1                                     // loop forever
+    });
+    this.add.sprite(400, 300, 'hero').play('hero-run');
+  }
+}</code></pre>
+            <p>Set <code>frameRate</code> to the capture FPS you used. For a ping-pong loop without baked frames, add <code>yoyo: true</code>.</p>
+
+            <h2>PixiJS (v7 and v8)</h2>
+<pre><code>import { Assets, AnimatedSprite } from 'pixi.js';
+
+const sheet = await Assets.load('assets/spritesheet.json'); // loads the image too
+const frames = Object.values(sheet.textures);
+const hero = new AnimatedSprite(frames);
+hero.animationSpeed = 12 / 60; // capture FPS / display FPS
+hero.loop = true;
+hero.play();
+app.stage.addChild(hero);</code></pre>
+
+            <h2>Other engines</h2>
+            <ul>
+                <li><strong>Godot:</strong> import the sheet as a texture and use an <code>AnimatedSprite2D</code> with <em>SpriteFrames → Add frames from sprite sheet</em>, entering the column and row counts the tool shows under the preview. Or export the ZIP of frames and drag them in.</li>
+                <li><strong>Unity:</strong> set the texture's Sprite Mode to <em>Multiple</em> and slice by cell count in the Sprite Editor, or use a TexturePacker importer that reads the JSON.</li>
+                <li><strong>CSS / web:</strong> use the GIF, or animate <code>background-position</code> across a single-row strip with <code>steps()</code>.</li>
+            </ul>
+
+            <h2>Troubleshooting</h2>
+            <ul>
+                <li><strong>Black or white box instead of transparency:</strong> export as PNG; some older pipelines mishandle WebP alpha.</li>
+                <li><strong>Animation jitters:</strong> make sure the engine honours the trim offsets, or turn trimming off.</li>
+                <li><strong>Texture fails to load on mobile:</strong> the sheet is probably over 4096 px. Lower the output scale or FPS.</li>
+            </ul>
+            <p><a class="cta" href="/studios/animation/">Create your sheet →</a></p>
+        </article>
+        <div class="ad-slot" data-ad="content"></div>
+
+    </main>
+    <footer class="site-footer">
+        <div><a href="/studios/animation/">Converter</a><a href="/studios/animation/editor.html">Sprite Editor</a><a href="/studios/animation/how-to-use.html">How to use</a><a href="/studios/animation/get-the-app.html">Get the app</a><a href="/studios/animation/pro.html">Pro</a><a href="/studios/animation/guides/">Guides</a><a href="/studios/animation/about.html">About</a><a href="/studios/animation/contact.html">Contact</a><a href="/studios/animation/privacy.html">Privacy</a><a href="/studios/animation/terms.html">Terms</a></div>
+        <div>© <span data-year>2026</span> <a href="https://goldenpaw.dog/studios/" rel="noopener">Golden Paw Studios</a>. The Animation Creation Tool processes everything on your device.</div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,9 @@
+isnet-general-use-q8.onnx
+
+Model: IS-Net ("Highly Accurate Dichotomous Image Segmentation", Xuebin Qin,
+Hang Dai, Xiaobin Hu, Deng-Ping Fan, Ling Shao, Luc Van Gool, ECCV 2022).
+Source: https://github.com/xuebinqin/DIS, released under the Apache License 2.0.
+ONNX export as distributed by the rembg project (MIT).
+This copy has been dynamically quantised to 8-bit weights to reduce its size;
+no other changes. Licensed under the Apache License, Version 2.0:
+https://www.apache.org/licenses/LICENSE-2.0

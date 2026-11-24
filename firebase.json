@@ -298,6 +298,14 @@
         "destination": "/support/index.html"
       },
       {
+        "source": "/studios/animation",
+        "destination": "/studios/animation/index.html"
+      },
+      {
+        "source": "/studios/animation/",
+        "destination": "/studios/animation/index.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

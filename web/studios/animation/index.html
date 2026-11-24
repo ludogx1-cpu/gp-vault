@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Video to Sprite Sheet, GIF &amp; Frame Converter | Golden Paw Animation Creation Tool</title>
+    <meta name="description" content="Turn any video clip into a sprite sheet, animated GIF, or ZIP of frames with a TexturePacker JSON atlas. Remove green-screen backgrounds, trim, loop and export. Free, runs entirely in your browser, no uploads.">
+    <link rel="canonical" href="https://goldenpaw.dog/studios/animation/">
+    <meta name="google-adsense-account" content="ca-pub-2047805482197197">
+    <meta name="theme-color" content="#C9A227">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Golden Paw Animation Creation Tool">
+    <meta property="og:title" content="Free Video to Sprite Sheet &amp; GIF Converter">
+    <meta property="og:description" content="Video clip in, game-ready sprite sheet, GIF and JSON atlas out. Chroma key, trim, loop. 100% in your browser.">
+    <meta property="og:url" content="https://goldenpaw.dog/studios/animation/">
+    <meta property="og:image" content="https://goldenpaw.dog/studios/animation/assets/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" href="/studios/animation/assets/paw-logo-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/studios/animation/assets/apple-touch-icon.png">
+    <link rel="manifest" href="/studios/animation/site.webmanifest">
+    <link rel="preload" href="/studios/animation/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/studios/animation/fonts/fonts.css">
+    <link rel="stylesheet" href="/studios/animation/assets/site.css">
+    <script src="/studios/animation/assets/site.js"></script>
+    <script src="/studios/animation/assets/showcase.js" defer></script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Golden Paw Animation Creation Tool",
+      "url": "https://goldenpaw.dog/studios/animation/",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Any (web browser)",
+      "browserRequirements": "Requires a modern browser with JavaScript",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "description": "Convert video clips into sprite sheets, animated GIFs and frame ZIPs with TexturePacker JSON metadata, chroma-key background removal and trimming, entirely in the browser."
+    }
+    </script>
+    <!-- Self-hosted copies (verified against the cdnjs SRI hashes) so the GIF worker is same-origin and the app works offline. -->
+    <script src="/studios/animation/vendor/jszip.min.js"></script>
+    <script src="/studios/animation/vendor/gif.js"></script>
+    <style>
+        :root {
+            --bg: #f6f3ea;
+            --panel: #ffffff;
+            --text: #2e2a22;
+            --muted: #5c564a;
+            --border: #e0d8c4;
+            --border-soft: #efe9d8;
+            --accent: #7a5c00;
+            --accent-hover: #5e4700;
+            --accent-soft: #efe9d8;
+            --accent-softer: #faf7ef;
+            --success: #1e7e34;
+            --success-hover: #155724;
+            --danger: #dc3545;
+            --danger-hover: #c82333;
+            --secondary: #5a6268;
+            --secondary-hover: #4e555b;
+            --shadow: rgba(0,0,0,0.1);
+            --input-bg: #ffffff;
+            --terminal-bg: #222222;
+            --terminal-text: #0f0;
+            --drop-overlay: rgba(201, 162, 39, 0.18);
+            --on-accent: #ffffff;
+        }
+        [data-theme="dark"] {
+            --bg: #0b0f19;
+            --panel: #121826;
+            --text: #e6e6e6;
+            --muted: #a8adb5;
+            --border: #2c3650;
+            --border-soft: #1f2840;
+            --accent: #c9a227;
+            --accent-hover: #d9b440;
+            --accent-soft: #1f2840;
+            --accent-softer: #19213a;
+            --success: #2fbf5f;
+            --success-hover: #26a34f;
+            --danger: #e04a58;
+            --danger-hover: #ec5c69;
+            --secondary: #6c757d;
+            --secondary-hover: #7d868f;
+            --shadow: rgba(0,0,0,0.5);
+            --input-bg: #1f2840;
+            --drop-overlay: rgba(201, 162, 39, 0.2);
+            --on-accent: #1a1400;
+        }
+        body { font-family: system-ui, sans-serif; padding: 20px; max-width: 850px; margin: auto; background: var(--bg); color: var(--text); transition: background 0.2s, color 0.2s; }
+        h2 { text-align: center; margin-top: 0; }
+        h3 { color: var(--accent); border-bottom: 2px solid var(--border-soft); padding-bottom: 10px; margin: 0 0 20px 0; }
+
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .header h2 { flex: 1; margin: 0; }
+        #themeToggle { background: transparent; color: var(--text); border: 1px solid var(--border); padding: 6px 12px; font-size: 0.9em; }
+        #themeToggle:hover { background: var(--accent-soft); }
+
+        .panel { background: var(--panel); padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px var(--shadow); margin-bottom: 20px; position: relative; }
+
+        canvas, #previewImg, #chromaPreviewCanvas { border: 1px solid var(--border); max-width: 100%; margin-top: 15px; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="10" height="10" fill="%23ccc"/><rect x="10" y="10" width="10" height="10" fill="%23ccc"/><rect x="10" width="10" height="10" fill="%23fff"/><rect y="10" width="10" height="10" fill="%23fff"/></svg>'); min-height: 150px; display: block; border-radius: 4px; }
+        #chromaPreviewCanvas { min-height: 0; max-height: 200px; margin-top: 10px; }
+
+        #uploadZone { position: relative; }
+        #uploadZone.dragging::after {
+            content: "Drop file to upload"; position: absolute; inset: 0;
+            background: var(--drop-overlay); border: 3px dashed var(--accent);
+            border-radius: 4px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.4em; font-weight: bold; color: var(--accent); pointer-events: none;
+        }
+
+        #sourceVideoPlayer { width: 100%; max-height: 400px; margin-top: 15px; border-radius: 4px 4px 0 0; background: #000; display: none; }
+        #timeDisplayContainer { display: none; background: var(--terminal-bg); color: var(--terminal-text); padding: 10px; font-family: monospace; font-size: 1.2em; text-align: center; border-radius: 0 0 4px 4px; margin-bottom: 15px; border-top: 1px solid #444; }
+        .time-shortcuts { display: none; gap: 8px; margin-bottom: 15px; }
+        .time-shortcuts button { flex: 1; font-size: 0.9em; padding: 8px; background: var(--secondary); }
+        .time-shortcuts button:hover { background: var(--secondary-hover); }
+
+        .setting-group { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px dashed var(--border-soft); }
+        .setting-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+        .desc { color: var(--muted); font-size: 0.9em; margin-top: 5px; line-height: 1.4; display: block; }
+
+        input[type="number"] { width: 55px; padding: 6px; margin-right: 2px; border: 1px solid var(--border); border-radius: 4px; background: var(--input-bg); color: var(--text); }
+        input[type="number"].invalid { border-color: var(--danger); background: rgba(220,53,69,0.08); }
+        input[type="file"] { padding: 6px; border: 1px solid var(--border); border-radius: 4px; width: 100%; box-sizing: border-box; font-size: 1em; background: var(--input-bg); color: var(--text); }
+        input[type="range"] { vertical-align: middle; }
+        .time-label { display: inline-block; min-width: 100px; white-space: nowrap; font-weight: bold; }
+
+        .bg-settings { margin-top: 10px; padding: 15px; background: var(--accent-softer); border-left: 4px solid var(--accent); border-radius: 4px; }
+
+        button { cursor: pointer; background: var(--accent); color: white; border: none; border-radius: 4px; padding: 10px 20px; font-weight: bold; font-size: 1em; transition: 0.2s; }
+        button:hover { background: var(--accent-hover); }
+        button:disabled { background: #ccc; cursor: not-allowed; color: #444; }
+        /* Accent-coloured buttons use --on-accent (dark text on gold in dark mode); coloured ones keep white. */
+        button { color: var(--on-accent); }
+        #generateBtn, #cancelBtn, #pickColorBtn, .transform-row button, .time-shortcuts button, button.editor-handoff { color: #fff; }
+        .transform-row button.active { color: var(--on-accent); }
+
+        #pickColorBtn { background: var(--secondary); font-size: 0.9em; padding: 6px 12px; margin-left: 10px; }
+        #pickColorBtn:hover { background: var(--secondary-hover); }
+
+        .action-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
+        #generateBtn { flex: 2; font-size: 1.2em; padding: 15px; background: var(--success); }
+        #generateBtn:hover { background: var(--success-hover); }
+        #cancelBtn { flex: 1; font-size: 1.2em; padding: 15px; background: var(--danger); display: none; }
+        #cancelBtn:hover { background: var(--danger-hover); }
+
+        #progressBar { width: 100%; height: 8px; margin-top: 10px; display: none; }
+
+        .checkbox-list { display: flex; flex-direction: column; gap: 15px; }
+        .checkbox-item { display: flex; flex-direction: column; }
+        .checkbox-item label { font-weight: bold; font-size: 1.05em; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .checkbox-item input[type="checkbox"] { transform: scale(1.2); }
+        .checkbox-item .desc { margin-left: 28px; margin-top: 2px; }
+
+        #downloadContainer { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        a.download-btn { display: block; padding: 15px; background: var(--success); color: white; text-decoration: none; border-radius: 4px; text-align: center; font-weight: bold; font-size: 1.1em; }
+        a.download-btn:hover { background: var(--success-hover); }
+        button.editor-handoff { display: block; width: 100%; padding: 14px; font-size: 1.05em; background: #7b4bb0; }
+        button.editor-handoff:hover { background: #6a3d9c; }
+
+        .transform-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+        .transform-row button { background: var(--secondary); font-size: 0.9em; padding: 8px 12px; }
+        .transform-row button:hover { background: var(--secondary-hover); }
+        .transform-row button.active { background: var(--accent); }
+
+        .info-box { padding: 10px 12px; background: var(--accent-softer); border-radius: 4px; margin-top: 12px; font-size: 0.9em; color: var(--muted); }
+        .info-box strong { color: var(--text); }
+
+        /* Utility */
+        .bold-pointer { font-weight: bold; cursor: pointer; }
+        .setting-group-bg { background: var(--accent-soft); padding: 15px; border-radius: 8px; margin-top: 15px; }
+        .setting-group-bg-no-margin { background: var(--accent-soft); padding: 15px; border-radius: 8px; }
+        .flex-row-center { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .margin-top-10-inline { display: inline-block; margin-top: 10px; }
+        .no-border-bottom { border-bottom: none; }
+        .bold-label-margin { margin-left: 10px; font-weight: bold; }
+        .italic-center-gray { color: var(--muted); font-style: italic; text-align: center; }
+        .scale-container { display: flex; align-items: center; margin-top: 8px; margin-left: 28px; gap: 10px; }
+        .scale-container label { font-weight: bold; cursor: default; }
+        .scale-slider { flex-grow: 1; max-width: 250px; }
+        .margin-top-15 { margin-top: 15px; }
+        .margin-0 { margin-left: 0; margin-top: 0; }
+        .margin-top-8 { margin-top: 8px; }
+        #outputCanvas { display: none; }
+
+        /* v7 additions */
+        .warn-box { padding: 10px 12px; background: rgba(220,53,69,0.10); border-left: 4px solid var(--danger); border-radius: 4px; margin-top: 12px; font-size: 0.9em; color: var(--text); }
+        .warn-box.hidden, .hidden { display: none !important; }
+        .pro-badge { display: inline-block; font-size: 0.68em; font-weight: 800; letter-spacing: 0.08em; color: #1a1400; background: #c9a227; border-radius: 999px; padding: 2px 8px; vertical-align: middle; }
+        #aiPreviewBtn { background: var(--secondary); font-size: 0.9em; padding: 6px 12px; color: #fff; }
+        .preset-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 4px; }
+        .preset-row select { max-width: 100%; }
+        .preset-row input[type="text"] { padding: 6px 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--input-bg); color: var(--text); flex: 1 1 140px; min-width: 0; }
+        button.small-btn { font-size: 0.9em; padding: 6px 12px; }
+        .batch-box { margin-top: 14px; padding: 10px 14px; border: 1px dashed var(--border); border-radius: 6px; }
+        .batch-box summary { cursor: pointer; }
+        .batch-box input[type="file"] { flex: 1 1 220px; width: auto; min-width: 0; }
+        select { padding: 6px; border: 1px solid var(--border); border-radius: 4px; background: var(--input-bg); color: var(--text); font-size: 0.95em; }
+        .sub-setting { margin-top: 10px; }
+        .sub-setting label { font-weight: bold; }
+        #scrubRow { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+        #frameScrub { flex-grow: 1; }
+        #frameCounter { font-family: monospace; font-size: 0.95em; color: var(--muted); min-width: 90px; text-align: right; }
+        button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+    </style>
+</head>
+<body>
+    <nav class="site-nav" aria-label="Main">
+        <a class="brand" href="/studios/animation/"><img src="/studios/animation/assets/paw-logo-192.png" alt="" width="30" height="30"><span>Golden Paw<small>Animation Creation Tool</small></span></a>
+        <ul>
+            <li><a href="/studios/animation/" aria-current="page">Converter</a></li>
+            <li><a href="/studios/animation/editor.html">Sprite Editor</a></li>
+            <li><a href="/studios/animation/guides/">Guides</a></li>
+            <li><a href="/studios/animation/how-to-use.html">How to use</a></li>
+            <li><a href="/studios/animation/get-the-app.html">📲 Get the app</a></li>
+            <li><a href="/studios/animation/pro.html" class="nav-pro">⭐ Pro</a></li>
+            <li><a href="https://goldenpaw.dog/studios/" rel="noopener">🐾 Golden Paw Studios</a></li>
+            <li><a class="support-link" data-support hidden href="#" rel="noopener" target="_blank">☕ Support</a></li>
+        </ul>
+    </nav>
+    <div class="header">
+        <h1 style="text-align:center;flex:1;margin:0;font-size:1.6em;">Video to Sprite Sheet &amp; GIF Converter</h1>
+        <button id="themeToggle" title="Toggle dark mode">🌙 Dark</button>
+    </div>
+    <p class="hero-tagline">Free, private and fast: your files never leave your device.</p>
+
+    <section class="showcase" id="showcase" hidden aria-labelledby="showcase-h">
+        <h2 id="showcase-h">🐾 Made with this tool: the Golden Paw Shiba</h2>
+        <p>Every animation of our <a href="https://goldenpaw.dog/" rel="noopener">Golden Paw</a> Shiba was turned from video into game-ready sprite sheets right here.</p>
+        <div class="showcase-grid"></div>
+    </section>
+
+    <details class="panel" style="padding: 15px 25px;">
+        <summary style="cursor: pointer; font-weight: bold; color: var(--accent); font-size: 1.05em;">📖 How to use (click to expand)</summary>
+        <ol style="line-height: 1.7; margin-bottom: 0;">
+            <li><strong>Upload</strong> a video or image — drag &amp; drop anywhere on the panel below, or use the file picker.</li>
+            <li>For videos: set your <strong>start/end times</strong> (or leave all at 0 for the whole clip). Use the ⏱️ buttons to grab the current playback position.</li>
+            <li>(Optional) <strong>Remove background</strong>: tick the checkbox, then click anywhere on the <em>Live Preview</em> inside the chroma settings to pick the color to strip. Adjust tolerance until only the background disappears.</li>
+            <li>(Optional) Apply <strong>transforms</strong> (rotate/flip) — these apply to both the live preview and the final output.</li>
+            <li>Tick the <strong>output formats</strong> you want in section 2. Adjust scale/quality sliders — <em>these take effect on the NEXT Process run, not the current preview.</em></li>
+            <li>Click <strong>Process File</strong>. The animated preview in section 3 will auto-play when done — drag the scrubber to inspect individual frames.</li>
+            <li>Download links appear in section 3 below the preview.</li>
+            <li>(Optional) Click <strong>✏️ Open in Sprite Editor</strong> to preview, delete or reorder frames and export a final sheet.</li>
+        </ol>
+        <p style="margin:8px 0 0;">📘 New here? Read the full <a href="/studios/animation/how-to-use.html">step-by-step guide</a>, every setting explained.</p>
+    </details>
+
+    <div class="ad-slot" data-ad="top"></div>
+
+    <div id="supportNotice" class="warn-box hidden"></div>
+
+    <div class="panel" id="uploadZone">
+        <h3>1. Input Settings</h3>
+
+        <div class="setting-group">
+            <input type="file" id="videoUpload" accept=".mp4,.webm,.mov,video/*,image/*" aria-label="Upload Video or Image" title="Upload Video or Image">
+            <span class="desc">Select a Video (MP4, WebM, MOV) or Image (PNG, WebP). You can also drag &amp; drop a file anywhere on this panel.</span>
+
+            <details class="batch-box" id="batchBox">
+                <summary><strong>📦 Batch: convert many clips at once</strong> <span class="pro-badge">PRO</span></summary>
+                <span class="desc">Choose several videos. Each whole clip is processed with your settings below, and you get one ZIP with a folder per clip (sprite sheet, JSON and any other outputs you ticked).</span>
+                <div class="flex-row-center" style="margin-top:8px;">
+                    <input type="file" id="batchUpload" multiple accept=".mp4,.webm,.mov,video/*" aria-label="Choose clips for batch processing">
+                    <button type="button" id="batchBtn" class="small-btn" disabled>Process batch</button>
+                </div>
+                <span class="desc" id="batchStatus" role="status"></span>
+            </details>
+
+            <video id="sourceVideoPlayer" controls></video>
+            <div id="timeDisplayContainer">
+                Exact Position: <span id="videoTimeDisplay">0h 0m 0s 0ms</span>
+            </div>
+            <div class="time-shortcuts" id="timeShortcuts">
+                <button id="setStartFromCurrent" type="button">⏱️ Set Start to current position</button>
+                <button id="setEndFromCurrent" type="button">⏱️ Set End to current position</button>
+            </div>
+        </div>
+
+        <div id="videoControls">
+            <div class="setting-group">
+                <span class="time-label">Start Time:</span>
+                <input type="number" id="startH" value="0" min="0" aria-label="Start Hours" title="Start Hours">h
+                <input type="number" id="startM" value="0" min="0" max="59" aria-label="Start Minutes" title="Start Minutes">m
+                <input type="number" id="startS" value="0" min="0" max="59" aria-label="Start Seconds" title="Start Seconds">s
+                <input type="number" id="startMs" value="0" min="0" max="999" aria-label="Start Milliseconds" title="Start Milliseconds">ms
+            </div>
+
+            <div class="setting-group">
+                <span class="time-label">End Time:</span>
+                <input type="number" id="endH" value="0" min="0" aria-label="End Hours" title="End Hours">h
+                <input type="number" id="endM" value="0" min="0" max="59" aria-label="End Minutes" title="End Minutes">m
+                <input type="number" id="endS" value="0" min="0" max="59" aria-label="End Seconds" title="End Seconds">s
+                <input type="number" id="endMs" value="0" min="0" max="999" aria-label="End Milliseconds" title="End Milliseconds">ms
+                <span class="desc">Leave all at 0 to capture to the end. (Ignored if uploading an image).</span>
+            </div>
+
+            <div class="setting-group">
+                <span class="time-label">Capture FPS:</span>
+                <input type="number" id="fps" value="12" min="1" max="60" aria-label="Capture Frames Per Second" title="Capture Frames Per Second">
+            </div>
+
+            <div class="setting-group">
+                <span class="time-label">Loop mode:</span>
+                <select id="loopMode" aria-label="Loop mode" title="Loop mode">
+                    <option value="none" selected>None — frames as captured</option>
+                    <option value="pingpong">Ping-pong — play forward then back</option>
+                    <option value="hold">Hold — repeat frame 1 at the end</option>
+                </select>
+                <span class="desc">Most players loop back to frame 1 on their own, so <em>None</em> is already seamless. <em>Hold</em> is for one-shot playback only — in a looping GIF it makes frame 1 sit on screen twice as long. (Ignored for images.)</span>
+                <div class="sub-setting" id="bakeLoopRow">
+                    <label class="bold-pointer"><input type="checkbox" id="bakeLoopFrames"> Bake loop frames into the sprite sheet &amp; ZIP</label>
+                    <span class="desc">Off (default): the sprite sheet and frame ZIP stay linear and the metadata carries a <code>direction</code> hint for engines that honour it — smaller files, no duplicated frames. On: the reversed/held frames are written into the sprite sheet and ZIP as real cells, for engines that only play forward. The animated preview and GIF always include the loop either way.</span>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <span class="time-label">Transform:</span>
+                <div class="transform-row">
+                    <button type="button" data-transform="rotate">↻ Rotate 90°</button>
+                    <button type="button" data-transform="flipH">⇄ Flip Horizontal</button>
+                    <button type="button" data-transform="flipV">⇅ Flip Vertical</button>
+                    <button type="button" data-transform="reset">Reset</button>
+                </div>
+                <span class="desc" id="transformDesc">No transform applied.</span>
+            </div>
+        </div>
+
+        <div class="setting-group setting-group-bg margin-top-15" id="aiGroup">
+            <label class="bold-pointer">
+                <input type="checkbox" id="aiBgToggle"> 🤖 AI background removal <span class="pro-badge">PRO</span>
+            </label>
+            <span class="desc">Cuts your character out of <strong>any</strong> background. No green screen needed. It runs on your own device: the first time, it downloads the AI (about 46&nbsp;MB), then it's saved for next time.</span>
+            <div id="aiSettings" class="bg-settings hidden">
+                <div class="flex-row-center margin-top-10-inline">
+                    <label for="aiEdge"><strong>Edges:</strong></label>
+                    <select id="aiEdge" title="How soft the cut-out edge is">
+                        <option value="soft">Soft (fur, hair, motion blur)</option>
+                        <option value="normal" selected>Normal</option>
+                        <option value="crisp">Crisp (cartoons, pixel art)</option>
+                    </select>
+                    <button id="aiPreviewBtn" type="button">👁 Preview on this frame</button>
+                </div>
+                <span class="desc" id="aiStatus" role="status"></span>
+                <span class="desc">Tip: if a little backdrop is left, also tick <em>Remove Background (Chroma Key)</em> below to clean it up.</span>
+            </div>
+            <div id="aiLocked" class="info-box hidden">⭐ AI background removal is part of <strong>Pro</strong>: one payment of <span data-pro-price>£11.99</span>, no subscription. <a href="/studios/animation/pro.html">See what's in Pro →</a></div>
+        </div>
+
+        <div class="setting-group setting-group-bg margin-top-15">
+            <label class="bold-pointer">
+                <input type="checkbox" id="removeBgToggle"> Remove Background (Chroma Key - Fast)
+            </label>
+            <span class="desc">Strips out a specific color instantly.</span>
+
+            <div id="bgSettings" class="bg-settings">
+                <div class="flex-row-center">
+                    <label><strong>Color to remove:</strong> <input type="color" id="bgColor" value="#ffffff" aria-label="Background Color to Remove" title="Background Color to Remove"></label>
+                    <button id="pickColorBtn" type="button">🔍 Pick exact color from video</button>
+                </div>
+                <label class="margin-top-10-inline"><strong>Tolerance:</strong> <input type="range" id="bgTolerance" value="90" min="0" max="442" aria-label="Background Removal Tolerance" title="Background Removal Tolerance"> <span id="toleranceValue">90</span></label>
+                <span class="desc">Increase tolerance if it leaves edges behind. (Max 442 = full RGB distance).</span>
+                <label class="margin-top-10-inline"><strong>Edge feathering:</strong> <input type="range" id="bgFeather" value="15" min="0" max="80" aria-label="Edge Feathering" title="Edge Feathering"> <span id="featherValue">15</span></label>
+                <span class="desc">Soft-fades pixels near the tolerance edge for cleaner outlines. Set to 0 for a hard cut.</span>
+                <div class="sub-setting">
+                    <label for="matchMode">Match on:</label>
+                    <select id="matchMode" title="How pixels are compared to the key colour">
+                        <option value="rgb" selected>Colour and brightness (RGB)</option>
+                        <option value="chroma">Colour only, ignore brightness</option>
+                    </select>
+                    <span class="desc">Ignoring brightness keys shadows and hot spots on the same backdrop with one tolerance value. Use it when your background is lit unevenly.</span>
+                </div>
+                <label class="margin-top-10-inline"><strong>Spill suppression:</strong> <input type="range" id="despill" value="0" min="0" max="100" aria-label="Spill suppression" title="Spill suppression"> <span id="despillValue">0</span></label>
+                <span class="desc">Pulls the key colour back out of edge pixels, killing the coloured halo left around your subject. Start around 60.</span>
+                <div style="margin-top:12px;">
+                    <strong>Live Preview:</strong> <span id="chromaPreviewMode" class="desc" style="display:inline;margin-left:8px;">(showing raw frame)</span>
+                    <canvas id="chromaPreviewCanvas" title="Click to pick a color from this frame"></canvas>
+                    <span class="desc">👆 <strong>Click anywhere on this preview to pick a background color</strong> — no need to scroll up to the video. Tick "Remove Background" above to see what will be stripped.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="setting-group setting-group-bg margin-top-15">
+            <label class="bold-pointer">
+                <input type="checkbox" id="addBgToggle"> 🎨 Add Solid Background Color
+            </label>
+            <span class="desc">Replaces any transparent areas with a solid color.</span>
+            <div id="addBgSettings" class="bg-settings">
+                <label><strong>Background Color:</strong> <input type="color" id="addBgColor" value="#00ff00"></label>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="panel">
+        <h3>2. Output Formats (Tick all you need)</h3>
+
+        <div class="preset-row">
+            <label for="presetSelect"><strong>Presets:</strong></label>
+            <select id="presetSelect" title="Load a set of settings"></select>
+            <button type="button" id="presetDelete" class="small-btn" disabled>Delete</button>
+            <input type="text" id="presetName" maxlength="40" placeholder="Name your settings…" aria-label="Preset name">
+            <button type="button" id="presetSave" class="small-btn">Save current <span class="pro-badge">PRO</span></button>
+        </div>
+        <span class="desc" id="presetMsg" role="status"></span>
+
+        <div class="checkbox-list">
+            <div class="checkbox-item">
+                <label><input type="checkbox" id="outSpriteWebp" checked> Sprite sheet</label>
+                <span class="desc">A single large image grid containing every frame.</span>
+            </div>
+
+            <div class="checkbox-item">
+                <label><input type="checkbox" id="outZipWebp"> ZIP of individual frames</label>
+                <span class="desc">Packs every extracted frame into a ZIP folder as separate image files.</span>
+            </div>
+
+            <div class="checkbox-item">
+                <label><input type="checkbox" id="outAnimGif"> Animated GIF</label>
+                <span class="desc">A single playable animated file — universally supported (Discord, forums, chat apps).</span>
+            </div>
+
+            <div class="checkbox-item">
+                <label><input type="checkbox" id="outMetaJson" checked> Atlas metadata (.json)</label>
+                <span class="desc">TexturePacker JSON Hash format — per-frame x/y/w/h that Phaser, Pixi and friends load directly, plus the grid dimensions and any trim offsets.</span>
+            </div>
+        </div>
+
+        <div class="setting-group-bg" style="margin-top:15px;">
+            <div class="sub-setting" style="margin-top:0;">
+                <label for="imageFormat">Frame format:</label>
+                <select id="imageFormat" title="Encoding used for sprite sheets and ZIP frames">
+                    <option value="image/webp" selected>WebP — smaller files</option>
+                    <option value="image/png">PNG — lossless, safest alpha</option>
+                </select>
+                <span class="desc">PNG ignores the quality slider and produces larger files, but every engine and tool reads its transparency correctly.</span>
+            </div>
+
+            <div class="sub-setting">
+                <label class="bold-pointer"><input type="checkbox" id="autoTrim"> Trim transparent padding</label>
+                <span class="desc">Crops every frame to one shared bounding box around the visible pixels. Usually the biggest single saving on a sprite sheet. The offsets are written into the metadata so your engine can put the art back in the right place. Needs transparency, so it's skipped when a solid background is added.</span>
+            </div>
+
+            <div class="sub-setting">
+                <label class="bold-pointer"><input type="checkbox" id="potPad"> Pad sheet to power-of-two</label>
+                <span class="desc">Grows the finished sheet to the next power-of-two width and height for older GPU targets. Adds empty space.</span>
+            </div>
+
+            <div class="scale-container margin-0" style="margin-top:15px;">
+                <label for="webpScale">Output Scale: <span id="webpScaleValue">100</span>%</label>
+                <input type="range" id="webpScale" class="scale-slider" min="1" max="100" value="100" aria-label="Output Scale" title="Output Scale">
+            </div>
+            <span class="desc margin-top-8">Scales down the resolution of the final files to save space.</span>
+
+            <div class="scale-container margin-0" style="margin-top:12px;">
+                <label for="webpQuality">Quality: <span id="webpQualityValue">85</span>%</label>
+                <input type="range" id="webpQuality" class="scale-slider" min="1" max="100" value="85" aria-label="WebP Quality" title="WebP Quality">
+            </div>
+            <span class="desc margin-top-8">Lower = smaller files. 70–90 is usually visually identical to 100.</span>
+
+            <div class="scale-container margin-0" style="margin-top:12px;">
+                <label for="spriteCols">Sprite Columns: <span id="spriteColsValue">auto</span></label>
+                <input type="range" id="spriteCols" class="scale-slider" min="0" max="32" value="0" aria-label="Sprite Sheet Columns" title="Sprite Sheet Columns">
+            </div>
+            <span class="desc margin-top-8">0 = auto (square-ish). 1 = single horizontal strip. Useful for game engines.</span>
+
+            <div class="info-box" id="estimateBox">
+                <strong>Estimate:</strong> Upload a file and set your times to see frame count &amp; approx size.
+            </div>
+            <div class="info-box" style="border-left: 3px solid var(--accent);">
+                ℹ️ <strong>Iteration tip:</strong> After your first <em>Process</em>, use the <strong>🔄 Rebuild</strong> button in section 3 to try different <strong>Scale</strong> (downsample only), <strong>Quality</strong>, and <strong>Column</strong> combinations instantly — no video re-decode needed. Only reprocess if you need to go <em>above</em> the scale you originally extracted at, or change trim/FPS/chroma-key.
+            </div>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <button id="generateBtn">Process File</button>
+        <button id="cancelBtn">Cancel</button>
+    </div>
+    <progress id="progressBar" value="0" max="100"></progress>
+
+    <div class="panel" id="resultsPanel">
+        <h3>3. Results &amp; Preview</h3>
+
+        <div class="setting-group">
+            <strong>Animated Preview</strong>
+            <div style="margin-top: 8px;">
+                <button id="playBtn">Play Preview</button>
+                <label class="bold-label-margin">Playback FPS: <input type="number" id="previewFps" value="12" min="1" max="60" aria-label="Playback FPS" title="Playback FPS"></label>
+            </div>
+            <div id="scrubRow">
+                <input type="range" id="frameScrub" min="0" max="0" value="0" step="1" disabled aria-label="Scrub through frames" title="Drag to inspect individual frames">
+                <span id="frameCounter">— / —</span>
+            </div>
+            <img id="previewImg" alt="Animated preview will appear here after processing...">
+        </div>
+
+        <div class="setting-group">
+            <strong>Sprite Sheet Preview</strong>
+            <span class="desc">See exactly how your composited sprite sheet will look before downloading. Adjust the column count / quality sliders in section 2 and click <em>Rebuild</em> for instant iteration (no video re-decode).</span>
+            <div style="margin-top: 8px;">
+                <button id="rebuildBtn" disabled title="Requires processing a file first">🔄 Rebuild Sprite Sheet from Cached Frames</button>
+                <span id="rebuildStatus" class="desc" style="display:inline;margin-left:10px;"></span>
+            </div>
+            <div style="margin-top: 10px; max-height: 400px; overflow: auto; border: 1px solid var(--border); border-radius: 4px; background: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2220%22 height=%2220%22><rect width=%2210%22 height=%2210%22 fill=%22%23ccc%22/><rect x=%2210%22 y=%2210%22 width=%2210%22 height=%2210%22 fill=%22%23ccc%22/><rect x=%2210%22 width=%2210%22 height=%2210%22 fill=%22%23fff%22/><rect y=%2210%22 width=%2210%22 height=%2210%22 fill=%22%23fff%22/></svg>');">
+                <img id="spritePreviewImg" alt="Sprite sheet preview will appear here..." style="display: block; max-width: none;">
+            </div>
+            <span class="desc" id="spriteDims" style="margin-top: 6px;">— × — px</span>
+        </div>
+
+        <div id="messageBox"></div>
+
+        <div id="downloadContainer">
+            <p class="italic-center-gray">Downloads will appear here when processing is finished.</p>
+        </div>
+
+        <canvas id="outputCanvas"></canvas>
+    </div>
+
+    <div class="ad-slot" data-ad="results"></div>
+
+    <section class="seo-content" aria-labelledby="what-is">
+        <h2 id="what-is">Turn video clips into game-ready sprite sheets</h2>
+        <p>Golden Paw Animation Creation Tool converts a short video, such as footage you generated with an AI video model, recorded, or rendered, into the assets a game or website actually needs: a packed <strong>sprite sheet</strong>, a <strong>ZIP of individual frames</strong>, an <strong>animated GIF</strong>, and a <strong>TexturePacker-compatible JSON atlas</strong> that Phaser, PixiJS, Godot importers and many other engines read directly.</p>
+        <p>Everything happens locally in your browser using the Canvas API. Nothing is uploaded to a server, so it works with unreleased or confidential footage, and it is fast even for long clips.</p>
+
+        <div class="feature-grid">
+            <div><strong>🎯 Frame-accurate trimming</strong>Pick start and end points to the millisecond, straight from the video player.</div>
+            <div><strong>🟩 Chroma key removal</strong>Strip green screens or flat backdrops with tolerance, edge feathering and spill suppression.</div>
+            <div><strong>✂️ Auto-trim padding</strong>Crop every frame to a shared bounding box, with offsets kept in the metadata.</div>
+            <div><strong>🔁 Loop modes</strong>Ping-pong or hold loops for seamless idle and walk cycles.</div>
+            <div><strong>📦 WebP or PNG</strong>Choose small WebP files or lossless PNG with guaranteed alpha support.</div>
+            <div><strong>⚡ Instant rebuilds</strong>Change columns, scale and quality without decoding the video again.</div>
+            <div><strong>✏️ Built-in sprite editor</strong>Send your sheet to the <a href="/studios/animation/editor.html">Sprite Editor</a> to preview it, delete stray frames, reorder and re-export.</div>
+        </div>
+
+        <div class="ad-slot" data-ad="content"></div>
+
+        <h2>Guides</h2>
+        <ul class="guide-list">
+            <li><a href="/studios/animation/editor.html">Sprite Sheet Editor &amp; Player: clean up and re-export any sheet</a></li>
+            <li><a href="/studios/animation/guides/video-to-sprite-sheet.html">How to turn a video into a sprite sheet (step by step)</a></li>
+            <li><a href="/studios/animation/guides/remove-green-screen.html">Removing a green-screen background cleanly: tolerance, feathering and spill</a></li>
+            <li><a href="/studios/animation/guides/phaser-pixi-sprite-sheet.html">Loading your sprite sheet and JSON atlas in Phaser and PixiJS</a></li>
+        </ul>
+
+        <h2>Frequently asked questions</h2>
+        <div class="faq">
+            <details><summary>Is it really free?</summary><p>Yes. The tool is free to use, supported by ads. There are no watermarks, no sign-up and no export limits.</p></details>
+            <details><summary>Are my videos uploaded anywhere?</summary><p>No. Your file is read and processed by your own browser. It is never sent to our servers, or anyone else's.</p></details>
+            <details><summary>Which video formats work?</summary><p>Anything your browser can play: MP4 (H.264), WebM and, in Safari, MOV. You can also drop in a single PNG or WebP image to key out its background.</p></details>
+            <details><summary>What frame rate should I capture at?</summary><p>12 fps is a good default for 2D game animation and keeps sheets small. Use 24 to 30 fps for smooth UI or web animations. Higher rates multiply the file size quickly.</p></details>
+            <details><summary>Why is my sprite sheet so large?</summary><p>Turn on <em>Trim transparent padding</em>, lower the <em>Output Scale</em>, use WebP, or capture fewer frames. The estimate box in section 2 updates as you change settings.</p></details>
+            <details><summary>Can I use the exported assets commercially?</summary><p>Yes, the output belongs to you. You are responsible for having the rights to the video you put in.</p></details>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div><a href="/studios/animation/">Converter</a><a href="/studios/animation/editor.html">Sprite Editor</a><a href="/studios/animation/how-to-use.html">How to use</a><a href="/studios/animation/get-the-app.html">Get the app</a><a href="/studios/animation/pro.html">Pro</a><a href="/studios/animation/guides/">Guides</a><a href="/studios/animation/about.html">About</a><a href="/studios/animation/contact.html">Contact</a><a href="/studios/animation/privacy.html">Privacy</a><a href="/studios/animation/terms.html">Terms</a></div>
+        <div>© <span data-year>2026</span> <a href="https://goldenpaw.dog/studios/" rel="noopener">Golden Paw Studios</a>. The Animation Creation Tool processes everything on your device.</div>
+    </footer>
+
+    <script src="/studios/animation/assets/pro.js"></script>
+    <script src="/studios/animation/assets/ai-bg.js"></script>
+    <script src="/studios/animation/assets/converter.js"></script>
+    <script src="/studios/animation/assets/pro-tools.js"></script>
+</body>
+</html>

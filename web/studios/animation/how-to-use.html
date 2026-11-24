@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Use: Video to Sprite Sheet Converter & Sprite Editor | Golden Paw Animation Creation Tool</title>
+    <meta name="description" content="Step-by-step instructions for the Golden Paw Animation Creation Tool: turn a video into a sprite sheet, remove the background, export GIFs and JSON atlases, then edit and re-export in the Sprite Editor.">
+    <link rel="canonical" href="https://goldenpaw.dog/studios/animation/how-to-use.html">
+    <meta name="google-adsense-account" content="ca-pub-2047805482197197">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="How to Use: Video to Sprite Sheet Converter & Sprite Editor | Golden Paw Animation Creation Tool">
+    <meta property="og:description" content="Step-by-step instructions for the Golden Paw Animation Creation Tool: turn a video into a sprite sheet, remove the background, export GIFs and JSON atlases, then edit and re-export in the Sprite Editor.">
+    <meta property="og:url" content="https://goldenpaw.dog/studios/animation/how-to-use.html">
+    <link rel="icon" href="/studios/animation/assets/paw-logo-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/studios/animation/assets/apple-touch-icon.png">
+    <meta name="theme-color" content="#C9A227">
+    <link rel="manifest" href="/studios/animation/site.webmanifest">
+    <link rel="preload" href="/studios/animation/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/studios/animation/fonts/fonts.css">
+    <link rel="stylesheet" href="/studios/animation/assets/site.css">
+    <script src="/studios/animation/assets/site.js"></script>
+</head>
+<body class="content-page">
+    <nav class="site-nav" aria-label="Main">
+        <a class="brand" href="/studios/animation/"><img src="/studios/animation/assets/paw-logo-192.png" alt="" width="30" height="30"><span>Golden Paw<small>Animation Creation Tool</small></span></a>
+        <ul>
+            <li><a href="/studios/animation/">Converter</a></li>
+            <li><a href="/studios/animation/editor.html">Sprite Editor</a></li>
+            <li><a href="/studios/animation/guides/">Guides</a></li>
+            <li><a href="/studios/animation/how-to-use.html" aria-current="page">How to use</a></li>
+            <li><a href="/studios/animation/get-the-app.html">📲 Get the app</a></li>
+            <li><a href="/studios/animation/pro.html" class="nav-pro">⭐ Pro</a></li>
+            <li><a href="https://goldenpaw.dog/studios/" rel="noopener">🐾 Golden Paw Studios</a></li>
+            <li><a class="support-link" data-support hidden href="#" rel="noopener" target="_blank">☕ Support</a></li>
+            <li><button id="siteThemeToggle" type="button" aria-label="Toggle dark mode">🌙</button></li>
+        </ul>
+    </nav>
+    <main>
+        <article class="article">
+            <h1>How to use the Golden Paw Animation Creation Tool</h1>
+            <p class="lede">Everything you need, from your first clip to a finished sprite sheet in your game. The tool runs in your browser, so nothing is uploaded.</p>
+
+            <nav aria-label="On this page" class="feature-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+                <div><strong><a href="#quick-start">⚡ Quick start</a></strong>The whole thing in 5 steps.</div>
+                <div><strong><a href="#converter">🎬 The converter</a></strong>Every setting explained.</div>
+                <div><strong><a href="#editor">✏️ The sprite editor</a></strong>Preview, fix and re-export.</div>
+                <div><strong><a href="#game">🎮 Use it in a game</a></strong>Phaser, PixiJS, Godot, Unity, web.</div>
+                <div><strong><a href="#app">📲 App &amp; extension</a></strong>Install it and work offline.</div>
+                <div><strong><a href="#troubleshooting">🛠️ Troubleshooting</a></strong>Common problems, quick fixes.</div>
+            </nav>
+
+            <h2 id="quick-start">Quick start</h2>
+            <ol>
+                <li><strong>Open the <a href="/studios/animation/">converter</a></strong> and drop in a short video (MP4 or WebM, 1 to 3 seconds is ideal).</li>
+                <li><strong>Trim it:</strong> play the video, pause where the motion starts and click <em>⏱️ Set Start</em>. Pause where it is about to repeat and click <em>⏱️ Set End</em>.</li>
+                <li><strong>Remove the background</strong> (optional): tick <em>Remove Background</em> and click the backdrop in the live preview.</li>
+                <li><strong>Click <em>Process File</em>.</strong> Check the animated preview, then download the sprite sheet and JSON.</li>
+                <li><strong>Polish it</strong> (optional): click <em>✏️ Open in Sprite Editor</em> to delete stray frames, reorder, and export a final sheet.</li>
+            </ol>
+
+            <h2 id="converter">Part 1: The converter, step by step</h2>
+
+            <h3>Step 1: Load your video</h3>
+            <p>Use the file picker or drag a file onto the <em>Input Settings</em> panel. Anything your browser can play works: MP4 (H.264), WebM, and MOV in Safari. You can also load a single PNG or WebP image to remove its background.</p>
+            <p><strong>Tip for great results:</strong> film or generate your subject on a flat, evenly lit, solid-colour background (green works best), with the camera locked off.</p>
+
+            <h3>Step 2: Choose the section to capture</h3>
+            <ul>
+                <li><strong>Start / End time:</strong> type exact times or use the <em>⏱️</em> buttons to copy the video's current position. Leave everything at 0 to capture the whole clip.</li>
+                <li><strong>For a perfect loop:</strong> set the end one frame <em>before</em> the pose matches the start, so the first frame isn't shown twice.</li>
+            </ul>
+
+            <h3>Step 3: Pick a frame rate (Capture FPS)</h3>
+            <p>Frames = seconds × FPS. <strong>12 fps</strong> is a good default for games and keeps files small. Use 24 to 30 for very smooth motion. The <em>Estimate</em> box shows the frame count and approximate file size as you change it.</p>
+
+            <h3>Step 4: Loop mode (optional)</h3>
+            <ul>
+                <li><strong>None:</strong> frames as captured. Most engines loop back to frame 1 automatically.</li>
+                <li><strong>Ping-pong:</strong> plays forward then backward. Great for breathing, idle bobs and tail wags.</li>
+                <li><strong>Hold:</strong> repeats frame 1 at the end, for one-shot animations.</li>
+                <li><strong>Bake loop frames:</strong> writes the extra frames into the sheet for engines that can only play forward.</li>
+            </ul>
+
+            <h3>Step 5: Rotate or flip (optional)</h3>
+            <p>Use <em>Rotate 90°</em>, <em>Flip Horizontal</em> or <em>Flip Vertical</em>. For example, flip a right-facing run to get a left-facing one for free.</p>
+
+            <h3>Step 6: Remove the background (optional)</h3>
+            <ol>
+                <li>Tick <strong>Remove Background</strong>.</li>
+                <li><strong>Click the background in the Live Preview</strong> to sample its exact colour.</li>
+                <li>Raise <strong>Tolerance</strong> until the backdrop disappears; lower it if holes appear in your subject.</li>
+                <li>Set <strong>Edge feathering</strong> to around 10 to 20 for smooth edges (0 for pixel art).</li>
+                <li>Uneven lighting? Set <strong>Match on</strong> to <em>Colour only</em>.</li>
+                <li>Green fringe around the edges? Raise <strong>Spill suppression</strong> to about 60.</li>
+            </ol>
+            <p>Want a solid background instead of transparency? Tick <strong>Add Solid Background Color</strong>. More detail in the <a href="/studios/animation/guides/remove-green-screen.html">green-screen guide</a>.</p>
+
+            <h3>Step 7: Choose your outputs</h3>
+            <ul>
+                <li><strong>Sprite sheet:</strong> every frame in one image grid. This is what games use.</li>
+                <li><strong>ZIP of individual frames:</strong> one image per frame.</li>
+                <li><strong>Animated GIF:</strong> plays anywhere: Discord, socials, websites.</li>
+                <li><strong>Atlas metadata (.json):</strong> tells game engines where each frame is. Keep it ticked.</li>
+            </ul>
+            <p>Then fine-tune: <strong>WebP</strong> (small) or <strong>PNG</strong> (lossless, safest), <strong>Trim transparent padding</strong> (usually the biggest size saving), <strong>Output Scale</strong>, <strong>Quality</strong> and <strong>Sprite Columns</strong> (0 = auto, 1 = a single strip).</p>
+
+            <h3>Step 8: Process and download</h3>
+            <p>Click <strong>Process File</strong>. When it finishes, the preview plays automatically. Drag the scrubber to inspect single frames. Download buttons appear underneath.</p>
+            <p><strong>Want a different size or layout?</strong> Change Scale, Quality or Columns and press <em>🔄 Rebuild</em>. It reuses the frames instantly without decoding the video again.</p>
+
+            <h2 id="editor">Part 2: The sprite editor, step by step</h2>
+            <p>Open it from the converter's <em>✏️ Open in Sprite Editor</em> button, or go to the <a href="/studios/animation/editor.html">Sprite Editor</a> and load any sprite sheet, including ones from other tools.</p>
+
+            <h3>Step 1: Load a sheet</h3>
+            <ul>
+                <li><strong>With a JSON atlas</strong> (recommended): choose the image and its .json, or drop both at once. Frames are cut exactly.</li>
+                <li><strong>Without JSON:</strong> enter the number of columns and rows and click <em>Slice by grid</em>. Single-row strips are detected automatically.</li>
+            </ul>
+
+            <h3>Step 2: Preview the animation</h3>
+            <p>Press <strong>▶ Play</strong> and set the <strong>FPS</strong>. Choose <em>Loop</em>, <em>Ping-pong</em> or <em>Play once</em>, and zoom in. Tick <em>Pixel art</em> to keep pixels sharp. Use <span class="kbd">←</span> <span class="kbd">→</span> to step one frame at a time.</p>
+
+            <h3>Step 3: Fix the frames</h3>
+            <ul>
+                <li><strong>Select:</strong> click a frame; <strong>Shift-click</strong> selects a range; <strong>Ctrl/⌘-click</strong> adds or removes one.</li>
+                <li><strong>Delete</strong> blurry or duplicate frames (the usual cause of a stutter at the loop point).</li>
+                <li><strong>Reorder:</strong> drag a frame, or use <em>← Move</em> / <em>Move →</em>.</li>
+                <li><strong>Duplicate</strong> a frame to hold a pose longer. <strong>Reverse</strong> flips the order.</li>
+                <li>Made a mistake? <strong>↶ Undo</strong> (<span class="kbd">Ctrl+Z</span>).</li>
+            </ul>
+
+            <h3>Step 4: Export</h3>
+            <p>Set the columns, format and a file name, then click <strong>Export all frames</strong>, or <strong>Export selected only</strong> to split one sheet into several animations (for example <code>idle</code>, <code>run</code>, <code>jump</code>). You get a sheet image and a matching JSON.</p>
+
+            <h3>Keyboard shortcuts</h3>
+            <p><span class="kbd">Space</span> play/pause · <span class="kbd">←</span>/<span class="kbd">→</span> step · <span class="kbd">Delete</span> delete selected · <span class="kbd">Ctrl+A</span> select all · <span class="kbd">Ctrl+Z</span> undo</p>
+
+            <h2 id="game">Part 3: Use it in your game or website</h2>
+            <ul>
+                <li><strong>Phaser / PixiJS:</strong> load the sheet and JSON as an atlas. See the <a href="/studios/animation/guides/phaser-pixi-sprite-sheet.html">copy-paste code</a>.</li>
+                <li><strong>Godot:</strong> AnimatedSprite2D → SpriteFrames → <em>Add frames from sprite sheet</em>, using the column and row counts shown under the preview.</li>
+                <li><strong>Unity:</strong> set the texture's Sprite Mode to <em>Multiple</em> and slice by cell count.</li>
+                <li><strong>Websites, socials, chat:</strong> use the animated GIF.</li>
+            </ul>
+
+            <h2 id="app">Install the app or extension</h2>
+            <p>Install the tool as an app on your phone or computer. It then opens in its own window and works <strong>offline</strong>. Or add the browser extension to open it with one click. See <a href="/studios/animation/get-the-app.html">Get the app</a>.</p>
+
+            <h2 id="troubleshooting">Troubleshooting</h2>
+            <div class="faq">
+                <details><summary>My video won't load</summary><p>Your browser can't decode that format. Convert it to MP4 (H.264) or WebM, or try Chrome or Edge. iPhone HEVC/MOV files usually only play in Safari.</p></details>
+                <details><summary>Parts of my character disappear when I remove the background</summary><p>Lower the tolerance, or pick a key colour that doesn't appear on the character. Re-shoot or re-generate on a green background if the subject is white or contains the backdrop colour.</p></details>
+                <details><summary>There's a coloured halo around the edges</summary><p>Raise <em>Spill suppression</em> and add a little <em>Edge feathering</em>.</p></details>
+                <details><summary>The animation stutters when it loops</summary><p>The last frame probably matches the first. Open the sheet in the Sprite Editor and delete the last frame.</p></details>
+                <details><summary>The sprite sheet file is too big</summary><p>Turn on <em>Trim transparent padding</em>, lower the <em>Output Scale</em> or FPS, or switch to WebP. Keep sheets under 4096×4096 px for mobile devices.</p></details>
+                <details><summary>Transparency shows as black or white in my engine</summary><p>Export as PNG instead of WebP.</p></details>
+                <details><summary>"Open in Sprite Editor" didn't carry my sheet over</summary><p>Some private-browsing modes block the storage it uses. Download the sheet and JSON, then load them in the editor manually.</p></details>
+            </div>
+            <p><a class="cta" href="/studios/animation/">Open the converter →</a></p>
+        </article>
+    </main>
+    <footer class="site-footer">
+        <div><a href="/studios/animation/">Converter</a><a href="/studios/animation/editor.html">Sprite Editor</a><a href="/studios/animation/how-to-use.html">How to use</a><a href="/studios/animation/get-the-app.html">Get the app</a><a href="/studios/animation/pro.html">Pro</a><a href="/studios/animation/guides/">Guides</a><a href="/studios/animation/about.html">About</a><a href="/studios/animation/contact.html">Contact</a><a href="/studios/animation/privacy.html">Privacy</a><a href="/studios/animation/terms.html">Terms</a></div>
+        <div>© <span data-year>2026</span> <a href="https://goldenpaw.dog/studios/" rel="noopener">Golden Paw Studios</a>. The Animation Creation Tool processes everything on your device.</div>
+    </footer>
+</body>
+</html>
