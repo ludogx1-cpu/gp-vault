@@ -32,7 +32,7 @@ window.GP_SHOP = {
       name: 'Dog Walk Bingo',
       price: '£2',
       blurb: '4 different printable bingo cards for dog walks, plus a how-to-play page. Spot a squirrel, a puddle, the perfect stick… BINGO!',
-      stripe: '',
+      stripe: 'https://buy.stripe.com/cNi7sNfHCa9kgfO8Gf0gw08',
     },
     {
       id: 'wallpapers',
