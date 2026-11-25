@@ -183,7 +183,7 @@ class _MobileAuthScreenState extends State<MobileAuthScreen> {
                     ),
                     const SizedBox(height: 20),
                     const Text(
-                      "Welcome to Golden Paw\nDoge Hub",
+                      "Welcome to\nGolden Paw",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Arial Black',

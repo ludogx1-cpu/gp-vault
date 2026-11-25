@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../src/theme_provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:gp_faucet/src/brand_colors.dart';
 
 final ValueNotifier<bool> sidebarExpandedNotifier = ValueNotifier(false);
@@ -94,6 +95,14 @@ class PersistentSidebar extends StatelessWidget {
       sidebarExpandedNotifier.value = false;
     }
     context.go(path);
+  }
+
+  /// Website pages (Dog Care guide, shop, Animation tool) open in the browser.
+  void _openSite(BuildContext context, String url) {
+    if (MediaQuery.of(context).size.width < 600) {
+      sidebarExpandedNotifier.value = false;
+    }
+    launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
   @override
@@ -212,6 +221,30 @@ class PersistentSidebar extends StatelessWidget {
                       isDark: isDark,
                       isExpanded: isExpanded,
                       onTap: () => _navigateTo(context, '/blog'),
+                    ),
+
+                    // More from Golden Paw (pages on goldenpaw.dog)
+                    Divider(color: isDark ? themeProvider.darkGreyBorder : Colors.grey.shade300),
+                    SidebarNavItem(
+                      icon: Icons.health_and_safety,
+                      title: 'Dog Care Guide',
+                      isDark: isDark,
+                      isExpanded: isExpanded,
+                      onTap: () => _openSite(context, 'https://goldenpaw.dog/dog-care/'),
+                    ),
+                    SidebarNavItem(
+                      icon: Icons.storefront,
+                      title: 'Shop',
+                      isDark: isDark,
+                      isExpanded: isExpanded,
+                      onTap: () => _openSite(context, 'https://goldenpaw.dog/shop/'),
+                    ),
+                    SidebarNavItem(
+                      icon: Icons.movie_filter,
+                      title: 'Animation Tool',
+                      isDark: isDark,
+                      isExpanded: isExpanded,
+                      onTap: () => _openSite(context, 'https://goldenpaw.dog/studios/animation/'),
                     ),
                     
                     if (isAdmin) ...[
