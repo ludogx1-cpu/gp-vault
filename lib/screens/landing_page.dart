@@ -96,6 +96,7 @@ class _LandingPageState extends State<LandingPage> {
                   _section(_freshFromBookOfDog(isMobile)),
                   _section(_gpawsTeaser(isMobile)),
                   _section(_trust(isMobile)),
+                  _section(_moreFromGoldenPaw(isMobile)),
                   _section(_faq()),
                   const SizedBox(height: 20),
                   _buildAboutStudiosSection(context),
@@ -542,6 +543,61 @@ class _LandingPageState extends State<LandingPage> {
                       ),
                     ),
                   ],
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // More from Golden Paw: website pages that open in the browser.
+  Widget _moreFromGoldenPaw(bool isMobile) {
+    const extras = [
+      (Icons.health_and_safety, 'Dog Care Guide', 'Feeding, walks, grooming, foods to avoid and when to call the vet.', 'https://goldenpaw.dog/dog-care/', 'Read the guide'),
+      (Icons.storefront, 'Golden Paw Shop', 'Printable dog-care planner, Dog Walk Bingo and kits for dog businesses.', 'https://goldenpaw.dog/shop/', 'Visit the shop'),
+      (Icons.movie_filter, 'Animation Tool', 'Our free tool that turns videos into game animations. It brings the Shiba to life.', 'https://goldenpaw.dog/studios/animation/', 'Try it free'),
+    ];
+    return Column(
+      children: [
+        _heading('More from Golden Paw', 'Free guides and handy downloads for dog lovers.'),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 16,
+          runSpacing: 16,
+          children: [
+            for (final (icon, title, body, url, cta) in extras)
+              SizedBox(
+                width: isMobile ? double.infinity : 320,
+                child: Material(
+                  color: _card,
+                  borderRadius: BorderRadius.circular(18),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(18),
+                    onTap: () => launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: kGold.withValues(alpha: 0.5)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(icon, color: kGold, size: 30),
+                          const SizedBox(height: 10),
+                          Text(title,
+                              style: TextStyle(
+                                  fontFamily: 'Outfit', fontSize: 20, fontWeight: FontWeight.w700, color: _text)),
+                          const SizedBox(height: 6),
+                          Text(body, style: TextStyle(fontSize: 15, color: _soft, height: 1.4)),
+                          const SizedBox(height: 12),
+                          Text('$cta →',
+                              style: const TextStyle(color: kGold, fontWeight: FontWeight.bold, fontSize: 15)),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
           ],

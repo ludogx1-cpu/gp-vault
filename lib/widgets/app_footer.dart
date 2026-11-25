@@ -30,7 +30,7 @@ class AppFooter extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 6.0),
                 child: Text(
-                  "GOLDEN PAW DOGE",
+                  "GOLDEN PAW",
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
                     letterSpacing: 2,
@@ -60,6 +60,38 @@ class AppFooter extends StatelessWidget {
                   style: TextStyle(
                     color: gpChromeGold(context),
                     fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  launchUrl(
+                    Uri.parse('https://goldenpaw.dog/dog-care/'),
+                    mode: LaunchMode.externalApplication,
+                  );
+                },
+                child: Text(
+                  "Dog Care Guide",
+                  style: TextStyle(
+                    color: gpChromeText(context),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  launchUrl(
+                    Uri.parse('https://goldenpaw.dog/shop/'),
+                    mode: LaunchMode.externalApplication,
+                  );
+                },
+                child: Text(
+                  "Shop",
+                  style: TextStyle(
+                    color: gpChromeText(context),
+                    fontWeight: FontWeight.w600,
                     fontSize: 13,
                   ),
                 ),
