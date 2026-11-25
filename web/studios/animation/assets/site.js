@@ -25,14 +25,16 @@ window.SITE_CONFIG = {
     // Optional tip jar (Ko-fi, Buy Me a Coffee, Stripe Payment Link...). Empty = hidden.
     supportUrl: '',
 
-    // Pro (one-off purchase, sold through Lemon Squeezy, which also handles VAT).
-    // checkoutUrl: the product's "Buy" link, e.g. https://goldenpawstudios.lemonsqueezy.com/buy/xxxx
-    // productId:   the number shown on the product page in Lemon Squeezy (stops keys
-    //              for other products unlocking Pro). Leave empty while testing.
+    // Pro (one-off purchase, sold through Polar, which is merchant of record and handles VAT).
+    // checkoutUrl:    the Polar checkout link (Products → Checkout Links).
+    // organizationId: Polar Settings → General (not secret).
+    // benefitId:      the "License Keys" benefit on the Pro product (stops keys for
+    //                 other products unlocking Pro).
     pro: {
         price: '£11.99',
-        checkoutUrl: '',
-        productId: ''
+        checkoutUrl: 'https://buy.polar.sh/polar_cl_RhgFXyywGLhYFWB11FGcZ43ejucSchmEdB0YZ2XWBLA',
+        organizationId: '98ca8cbb-97ba-4f7a-b67c-350a5724f9dd',
+        benefitId: 'c3873ccc-59ab-4dea-94bd-ddf6e3c05843'
     },
 
     // Shown on the Contact page. Use a dedicated address, not your personal one.
