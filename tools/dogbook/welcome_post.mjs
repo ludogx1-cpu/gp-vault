@@ -39,9 +39,20 @@ async function uploadImage() {
   return `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/${encodeURIComponent(path)}?alt=media&token=${token}`;
 }
 
+// The welcome dog is called Zen (it was Goldie). Re-running the workflow renames
+// an existing post in place, keeping its likes and comments.
+const DOG_NAME = 'Zen';
+const CAPTION = "Welcome to The Book Of Dog! 🐾 I'm Zen, the Golden Paw Shiba. "
+  + 'Share a photo of your dog and tell us their name. Every Monday I post a new photo challenge, so come back and join in. '
+  + 'Dogs only, be kind, and have fun!';
+
 const existing = await ref.get();
 if (existing.exists) {
   const old = existing.data();
+  if (old.dog_name !== DOG_NAME || old.caption !== CAPTION) {
+    await ref.update({ dog_name: DOG_NAME, caption: CAPTION });
+    console.log(`Welcome post now from ${DOG_NAME}.`);
+  }
   if (old.image_path === path) {
     console.log('Welcome post is up to date; nothing to do.');
     process.exit(0);
@@ -57,9 +68,8 @@ const imageUrl = await uploadImage();
 await ref.set({
   uid: ADMIN_UID,
   author_name: 'Golden Paw',
-  dog_name: 'Goldie',
-  caption: "Welcome to The Book Of Dog! 🐾 I'm Goldie, the Golden Paw Shiba. "
-    + 'Share a photo of your dog and tell us their name. Dogs only, be kind, and have fun!',
+  dog_name: DOG_NAME,
+  caption: CAPTION,
   image_url: imageUrl,
   image_path: path,
   created_at: admin.firestore.FieldValue.serverTimestamp(),
