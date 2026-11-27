@@ -1,6 +1,6 @@
 # Chrome Web Store submission: Golden Paw
 
-Upload `golden-paw-extension-1.0.2.zip` (in `chrome_extension/dist`).
+Upload the zip of `chrome_extension/` (version 1.0.3: new icon and the new Golden Paw look). Claude can make it for you.
 Developer dashboard: https://chrome.google.com/webstore/devconsole
 
 ## Store listing
@@ -8,16 +8,17 @@ Developer dashboard: https://chrome.google.com/webstore/devconsole
 **Name:** Golden Paw: Pet & Faucet
 
 **Summary (132 chars max):**
-Look after your Golden Paw Shiba and claim the 5-minute Dogecoin faucet from your toolbar.
+Look after your Golden Paw Shiba from your toolbar: feed, play and boop your pet, with an optional DOGE faucet for adults.
 
 **Category:** Lifestyle (or Fun)
 
 **Description:**
-Golden Paw puts your virtual Shiba and the Golden Paw faucet in your Chrome toolbar.
+Golden Paw puts your virtual Shiba in your Chrome toolbar. Raise your own Shiba, and share your real dog in The Book Of Dog.
 
 • See your pet's hunger, happiness and energy at a glance
 • Feed, play with and boop your Shiba without opening the site
-• Claim the Golden Paw faucet every 5 minutes, to your Golden Paw Vault or to your FaucetPay account
+• Quick links to The Book Of Dog and the free Golden Paw dog care guide
+• Optional for adults (18+): claim the Golden Paw faucet every 5 minutes, to your Golden Paw Vault or to your FaucetPay account
 • Get a notification when the faucet is ready again or your pet needs attention
 
 You need a free Golden Paw account from https://goldenpaw.dog. Sign in with Google or with your email and password.
@@ -28,7 +29,7 @@ Golden Paw is not a wallet, does not mine cryptocurrency, and never asks for pri
 - Icon 128×128: `icons/icon128.png`
 - Small promo tile 440×280: `store/promo-tile-440x280.png`
 - Marquee 1400×560 (optional): `store/marquee-1400x560.png`
-- Screenshots (at least 1, 1280×800 or 640×400): take these after signing in with your real account, so they show real data.
+- Screenshot 1280×800: `store/screenshot-1280x800.png` (or take one after signing in with your real account, so it shows real data).
 
 ## Privacy practices tab
 

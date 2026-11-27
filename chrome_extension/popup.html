@@ -14,6 +14,11 @@
 
   <!-- Signed out -->
   <section id="login-view" class="hidden">
+    <div class="hero">
+      <div class="hero-dog"><img src="pets/shiba_young_adult.png" alt="" width="132" height="132"></div>
+      <p class="badge">🐾 Free virtual pet · Made in the UK</p>
+      <h2 class="hero-title">Raise your own Shiba.<br><span>Share your real dog.</span></h2>
+    </div>
     <form id="login-form" class="card">
       <h2>Sign in</h2>
       <button id="google-btn" class="google" type="button">
@@ -34,7 +39,7 @@
   <!-- Signed in -->
   <section id="main-view" class="hidden">
     <div class="card pet">
-      <div class="pet-stage"><img id="pet-img" src="pets/shiba_baby.png" alt="Your Shiba" width="104" height="104"></div>
+      <div class="pet-stage"><img id="pet-img" src="pets/shiba_baby.png" alt="Your Shiba" width="120" height="120"></div>
       <div class="pet-info">
         <div class="pet-title"><strong id="pet-name">Your Shiba</strong> <span id="pet-stage" class="chip">baby</span></div>
         <div class="stat"><span>Hunger</span><meter id="hunger" min="0" max="100" low="30" high="70" optimum="100"></meter></div>
@@ -50,7 +55,7 @@
     <p id="pet-msg" class="msg" role="status"></p>
 
     <div class="card faucet">
-      <h2>5-minute faucet</h2>
+      <h2>5-minute faucet <span class="tag">Optional · 18+</span></h2>
       <div class="mode" role="radiogroup" aria-label="Where to send your claim">
         <label><input type="radio" name="mode" value="vault" checked> Save to Vault</label>
         <label><input type="radio" name="mode" value="faucetpay"> Send to FaucetPay</label>
@@ -75,8 +80,9 @@
     </div>
 
     <footer>
-      <a id="open-site" href="#">Open the full app ↗</a>
-      <a href="https://goldenpaw.dog/book-of-dog" target="_blank" rel="noopener">The Book Of Dog 🐾</a>
+      <a id="open-site" href="#">Open the app ↗</a>
+      <a href="https://goldenpaw.dog/book-of-dog" target="_blank" rel="noopener">Book Of Dog</a>
+      <a href="https://goldenpaw.dog/dog-care/" target="_blank" rel="noopener">Dog care</a>
     </footer>
   </section>
 

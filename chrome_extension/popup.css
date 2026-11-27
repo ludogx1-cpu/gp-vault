@@ -1,5 +1,6 @@
-/* Golden Paw theme: the same colours and font as goldenpaw.dog
-   (Rich Gold #C9A227 on charcoal, Outfit for titles). */
+/* Golden Paw theme, matching goldenpaw.dog: Rich Gold #C9A227, a near-black
+   background with a soft gold glow, gold-edged cards, pill buttons and Outfit
+   headings. Follows the browser's light/dark setting, like the site. */
 @font-face {
   font-family: "Outfit";
   src: url("fonts/Outfit-Variable.ttf") format("truetype");
@@ -8,18 +9,44 @@
 }
 
 :root {
-  --bg: #121212;
-  --header: #1C1C1C;
-  --card: #2A2A2A;
-  --line: #3A3A3A;
-  --text: #F2F2F2;
-  --muted: #B3B3B3;
+  --bg: #0b0b0d;
+  --glow: rgba(201, 162, 39, 0.20);
+  --chrome: #1C1C1C;
+  --card: #1d1d20;
+  --field: #141416;
+  --line: rgba(201, 162, 39, 0.32);
+  --line-soft: #34343a;
+  --text: #f5f2ea;
+  --muted: #b5ad9c;
   --gold: #C9A227;
   --gold-light: #E5CB6E;
   --gold-dark: #9A7A1B;
-  --bad: #FF6E6E;
-  --good: #8FD694;
+  --on-gold: #141414;
+  --bad: #ff7a6b;
+  --good: #8fd694;
+  --stage: radial-gradient(circle at 50% 60%, rgba(229, 203, 110, 0.35), rgba(201, 162, 39, 0.08) 55%, transparent 72%);
   color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f7f3ea;
+    --glow: rgba(201, 162, 39, 0.18);
+    --chrome: #EDEDED;
+    --card: #ffffff;
+    --field: #faf7f0;
+    --line: rgba(201, 162, 39, 0.45);
+    --line-soft: #e3dccb;
+    --text: #1c1c1c;
+    --muted: #6b6250;
+    --gold: #B38E1F;
+    --gold-light: #C9A227;
+    --gold-dark: #9A7A1B;
+    --on-gold: #ffffff;
+    --bad: #c94a3a;
+    --good: #2f8a45;
+    --stage: radial-gradient(circle at 50% 60%, rgba(229, 203, 110, 0.55), rgba(229, 203, 110, 0.12) 55%, transparent 72%);
+    color-scheme: light;
+  }
 }
 
 * { box-sizing: border-box; }
@@ -27,83 +54,123 @@
 body {
   width: 360px;
   margin: 0;
-  background: var(--bg);
   color: var(--text);
+  background:
+    radial-gradient(120% 60% at 50% 0%, var(--glow), transparent 70%),
+    var(--bg);
   font: 13px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
+/* Header: the app icon and the gold Golden Paw wordmark, as on the site. */
 header {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
-  background: var(--header);
-  border-bottom: 2px solid var(--gold-dark);
+  background: var(--chrome);
+  border-bottom: 1px solid var(--line);
 }
+header img { border-radius: 7px; }
 header h1 {
   flex: 1;
   margin: 0;
   font-family: "Outfit", system-ui, sans-serif;
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   color: var(--gold);
 }
 
-main, #login-view, #main-view { padding: 12px; }
+#login-view, #main-view { padding: 12px; }
 
 h2 {
   font-family: "Outfit", system-ui, sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  margin: 0 0 8px;
-  color: var(--gold);
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 10px;
+  color: var(--text);
 }
 
 .card {
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 12px;
+  border-radius: 18px;
+  padding: 14px;
   margin-bottom: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
 }
 
 .hidden { display: none !important; }
 .muted { color: var(--muted); margin: 0 0 8px; }
 .small { font-size: 12px; margin-top: 10px; }
 
-label { display: block; margin-bottom: 8px; color: var(--muted); }
+/* Sign-in welcome, like the landing page hero. */
+.hero { text-align: center; padding: 4px 6px 12px; }
+.hero-dog {
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--stage);
+}
+.hero-dog img { width: 132px; height: 132px; object-fit: contain; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.35)); }
+.badge {
+  display: inline-block;
+  margin: 6px 0 8px;
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 600;
+}
+.hero-title {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.15;
+  font-weight: 800;
+}
+.hero-title span { color: var(--gold); }
+
+label { display: block; margin-bottom: 8px; color: var(--muted); font-weight: 500; }
 input[type="email"], input[type="password"], input[type="text"], select {
   display: block;
   width: 100%;
-  margin-top: 3px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  background: #1A1A1A;
+  margin-top: 4px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line-soft);
+  background: var(--field);
   color: var(--text);
   font: inherit;
 }
+input:focus, select:focus { border-color: var(--gold); outline: none; }
 input:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible {
   outline: 2px solid var(--gold);
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 
 button { font: inherit; cursor: pointer; }
 button:disabled { cursor: default; opacity: 0.5; }
 
-.primary {
-  width: 100%;
-  padding: 10px;
+/* Pill buttons, like "Adopt your Shiba (free)" on the site. */
+.primary, .actions button {
   border: 0;
-  border-radius: 12px;
-  background: var(--gold);
-  color: #141414;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--gold-light), var(--gold));
+  color: var(--on-gold);
+  font-family: "Outfit", system-ui, sans-serif;
   font-weight: 700;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
+  box-shadow: 0 6px 16px rgba(201, 162, 39, 0.25);
+  transition: transform 0.08s ease, filter 0.15s ease;
 }
-.primary:not(:disabled):hover { background: var(--gold-light); }
+.primary:not(:disabled):hover, .actions button:not(:disabled):hover { filter: brightness(1.07); }
+.primary:not(:disabled):active, .actions button:not(:disabled):active { transform: translateY(1px); }
+.primary { width: 100%; padding: 11px; font-size: 14px; }
 
 .google {
   display: flex;
@@ -111,8 +178,8 @@ button:disabled { cursor: default; opacity: 0.5; }
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 9px;
-  border-radius: 12px;
+  padding: 10px;
+  border-radius: 999px;
   border: 1px solid #dadce0;
   background: #fff;
   color: #1f1f1f;
@@ -121,31 +188,33 @@ button:disabled { cursor: default; opacity: 0.5; }
 .google:not(:disabled):hover { background: #f1f3f4; }
 
 .or { display: flex; align-items: center; gap: 8px; margin: 12px 0 10px; color: var(--muted); font-size: 12px; }
-.or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line-soft); }
 
 .link { background: none; border: 0; padding: 0; color: var(--gold); text-decoration: underline; }
 a { color: var(--gold); }
-header .link { color: var(--muted); font-size: 12px; }
-
-/* Pet card: the new Shiba art on a gold-edged stage, like the site's pet card. */
-.pet {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  border: 1px solid var(--gold);
+header .link {
+  color: var(--muted);
+  font-size: 12px;
+  text-decoration: none;
+  padding: 4px 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
 }
+header .link:hover { color: var(--gold); border-color: var(--line); }
+
+/* Pet card: the Shiba on a glowing stage, like the site's hero. */
+.pet { display: flex; gap: 12px; align-items: center; }
 .pet-stage {
   flex: none;
-  width: 112px;
-  height: 112px;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #333 0%, #1E1E1E 100%);
-  border: 1px solid rgba(201, 162, 39, 0.6);
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  background: var(--stage);
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.pet-stage img { width: 104px; height: 104px; object-fit: contain; }
+.pet-stage img { width: 120px; height: 120px; object-fit: contain; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.35)); }
 .pet-info { flex: 1; min-width: 0; }
 .pet-title {
   margin-bottom: 8px;
@@ -153,69 +222,78 @@ header .link { color: var(--muted); font-size: 12px; }
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: "Outfit", system-ui, sans-serif;
-  font-size: 15px;
+  font-size: 18px;
+  font-weight: 700;
 }
 .chip {
+  display: inline-block;
   font-family: system-ui, sans-serif;
   font-size: 9px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  padding: 2px 7px;
-  border-radius: 8px;
-  background: rgba(201, 162, 39, 0.22);
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
   color: var(--gold);
   vertical-align: middle;
 }
 
 /* Need bars: gold, turning red when a need is low (like the site). */
-.stat { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.stat { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
 .stat span { width: 46px; }
-.stat meter { flex: 1; height: 9px; border-radius: 5px; }
-meter::-webkit-meter-bar { background: rgba(201, 162, 39, 0.18); border: 0; border-radius: 5px; }
-meter::-webkit-meter-optimum-value { background: var(--gold); border-radius: 5px; }
-meter::-webkit-meter-suboptimum-value { background: var(--gold-dark); border-radius: 5px; }
-meter::-webkit-meter-even-less-good-value { background: var(--bad); border-radius: 5px; }
+.stat meter { flex: 1; height: 8px; border-radius: 999px; }
+meter::-webkit-meter-bar { background: rgba(201, 162, 39, 0.16); border: 0; border-radius: 999px; }
+meter::-webkit-meter-optimum-value { background: linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius: 999px; }
+meter::-webkit-meter-suboptimum-value { background: var(--gold-dark); border-radius: 999px; }
+meter::-webkit-meter-even-less-good-value { background: var(--bad); border-radius: 999px; }
 
-.actions { display: flex; gap: 6px; margin-bottom: 4px; }
-.actions button {
-  flex: 1;
-  padding: 9px 4px;
-  border-radius: 12px;
-  border: 0;
-  background: var(--gold);
-  color: #141414;
+.actions { display: flex; gap: 8px; margin-bottom: 4px; }
+.actions button { flex: 1; padding: 10px 4px; font-size: 14px; }
+
+/* Faucet: secondary to the pet, clearly marked optional. */
+.faucet { background: var(--card); }
+.tag {
+  margin-left: 4px;
+  font-family: system-ui, sans-serif;
+  font-size: 10px;
   font-weight: 700;
+  color: var(--muted);
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  padding: 1px 7px;
+  vertical-align: middle;
 }
-.actions button:not(:disabled):hover { background: var(--gold-light); }
-
-.mode { display: flex; gap: 12px; margin-bottom: 8px; }
-.mode label { display: flex; align-items: center; gap: 4px; margin: 0; color: var(--text); }
+.mode { display: flex; gap: 14px; margin-bottom: 8px; }
+.mode label { display: flex; align-items: center; gap: 5px; margin: 0; color: var(--text); }
 input[type="radio"] { accent-color: var(--gold); }
 
-.timer { text-align: center; padding: 14px 0; color: var(--muted); }
+.timer { text-align: center; padding: 10px 0 12px; color: var(--muted); }
 .timer strong {
   display: block;
   font-family: "Outfit", system-ui, sans-serif;
-  font-size: 28px;
+  font-size: 30px;
+  font-weight: 700;
   color: var(--gold);
   font-variant-numeric: tabular-nums;
 }
 
 .captcha select { margin: 0 0 6px; }
-.captcha iframe { width: 100%; height: 80px; border: 0; border-radius: 10px; background: transparent; }
+.captcha iframe { width: 100%; height: 80px; border: 0; border-radius: 12px; background: transparent; }
 
-.msg { min-height: 1.2em; margin: 6px 0 0; font-size: 12px; }
+.msg { min-height: 1.2em; margin: 6px 2px 0; font-size: 12px; }
 .msg.ok { color: var(--good); }
 .msg.err { color: var(--bad); }
 .warn { color: var(--gold); font-size: 12px; margin: 0 0 8px; }
 
-footer {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
+/* Footer: pill links to the app, The Book Of Dog and the dog care guide. */
+footer { display: flex; justify-content: center; gap: 6px; padding-top: 4px; }
+footer a {
   font-size: 12px;
-  padding-top: 2px;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 5px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
 }
-footer a { text-decoration: none; font-weight: 600; }
-footer a:hover { text-decoration: underline; }
+footer a:hover { background: rgba(201, 162, 39, 0.12); }
