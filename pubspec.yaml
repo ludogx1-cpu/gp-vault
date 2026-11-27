@@ -1,7 +1,7 @@
 name: gp_faucet
 description: "Golden Paw - Dogecoin faucet, staking, and pet ecosystem."
 publish_to: 'none' 
-version: 1.2.25+35
+version: 1.2.26+36
 
 environment:
   sdk: ^3.11.5
@@ -56,7 +56,10 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/Goldenpawicon_gold.png"
+  image_path: "assets/app_icon.png"
+  # iOS rounds the corners itself and needs a square icon with no transparency.
+  image_path_ios: "assets/app_icon_square.png"
+  remove_alpha_ios: true
   # Web icons are made separately (web/icons) so the dark theme colours in
   # web/manifest.json are not overwritten.
   web:
