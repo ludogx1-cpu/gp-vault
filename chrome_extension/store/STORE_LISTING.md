@@ -5,25 +5,47 @@ Developer dashboard: https://chrome.google.com/webstore/devconsole
 
 ## Store listing
 
-**Name:** Golden Paw: Pet & Faucet
+**Name:** Golden Paw: Virtual Shiba Pet
 
 **Summary (132 chars max):**
-Look after your Golden Paw Shiba from your toolbar: feed, play and boop your pet, with an optional DOGE faucet for adults.
+Look after your Golden Paw Shiba from your toolbar: feed, play and boop your pet. Optional DOGE faucet for adults (18+).
 
-**Category:** Lifestyle (or Fun)
+**Category:** Entertainment
+
+**Support URL:** https://goldenpaw.dog/support/
 
 **Description:**
-Golden Paw puts your virtual Shiba in your Chrome toolbar. Raise your own Shiba, and share your real dog in The Book Of Dog.
+Your Golden Paw Shiba, one click away in your Chrome toolbar.
 
+Golden Paw is a free virtual pet game for dog lovers. Raise your own Shiba, watch it grow, and share your real dog with a friendly community in The Book Of Dog. This extension lets you check on your pet without opening the full site.
+
+🐾 LOOK AFTER YOUR SHIBA
 • See your pet's hunger, happiness and energy at a glance
-• Feed, play with and boop your Shiba without opening the site
-• Quick links to The Book Of Dog and the free Golden Paw dog care guide
-• Optional for adults (18+): claim the Golden Paw faucet every 5 minutes, to your Golden Paw Vault or to your FaucetPay account
-• Get a notification when the faucet is ready again or your pet needs attention
+• Feed, play with and boop your Shiba straight from the toolbar
+• Watch your pup grow through 8 life stages, from sleepy baby to wise old dog
 
-You need a free Golden Paw account from https://goldenpaw.dog. Sign in with Google or with your email and password.
-Faucet rewards are small amounts of Dogecoin paid by Golden Paw and depend on the current DOGE price.
-Golden Paw is not a wallet, does not mine cryptocurrency, and never asks for private keys.
+🔔 GENTLE REMINDERS
+• Get a nudge when your Shiba is hungry, sad or tired
+
+📖 MORE FROM GOLDEN PAW
+• Jump straight to The Book Of Dog, where dog lovers share photos of their real dogs (with a new photo challenge from Zen every Monday)
+• Quick link to our free dog care guide
+
+🪙 OPTIONAL EXTRA FOR ADULTS (18+)
+• A 5-minute faucet that pays small Dogecoin rewards, saved to your Golden Paw Vault or sent to FaucetPay
+• A countdown shows when the next claim is ready, and you can get a notification when it is
+• A quick captcha keeps it fair for real players. You never need to deposit anything, and it's entirely optional.
+
+🔐 SIMPLE, SAFE SIGN-IN
+• Sign in with Google or your Golden Paw email and password, using the same account as goldenpaw.dog
+
+Good to know
+• You need a free Golden Paw account. Sign up at https://goldenpaw.dog
+• Golden Paw is entertainment, not an investment, and nothing here is financial advice. Faucet rewards are small and depend on the current DOGE price.
+• Golden Paw is not a wallet, never mines cryptocurrency on your computer, and will never ask for your private keys or seed phrase.
+• Made in the UK by Golden Paw Studios. Help and support: https://goldenpaw.dog/support/
+
+Privacy policy: https://goldenpaw.dog/privacy/
 
 **Graphic assets**
 - Icon 128×128: `icons/icon128.png`
