@@ -45,6 +45,9 @@ window.GP_SHOP = {
       price: '£3',
       blurb: '12 Golden Paw Shiba wallpapers for phone and desktop, in light and dark styles.',
       stripe: '',
+      preview: '/shop/previews/wallpapers.jpg',
+      details: ['ZIP download: 24 images (12 designs, each for phone and desktop)', 'Phone 1170 × 2532 and desktop 2560 × 1440 (sharp on HD and 4K)', 'Every Shiba life stage, from sleepy baby to wise old dog'],
+      licence: 'For your own phones, tablets and computers.',
     },
     {
       id: 'planner',
