@@ -62,6 +62,52 @@ window.GP_AI = (function () {
         return ready;
     }
 
+    /**
+     * Cleans the AI mask: keeps the subject and any large parts (at least 2% of the
+     * biggest), drops small loose specks the model sometimes leaves in busy backgrounds,
+     * and keeps soft edges only within EDGE_PX of what's kept. a: alpha bytes with the
+     * given stride (1 for a plain mask, 4 for RGBA), w × h pixels. Edits a in place.
+     */
+    function dropSpecks(a, w, h, stride) {
+        const P = w * h, CORE = 64, EDGE_PX = Math.max(4, Math.round(Math.max(w, h) / 80));
+        const label = new Int32Array(P), queue = new Int32Array(P), sizes = [0];
+        const al = i => a[i * stride];
+        // 1. Solid parts ("cores"): 8-connected pixels at least 25% opaque.
+        for (let s = 0; s < P; s++) {
+            if (label[s] || al(s) < CORE) continue;
+            const id = sizes.length; let n = 0, head = 0, tail = 0;
+            label[s] = id; queue[tail++] = s;
+            while (head < tail) {
+                const i = queue[head++], x = i % w, y = (i - x) / w; n++;
+                for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+                    const nx = x + dx, ny = y + dy;
+                    if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+                    const j = ny * w + nx;
+                    if (!label[j] && al(j) >= CORE) { label[j] = id; queue[tail++] = j; }
+                }
+            }
+            sizes.push(n);
+        }
+        if (sizes.length < 2) return; // nothing solid: leave the mask as it is
+        const keep = Math.max(1, Math.max(...sizes) * 0.02);
+        // 2. Spread from the kept parts through softer pixels, up to EDGE_PX away.
+        const dist = new Int32Array(P).fill(-1);
+        let head = 0, tail = 0;
+        for (let i = 0; i < P; i++) if (label[i] && sizes[label[i]] >= keep) { dist[i] = 0; queue[tail++] = i; }
+        while (head < tail) {
+            const i = queue[head++], x = i % w, y = (i - x) / w;
+            if (dist[i] >= EDGE_PX) continue;
+            for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+                const nx = x + dx, ny = y + dy;
+                if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+                const j = ny * w + nx;
+                if (dist[j] < 0 && al(j) > 0 && !label[j]) { dist[j] = dist[i] + 1; queue[tail++] = j; }
+            }
+        }
+        // 3. Everything not reached becomes transparent.
+        for (let i = 0; i < P; i++) if (dist[i] < 0) a[i * stride] = 0;
+    }
+
     async function cutOut(ctx, w, h, edge) {
         const [lo, hi] = EDGES[edge] || EDGES.normal;
         const bmp = await createImageBitmap(ctx.canvas, 0, 0, w, h);
@@ -74,6 +120,7 @@ window.GP_AI = (function () {
         // Map the model's confidence through the chosen edge window: below lo → clear,
         // above hi → solid, smooth in between (the Uint8ClampedArray clamps for us).
         for (let i = 0; i < mask.length; i++) id.data[i * 4 + 3] = (mask[i] - l) * k;
+        dropSpecks(id.data.subarray(3), size, size, 4);
         mx.putImageData(id, 0, 0);
         ctx.save();
         ctx.globalCompositeOperation = 'destination-in';
